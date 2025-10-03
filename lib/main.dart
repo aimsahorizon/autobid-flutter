@@ -18,6 +18,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(appThemeModeProvider);
+    final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(
       title: 'AutoBID',
@@ -25,7 +26,7 @@ class MyApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
-      routerConfig: appRouter,
+      routerConfig: router,
     );
   }
 }
