@@ -6,7 +6,9 @@ import 'core/router/app_router.dart';
 import 'presentation/providers/theme_provider.dart';
 import 'presentation/providers/kyc_provider.dart';
 import 'presentation/providers/signup_provider.dart';
+import 'presentation/providers/listing_provider.dart';
 import 'data/services/mock/mock_kyc_service.dart';
+import 'data/services/mock/mock_car_service.dart';
 
 void main() {
   runApp(
@@ -17,6 +19,9 @@ void main() {
         ),
         provider.ChangeNotifierProvider(
           create: (_) => SignupProvider(),
+        ),
+        provider.ChangeNotifierProvider(
+          create: (_) => ListingProvider(MockCarService()),
         ),
       ],
       child: const ProviderScope(
