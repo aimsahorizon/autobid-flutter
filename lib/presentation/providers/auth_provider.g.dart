@@ -49,7 +49,7 @@ final class AuthServiceProvider
   }
 }
 
-String _$authServiceHash() => r'c1a38e053ab164bacae4963448b46fbb2c6561ad';
+String _$authServiceHash() => r'9230154c7e361cbaecf0e7f1fd2a8c2cd4d99622';
 
 @ProviderFor(authRepository)
 const authRepositoryProvider = AuthRepositoryProvider._();
@@ -90,7 +90,7 @@ final class AuthRepositoryProvider
   }
 }
 
-String _$authRepositoryHash() => r'35888df0c98c1a13a757f22527c363865f1296f2';
+String _$authRepositoryHash() => r'2ddbd21fa582d3cf0edafdd2aab7eb3826ded6d9';
 
 @ProviderFor(authStateChanges)
 const authStateChangesProvider = AuthStateChangesProvider._();
@@ -128,7 +128,7 @@ final class AuthStateChangesProvider
   }
 }
 
-String _$authStateChangesHash() => r'70ac01a15c1b2d9990d14a2fbd8a13e22fb7470a';
+String _$authStateChangesHash() => r'3996523c29a93f7dbb74dc8622c588913032a87c';
 
 @ProviderFor(currentUser)
 const currentUserProvider = CurrentUserProvider._();
@@ -169,7 +169,7 @@ final class CurrentUserProvider
   }
 }
 
-String _$currentUserHash() => r'52c8e44691324f11c71ba227a8923aae7ed4640f';
+String _$currentUserHash() => r'45b8dc5669499a9ea4da6f6dcbcc32e50ab305fe';
 
 @ProviderFor(LoginState)
 const loginStateProvider = LoginStateProvider._();
