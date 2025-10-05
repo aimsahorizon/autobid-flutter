@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
-import '../../providers/kyc_provider.dart';
-import '../../../data/models/kyc_model.dart';
-import '../../widgets/kyc_status_badge.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -14,19 +10,8 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   @override
-  void initState() {
-    super.initState();
-    // Load KYC status
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<KycProvider>();
-      provider.loadKycStatus('mock-user-id');
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final kycProvider = context.watch<KycProvider>();
 
     // Mock user data - would come from auth provider in production
     const userName = 'John Doe';
@@ -79,24 +64,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                       ),
-                      if (kycProvider.kycData?.verificationStatus ==
-                          KycVerificationStatus.verified)
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Colors.green,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.verified,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ),
-                        ),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -118,14 +85,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           color: Colors.white.withValues(alpha: 0.9),
                         ),
                   ),
-                  const SizedBox(height: 16),
-
-                  // KYC Status Badge
-                  if (kycProvider.kycData != null)
-                    KycStatusBadge(
-                      status: kycProvider.kycData!.verificationStatus,
-                      isCompact: true,
-                    ),
                 ],
               ),
             ),
@@ -192,19 +151,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     label: 'Phone',
                     value: userPhone,
                   ),
-
-                  const SizedBox(height: 24),
-
-                  // KYC Section
-                  Text(
-                    'Verification',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  _buildKycSection(context, kycProvider),
 
                   const SizedBox(height: 24),
 
@@ -345,128 +291,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildKycSection(BuildContext context, KycProvider kycProvider) {
-    final kycData = kycProvider.kycData;
-    final colorScheme = Theme.of(context).colorScheme;
-
-    if (kycProvider.isLoading) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(16),
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    if (kycData == null) {
-      return Card(
-        elevation: 2,
-        child: InkWell(
-          onTap: () => context.push('/kyc-intro'),
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.verified_user,
-                    color: Colors.orange,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Complete KYC',
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Verify your identity to start trading',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurface.withValues(alpha: 0.6),
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: colorScheme.onSurface.withValues(alpha: 0.4),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Card(
-      elevation: 2,
-      child: InkWell(
-        onTap: () => context.push('/kyc-status'),
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: _getKycColor(kycData.verificationStatus)
-                      .withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  _getKycIcon(kycData.verificationStatus),
-                  color: _getKycColor(kycData.verificationStatus),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'KYC Status',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
-                    const SizedBox(height: 4),
-                    KycStatusBadge(
-                      status: kycData.verificationStatus,
-                      isCompact: true,
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: colorScheme.onSurface.withValues(alpha: 0.4),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildActionButton(
     BuildContext context, {
     required IconData icon,
@@ -528,27 +352,5 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
     );
-  }
-
-  Color _getKycColor(KycVerificationStatus status) {
-    switch (status) {
-      case KycVerificationStatus.verified:
-        return Colors.green;
-      case KycVerificationStatus.pending:
-        return Colors.orange;
-      case KycVerificationStatus.rejected:
-        return Colors.red;
-    }
-  }
-
-  IconData _getKycIcon(KycVerificationStatus status) {
-    switch (status) {
-      case KycVerificationStatus.verified:
-        return Icons.verified;
-      case KycVerificationStatus.pending:
-        return Icons.pending;
-      case KycVerificationStatus.rejected:
-        return Icons.cancel;
-    }
   }
 }
