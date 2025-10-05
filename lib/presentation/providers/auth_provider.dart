@@ -7,27 +7,27 @@ part 'auth_provider.g.dart';
 
 // Auth Service Provider
 @riverpod
-MockAuthService authService(ref) {
+MockAuthService authService(Ref ref) {
   return MockAuthService();
 }
 
 // Auth Repository Provider
 @riverpod
-AuthRepository authRepository(ref) {
+AuthRepository authRepository(Ref ref) {
   final authService = ref.watch(authServiceProvider);
   return AuthRepositoryImpl(authService);
 }
 
 // Auth State Stream Provider
 @riverpod
-Stream<UserModel?> authStateChanges(ref) {
+Stream<UserModel?> authStateChanges(Ref ref) {
   final repository = ref.watch(authRepositoryProvider);
   return repository.authStateChanges;
 }
 
 // Current User Provider
 @riverpod
-UserModel? currentUser(ref) {
+UserModel? currentUser(Ref ref) {
   return ref.watch(authStateChangesProvider).value;
 }
 

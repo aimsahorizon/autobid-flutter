@@ -4,6 +4,19 @@ import 'package:go_router/go_router.dart';
 import '../../presentation/screens/splash/splash_screen.dart';
 import '../../presentation/screens/auth/login_screen.dart';
 import '../../presentation/screens/auth/signup_screen.dart';
+import '../../presentation/screens/auth/signup/signup_step1_account.dart';
+import '../../presentation/screens/auth/signup/signup_step2_personal.dart';
+import '../../presentation/screens/auth/signup/signup_step3_address.dart';
+import '../../presentation/screens/auth/signup/signup_step4_primary_id.dart';
+import '../../presentation/screens/auth/signup/signup_step5_secondary_id.dart';
+import '../../presentation/screens/auth/signup/signup_step6_selfie.dart';
+import '../../presentation/screens/auth/signup/signup_step7_review.dart';
+import '../../presentation/screens/auth/signup/signup_success_screen.dart';
+import '../../presentation/screens/home/home_screen.dart';
+import '../../presentation/screens/profile/profile_screen.dart';
+import '../../presentation/screens/kyc/kyc_intro_screen.dart';
+import '../../presentation/screens/kyc/kyc_upload_screen.dart';
+import '../../presentation/screens/kyc/kyc_status_screen.dart';
 import '../../presentation/providers/auth_provider.dart';
 import '../constants/string_constants.dart';
 
@@ -50,14 +63,69 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SignupScreen(),
       ),
       GoRoute(
+        path: '/signup/step1',
+        name: 'signup-step1',
+        builder: (context, state) => const SignupStep1Account(),
+      ),
+      GoRoute(
+        path: '/signup/step2',
+        name: 'signup-step2',
+        builder: (context, state) => const SignupStep2Personal(),
+      ),
+      GoRoute(
+        path: '/signup/step3',
+        name: 'signup-step3',
+        builder: (context, state) => const SignupStep3Address(),
+      ),
+      GoRoute(
+        path: '/signup/step4',
+        name: 'signup-step4',
+        builder: (context, state) => const SignupStep4PrimaryId(),
+      ),
+      GoRoute(
+        path: '/signup/step5',
+        name: 'signup-step5',
+        builder: (context, state) => const SignupStep5SecondaryId(),
+      ),
+      GoRoute(
+        path: '/signup/step6',
+        name: 'signup-step6',
+        builder: (context, state) => const SignupStep6Selfie(),
+      ),
+      GoRoute(
+        path: '/signup/step7',
+        name: 'signup-step7',
+        builder: (context, state) => const SignupStep7Review(),
+      ),
+      GoRoute(
+        path: '/signup/success',
+        name: 'signup-success',
+        builder: (context, state) => const SignupSuccessScreen(),
+      ),
+      GoRoute(
         path: StringConstants.homeRoute,
         name: 'home',
-        builder: (context, state) => const Placeholder(), // TODO: Implement HomeScreen
+        builder: (context, state) => const HomeScreen(),
       ),
       GoRoute(
         path: StringConstants.profileRoute,
         name: 'profile',
-        builder: (context, state) => const Placeholder(), // TODO: Implement ProfileScreen
+        builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: '/kyc-intro',
+        name: 'kyc-intro',
+        builder: (context, state) => const KycIntroScreen(),
+      ),
+      GoRoute(
+        path: '/kyc-upload',
+        name: 'kyc-upload',
+        builder: (context, state) => const KycUploadScreen(),
+      ),
+      GoRoute(
+        path: '/kyc-status',
+        name: 'kyc-status',
+        builder: (context, state) => const KycStatusScreen(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(
