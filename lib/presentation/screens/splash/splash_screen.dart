@@ -45,7 +45,7 @@ class _SplashScreenState extends State<SplashScreen> {
             Text(
               StringConstants.appTagline,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                   ),
             ),
             const SizedBox(height: 32),
