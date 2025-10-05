@@ -205,7 +205,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     'https://www.google.com/favicon.ico',
                     width: 20,
                     height: 20,
-                    errorBuilder: (_, __, ___) => const Icon(
+                    errorBuilder: (context, error, stackTrace) => const Icon(
                       Icons.g_mobiledata,
                       size: 24,
                     ),
@@ -222,7 +222,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     TextButton(
                       onPressed: isLoading
                           ? null
-                          : () => context.go(StringConstants.signupRoute),
+                          : () => context.go('/signup/step1'),
                       child: Text(
                         StringConstants.signup,
                         style: TextStyle(

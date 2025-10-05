@@ -393,7 +393,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     'https://www.google.com/favicon.ico',
                     width: 20,
                     height: 20,
-                    errorBuilder: (_, __, ___) => const Icon(
+                    errorBuilder: (context, error, stackTrace) => const Icon(
                       Icons.g_mobiledata,
                       size: 24,
                     ),
