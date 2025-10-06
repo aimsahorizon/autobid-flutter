@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../data/models/auction_model.dart';
+import '../../../../core/utils/car_enum_extensions.dart';
 
 class CarInfoTab extends StatelessWidget {
   final Auction auction;
@@ -42,40 +43,116 @@ class CarInfoTab extends StatelessWidget {
           const SizedBox(height: 24),
           if (auction.car != null) ...[
             _buildSection(
-              'Vehicle Specifications',
+              'Basic Information',
               [
                 _buildInfoRow('Year', '${auction.car!.year}'),
                 _buildInfoRow('Make', auction.car!.brand),
                 _buildInfoRow('Model', '${auction.car!.model} ${auction.car!.variant}'),
-                _buildInfoRow('Mileage', '${_formatNumber(auction.car!.mileage)} km'),
-                _buildInfoRow('Transmission', _getTransmissionName(auction.car!.transmission)),
-                _buildInfoRow('Fuel Type', _getFuelTypeName(auction.car!.fuelType)),
-                _buildInfoRow('Color', auction.car!.color),
-                _buildInfoRow('Body Type', _getBodyTypeName(auction.car!.bodyType)),
-                _buildInfoRow('Engine Size', auction.car!.engineSize),
-                _buildInfoRow('Seats', '${auction.car!.seats}'),
-                _buildInfoRow('Doors', '${auction.car!.doors}'),
+                _buildInfoRow('Condition', auction.car!.condition.displayName),
               ],
               theme,
             ),
             const SizedBox(height: 24),
             _buildSection(
-              'Location',
+              'Engine & Performance',
+              [
+                _buildInfoRow('Engine Size', auction.car!.engineSize),
+                _buildInfoRow('Engine Type', auction.car!.engineType.displayName),
+                _buildInfoRow('Cylinders', '${auction.car!.cylinders}'),
+                _buildInfoRow('Horsepower', '${auction.car!.horsepower} hp'),
+                _buildInfoRow('Torque', '${auction.car!.torque} Nm'),
+                _buildInfoRow('Transmission', auction.car!.transmission.displayName),
+                _buildInfoRow('Transmission Speeds', auction.car!.transmissionSpeeds > 0 ? '${auction.car!.transmissionSpeeds}-speed' : 'CVT'),
+                _buildInfoRow('Drive Type', auction.car!.driveType.displayName),
+                _buildInfoRow('Fuel Type', auction.car!.fuelType.displayName),
+                _buildInfoRow('Fuel Consumption', '${auction.car!.fuelConsumption} km/L'),
+                if (auction.car!.electricRange != null)
+                  _buildInfoRow('Electric Range', '${auction.car!.electricRange} km'),
+                if (auction.car!.batteryCapacity != null)
+                  _buildInfoRow('Battery Capacity', '${auction.car!.batteryCapacity} kWh'),
+                if (auction.car!.chargingTime != null)
+                  _buildInfoRow('Charging Time', auction.car!.chargingTime!),
+              ],
+              theme,
+            ),
+            const SizedBox(height: 24),
+            _buildSection(
+              'Dimensions & Capacity',
+              [
+                _buildInfoRow('Body Type', auction.car!.bodyType.displayName),
+                _buildInfoRow('Doors', '${auction.car!.doors}'),
+                _buildInfoRow('Seats', '${auction.car!.seats}'),
+                _buildInfoRow('Curb Weight', '${_formatNumber(auction.car!.curbWeight)} kg'),
+                _buildInfoRow('Gross Weight', '${_formatNumber(auction.car!.grossWeight)} kg'),
+                _buildInfoRow('Cargo Capacity', '${_formatNumber(auction.car!.cargoCapacity)} L'),
+                if (auction.car!.towingCapacity != null)
+                  _buildInfoRow('Towing Capacity', '${_formatNumber(auction.car!.towingCapacity!)} kg'),
+                if (auction.car!.groundClearance != null)
+                  _buildInfoRow('Ground Clearance', '${auction.car!.groundClearance} mm'),
+                _buildInfoRow('Length', '${_formatNumber(auction.car!.length)} mm'),
+                _buildInfoRow('Width', '${_formatNumber(auction.car!.width)} mm'),
+                _buildInfoRow('Height', '${_formatNumber(auction.car!.height)} mm'),
+                _buildInfoRow('Wheelbase', '${_formatNumber(auction.car!.wheelbase)} mm'),
+              ],
+              theme,
+            ),
+            const SizedBox(height: 24),
+            _buildSection(
+              'Exterior',
+              [
+                _buildInfoRow('Color', auction.car!.color),
+                _buildInfoRow('Paint Type', auction.car!.paintType.displayName),
+                _buildInfoRow('Rim Size', '${auction.car!.rimSize}"'),
+                _buildInfoRow('Rim Type', auction.car!.rimType.displayName),
+                _buildInfoRow('Tire Condition', auction.car!.tireCondition.displayName),
+              ],
+              theme,
+            ),
+            const SizedBox(height: 24),
+            _buildSection(
+              'Condition & History',
+              [
+                _buildInfoRow('Mileage', '${_formatNumber(auction.car!.mileage)} km'),
+                _buildInfoRow('Number of Owners', '${auction.car!.numberOfOwners}'),
+                _buildInfoRow('Accident History', auction.car!.hasAccidentHistory ? 'Yes' : 'No'),
+                _buildInfoRow('Flood Damage', auction.car!.floodDamage ? 'Yes' : 'No'),
+                _buildInfoRow('Service History', auction.car!.serviceHistoryComplete ? 'Complete' : 'Incomplete'),
+                _buildInfoRow('Warranty Remaining', auction.car!.warrantyRemaining ? 'Yes' : 'No'),
+                if (auction.car!.registrationExpiry != null)
+                  _buildInfoRow('Registration Expiry', _formatDate(auction.car!.registrationExpiry!)),
+              ],
+              theme,
+            ),
+            const SizedBox(height: 24),
+            _buildSection(
+              'Location & Availability',
               [
                 _buildInfoRow('City', auction.car!.location.city),
                 _buildInfoRow('Province', auction.car!.location.province),
+                _buildInfoRow('Test Drive Available', auction.car!.availableForTestDrive ? 'Yes' : 'No'),
+                _buildInfoRow('Delivery Available', auction.car!.deliveryAvailable ? 'Yes' : 'No'),
               ],
               theme,
             ),
             const SizedBox(height: 24),
             _buildSection(
-              'Documents & History',
+              'Documentation',
               [
                 _buildInfoRow('Plate Number', auction.car!.plateNumber),
                 _buildInfoRow('OR/CR Number', auction.car!.orcrNumber),
-                _buildInfoRow('Number of Owners', '${auction.car!.numberOfOwners}'),
-                _buildInfoRow('Service History', auction.car!.serviceHistoryComplete ? 'Complete' : 'Incomplete'),
-                _buildInfoRow('Accident History', auction.car!.hasAccidentHistory ? 'Yes' : 'No'),
+                _buildInfoRow('Registration Status', auction.car!.registrationStatus.displayName),
+                _buildInfoRow('Emission Test Valid', auction.car!.emissionTestValid ? 'Yes' : 'No'),
+                _buildInfoRow('Comprehensive Insurance', auction.car!.comprehensiveInsurance ? 'Yes' : 'No'),
+              ],
+              theme,
+            ),
+            const SizedBox(height: 24),
+            _buildSection(
+              'Seller Preferences',
+              [
+                _buildInfoRow('Accepts Trade', auction.car!.acceptsTrade ? 'Yes' : 'No'),
+                _buildInfoRow('Financing Available', auction.car!.financingAvailable ? 'Yes' : 'No'),
+                _buildInfoRow('Price Negotiable', auction.car!.priceNegotiable ? 'Yes' : 'No'),
               ],
               theme,
             ),
@@ -184,25 +261,5 @@ class CarInfoTab extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
-  }
-
-  String _getTransmissionName(dynamic transmission) {
-    if (transmission == null) return 'Unknown';
-    final name = transmission.toString().split('.').last;
-    return name[0].toUpperCase() + name.substring(1);
-  }
-
-  String _getFuelTypeName(dynamic fuelType) {
-    if (fuelType == null) return 'Unknown';
-    final name = fuelType.toString().split('.').last;
-    return name[0].toUpperCase() + name.substring(1);
-  }
-
-  String _getBodyTypeName(dynamic bodyType) {
-    if (bodyType == null) return 'Unknown';
-    final name = bodyType.toString().split('.').last;
-    if (name == 'suv') return 'SUV';
-    if (name == 'mpv') return 'MPV';
-    return name[0].toUpperCase() + name.substring(1);
   }
 }
