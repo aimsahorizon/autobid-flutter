@@ -11,7 +11,10 @@ class MockCarService {
   }
 
   void _initializeSampleData() {
-    _listings.addAll(_generateSampleListings());
+    // NOTE: Using cars from MockAuctionService instead
+    // The _generateSampleListings() method has old CarModel structure
+    // and needs updating with new comprehensive fields
+    // _listings.addAll(_generateSampleListings());
   }
 
   Future<CarModel> createListing(CarModel carModel) async {
@@ -107,7 +110,7 @@ class MockCarService {
     var results =
         _listings.where((l) => l.status == ListingStatus.active).toList();
 
-    // Keyword search
+    // === BASIC FILTERS ===
     if (filters.keyword != null && filters.keyword!.isNotEmpty) {
       final keyword = filters.keyword!.toLowerCase();
       results = results.where((car) {
@@ -118,14 +121,10 @@ class MockCarService {
       }).toList();
     }
 
-    // Brand filter
     if (filters.brands.isNotEmpty) {
-      results = results.where((car) {
-        return filters.brands.contains(car.brand);
-      }).toList();
+      results = results.where((car) => filters.brands.contains(car.brand)).toList();
     }
 
-    // Year filter
     if (filters.yearMin != null) {
       results = results.where((car) => car.year >= filters.yearMin!).toList();
     }
@@ -133,42 +132,252 @@ class MockCarService {
       results = results.where((car) => car.year <= filters.yearMax!).toList();
     }
 
-    // Mileage filter
-    if (filters.mileageMax != null) {
-      results =
-          results.where((car) => car.mileage <= filters.mileageMax!).toList();
+    if (filters.priceMin != null || filters.priceMax != null) {
+      // Note: Price would come from auction/listing data, placeholder for now
     }
 
-    // Transmission filter
-    if (filters.transmission.isNotEmpty) {
-      results = results.where((car) {
-        return filters.transmission.contains(car.transmission);
-      }).toList();
-    }
-
-    // Fuel type filter
-    if (filters.fuelType.isNotEmpty) {
-      results = results.where((car) {
-        return filters.fuelType.contains(car.fuelType);
-      }).toList();
-    }
-
-    // Body type filter
     if (filters.bodyType.isNotEmpty) {
+      results = results.where((car) => filters.bodyType.contains(car.bodyType)).toList();
+    }
+
+    // === MECHANICAL FILTERS ===
+    if (filters.engineSizes.isNotEmpty) {
+      results = results.where((car) => filters.engineSizes.contains(car.engineSize)).toList();
+    }
+
+    if (filters.engineTypes.isNotEmpty) {
+      results = results.where((car) => filters.engineTypes.contains(car.engineType)).toList();
+    }
+
+    if (filters.cylinders.isNotEmpty) {
+      results = results.where((car) => filters.cylinders.contains(car.cylinders)).toList();
+    }
+
+    if (filters.horsepowerMin != null) {
+      results = results.where((car) => car.horsepower >= filters.horsepowerMin!).toList();
+    }
+    if (filters.horsepowerMax != null) {
+      results = results.where((car) => car.horsepower <= filters.horsepowerMax!).toList();
+    }
+
+    if (filters.torqueMin != null) {
+      results = results.where((car) => car.torque >= filters.torqueMin!).toList();
+    }
+    if (filters.torqueMax != null) {
+      results = results.where((car) => car.torque <= filters.torqueMax!).toList();
+    }
+
+    if (filters.transmission.isNotEmpty) {
+      results = results.where((car) => filters.transmission.contains(car.transmission)).toList();
+    }
+
+    if (filters.transmissionSpeeds.isNotEmpty) {
+      results = results.where((car) => filters.transmissionSpeeds.contains(car.transmissionSpeeds)).toList();
+    }
+
+    if (filters.driveTypes.isNotEmpty) {
+      results = results.where((car) => filters.driveTypes.contains(car.driveType)).toList();
+    }
+
+    if (filters.fuelType.isNotEmpty) {
+      results = results.where((car) => filters.fuelType.contains(car.fuelType)).toList();
+    }
+
+    if (filters.fuelConsumptionMax != null) {
+      results = results.where((car) => car.fuelConsumption <= filters.fuelConsumptionMax!).toList();
+    }
+
+    if (filters.electricRangeMin != null && filters.electricRangeMin! > 0) {
+      results = results.where((car) => car.electricRange != null && car.electricRange! >= filters.electricRangeMin!).toList();
+    }
+
+    // === DIMENSIONS & CAPACITY FILTERS ===
+    if (filters.seats.isNotEmpty) {
+      results = results.where((car) => filters.seats.contains(car.seats)).toList();
+    }
+
+    if (filters.doors.isNotEmpty) {
+      results = results.where((car) => filters.doors.contains(car.doors)).toList();
+    }
+
+    if (filters.curbWeightMin != null) {
+      results = results.where((car) => car.curbWeight >= filters.curbWeightMin!).toList();
+    }
+    if (filters.curbWeightMax != null) {
+      results = results.where((car) => car.curbWeight <= filters.curbWeightMax!).toList();
+    }
+
+    if (filters.grossWeightMin != null) {
+      results = results.where((car) => car.grossWeight >= filters.grossWeightMin!).toList();
+    }
+    if (filters.grossWeightMax != null) {
+      results = results.where((car) => car.grossWeight <= filters.grossWeightMax!).toList();
+    }
+
+    if (filters.cargoCapacityMin != null) {
+      results = results.where((car) => car.cargoCapacity >= filters.cargoCapacityMin!).toList();
+    }
+
+    if (filters.towingCapacityMin != null && filters.towingCapacityMin! > 0) {
+      results = results.where((car) => car.towingCapacity != null && car.towingCapacity! >= filters.towingCapacityMin!).toList();
+    }
+
+    if (filters.groundClearanceMin != null && filters.groundClearanceMin! > 0) {
+      results = results.where((car) => car.groundClearance != null && car.groundClearance! >= filters.groundClearanceMin!).toList();
+    }
+
+    if (filters.lengthMin != null) {
+      results = results.where((car) => car.length >= filters.lengthMin!).toList();
+    }
+    if (filters.lengthMax != null) {
+      results = results.where((car) => car.length <= filters.lengthMax!).toList();
+    }
+
+    if (filters.widthMin != null) {
+      results = results.where((car) => car.width >= filters.widthMin!).toList();
+    }
+    if (filters.widthMax != null) {
+      results = results.where((car) => car.width <= filters.widthMax!).toList();
+    }
+
+    if (filters.heightMin != null) {
+      results = results.where((car) => car.height >= filters.heightMin!).toList();
+    }
+    if (filters.heightMax != null) {
+      results = results.where((car) => car.height <= filters.heightMax!).toList();
+    }
+
+    if (filters.wheelbaseMin != null) {
+      results = results.where((car) => car.wheelbase >= filters.wheelbaseMin!).toList();
+    }
+    if (filters.wheelbaseMax != null) {
+      results = results.where((car) => car.wheelbase <= filters.wheelbaseMax!).toList();
+    }
+
+    // === EXTERIOR FILTERS ===
+    if (filters.colors.isNotEmpty) {
+      results = results.where((car) => filters.colors.contains(car.color)).toList();
+    }
+
+    if (filters.rimSizes.isNotEmpty) {
+      results = results.where((car) => filters.rimSizes.contains(car.rimSize)).toList();
+    }
+
+    if (filters.paintTypes.isNotEmpty) {
+      results = results.where((car) => filters.paintTypes.contains(car.paintType)).toList();
+    }
+
+    if (filters.rimTypes.isNotEmpty) {
+      results = results.where((car) => filters.rimTypes.contains(car.rimType)).toList();
+    }
+
+    if (filters.tireConditions.isNotEmpty) {
+      results = results.where((car) => filters.tireConditions.contains(car.tireCondition)).toList();
+    }
+
+    // === CONDITION & HISTORY FILTERS ===
+    if (filters.mileageMin != null) {
+      results = results.where((car) => car.mileage >= filters.mileageMin!).toList();
+    }
+    if (filters.mileageMax != null) {
+      results = results.where((car) => car.mileage <= filters.mileageMax!).toList();
+    }
+
+    if (filters.ownersMax != null) {
+      results = results.where((car) => car.numberOfOwners <= filters.ownersMax!).toList();
+    }
+
+    if (filters.accidentFree) {
+      results = results.where((car) => !car.hasAccidentHistory).toList();
+    }
+
+    if (filters.floodFree) {
+      results = results.where((car) => !car.floodDamage).toList();
+    }
+
+    if (filters.withWarranty) {
+      results = results.where((car) => car.warrantyRemaining).toList();
+    }
+
+    if (filters.completeServiceHistory) {
+      results = results.where((car) => car.serviceHistoryComplete).toList();
+    }
+
+    if (filters.conditions.isNotEmpty) {
+      results = results.where((car) => filters.conditions.contains(car.condition)).toList();
+    }
+
+    if (filters.registrationStatuses.isNotEmpty) {
+      results = results.where((car) => filters.registrationStatuses.contains(car.registrationStatus)).toList();
+    }
+
+    if (filters.emissionTestValid) {
+      results = results.where((car) => car.emissionTestValid).toList();
+    }
+
+    if (filters.comprehensiveInsurance) {
+      results = results.where((car) => car.comprehensiveInsurance).toList();
+    }
+
+    // === FEATURES FILTERS ===
+    if (filters.features.isNotEmpty) {
       results = results.where((car) {
-        return filters.bodyType.contains(car.bodyType);
+        return filters.features.every((feature) => car.features.contains(feature));
       }).toList();
     }
 
-    // Location filter
-    if (filters.city != null) {
-      results =
-          results.where((car) => car.location.city == filters.city).toList();
+    // === LOCATION & AVAILABILITY FILTERS ===
+    if (filters.region != null) {
+      // Region filtering would require region-to-province mapping
     }
+
     if (filters.province != null) {
-      results = results
-          .where((car) => car.location.province == filters.province)
-          .toList();
+      results = results.where((car) => car.location.province == filters.province).toList();
+    }
+
+    if (filters.city != null) {
+      results = results.where((car) => car.location.city == filters.city).toList();
+    }
+
+    if (filters.testDriveAvailable) {
+      results = results.where((car) => car.availableForTestDrive).toList();
+    }
+
+    if (filters.deliveryAvailable) {
+      results = results.where((car) => car.deliveryAvailable).toList();
+    }
+
+    // === SELLER PREFERENCES FILTERS ===
+    if (filters.acceptsTrade) {
+      results = results.where((car) => car.acceptsTrade).toList();
+    }
+
+    if (filters.financingAvailable) {
+      results = results.where((car) => car.financingAvailable).toList();
+    }
+
+    if (filters.negotiable) {
+      results = results.where((car) => car.priceNegotiable).toList();
+    }
+
+    // === SPECIAL FILTERS ===
+    if (filters.recentlyAddedDays != null) {
+      final cutoffDate = DateTime.now().subtract(Duration(days: filters.recentlyAddedDays!));
+      results = results.where((car) => car.createdAt.isAfter(cutoffDate)).toList();
+    }
+
+    if (filters.recentlyUpdatedDays != null) {
+      final cutoffDate = DateTime.now().subtract(Duration(days: filters.recentlyUpdatedDays!));
+      results = results.where((car) => car.updatedAt.isAfter(cutoffDate)).toList();
+    }
+
+    if (filters.minViewCount != null) {
+      results = results.where((car) => car.viewCount >= filters.minViewCount!).toList();
+    }
+
+    // === MEDIA FILTERS ===
+    if (filters.minPhotoCount != null) {
+      results = results.where((car) => car.images.length >= filters.minPhotoCount!).toList();
     }
 
     // Apply sorting
@@ -180,18 +389,40 @@ class MockCarService {
       case SortBy.priceDesc:
         results.sort((a, b) => b.year.compareTo(a.year));
         break;
-      case SortBy.yearDesc:
+      case SortBy.yearNewest:
         results.sort((a, b) => b.year.compareTo(a.year));
         break;
-      case SortBy.mileageAsc:
+      case SortBy.yearOldest:
+        results.sort((a, b) => a.year.compareTo(b.year));
+        break;
+      case SortBy.mileageLowest:
         results.sort((a, b) => a.mileage.compareTo(b.mileage));
+        break;
+      case SortBy.mileageHighest:
+        results.sort((a, b) => b.mileage.compareTo(a.mileage));
+        break;
+      case SortBy.horsepowerHighest:
+        results.sort((a, b) => b.horsepower.compareTo(a.horsepower));
+        break;
+      case SortBy.horsepowerLowest:
+        results.sort((a, b) => a.horsepower.compareTo(b.horsepower));
+        break;
+      case SortBy.fuelEconomyBest:
+        results.sort((a, b) => b.fuelConsumption.compareTo(a.fuelConsumption));
+        break;
+      case SortBy.fuelEconomyWorst:
+        results.sort((a, b) => a.fuelConsumption.compareTo(b.fuelConsumption));
         break;
       case SortBy.newest:
         results.sort((a, b) => b.createdAt.compareTo(a.createdAt));
         break;
+      case SortBy.mostViewed:
+        results.sort((a, b) => b.viewCount.compareTo(a.viewCount));
+        break;
       case SortBy.endingSoon:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        // N/A for car listings (only for auctions)
+        results.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        break;
     }
 
     return results;
@@ -206,6 +437,9 @@ class MockCarService {
     }
   }
 
+  // COMMENTED OUT: Old car generation with outdated CarModel structure
+  // Using MockAuctionService comprehensive cars instead
+  /*
   List<CarModel> _generateSampleListings() {
     final now = DateTime.now();
 
@@ -1529,4 +1763,5 @@ class MockCarService {
       ),
     ];
   }
+  */
 }

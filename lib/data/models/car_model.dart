@@ -12,6 +12,8 @@ enum TransmissionType {
   cvt,
   @JsonValue('dct')
   dct,
+  @JsonValue('amt')
+  amt,
 }
 
 enum FuelType {
@@ -23,6 +25,14 @@ enum FuelType {
   electric,
   @JsonValue('hybrid')
   hybrid,
+  @JsonValue('plug_in_hybrid')
+  plugInHybrid,
+  @JsonValue('hydrogen')
+  hydrogen,
+  @JsonValue('cng')
+  cng,
+  @JsonValue('lpg')
+  lpg,
 }
 
 enum BodyType {
@@ -40,6 +50,16 @@ enum BodyType {
   coupe,
   @JsonValue('mpv')
   mpv,
+  @JsonValue('convertible')
+  convertible,
+  @JsonValue('wagon')
+  wagon,
+  @JsonValue('truck')
+  truck,
+  @JsonValue('minivan')
+  minivan,
+  @JsonValue('crossover')
+  crossover,
 }
 
 enum CarCondition {
@@ -49,8 +69,74 @@ enum CarCondition {
   almostNew,
   @JsonValue('used')
   used,
+  @JsonValue('certified')
+  certified,
   @JsonValue('for_parts')
   forParts,
+}
+
+enum EngineType {
+  @JsonValue('inline')
+  inline,
+  @JsonValue('v_type')
+  vType,
+  @JsonValue('boxer')
+  boxer,
+  @JsonValue('rotary')
+  rotary,
+  @JsonValue('electric')
+  electric,
+}
+
+enum DriveType {
+  @JsonValue('fwd')
+  fwd,
+  @JsonValue('rwd')
+  rwd,
+  @JsonValue('awd')
+  awd,
+  @JsonValue('4wd')
+  fourWd,
+}
+
+enum PaintType {
+  @JsonValue('solid')
+  solid,
+  @JsonValue('metallic')
+  metallic,
+  @JsonValue('pearlescent')
+  pearlescent,
+  @JsonValue('matte')
+  matte,
+}
+
+enum RimType {
+  @JsonValue('steel')
+  steel,
+  @JsonValue('alloy')
+  alloy,
+  @JsonValue('forged')
+  forged,
+}
+
+enum TireCondition {
+  @JsonValue('new')
+  newTires,
+  @JsonValue('good')
+  good,
+  @JsonValue('fair')
+  fair,
+  @JsonValue('needs_replacement')
+  needsReplacement,
+}
+
+enum RegistrationStatus {
+  @JsonValue('current')
+  current,
+  @JsonValue('expiring_soon')
+  expiringSoon,
+  @JsonValue('expired')
+  expired,
 }
 
 enum ListingStatus {
@@ -83,34 +169,85 @@ abstract class CarModel with _$CarModel {
     required String id,
     required String sellerId,
     required String sellerName,
-    // Basic Info
+
+    // BASIC INFO
     required String brand,
     required String model,
     required String variant,
     required int year,
-    required int mileage,
-    // Technical Details
-    required TransmissionType transmission,
-    required FuelType fuelType,
-    required BodyType bodyType,
-    required String color,
+
+    // MECHANICAL
     required String engineSize,
-    required int seats,
+    required EngineType engineType,
+    required int cylinders,
+    required int horsepower,
+    required int torque,
+    required TransmissionType transmission,
+    required int transmissionSpeeds,
+    required DriveType driveType,
+    required FuelType fuelType,
+    required double fuelConsumption,
+    int? electricRange,
+    double? batteryCapacity,
+    String? chargingTime,
+
+    // DIMENSIONS & CAPACITY
+    required BodyType bodyType,
     required int doors,
-    // Documents
+    required int seats,
+    required int curbWeight,
+    required int grossWeight,
+    required int cargoCapacity,
+    int? towingCapacity,
+    int? groundClearance,
+    required int length,
+    required int width,
+    required int height,
+    required int wheelbase,
+
+    // EXTERIOR
+    required String color,
+    required PaintType paintType,
+    required int rimSize,
+    required RimType rimType,
+    required TireCondition tireCondition,
+
+    // CONDITION & HISTORY
+    required CarCondition condition,
+    required int mileage,
+    required int numberOfOwners,
+    required bool hasAccidentHistory,
+    required bool floodDamage,
+    required bool serviceHistoryComplete,
+    required bool warrantyRemaining,
+    DateTime? registrationExpiry,
+
+    // FEATURES & TECHNOLOGY
+    @Default([]) List<String> features,
+
+    // LOCATION & AVAILABILITY
+    required CarLocation location,
+    @Default(false) bool availableForTestDrive,
+    @Default(false) bool deliveryAvailable,
+
+    // DOCUMENTATION
     required String plateNumber,
     required String orcrNumber,
-    required CarLocation location,
-    required int numberOfOwners,
-    required bool serviceHistoryComplete,
-    required bool hasAccidentHistory,
-    // Condition & Description
-    required CarCondition condition,
+    required RegistrationStatus registrationStatus,
+    required bool emissionTestValid,
+    required bool comprehensiveInsurance,
+
+    // SELLER PREFERENCES
+    @Default(false) bool acceptsTrade,
+    @Default(false) bool financingAvailable,
+    @Default(false) bool priceNegotiable,
+
+    // DESCRIPTION
     required String description,
     String? issues,
+
+    // MEDIA & STATUS
     required List<String> images,
-    @Default([]) List<String> features,
-    // Status
     required ListingStatus status,
     required DateTime createdAt,
     required DateTime updatedAt,

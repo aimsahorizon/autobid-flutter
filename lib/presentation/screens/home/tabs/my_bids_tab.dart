@@ -17,7 +17,7 @@ class _MyBidsTabState extends State<MyBidsTab> with SingleTickerProviderStateMix
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -36,7 +36,6 @@ class _MyBidsTabState extends State<MyBidsTab> with SingleTickerProviderStateMix
             Tab(text: 'Active'),
             Tab(text: 'Won'),
             Tab(text: 'Lost'),
-            Tab(text: 'Watching'),
           ],
         ),
         Expanded(
@@ -46,7 +45,6 @@ class _MyBidsTabState extends State<MyBidsTab> with SingleTickerProviderStateMix
               _ActiveTab(),
               _WonTab(),
               _LostTab(),
-              _WatchingTab(),
             ],
           ),
         ),

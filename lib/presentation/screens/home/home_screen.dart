@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../providers/listing_provider.dart';
-import '../../providers/auction_provider.dart';
-import '../browse/auction_filter_bottom_sheet.dart';
+import '../../providers/browse_provider.dart';
+import '../browse/filter_bottom_sheet.dart';
 import 'tabs/browse_tab.dart';
 import 'tabs/watchlist_tab.dart';
 import 'tabs/my_bids_tab.dart';
@@ -55,8 +55,8 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           // Browse tab actions
           if (_selectedIndex == 0) ...[
-            Consumer<AuctionProvider>(
-              builder: (context, auctionProvider, child) {
+            Consumer<BrowseProvider>(
+              builder: (context, browseProvider, child) {
                 return Stack(
                   children: [
                     IconButton(
@@ -65,16 +65,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         showModalBottomSheet(
                           context: context,
                           isScrollControlled: true,
-                          builder: (context) => AuctionFilterBottomSheet(
-                            initialFilters: auctionProvider.filters,
-                            onApply: (filters) {
-                              context.read<AuctionProvider>().applyFilters(filters: filters);
-                            },
-                          ),
+                          useRootNavigator: false,
+                          enableDrag: true,
+                          isDismissible: true,
+                          showDragHandle: false,
+                          useSafeArea: true,
+                          transitionAnimationController: null,
+                          builder: (context) => const FilterBottomSheet(),
                         );
                       },
                     ),
-                    if (auctionProvider.hasActiveFilters)
+                    if (browseProvider.hasActiveFilters)
                       Positioned(
                         right: 8,
                         top: 8,
@@ -89,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             minHeight: 16,
                           ),
                           child: Text(
-                            '${auctionProvider.activeFilterCount}',
+                            '${browseProvider.activeFilterCount}',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 10,

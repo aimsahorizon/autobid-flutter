@@ -300,25 +300,55 @@ class ListingProvider extends ChangeNotifier {
       id: _editingListingId ?? 'car-${DateTime.now().millisecondsSinceEpoch}',
       sellerId: userId,
       sellerName: userName,
+      // BASIC INFO
       brand: _brand!,
       model: _model!,
       variant: _variant!,
       year: _year!,
-      mileage: _mileage!,
-      transmission: _transmission!,
-      fuelType: _fuelType!,
-      bodyType: _bodyType!,
-      color: _color!,
+      // MECHANICAL
       engineSize: _engineSize!,
-      seats: _seats,
+      engineType: EngineType.inline, // Default - should be added to form
+      cylinders: 4, // Default - should be added to form
+      horsepower: 150, // Default - should be added to form
+      torque: 200, // Default - should be added to form
+      transmission: _transmission!,
+      transmissionSpeeds: 6, // Default - should be added to form
+      driveType: DriveType.fwd, // Default - should be added to form
+      fuelType: _fuelType!,
+      fuelConsumption: 7.5, // Default - should be added to form
+      // DIMENSIONS & CAPACITY
+      bodyType: _bodyType!,
       doors: _doors,
+      seats: _seats,
+      curbWeight: 1500, // Default - should be added to form
+      grossWeight: 2000, // Default - should be added to form
+      cargoCapacity: 500, // Default - should be added to form
+      length: 4500, // Default - should be added to form
+      width: 1800, // Default - should be added to form
+      height: 1500, // Default - should be added to form
+      wheelbase: 2700, // Default - should be added to form
+      // EXTERIOR
+      color: _color!,
+      paintType: PaintType.solid, // Default - should be added to form
+      rimSize: 16, // Default - should be added to form
+      rimType: RimType.alloy, // Default - should be added to form
+      tireCondition: TireCondition.good, // Default - should be added to form
+      // CONDITION & HISTORY
+      condition: _condition!,
+      mileage: _mileage!,
+      numberOfOwners: _numberOfOwners,
+      hasAccidentHistory: _hasAccidentHistory,
+      floodDamage: false, // Default - should be added to form
+      serviceHistoryComplete: _serviceHistoryComplete,
+      warrantyRemaining: false, // Default - should be added to form
+      // LOCATION & DOCUMENTATION
+      location: CarLocation(city: _city!, province: _province!),
       plateNumber: _plateNumber!,
       orcrNumber: _orcrNumber!,
-      location: CarLocation(city: _city!, province: _province!),
-      numberOfOwners: _numberOfOwners,
-      serviceHistoryComplete: _serviceHistoryComplete,
-      hasAccidentHistory: _hasAccidentHistory,
-      condition: _condition!,
+      registrationStatus: RegistrationStatus.current, // Default - should be added to form
+      emissionTestValid: true, // Default - should be added to form
+      comprehensiveInsurance: false, // Default - should be added to form
+      // DESCRIPTION & MEDIA
       description: _description,
       issues: _issues,
       images: _images,
