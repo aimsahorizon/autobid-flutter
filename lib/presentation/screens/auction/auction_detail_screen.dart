@@ -135,84 +135,82 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
                     ),
                   ),
                 ),
-              ];
-            },
-            body: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
-                  child: Column(
-                    children: [
-                      CurrentBidCard(
-                        auction: auction,
-                        userBidStatus: provider.getUserBidStatus(auction.id),
-                        userBidAmount: provider.getUserBidAmount(auction.id),
-                      ),
-                      if (auction.status == AuctionStatus.live) ...[
-                        const SizedBox(height: 12),
-                        BidInputWidget(
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
+                    child: Column(
+                      children: [
+                        CurrentBidCard(
                           auction: auction,
-                          onBidPlaced: (amount) async {
-                            final success = await provider.placeBid(auction.id, amount);
-                            if (success && context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Bid placed successfully!')),
-                              );
-                            }
-                          },
+                          userBidStatus: provider.getUserBidStatus(auction.id),
+                          userBidAmount: provider.getUserBidAmount(auction.id),
                         ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            if (auction.buyNowPrice != null)
+                        if (auction.status == AuctionStatus.live) ...[
+                          const SizedBox(height: 12),
+                          BidInputWidget(
+                            auction: auction,
+                            onBidPlaced: (amount) async {
+                              final success = await provider.placeBid(auction.id, amount);
+                              if (success && context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Bid placed successfully!')),
+                                );
+                              }
+                            },
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              if (auction.buyNowPrice != null)
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    onPressed: () {
+                                      // Buy now functionality
+                                    },
+                                    icon: Icon(Icons.shopping_cart),
+                                    label: Text('Buy Now - ₱${_formatCurrency(auction.buyNowPrice!)}'),
+                                    style: OutlinedButton.styleFrom(
+                                      padding: EdgeInsets.symmetric(vertical: 12),
+                                    ),
+                                  ),
+                                ),
+                              if (auction.buyNowPrice != null) const SizedBox(width: 8),
                               Expanded(
                                 child: OutlinedButton.icon(
-                                  onPressed: () {
-                                    // Buy now functionality
-                                  },
-                                  icon: Icon(Icons.shopping_cart),
-                                  label: Text('Buy Now - ₱${_formatCurrency(auction.buyNowPrice!)}'),
+                                  onPressed: () => _showAutoBidDialog(context, auction, provider),
+                                  icon: Icon(Icons.auto_mode),
+                                  label: Text('Auto-Bid'),
                                   style: OutlinedButton.styleFrom(
                                     padding: EdgeInsets.symmetric(vertical: 12),
                                   ),
                                 ),
                               ),
-                            if (auction.buyNowPrice != null) const SizedBox(width: 8),
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: () => _showAutoBidDialog(context, auction, provider),
-                                icon: Icon(Icons.auto_mode),
-                                label: Text('Auto-Bid'),
-                                style: OutlinedButton.styleFrom(
-                                  padding: EdgeInsets.symmetric(vertical: 12),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
-                Material(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  child: TabBar(
-                    controller: _tabController,
-                    tabs: const [
-                      Tab(text: 'Bid History'),
-                      Tab(text: 'Car Info'),
-                    ],
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: _SliverTabBarDelegate(
+                    TabBar(
+                      controller: _tabController,
+                      tabs: const [
+                        Tab(text: 'Bid History'),
+                        Tab(text: 'Car Info'),
+                      ],
+                    ),
                   ),
                 ),
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      BidHistoryTab(auctionId: auction.id),
-                      CarInfoTab(auction: auction),
-                    ],
-                  ),
-                ),
+              ];
+            },
+            body: TabBarView(
+              controller: _tabController,
+              children: [
+                BidHistoryTab(auctionId: auction.id),
+                CarInfoTab(auction: auction),
               ],
             ),
           );
@@ -293,5 +291,29 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
           RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
           (Match m) => '${m[1]},',
         );
+  }
+}
+
+class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
+  final TabBar _tabBar;
+
+  _SliverTabBarDelegate(this._tabBar);
+
+  @override
+  double get minExtent => _tabBar.preferredSize.height;
+  @override
+  double get maxExtent => _tabBar.preferredSize.height;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Material(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: _tabBar,
+    );
+  }
+
+  @override
+  bool shouldRebuild(_SliverTabBarDelegate oldDelegate) {
+    return false;
   }
 }
