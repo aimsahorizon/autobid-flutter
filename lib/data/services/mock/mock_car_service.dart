@@ -189,6 +189,9 @@ class MockCarService {
       case SortBy.newest:
         results.sort((a, b) => b.createdAt.compareTo(a.createdAt));
         break;
+      case SortBy.endingSoon:
+        // TODO: Handle this case.
+        throw UnimplementedError();
     }
 
     return results;
