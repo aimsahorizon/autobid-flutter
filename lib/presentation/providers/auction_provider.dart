@@ -3,11 +3,13 @@ import 'package:flutter/foundation.dart';
 import '../../data/models/auction_model.dart';
 import '../../data/models/bid_model.dart';
 import '../../data/models/auto_bid_config.dart';
+import '../../data/models/search_filters.dart';
 import '../../data/services/mock/mock_auction_service.dart';
 
 class AuctionProvider with ChangeNotifier {
   final MockAuctionService _service = MockAuctionService();
 
+  List<Auction> _allAuctions = [];
   List<Auction> _activeAuctions = [];
   List<Bid> _userBids = [];
   List<Auction> _watchlist = [];
@@ -15,6 +17,7 @@ class AuctionProvider with ChangeNotifier {
   List<Bid> _bidHistory = [];
   bool _isLoading = false;
   String? _error;
+  SearchFilters _filters = const SearchFilters();
 
   Timer? _updateTimer;
   StreamSubscription? _auctionSubscription;
@@ -32,6 +35,9 @@ class AuctionProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
   String? get currentUserId => _currentUserId;
+  SearchFilters get filters => _filters;
+  bool get hasActiveFilters => !_filters.isEmpty;
+  int get activeFilterCount => _filters.activeFilterCount;
 
   AuctionProvider() {
     _service.initialize();
@@ -41,9 +47,10 @@ class AuctionProvider with ChangeNotifier {
 
   void _setupListeners() {
     _auctionSubscription = _service.auctionsStream.listen((auctions) {
-      _activeAuctions = auctions.where((a) =>
+      _allAuctions = auctions.where((a) =>
         a.status == AuctionStatus.live || a.status == AuctionStatus.upcoming
-      ).toList()..sort((a, b) => a.endTime.compareTo(b.endTime));
+      ).toList();
+      _applyFiltersAndSort();
 
       if (_selectedAuction != null) {
         _selectedAuction = auctions.firstWhere(
@@ -89,7 +96,8 @@ class AuctionProvider with ChangeNotifier {
 
     try {
       await Future.delayed(Duration(milliseconds: 300)); // Simulate network delay
-      _activeAuctions = _service.getActiveAuctions();
+      _allAuctions = _service.getActiveAuctions();
+      _applyFiltersAndSort();
       if (_currentUserId != null) {
         _userBids = _service.getUserBids(_currentUserId!);
         _watchlist = _service.getUserWatchlist(_currentUserId!);
@@ -100,6 +108,107 @@ class AuctionProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  void applyFilters({required SearchFilters filters}) {
+    _filters = filters;
+    _applyFiltersAndSort();
+    notifyListeners();
+  }
+
+  void clearFilters() {
+    _filters = const SearchFilters();
+    _applyFiltersAndSort();
+    notifyListeners();
+  }
+
+  void _applyFiltersAndSort() {
+    var filtered = List<Auction>.from(_allAuctions);
+
+    // Filter by car properties
+    filtered = filtered.where((auction) {
+      final car = auction.car;
+      if (car == null) return true; // Include auctions without car data
+
+      // Filter by brands
+      if (_filters.brands.isNotEmpty) {
+        final brandMatch = _filters.brands.any((brand) =>
+          car.brand.toLowerCase().contains(brand.toLowerCase())
+        );
+        if (!brandMatch) return false;
+      }
+
+      // Filter by year range
+      if (_filters.yearMin != null && car.year < _filters.yearMin!) {
+        return false;
+      }
+      if (_filters.yearMax != null && car.year > _filters.yearMax!) {
+        return false;
+      }
+
+      // Filter by mileage
+      if (_filters.mileageMax != null && car.mileage > _filters.mileageMax!) {
+        return false;
+      }
+
+      // Filter by transmission
+      if (_filters.transmission.isNotEmpty) {
+        final transmissionMatch = _filters.transmission.contains(car.transmission);
+        if (!transmissionMatch) return false;
+      }
+
+      // Filter by fuel type
+      if (_filters.fuelType.isNotEmpty) {
+        final fuelMatch = _filters.fuelType.contains(car.fuelType);
+        if (!fuelMatch) return false;
+      }
+
+      // Filter by body type
+      if (_filters.bodyType.isNotEmpty) {
+        final bodyMatch = _filters.bodyType.contains(car.bodyType);
+        if (!bodyMatch) return false;
+      }
+
+      // Filter by location (city/province)
+      if (_filters.city != null) {
+        if (!car.location.city.toLowerCase().contains(_filters.city!.toLowerCase())) {
+          return false;
+        }
+      }
+      if (_filters.province != null) {
+        if (!car.location.province.toLowerCase().contains(_filters.province!.toLowerCase())) {
+          return false;
+        }
+      }
+
+      return true;
+    }).toList();
+
+    // Apply sorting
+    _activeAuctions = _sortAuctions(filtered);
+  }
+
+  List<Auction> _sortAuctions(List<Auction> auctions) {
+    final sorted = List<Auction>.from(auctions);
+
+    switch (_filters.sortBy) {
+      case SortBy.priceAsc:
+        sorted.sort((a, b) => a.currentBid.compareTo(b.currentBid));
+        break;
+      case SortBy.priceDesc:
+        sorted.sort((a, b) => b.currentBid.compareTo(a.currentBid));
+        break;
+      case SortBy.endingSoon:
+        sorted.sort((a, b) => a.endTime.compareTo(b.endTime));
+        break;
+      case SortBy.newest:
+        sorted.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        break;
+      default:
+        sorted.sort((a, b) => a.endTime.compareTo(b.endTime));
+    }
+
+    return sorted;
   }
 
   Future<void> loadAuctionDetail(String auctionId) async {
