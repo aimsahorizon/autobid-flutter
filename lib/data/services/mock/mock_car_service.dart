@@ -11,7 +11,10 @@ class MockCarService {
   }
 
   void _initializeSampleData() {
-    _listings.addAll(_generateSampleListings());
+    // NOTE: Using cars from MockAuctionService instead
+    // The _generateSampleListings() method has old CarModel structure
+    // and needs updating with new comprehensive fields
+    // _listings.addAll(_generateSampleListings());
   }
 
   Future<CarModel> createListing(CarModel carModel) async {
@@ -180,18 +183,40 @@ class MockCarService {
       case SortBy.priceDesc:
         results.sort((a, b) => b.year.compareTo(a.year));
         break;
-      case SortBy.yearDesc:
+      case SortBy.yearNewest:
         results.sort((a, b) => b.year.compareTo(a.year));
         break;
-      case SortBy.mileageAsc:
+      case SortBy.yearOldest:
+        results.sort((a, b) => a.year.compareTo(b.year));
+        break;
+      case SortBy.mileageLowest:
         results.sort((a, b) => a.mileage.compareTo(b.mileage));
+        break;
+      case SortBy.mileageHighest:
+        results.sort((a, b) => b.mileage.compareTo(a.mileage));
+        break;
+      case SortBy.horsepowerHighest:
+        results.sort((a, b) => b.horsepower.compareTo(a.horsepower));
+        break;
+      case SortBy.horsepowerLowest:
+        results.sort((a, b) => a.horsepower.compareTo(b.horsepower));
+        break;
+      case SortBy.fuelEconomyBest:
+        results.sort((a, b) => b.fuelConsumption.compareTo(a.fuelConsumption));
+        break;
+      case SortBy.fuelEconomyWorst:
+        results.sort((a, b) => a.fuelConsumption.compareTo(b.fuelConsumption));
         break;
       case SortBy.newest:
         results.sort((a, b) => b.createdAt.compareTo(a.createdAt));
         break;
+      case SortBy.mostViewed:
+        results.sort((a, b) => b.viewCount.compareTo(a.viewCount));
+        break;
       case SortBy.endingSoon:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        // N/A for car listings (only for auctions)
+        results.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        break;
     }
 
     return results;
@@ -206,6 +231,9 @@ class MockCarService {
     }
   }
 
+  // COMMENTED OUT: Old car generation with outdated CarModel structure
+  // Using MockAuctionService comprehensive cars instead
+  /*
   List<CarModel> _generateSampleListings() {
     final now = DateTime.now();
 
@@ -1529,4 +1557,5 @@ class MockCarService {
       ),
     ];
   }
+  */
 }
