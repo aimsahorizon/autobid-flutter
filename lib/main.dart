@@ -9,6 +9,8 @@ import 'presentation/providers/signup_provider.dart';
 import 'presentation/providers/listing_provider.dart';
 import 'presentation/providers/browse_provider.dart';
 import 'presentation/providers/watchlist_provider.dart';
+import 'presentation/providers/auction_provider.dart';
+import 'presentation/providers/bid_provider.dart';
 import 'data/services/mock/mock_kyc_service.dart';
 import 'data/services/mock/mock_car_service.dart';
 
@@ -30,6 +32,12 @@ void main() {
         ),
         provider.ChangeNotifierProvider(
           create: (_) => WatchlistProvider(),
+        ),
+        provider.ChangeNotifierProvider(
+          create: (_) => AuctionProvider(),
+        ),
+        provider.ChangeNotifierProvider(
+          create: (_) => BidProvider(),
         ),
       ],
       child: const ProviderScope(
