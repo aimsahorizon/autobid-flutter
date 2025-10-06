@@ -16,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late int _selectedIndex;
+  bool _isGridView = false;
 
   @override
   void initState() {
@@ -46,6 +47,24 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Text(_getAppBarTitle()),
         actions: [
+          if (_selectedIndex == 3) // Show create listing button on My Listings tab
+            IconButton(
+              icon: const Icon(Icons.add),
+              tooltip: 'Create Listing',
+              onPressed: () {
+                context.read<ListingProvider>().reset();
+                context.push('/listing/create/step1');
+              },
+            ),
+          if (_selectedIndex == 3) // Show grid/list toggle on My Listings tab
+            IconButton(
+              icon: Icon(_isGridView ? Icons.view_list : Icons.grid_view),
+              onPressed: () {
+                setState(() {
+                  _isGridView = !_isGridView;
+                });
+              },
+            ),
           if (_selectedIndex != 4) // Don't show profile icon on profile tab
             IconButton(
               icon: const Icon(Icons.notifications_outlined),
@@ -119,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 2:
         return const _MyBidsPage();
       case 3:
-        return const _MyListingsTab();
+        return _MyListingsTab(isGridView: _isGridView);
       case 4:
         return const _ProfileTab();
       default:
@@ -247,7 +266,9 @@ class _MyBidsPage extends StatelessWidget {
 
 // My Listings Tab - embedded version without AppBar
 class _MyListingsTab extends StatefulWidget {
-  const _MyListingsTab();
+  final bool isGridView;
+
+  const _MyListingsTab({required this.isGridView});
 
   @override
   State<_MyListingsTab> createState() => _MyListingsTabState();
@@ -256,7 +277,6 @@ class _MyListingsTab extends StatefulWidget {
 class _MyListingsTabState extends State<_MyListingsTab>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  bool _isGridView = false;
 
   @override
   void initState() {
@@ -320,21 +340,25 @@ class _MyListingsTabState extends State<_MyListingsTab>
                           provider.myListings
                               .where((l) => l.status == ListingStatus.active)
                               .toList(),
+                          ListingStatus.active,
                         ),
                         _buildListingList(
                           provider.myListings
                               .where((l) => l.status == ListingStatus.draft)
                               .toList(),
+                          ListingStatus.draft,
                         ),
                         _buildListingList(
                           provider.myListings
                               .where((l) => l.status == ListingStatus.sold)
                               .toList(),
+                          ListingStatus.sold,
                         ),
                         _buildListingList(
                           provider.myListings
                               .where((l) => l.status == ListingStatus.cancelled)
                               .toList(),
+                          ListingStatus.cancelled,
                         ),
                       ],
                     ),
@@ -343,7 +367,7 @@ class _MyListingsTabState extends State<_MyListingsTab>
     );
   }
 
-  Widget _buildListingList(List<CarModel> listings) {
+  Widget _buildListingList(List<CarModel> listings, ListingStatus status) {
     if (listings.isEmpty) {
       return Center(
         child: Column(
@@ -362,32 +386,34 @@ class _MyListingsTabState extends State<_MyListingsTab>
                 color: Colors.grey[600],
               ),
             ),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: () {
-                context.read<ListingProvider>().reset();
-                context.push('/listing/create/step1');
-              },
-              icon: const Icon(Icons.add),
-              label: const Text('Create New Listing'),
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 16,
+            if (status == ListingStatus.active) ...[
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: () {
+                  context.read<ListingProvider>().reset();
+                  context.push('/listing/create/step1');
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('Create New Listing'),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 16,
+                  ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       );
     }
 
-    if (_isGridView) {
+    if (widget.isGridView) {
       return GridView.builder(
         padding: const EdgeInsets.all(16),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 0.75,
+          childAspectRatio: 0.65,
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
         ),
