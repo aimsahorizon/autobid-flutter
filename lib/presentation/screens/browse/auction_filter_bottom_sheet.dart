@@ -363,7 +363,7 @@ class _AuctionFilterBottomSheetState extends State<AuctionFilterBottomSheet> {
                       const SizedBox(height: 12),
                       DropdownButtonFormField<String>(
                         decoration: const InputDecoration(
-                          labelText: 'City',
+                          labelText: 'Citye',
                           border: OutlineInputBorder(),
                         ),
                         value: _filters.city,
