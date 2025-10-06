@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'car_model.dart';
 
 part 'auction_model.freezed.dart';
 part 'auction_model.g.dart';
@@ -36,6 +37,7 @@ abstract class Auction with _$Auction {
     @Default([]) List<String> watchers,
     required DateTime createdAt,
     required DateTime updatedAt,
+    CarModel? car,
   }) = _Auction;
 
   factory Auction.fromJson(Map<String, dynamic> json) => _$AuctionFromJson(json);

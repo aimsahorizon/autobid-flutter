@@ -23,12 +23,25 @@ class AuctionCard extends StatelessWidget {
           children: [
             Stack(
               children: [
-                Container(
-                  height: 120,
-                  width: double.infinity,
-                  color: Colors.grey[300],
-                  child: Icon(Icons.directions_car, size: 40, color: Colors.grey[600]),
-                ),
+                auction.car?.images.isNotEmpty == true
+                  ? Image.network(
+                      auction.car!.images.first,
+                      height: 120,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        height: 120,
+                        width: double.infinity,
+                        color: Colors.grey[300],
+                        child: Icon(Icons.directions_car, size: 40, color: Colors.grey[600]),
+                      ),
+                    )
+                  : Container(
+                      height: 120,
+                      width: double.infinity,
+                      color: Colors.grey[300],
+                      child: Icon(Icons.directions_car, size: 40, color: Colors.grey[600]),
+                    ),
                 Positioned(
                   top: 8,
                   left: 8,
@@ -52,7 +65,9 @@ class AuctionCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '2020 Toyota Camry',
+                    auction.car != null
+                      ? '${auction.car!.year} ${auction.car!.brand} ${auction.car!.model}'
+                      : 'Car Auction',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),

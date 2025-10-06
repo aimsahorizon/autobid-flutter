@@ -26,6 +26,9 @@ _Auction _$AuctionFromJson(Map<String, dynamic> json) => _Auction(
       const [],
   createdAt: DateTime.parse(json['createdAt'] as String),
   updatedAt: DateTime.parse(json['updatedAt'] as String),
+  car: json['car'] == null
+      ? null
+      : CarModel.fromJson(json['car'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$AuctionToJson(_Auction instance) => <String, dynamic>{
@@ -46,6 +49,7 @@ Map<String, dynamic> _$AuctionToJson(_Auction instance) => <String, dynamic>{
   'watchers': instance.watchers,
   'createdAt': instance.createdAt.toIso8601String(),
   'updatedAt': instance.updatedAt.toIso8601String(),
+  'car': instance.car,
 };
 
 const _$AuctionStatusEnumMap = {

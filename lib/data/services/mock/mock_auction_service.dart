@@ -3,6 +3,7 @@ import 'dart:math';
 import '../../models/auction_model.dart';
 import '../../models/bid_model.dart';
 import '../../models/auto_bid_config.dart';
+import '../../models/car_model.dart';
 import '../../../core/constants/bid_increments.dart';
 import '../../../config/app_config.dart';
 import '../../../domain/repositories/auction_repository.dart';
@@ -15,6 +16,7 @@ class MockAuctionService implements AuctionRepository {
   final List<Auction> _auctions = [];
   final List<Bid> _bids = [];
   final Map<String, AutoBidConfig> _autoBidConfigs = {};
+  List<CarModel> _availableCars = [];
   Timer? _simulationTimer;
   Timer? _statusUpdateTimer;
 
@@ -49,9 +51,58 @@ class MockAuctionService implements AuctionRepository {
   @override
   List<Auction> getAuctions() => List.from(_auctions);
 
+  List<CarModel> _generateFallbackCars() {
+    final now = DateTime.now();
+    final brands = ['Toyota', 'Honda', 'Mazda', 'Ford', 'BMW', 'Mercedes-Benz', 'Nissan', 'Hyundai'];
+    final models = ['Sedan Model', 'SUV Model', 'Hatchback Model'];
+    final colors = ['White', 'Black', 'Silver', 'Red', 'Blue'];
+    final cities = ['Manila', 'Quezon City', 'Makati', 'Cebu', 'Davao'];
+    final provinces = ['Metro Manila', 'Cebu', 'Davao del Sur'];
+
+    final cars = <CarModel>[];
+    for (int i = 0; i < 18; i++) {
+      cars.add(CarModel(
+        id: 'car_$i',
+        sellerId: 'seller_${i % 5}',
+        sellerName: 'Seller ${i % 5}',
+        brand: brands[i % brands.length],
+        model: models[i % models.length],
+        variant: 'Standard',
+        year: 2015 + (i % 10),
+        mileage: 30000 + (i * 10000),
+        transmission: TransmissionType.values[i % TransmissionType.values.length],
+        fuelType: FuelType.values[i % FuelType.values.length],
+        bodyType: BodyType.values[i % BodyType.values.length],
+        color: colors[i % colors.length],
+        engineSize: '2.0L',
+        seats: 5,
+        doors: 4,
+        plateNumber: 'ABC${1000 + i}',
+        orcrNumber: 'ORCR${1000 + i}',
+        location: CarLocation(
+          city: cities[i % cities.length],
+          province: provinces[i % provinces.length],
+        ),
+        numberOfOwners: 1 + (i % 3),
+        serviceHistoryComplete: i % 2 == 0,
+        hasAccidentHistory: i % 3 == 0,
+        condition: CarCondition.used,
+        description: 'Well-maintained ${brands[i % brands.length]} ${models[i % models.length]}',
+        images: ['https://via.placeholder.com/400x300?text=${brands[i % brands.length]}'],
+        status: ListingStatus.active,
+        createdAt: now.subtract(Duration(days: i)),
+        updatedAt: now,
+      ));
+    }
+    return cars;
+  }
+
   void _generateMockAuctions() {
     final now = DateTime.now();
     final random = Random();
+
+    // Get diverse car data - use fallback generation since MockCarService methods are private
+    _availableCars = _generateFallbackCars();
 
     final durations = [
       Duration(hours: 1),
@@ -60,20 +111,25 @@ class MockAuctionService implements AuctionRepository {
       Duration(days: 3),
     ];
 
-    final startingPrices = [150000.0, 250000.0, 350000.0, 500000.0, 750000.0];
+    final basePrices = [150000.0, 250000.0, 350000.0, 500000.0, 750000.0, 1200000.0];
 
-    for (int i = 0; i < 15; i++) {
-      final startingPrice = startingPrices[random.nextInt(startingPrices.length)];
+    // Create auctions for all available cars
+    for (int i = 0; i < _availableCars.length; i++) {
+      final car = _availableCars[i];
       final endTime = now.add(durations[random.nextInt(durations.length)]);
-      final reservePrice = startingPrice * (1.2 + random.nextDouble() * 0.3);
-      final buyNowPrice = random.nextBool() ? reservePrice * (1.3 + random.nextDouble() * 0.2) : null;
+
+      // Generate prices based on car year and condition
+      final basePrice = basePrices[random.nextInt(basePrices.length)];
+      final startingPrice = basePrice * 0.7;
+      final reservePrice = basePrice * 0.9;
+      final buyNowPrice = random.nextBool() ? basePrice * 1.1 : null;
 
       final totalBids = random.nextInt(20);
       final currentBid = startingPrice + (totalBids * BidIncrements.minimumIncrement * (1 + random.nextInt(3)));
 
       final auction = Auction(
         id: 'auction_$i',
-        carId: 'car_${i % 10}',
+        carId: car.id,
         sellerId: 'seller_${random.nextInt(5)}',
         startingPrice: startingPrice,
         currentBid: currentBid,
@@ -88,6 +144,7 @@ class MockAuctionService implements AuctionRepository {
         watchers: List.generate(random.nextInt(15), (i) => 'user_$i'),
         createdAt: now.subtract(Duration(days: random.nextInt(7))),
         updatedAt: now,
+        car: car, // Attach actual car data
       );
 
       _auctions.add(auction);
@@ -177,9 +234,15 @@ class MockAuctionService implements AuctionRepository {
 
     // 3. Create 2 won auctions
     for (int i = 0; i < 2; i++) {
+      // Use extra cars from the pool if available
+      CarModel? wonCar;
+      if (_availableCars.length > 15 + i) {
+        wonCar = _availableCars[15 + i];
+      }
+
       final soldAuction = Auction(
         id: 'auction_demo_won_$i',
-        carId: 'car_demo_won_$i',
+        carId: wonCar?.id ?? 'car_demo_won_$i',
         sellerId: 'seller_demo',
         startingPrice: 200000.0,
         currentBid: 250000.0 + (i * 50000),
@@ -193,6 +256,7 @@ class MockAuctionService implements AuctionRepository {
         watchers: [],
         createdAt: now.subtract(Duration(days: 8 + i)),
         updatedAt: now.subtract(Duration(days: i + 1)),
+        car: wonCar,
       );
 
       _auctions.add(soldAuction);
@@ -210,9 +274,14 @@ class MockAuctionService implements AuctionRepository {
     }
 
     // 4. Create 1 lost auction
+    CarModel? lostCar;
+    if (_availableCars.length > 17) {
+      lostCar = _availableCars[17];
+    }
+
     final lostAuction = Auction(
       id: 'auction_demo_lost',
-      carId: 'car_demo_lost',
+      carId: lostCar?.id ?? 'car_demo_lost',
       sellerId: 'seller_demo',
       startingPrice: 300000.0,
       currentBid: 380000.0,
@@ -226,6 +295,7 @@ class MockAuctionService implements AuctionRepository {
       watchers: [],
       createdAt: now.subtract(Duration(days: 6)),
       updatedAt: now.subtract(Duration(days: 2)),
+      car: lostCar,
     );
 
     _auctions.add(lostAuction);
@@ -568,6 +638,7 @@ class MockAuctionService implements AuctionRepository {
     required double reservePrice,
     required int durationDays,
     double? buyNowPrice,
+    CarModel? car,
   }) {
     final now = DateTime.now();
     final auction = Auction(
@@ -585,6 +656,7 @@ class MockAuctionService implements AuctionRepository {
       watchers: [],
       createdAt: now,
       updatedAt: now,
+      car: car,
     );
 
     _auctions.add(auction);
