@@ -417,14 +417,16 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
         return 'Price: Low to High';
       case SortBy.priceDesc:
         return 'Price: High to Low';
-      case SortBy.yearDesc:
+      case SortBy.yearNewest:
         return 'Year: Newest First';
-      case SortBy.mileageAsc:
+      case SortBy.mileageLowest:
         return 'Mileage: Low to High';
       case SortBy.newest:
         return 'Recently Listed';
       case SortBy.endingSoon:
         return 'Ending Soon';
+      default:
+        return 'Recently Listed';
     }
   }
 }
