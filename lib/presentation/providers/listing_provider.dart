@@ -33,6 +33,13 @@ class ListingProvider extends ChangeNotifier {
   List<String> _images = [];
   List<String> _features = [];
 
+  // Auction settings
+  bool _isAuction = false;
+  double? _auctionStartingPrice;
+  double? _auctionReservePrice;
+  int? _auctionDurationDays;
+  double? _auctionBuyNowPrice;
+
   // My Listings state
   List<CarModel> _myListings = [];
   bool _isLoadingListings = false;
@@ -66,6 +73,12 @@ class ListingProvider extends ChangeNotifier {
   String? get issues => _issues;
   List<String> get images => _images;
   List<String> get features => _features;
+
+  bool get isAuction => _isAuction;
+  double? get auctionStartingPrice => _auctionStartingPrice;
+  double? get auctionReservePrice => _auctionReservePrice;
+  int? get auctionDurationDays => _auctionDurationDays;
+  double? get auctionBuyNowPrice => _auctionBuyNowPrice;
 
   List<CarModel> get myListings => _myListings;
   bool get isLoadingListings => _isLoadingListings;
@@ -218,6 +231,24 @@ class ListingProvider extends ChangeNotifier {
     } else {
       _features.add(feature);
     }
+    notifyListeners();
+  }
+
+  void setIsAuction(bool value) {
+    _isAuction = value;
+    notifyListeners();
+  }
+
+  void setAuctionSettings({
+    required double startingPrice,
+    required double reservePrice,
+    required int durationDays,
+    double? buyNowPrice,
+  }) {
+    _auctionStartingPrice = startingPrice;
+    _auctionReservePrice = reservePrice;
+    _auctionDurationDays = durationDays;
+    _auctionBuyNowPrice = buyNowPrice;
     notifyListeners();
   }
 
