@@ -27,6 +27,7 @@ import '../../presentation/screens/listings/create/listing_success_screen.dart';
 import '../../presentation/screens/browse/browse_cars_screen.dart';
 import '../../presentation/screens/browse/search_screen.dart';
 import '../../presentation/screens/browse/car_detail_screen.dart';
+import '../../presentation/screens/auction/auction_detail_screen.dart';
 import '../../presentation/providers/auth_provider.dart';
 import '../constants/string_constants.dart';
 
@@ -166,6 +167,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const Scaffold(
           body: Center(child: Text('Watchlist Screen')),
         ),
+      ),
+      // Auction Routes
+      GoRoute(
+        path: '/auction/:id',
+        name: 'auction',
+        builder: (context, state) {
+          final auctionId = state.pathParameters['id']!;
+          return AuctionDetailScreen(auctionId: auctionId);
+        },
       ),
       // Listings Routes
       GoRoute(
