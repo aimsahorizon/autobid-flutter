@@ -12,7 +12,9 @@
       "Bash(dart format:*)",
       "Bash(rm:*)",
       "Bash(dart run:*)",
-      "Bash(dart analyze:*)"
+      "Bash(dart analyze:*)",
+      "Bash(timeout 30 dart run build_runner build:*)",
+      "Bash(flutter run:*)"
     ],
     "deny": [],
     "ask": []
