@@ -17,7 +17,6 @@ import '../../presentation/screens/profile/profile_screen.dart';
 import '../../presentation/screens/kyc/kyc_intro_screen.dart';
 import '../../presentation/screens/kyc/kyc_upload_screen.dart';
 import '../../presentation/screens/kyc/kyc_status_screen.dart';
-import '../../presentation/screens/listings/my_listings_screen.dart';
 import '../../presentation/screens/listings/create/create_listing_step1_basic.dart';
 import '../../presentation/screens/listings/create/create_listing_step2_details.dart';
 import '../../presentation/screens/listings/create/create_listing_step3_documents.dart';
@@ -140,11 +139,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const KycStatusScreen(),
       ),
       // Listings Routes
-      GoRoute(
-        path: '/my-listings',
-        name: 'my-listings',
-        builder: (context, state) => const MyListingsScreen(),
-      ),
       GoRoute(
         path: '/car/:id',
         name: 'car-detail',
