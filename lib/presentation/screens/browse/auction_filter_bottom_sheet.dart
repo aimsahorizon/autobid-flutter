@@ -22,26 +22,36 @@ class AuctionFilterBottomSheet extends StatefulWidget {
 
 class _AuctionFilterBottomSheetState extends State<AuctionFilterBottomSheet> {
   late SearchFilters _filters;
-  int _yearMin = 2010;
-  int _yearMax = 2024;
-  int _mileageMax = 150000;
+  int? _yearMin;
+  int? _yearMax;
+  final TextEditingController _yearMinController = TextEditingController();
+  final TextEditingController _yearMaxController = TextEditingController();
   final TextEditingController _mileageController = TextEditingController();
+  final int _currentYear = DateTime.now().year;
+  final int _earliestYear = 1990;
 
   @override
   void initState() {
     super.initState();
     _filters = widget.initialFilters ?? const SearchFilters();
     // Only use filter values if they were explicitly set by user
-    if (_filters.yearMin != null) _yearMin = _filters.yearMin!;
-    if (_filters.yearMax != null) _yearMax = _filters.yearMax!;
+    if (_filters.yearMin != null) {
+      _yearMin = _filters.yearMin!;
+      _yearMinController.text = _filters.yearMin.toString();
+    }
+    if (_filters.yearMax != null) {
+      _yearMax = _filters.yearMax!;
+      _yearMaxController.text = _filters.yearMax.toString();
+    }
     if (_filters.mileageMax != null) {
-      _mileageMax = _filters.mileageMax!;
-      _mileageController.text = _formatNumber(_mileageMax);
+      _mileageController.text = _formatNumber(_filters.mileageMax!);
     }
   }
 
   @override
   void dispose() {
+    _yearMinController.dispose();
+    _yearMaxController.dispose();
     _mileageController.dispose();
     super.dispose();
   }
@@ -62,8 +72,8 @@ class _AuctionFilterBottomSheetState extends State<AuctionFilterBottomSheet> {
       context: context,
       builder: (context) => _YearPickerDialog(
         initialYear: isMin ? _yearMin : _yearMax,
-        minYear: 2010,
-        maxYear: 2024,
+        minYear: _earliestYear,
+        maxYear: _currentYear,
       ),
     );
 
@@ -71,10 +81,18 @@ class _AuctionFilterBottomSheetState extends State<AuctionFilterBottomSheet> {
       setState(() {
         if (isMin) {
           _yearMin = selectedYear;
-          if (_yearMin > _yearMax) _yearMax = _yearMin;
+          _yearMinController.text = selectedYear.toString();
+          if (_yearMax != null && _yearMin! > _yearMax!) {
+            _yearMax = _yearMin;
+            _yearMaxController.text = _yearMax.toString();
+          }
         } else {
           _yearMax = selectedYear;
-          if (_yearMax < _yearMin) _yearMin = _yearMax;
+          _yearMaxController.text = selectedYear.toString();
+          if (_yearMin != null && _yearMax! < _yearMin!) {
+            _yearMin = _yearMax;
+            _yearMinController.text = _yearMin.toString();
+          }
         }
       });
     }
@@ -117,13 +135,8 @@ class _AuctionFilterBottomSheetState extends State<AuctionFilterBottomSheet> {
                     ),
                     TextButton(
                       onPressed: () {
-                        setState(() {
-                          _filters = const SearchFilters();
-                          _yearMin = 2010;
-                          _yearMax = 2024;
-                          _mileageMax = 150000;
-                          _mileageController.text = _formatNumber(_mileageMax);
-                        });
+                        widget.onApply(const SearchFilters());
+                        Navigator.pop(context);
                       },
                       child: const Text('Clear All'),
                     ),
@@ -177,17 +190,17 @@ class _AuctionFilterBottomSheetState extends State<AuctionFilterBottomSheet> {
                         Expanded(
                           child: InkWell(
                             onTap: () => _showYearPicker(true),
-                            child: InputDecorator(
-                              decoration: InputDecoration(
-                                labelText: 'Min Year',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                            child: AbsorbPointer(
+                              child: TextField(
+                                controller: _yearMinController,
+                                decoration: InputDecoration(
+                                  labelText: 'Min Year',
+                                  hintText: 'Any',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  suffixIcon: Icon(Icons.calendar_today, size: 20),
                                 ),
-                                suffixIcon: Icon(Icons.calendar_today, size: 20),
-                              ),
-                              child: Text(
-                                '$_yearMin',
-                                style: theme.textTheme.titleMedium,
                               ),
                             ),
                           ),
@@ -196,48 +209,28 @@ class _AuctionFilterBottomSheetState extends State<AuctionFilterBottomSheet> {
                         Expanded(
                           child: InkWell(
                             onTap: () => _showYearPicker(false),
-                            child: InputDecorator(
-                              decoration: InputDecoration(
-                                labelText: 'Max Year',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                            child: AbsorbPointer(
+                              child: TextField(
+                                controller: _yearMaxController,
+                                decoration: InputDecoration(
+                                  labelText: 'Max Year',
+                                  hintText: 'Any',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  suffixIcon: Icon(Icons.calendar_today, size: 20),
                                 ),
-                                suffixIcon: Icon(Icons.calendar_today, size: 20),
-                              ),
-                              child: Text(
-                                '$_yearMax',
-                                style: theme.textTheme.titleMedium,
                               ),
                             ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    RangeSlider(
-                      values: RangeValues(_yearMin.toDouble(), _yearMax.toDouble()),
-                      min: 2010,
-                      max: 2024,
-                      divisions: 14,
-                      labels: RangeLabels(_yearMin.toString(), _yearMax.toString()),
-                      onChanged: (values) {
-                        setState(() {
-                          _yearMin = values.start.round();
-                          _yearMax = values.end.round();
-                        });
-                      },
-                    ),
 
                     const SizedBox(height: 24),
 
                     // Maximum Mileage
-                    Text(
-                      'Maximum Mileage',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    _buildSectionTitle('Maximum Mileage'),
                     const SizedBox(height: 12),
                     TextField(
                       controller: _mileageController,
@@ -247,38 +240,13 @@ class _AuctionFilterBottomSheetState extends State<AuctionFilterBottomSheet> {
                         _ThousandsSeparatorInputFormatter(),
                       ],
                       decoration: InputDecoration(
-                        labelText: 'Mileage',
+                        labelText: 'Maximum Mileage',
+                        hintText: 'e.g., 100,000',
                         suffixText: 'km',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onChanged: (value) {
-                        setState(() {
-                          _mileageMax = _parseNumber(value);
-                          if (_mileageMax > 200000) {
-                            _mileageMax = 200000;
-                            _mileageController.text = _formatNumber(_mileageMax);
-                            _mileageController.selection = TextSelection.fromPosition(
-                              TextPosition(offset: _mileageController.text.length),
-                            );
-                          }
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    Slider(
-                      value: _mileageMax.toDouble().clamp(10000, 200000),
-                      min: 10000,
-                      max: 200000,
-                      divisions: 19,
-                      label: '${_formatNumber(_mileageMax)} km',
-                      onChanged: (value) {
-                        setState(() {
-                          _mileageMax = value.round();
-                          _mileageController.text = _formatNumber(_mileageMax);
-                        });
-                      },
                     ),
 
                     const SizedBox(height: 24),
@@ -452,15 +420,14 @@ class _AuctionFilterBottomSheetState extends State<AuctionFilterBottomSheet> {
                   width: double.infinity,
                   child: FilledButton(
                     onPressed: () {
-                      // Only apply year filters if user modified them from defaults
-                      final bool yearModified = _yearMin != 2010 || _yearMax != 2024;
-                      // Only apply mileage filter if user modified it from default
-                      final bool mileageModified = _mileageMax != 150000;
+                      // Parse mileage from text field
+                      final mileageText = _mileageController.text.trim();
+                      final mileageValue = mileageText.isNotEmpty ? _parseNumber(mileageText) : null;
 
                       final finalFilters = _filters.copyWith(
-                        yearMin: yearModified ? _yearMin : null,
-                        yearMax: yearModified ? _yearMax : null,
-                        mileageMax: mileageModified ? _mileageMax : null,
+                        yearMin: _yearMin,
+                        yearMax: _yearMax,
+                        mileageMax: mileageValue,
                       );
                       widget.onApply(finalFilters);
                       Navigator.pop(context);
@@ -508,7 +475,7 @@ class _AuctionFilterBottomSheetState extends State<AuctionFilterBottomSheet> {
 }
 
 class _YearPickerDialog extends StatelessWidget {
-  final int initialYear;
+  final int? initialYear;
   final int minYear;
   final int maxYear;
 
@@ -521,7 +488,7 @@ class _YearPickerDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final years = List.generate(maxYear - minYear + 1, (index) => maxYear - index);
-    final initialIndex = years.indexOf(initialYear);
+    final initialIndex = initialYear != null ? years.indexOf(initialYear!) : 0;
 
     return Dialog(
       child: Container(
@@ -554,6 +521,7 @@ class _YearPickerDialog extends StatelessWidget {
                       ),
                     ),
                     selected: isSelected,
+                    selectedTileColor: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
                     onTap: () => Navigator.pop(context, year),
                   );
                 },
