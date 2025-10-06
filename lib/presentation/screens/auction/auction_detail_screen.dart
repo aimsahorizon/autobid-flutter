@@ -84,16 +84,21 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
                     background: Stack(
                       fit: StackFit.expand,
                       children: [
-                        Image.network(
-                          'https://via.placeholder.com/800x400',
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
+                        auction.car?.images.isNotEmpty == true
+                          ? Image.network(
+                              auction.car!.images.first,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  color: Colors.grey[300],
+                                  child: Icon(Icons.directions_car, size: 100, color: Colors.grey[600]),
+                                );
+                              },
+                            )
+                          : Container(
                               color: Colors.grey[300],
                               child: Icon(Icons.directions_car, size: 100, color: Colors.grey[600]),
-                            );
-                          },
-                        ),
+                            ),
                         Container(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
@@ -116,7 +121,9 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
                               _buildStatusBanner(auction),
                               const SizedBox(height: 8),
                               Text(
-                                '2020 Toyota Camry',
+                                auction.car != null
+                                  ? '${auction.car!.year} ${auction.car!.brand} ${auction.car!.model}'
+                                  : 'Car Auction',
                                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,

@@ -34,61 +34,94 @@ class CarInfoTab extends StatelessWidget {
           _buildSection(
             'Seller Information',
             [
-              _buildInfoRow('Seller ID', auction.sellerId),
+              _buildInfoRow('Seller', auction.car?.sellerName ?? auction.sellerId),
               _buildInfoRow('Member Since', _formatDate(auction.createdAt)),
             ],
             theme,
           ),
           const SizedBox(height: 24),
-          _buildSection(
-            'Vehicle Specifications',
-            [
-              _buildInfoRow('Year', '2020'),
-              _buildInfoRow('Make', 'Toyota'),
-              _buildInfoRow('Model', 'Camry'),
-              _buildInfoRow('Mileage', '45,000 km'),
-              _buildInfoRow('Transmission', 'Automatic'),
-              _buildInfoRow('Fuel Type', 'Gasoline'),
-              _buildInfoRow('Color', 'Silver'),
-              _buildInfoRow('Body Type', 'Sedan'),
+          if (auction.car != null) ...[
+            _buildSection(
+              'Vehicle Specifications',
+              [
+                _buildInfoRow('Year', '${auction.car!.year}'),
+                _buildInfoRow('Make', auction.car!.brand),
+                _buildInfoRow('Model', '${auction.car!.model} ${auction.car!.variant}'),
+                _buildInfoRow('Mileage', '${_formatNumber(auction.car!.mileage)} km'),
+                _buildInfoRow('Transmission', _getTransmissionName(auction.car!.transmission)),
+                _buildInfoRow('Fuel Type', _getFuelTypeName(auction.car!.fuelType)),
+                _buildInfoRow('Color', auction.car!.color),
+                _buildInfoRow('Body Type', _getBodyTypeName(auction.car!.bodyType)),
+                _buildInfoRow('Engine Size', auction.car!.engineSize),
+                _buildInfoRow('Seats', '${auction.car!.seats}'),
+                _buildInfoRow('Doors', '${auction.car!.doors}'),
+              ],
+              theme,
+            ),
+            const SizedBox(height: 24),
+            _buildSection(
+              'Location',
+              [
+                _buildInfoRow('City', auction.car!.location.city),
+                _buildInfoRow('Province', auction.car!.location.province),
+              ],
+              theme,
+            ),
+            const SizedBox(height: 24),
+            _buildSection(
+              'Documents & History',
+              [
+                _buildInfoRow('Plate Number', auction.car!.plateNumber),
+                _buildInfoRow('OR/CR Number', auction.car!.orcrNumber),
+                _buildInfoRow('Number of Owners', '${auction.car!.numberOfOwners}'),
+                _buildInfoRow('Service History', auction.car!.serviceHistoryComplete ? 'Complete' : 'Incomplete'),
+                _buildInfoRow('Accident History', auction.car!.hasAccidentHistory ? 'Yes' : 'No'),
+              ],
+              theme,
+            ),
+          ],
+          if (auction.car != null && auction.car!.features.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            _buildSection(
+              'Features',
+              [],
+              theme,
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: auction.car!.features.map((feature) => Chip(
+                label: Text(feature, style: TextStyle(fontSize: 12)),
+                backgroundColor: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
+              )).toList(),
+            ),
+          ],
+          if (auction.car != null) ...[
+            const SizedBox(height: 24),
+            _buildSection(
+              'Description',
+              [],
+              theme,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              auction.car!.description,
+              style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+            ),
+            if (auction.car!.issues != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                'Known Issues:',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                auction.car!.issues!,
+                style: TextStyle(fontSize: 14, color: Colors.red[700]),
+              ),
             ],
-            theme,
-          ),
-          const SizedBox(height: 24),
-          _buildSection(
-            'Features',
-            [],
-            theme,
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              'Power Steering',
-              'Power Windows',
-              'Air Conditioning',
-              'ABS Brakes',
-              'Airbags',
-              'Bluetooth',
-              'Backup Camera',
-              'Cruise Control',
-            ].map((feature) => Chip(
-              label: Text(feature, style: TextStyle(fontSize: 12)),
-              backgroundColor: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
-            )).toList(),
-          ),
-          const SizedBox(height: 24),
-          _buildSection(
-            'Condition',
-            [
-              _buildInfoRow('Overall', 'Excellent'),
-              _buildInfoRow('Exterior', 'Very Good'),
-              _buildInfoRow('Interior', 'Excellent'),
-              _buildInfoRow('Engine', 'Excellent'),
-            ],
-            theme,
-          ),
+          ],
         ],
       ),
     );
@@ -142,7 +175,34 @@ class CarInfoTab extends StatelessWidget {
         );
   }
 
+  String _formatNumber(int number) {
+    return number.toString().replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+        );
+  }
+
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
+  }
+
+  String _getTransmissionName(dynamic transmission) {
+    if (transmission == null) return 'Unknown';
+    final name = transmission.toString().split('.').last;
+    return name[0].toUpperCase() + name.substring(1);
+  }
+
+  String _getFuelTypeName(dynamic fuelType) {
+    if (fuelType == null) return 'Unknown';
+    final name = fuelType.toString().split('.').last;
+    return name[0].toUpperCase() + name.substring(1);
+  }
+
+  String _getBodyTypeName(dynamic bodyType) {
+    if (bodyType == null) return 'Unknown';
+    final name = bodyType.toString().split('.').last;
+    if (name == 'suv') return 'SUV';
+    if (name == 'mpv') return 'MPV';
+    return name[0].toUpperCase() + name.substring(1);
   }
 }
