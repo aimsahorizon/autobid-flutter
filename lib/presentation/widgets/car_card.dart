@@ -79,19 +79,25 @@ class CarCard extends StatelessWidget {
                     children: [
                       Icon(Icons.speed, size: 16, color: Colors.grey[600]),
                       const SizedBox(width: 4),
-                      Text(
-                        '${car.mileage.toString().replaceAllMapped(
-                              RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-                              (Match m) => '${m[1]},',
-                            )} km',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      Flexible(
+                        child: Text(
+                          '${car.mileage.toString().replaceAllMapped(
+                                RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+                                (Match m) => '${m[1]},',
+                              )} km',
+                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Icon(Icons.settings, size: 16, color: Colors.grey[600]),
                       const SizedBox(width: 4),
-                      Text(
-                        car.transmission.displayName,
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      Flexible(
+                        child: Text(
+                          car.transmission.displayName,
+                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),
@@ -118,18 +124,26 @@ class CarCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         if (onEdit != null)
-                          TextButton.icon(
-                            onPressed: onEdit,
-                            icon: const Icon(Icons.edit, size: 16),
-                            label: const Text('Edit'),
+                          Flexible(
+                            child: TextButton.icon(
+                              onPressed: onEdit,
+                              icon: const Icon(Icons.edit, size: 16),
+                              label: const Text('Edit'),
+                              style: TextButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                              ),
+                            ),
                           ),
                         if (onDelete != null)
-                          TextButton.icon(
-                            onPressed: onDelete,
-                            icon: const Icon(Icons.delete, size: 16),
-                            label: const Text('Delete'),
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.red,
+                          Flexible(
+                            child: TextButton.icon(
+                              onPressed: onDelete,
+                              icon: const Icon(Icons.delete, size: 16),
+                              label: const Text('Delete'),
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.red,
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                              ),
                             ),
                           ),
                       ],
