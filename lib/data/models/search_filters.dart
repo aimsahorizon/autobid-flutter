@@ -15,6 +15,8 @@ enum SortBy {
   mileageAsc,
   @JsonValue('newest')
   newest,
+  @JsonValue('ending_soon')
+  endingSoon,
 }
 
 @freezed
@@ -35,6 +37,7 @@ abstract class SearchFilters with _$SearchFilters {
     String? city,
     String? province,
     @Default(SortBy.newest) SortBy sortBy,
+    @Default(false) bool auctionsOnly,
   }) = _SearchFilters;
 
   factory SearchFilters.fromJson(Map<String, dynamic> json) =>
@@ -53,7 +56,8 @@ abstract class SearchFilters with _$SearchFilters {
         fuelType.isEmpty &&
         bodyType.isEmpty &&
         city == null &&
-        province == null;
+        province == null &&
+        !auctionsOnly;
   }
 
   // Count active filters
@@ -68,6 +72,7 @@ abstract class SearchFilters with _$SearchFilters {
     if (fuelType.isNotEmpty) count++;
     if (bodyType.isNotEmpty) count++;
     if (city != null || province != null) count++;
+    if (auctionsOnly) count++;
     return count;
   }
 }
