@@ -24,6 +24,9 @@ import '../../presentation/screens/listings/create/create_listing_step4_conditio
 import '../../presentation/screens/listings/create/create_listing_step5_photos.dart';
 import '../../presentation/screens/listings/create/create_listing_step6_review.dart';
 import '../../presentation/screens/listings/create/listing_success_screen.dart';
+import '../../presentation/screens/browse/browse_cars_screen.dart';
+import '../../presentation/screens/browse/search_screen.dart';
+import '../../presentation/screens/browse/car_detail_screen.dart';
 import '../../presentation/providers/auth_provider.dart';
 import '../constants/string_constants.dart';
 
@@ -138,18 +141,33 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'kyc-status',
         builder: (context, state) => const KycStatusScreen(),
       ),
-      // Listings Routes
+      // Browse & Search Routes
+      GoRoute(
+        path: '/browse',
+        name: 'browse',
+        builder: (context, state) => const BrowseCarsScreen(),
+      ),
+      GoRoute(
+        path: '/search',
+        name: 'search',
+        builder: (context, state) => const SearchScreen(),
+      ),
       GoRoute(
         path: '/car/:id',
         name: 'car-detail',
         builder: (context, state) {
-          // In production, fetch car by ID from service
-          // For now, return a placeholder
-          return const Scaffold(
-            body: Center(child: Text('Car Detail - Load from service')),
-          );
+          final carId = state.pathParameters['id']!;
+          return CarDetailScreen(carId: carId);
         },
       ),
+      GoRoute(
+        path: '/watchlist',
+        name: 'watchlist',
+        builder: (context, state) => const Scaffold(
+          body: Center(child: Text('Watchlist Screen')),
+        ),
+      ),
+      // Listings Routes
       GoRoute(
         path: '/listing/create/step1',
         name: 'create-listing-step1',
