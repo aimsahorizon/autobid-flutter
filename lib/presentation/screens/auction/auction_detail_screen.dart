@@ -140,7 +140,7 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
             body: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
                   child: Column(
                     children: [
                       CurrentBidCard(
@@ -149,7 +149,7 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
                         userBidAmount: provider.getUserBidAmount(auction.id),
                       ),
                       if (auction.status == AuctionStatus.live) ...[
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 12),
                         BidInputWidget(
                           auction: auction,
                           onBidPlaced: (amount) async {
@@ -161,7 +161,7 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
                             }
                           },
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 8),
                         Row(
                           children: [
                             if (auction.buyNowPrice != null)
@@ -194,12 +194,15 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
                     ],
                   ),
                 ),
-                TabBar(
-                  controller: _tabController,
-                  tabs: [
-                    Tab(text: 'Bid History'),
-                    Tab(text: 'Car Info'),
-                  ],
+                Material(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  child: TabBar(
+                    controller: _tabController,
+                    tabs: const [
+                      Tab(text: 'Bid History'),
+                      Tab(text: 'Car Info'),
+                    ],
+                  ),
                 ),
                 Expanded(
                   child: TabBarView(

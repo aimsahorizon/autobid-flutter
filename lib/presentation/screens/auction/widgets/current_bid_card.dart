@@ -22,7 +22,7 @@ class CurrentBidCard extends StatelessWidget {
     return Card(
       elevation: 4,
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -38,7 +38,7 @@ class CurrentBidCard extends StatelessWidget {
                 _buildReserveIndicator(reserveMet),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Text(
               '₱${_formatCurrency(auction.currentBid)}',
               style: theme.textTheme.headlineLarge?.copyWith(
@@ -46,13 +46,13 @@ class CurrentBidCard extends StatelessWidget {
                 color: theme.colorScheme.primary,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 4),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   '${auction.totalBids} ${auction.totalBids == 1 ? 'bid' : 'bids'}',
-                  style: theme.textTheme.bodyMedium?.copyWith(
+                  style: theme.textTheme.bodySmall?.copyWith(
                     color: Colors.grey[600],
                   ),
                 ),
@@ -60,10 +60,10 @@ class CurrentBidCard extends StatelessWidget {
               ],
             ),
             if (userBidAmount != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               Text(
                 'Your bid: ₱${_formatCurrency(userBidAmount!)}',
-                style: theme.textTheme.bodyMedium?.copyWith(
+                style: theme.textTheme.bodySmall?.copyWith(
                   fontWeight: FontWeight.w500,
                 ),
               ),

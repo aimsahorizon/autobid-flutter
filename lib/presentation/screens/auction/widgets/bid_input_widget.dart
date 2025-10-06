@@ -64,7 +64,7 @@ class _BidInputWidgetState extends State<BidInputWidget> {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -74,14 +74,14 @@ class _BidInputWidgetState extends State<BidInputWidget> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Text(
               'Minimum bid: ₱${_formatCurrency(minBid)}',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: Colors.grey[600],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             TextField(
               controller: _controller,
               keyboardType: TextInputType.number,
@@ -101,7 +101,7 @@ class _BidInputWidgetState extends State<BidInputWidget> {
               ),
               onChanged: _updateBidAmount,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -112,13 +112,13 @@ class _BidInputWidgetState extends State<BidInputWidget> {
                 );
               }).toList(),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: FilledButton(
                 onPressed: _bidAmount != null && _error == null ? _placeBid : null,
                 style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
