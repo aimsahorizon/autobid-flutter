@@ -90,6 +90,26 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                   controller: scrollController,
                   padding: const EdgeInsets.all(16),
                   children: [
+                    // Auction Filter
+                    SwitchListTile(
+                      title: Text(
+                        'Auctions Only',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Text('Show only cars available in auctions'),
+                      value: _filters.auctionsOnly,
+                      onChanged: (value) {
+                        setState(() {
+                          _filters = _filters.copyWith(auctionsOnly: value);
+                        });
+                      },
+                      contentPadding: EdgeInsets.zero,
+                    ),
+
+                    const SizedBox(height: 24),
+
                     // Brands
                     _buildSectionTitle('Brand'),
                     const SizedBox(height: 8),
@@ -403,6 +423,8 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
         return 'Mileage: Low to High';
       case SortBy.newest:
         return 'Recently Listed';
+      case SortBy.endingSoon:
+        return 'Ending Soon';
     }
   }
 }
