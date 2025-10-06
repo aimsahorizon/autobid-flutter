@@ -14,18 +14,8 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$KycModel {
-  String get id;
-  String get userId;
-  IdType get idType;
-  String get idNumber;
-  String get idImageUrl;
-  String? get secondaryIdImageUrl;
-  String get selfieUrl;
-  KycVerificationStatus get verificationStatus;
-  DateTime get submittedAt;
-  DateTime? get verifiedAt;
-  String? get rejectionReason;
 
+ String get id; String get userId; IdType get idType; String get idNumber; String get idImageUrl; String? get secondaryIdImageUrl; String get selfieUrl; KycVerificationStatus get verificationStatus; DateTime get submittedAt; DateTime? get verifiedAt; String? get rejectionReason;
 /// Create a copy of KycModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)

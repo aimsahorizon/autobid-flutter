@@ -10,7 +10,9 @@
       "Bash(dart run build_runner build:*)",
       "mcp__ide__getDiagnostics",
       "Bash(dart format:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(dart run:*)",
+      "Bash(dart analyze:*)"
     ],
     "deny": [],
     "ask": []

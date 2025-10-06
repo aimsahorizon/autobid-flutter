@@ -17,6 +17,13 @@ import '../../presentation/screens/profile/profile_screen.dart';
 import '../../presentation/screens/kyc/kyc_intro_screen.dart';
 import '../../presentation/screens/kyc/kyc_upload_screen.dart';
 import '../../presentation/screens/kyc/kyc_status_screen.dart';
+import '../../presentation/screens/listings/create/create_listing_step1_basic.dart';
+import '../../presentation/screens/listings/create/create_listing_step2_details.dart';
+import '../../presentation/screens/listings/create/create_listing_step3_documents.dart';
+import '../../presentation/screens/listings/create/create_listing_step4_condition.dart';
+import '../../presentation/screens/listings/create/create_listing_step5_photos.dart';
+import '../../presentation/screens/listings/create/create_listing_step6_review.dart';
+import '../../presentation/screens/listings/create/listing_success_screen.dart';
 import '../../presentation/providers/auth_provider.dart';
 import '../constants/string_constants.dart';
 
@@ -105,7 +112,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: StringConstants.homeRoute,
         name: 'home',
-        builder: (context, state) => const HomeScreen(),
+        builder: (context, state) {
+          final tabParam = state.uri.queryParameters['tab'];
+          final initialTab = tabParam != null ? (int.tryParse(tabParam) ?? 0) : 0;
+          return HomeScreen(initialTabIndex: initialTab);
+        },
       ),
       GoRoute(
         path: StringConstants.profileRoute,
@@ -126,6 +137,53 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/kyc-status',
         name: 'kyc-status',
         builder: (context, state) => const KycStatusScreen(),
+      ),
+      // Listings Routes
+      GoRoute(
+        path: '/car/:id',
+        name: 'car-detail',
+        builder: (context, state) {
+          // In production, fetch car by ID from service
+          // For now, return a placeholder
+          return const Scaffold(
+            body: Center(child: Text('Car Detail - Load from service')),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/listing/create/step1',
+        name: 'create-listing-step1',
+        builder: (context, state) => const CreateListingStep1Basic(),
+      ),
+      GoRoute(
+        path: '/listing/create/step2',
+        name: 'create-listing-step2',
+        builder: (context, state) => const CreateListingStep2Details(),
+      ),
+      GoRoute(
+        path: '/listing/create/step3',
+        name: 'create-listing-step3',
+        builder: (context, state) => const CreateListingStep3Documents(),
+      ),
+      GoRoute(
+        path: '/listing/create/step4',
+        name: 'create-listing-step4',
+        builder: (context, state) => const CreateListingStep4Condition(),
+      ),
+      GoRoute(
+        path: '/listing/create/step5',
+        name: 'create-listing-step5',
+        builder: (context, state) => const CreateListingStep5Photos(),
+      ),
+      GoRoute(
+        path: '/listing/create/step6',
+        name: 'create-listing-step6',
+        builder: (context, state) => const CreateListingStep6Review(),
+      ),
+      GoRoute(
+        path: '/listing/success',
+        name: 'listing-success',
+        builder: (context, state) => const ListingSuccessScreen(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

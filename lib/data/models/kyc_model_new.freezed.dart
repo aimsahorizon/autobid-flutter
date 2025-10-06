@@ -14,12 +14,8 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$PhilippineAddress {
-  String get street;
-  String get barangay;
-  String get city;
-  String get province;
-  String get zipCode;
 
+ String get street; String get barangay; String get city; String get province; String get zipCode;
 /// Create a copy of PhilippineAddress
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -293,28 +289,13 @@ as String,
 
 /// @nodoc
 mixin _$KycModelNew {
-  String get id;
-  String get userId;
-  // Primary ID (Philippine National ID - Fixed)
-  String get primaryIdType;
-  String get primaryIdNumber;
-  String get primaryIdFrontImage;
-  String get primaryIdBackImage;
-  // Secondary ID
-  SecondaryIdType get secondaryIdType;
-  String get secondaryIdNumber;
-  String get secondaryIdImage;
-  // Selfie
-  String get selfieImage;
-  // Personal Information
-  DateTime get dateOfBirth;
-  PhilippineAddress get address;
-  // Verification
-  KycVerificationStatus get verificationStatus;
-  DateTime get submittedAt;
-  DateTime? get verifiedAt;
-  String? get rejectionReason;
 
+ String get id; String get userId;// Primary ID (Philippine National ID - Fixed)
+ String get primaryIdType; String get primaryIdNumber; String get primaryIdFrontImage; String get primaryIdBackImage;// Secondary ID
+ SecondaryIdType get secondaryIdType; String get secondaryIdNumber; String get secondaryIdImage;// Selfie
+ String get selfieImage;// Personal Information
+ DateTime get dateOfBirth; PhilippineAddress get address;// Verification
+ KycVerificationStatus get verificationStatus; DateTime get submittedAt; DateTime? get verifiedAt; String? get rejectionReason;
 /// Create a copy of KycModelNew
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
