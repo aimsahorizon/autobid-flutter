@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SearchFilters {
 
- String? get keyword; List<String> get brands; int? get yearMin; int? get yearMax; double? get priceMin; double? get priceMax; int? get mileageMax; List<TransmissionType> get transmission; List<FuelType> get fuelType; List<BodyType> get bodyType; String? get city; String? get province; SortBy get sortBy;
+ String? get keyword; List<String> get brands; int? get yearMin; int? get yearMax; double? get priceMin; double? get priceMax; int? get mileageMax; List<TransmissionType> get transmission; List<FuelType> get fuelType; List<BodyType> get bodyType; String? get city; String? get province; SortBy get sortBy; bool get auctionsOnly;
 /// Create a copy of SearchFilters
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $SearchFiltersCopyWith<SearchFilters> get copyWith => _$SearchFiltersCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchFilters&&(identical(other.keyword, keyword) || other.keyword == keyword)&&const DeepCollectionEquality().equals(other.brands, brands)&&(identical(other.yearMin, yearMin) || other.yearMin == yearMin)&&(identical(other.yearMax, yearMax) || other.yearMax == yearMax)&&(identical(other.priceMin, priceMin) || other.priceMin == priceMin)&&(identical(other.priceMax, priceMax) || other.priceMax == priceMax)&&(identical(other.mileageMax, mileageMax) || other.mileageMax == mileageMax)&&const DeepCollectionEquality().equals(other.transmission, transmission)&&const DeepCollectionEquality().equals(other.fuelType, fuelType)&&const DeepCollectionEquality().equals(other.bodyType, bodyType)&&(identical(other.city, city) || other.city == city)&&(identical(other.province, province) || other.province == province)&&(identical(other.sortBy, sortBy) || other.sortBy == sortBy));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchFilters&&(identical(other.keyword, keyword) || other.keyword == keyword)&&const DeepCollectionEquality().equals(other.brands, brands)&&(identical(other.yearMin, yearMin) || other.yearMin == yearMin)&&(identical(other.yearMax, yearMax) || other.yearMax == yearMax)&&(identical(other.priceMin, priceMin) || other.priceMin == priceMin)&&(identical(other.priceMax, priceMax) || other.priceMax == priceMax)&&(identical(other.mileageMax, mileageMax) || other.mileageMax == mileageMax)&&const DeepCollectionEquality().equals(other.transmission, transmission)&&const DeepCollectionEquality().equals(other.fuelType, fuelType)&&const DeepCollectionEquality().equals(other.bodyType, bodyType)&&(identical(other.city, city) || other.city == city)&&(identical(other.province, province) || other.province == province)&&(identical(other.sortBy, sortBy) || other.sortBy == sortBy)&&(identical(other.auctionsOnly, auctionsOnly) || other.auctionsOnly == auctionsOnly));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,keyword,const DeepCollectionEquality().hash(brands),yearMin,yearMax,priceMin,priceMax,mileageMax,const DeepCollectionEquality().hash(transmission),const DeepCollectionEquality().hash(fuelType),const DeepCollectionEquality().hash(bodyType),city,province,sortBy);
+int get hashCode => Object.hash(runtimeType,keyword,const DeepCollectionEquality().hash(brands),yearMin,yearMax,priceMin,priceMax,mileageMax,const DeepCollectionEquality().hash(transmission),const DeepCollectionEquality().hash(fuelType),const DeepCollectionEquality().hash(bodyType),city,province,sortBy,auctionsOnly);
 
 @override
 String toString() {
-  return 'SearchFilters(keyword: $keyword, brands: $brands, yearMin: $yearMin, yearMax: $yearMax, priceMin: $priceMin, priceMax: $priceMax, mileageMax: $mileageMax, transmission: $transmission, fuelType: $fuelType, bodyType: $bodyType, city: $city, province: $province, sortBy: $sortBy)';
+  return 'SearchFilters(keyword: $keyword, brands: $brands, yearMin: $yearMin, yearMax: $yearMax, priceMin: $priceMin, priceMax: $priceMax, mileageMax: $mileageMax, transmission: $transmission, fuelType: $fuelType, bodyType: $bodyType, city: $city, province: $province, sortBy: $sortBy, auctionsOnly: $auctionsOnly)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $SearchFiltersCopyWith<$Res>  {
   factory $SearchFiltersCopyWith(SearchFilters value, $Res Function(SearchFilters) _then) = _$SearchFiltersCopyWithImpl;
 @useResult
 $Res call({
- String? keyword, List<String> brands, int? yearMin, int? yearMax, double? priceMin, double? priceMax, int? mileageMax, List<TransmissionType> transmission, List<FuelType> fuelType, List<BodyType> bodyType, String? city, String? province, SortBy sortBy
+ String? keyword, List<String> brands, int? yearMin, int? yearMax, double? priceMin, double? priceMax, int? mileageMax, List<TransmissionType> transmission, List<FuelType> fuelType, List<BodyType> bodyType, String? city, String? province, SortBy sortBy, bool auctionsOnly
 });
 
 
@@ -65,7 +65,7 @@ class _$SearchFiltersCopyWithImpl<$Res>
 
 /// Create a copy of SearchFilters
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? keyword = freezed,Object? brands = null,Object? yearMin = freezed,Object? yearMax = freezed,Object? priceMin = freezed,Object? priceMax = freezed,Object? mileageMax = freezed,Object? transmission = null,Object? fuelType = null,Object? bodyType = null,Object? city = freezed,Object? province = freezed,Object? sortBy = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? keyword = freezed,Object? brands = null,Object? yearMin = freezed,Object? yearMax = freezed,Object? priceMin = freezed,Object? priceMax = freezed,Object? mileageMax = freezed,Object? transmission = null,Object? fuelType = null,Object? bodyType = null,Object? city = freezed,Object? province = freezed,Object? sortBy = null,Object? auctionsOnly = null,}) {
   return _then(_self.copyWith(
 keyword: freezed == keyword ? _self.keyword : keyword // ignore: cast_nullable_to_non_nullable
 as String?,brands: null == brands ? _self.brands : brands // ignore: cast_nullable_to_non_nullable
@@ -80,7 +80,8 @@ as List<FuelType>,bodyType: null == bodyType ? _self.bodyType : bodyType // igno
 as List<BodyType>,city: freezed == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
 as String?,province: freezed == province ? _self.province : province // ignore: cast_nullable_to_non_nullable
 as String?,sortBy: null == sortBy ? _self.sortBy : sortBy // ignore: cast_nullable_to_non_nullable
-as SortBy,
+as SortBy,auctionsOnly: null == auctionsOnly ? _self.auctionsOnly : auctionsOnly // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -165,10 +166,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? keyword,  List<String> brands,  int? yearMin,  int? yearMax,  double? priceMin,  double? priceMax,  int? mileageMax,  List<TransmissionType> transmission,  List<FuelType> fuelType,  List<BodyType> bodyType,  String? city,  String? province,  SortBy sortBy)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? keyword,  List<String> brands,  int? yearMin,  int? yearMax,  double? priceMin,  double? priceMax,  int? mileageMax,  List<TransmissionType> transmission,  List<FuelType> fuelType,  List<BodyType> bodyType,  String? city,  String? province,  SortBy sortBy,  bool auctionsOnly)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SearchFilters() when $default != null:
-return $default(_that.keyword,_that.brands,_that.yearMin,_that.yearMax,_that.priceMin,_that.priceMax,_that.mileageMax,_that.transmission,_that.fuelType,_that.bodyType,_that.city,_that.province,_that.sortBy);case _:
+return $default(_that.keyword,_that.brands,_that.yearMin,_that.yearMax,_that.priceMin,_that.priceMax,_that.mileageMax,_that.transmission,_that.fuelType,_that.bodyType,_that.city,_that.province,_that.sortBy,_that.auctionsOnly);case _:
   return orElse();
 
 }
@@ -186,10 +187,10 @@ return $default(_that.keyword,_that.brands,_that.yearMin,_that.yearMax,_that.pri
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? keyword,  List<String> brands,  int? yearMin,  int? yearMax,  double? priceMin,  double? priceMax,  int? mileageMax,  List<TransmissionType> transmission,  List<FuelType> fuelType,  List<BodyType> bodyType,  String? city,  String? province,  SortBy sortBy)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? keyword,  List<String> brands,  int? yearMin,  int? yearMax,  double? priceMin,  double? priceMax,  int? mileageMax,  List<TransmissionType> transmission,  List<FuelType> fuelType,  List<BodyType> bodyType,  String? city,  String? province,  SortBy sortBy,  bool auctionsOnly)  $default,) {final _that = this;
 switch (_that) {
 case _SearchFilters():
-return $default(_that.keyword,_that.brands,_that.yearMin,_that.yearMax,_that.priceMin,_that.priceMax,_that.mileageMax,_that.transmission,_that.fuelType,_that.bodyType,_that.city,_that.province,_that.sortBy);case _:
+return $default(_that.keyword,_that.brands,_that.yearMin,_that.yearMax,_that.priceMin,_that.priceMax,_that.mileageMax,_that.transmission,_that.fuelType,_that.bodyType,_that.city,_that.province,_that.sortBy,_that.auctionsOnly);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -206,10 +207,10 @@ return $default(_that.keyword,_that.brands,_that.yearMin,_that.yearMax,_that.pri
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? keyword,  List<String> brands,  int? yearMin,  int? yearMax,  double? priceMin,  double? priceMax,  int? mileageMax,  List<TransmissionType> transmission,  List<FuelType> fuelType,  List<BodyType> bodyType,  String? city,  String? province,  SortBy sortBy)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? keyword,  List<String> brands,  int? yearMin,  int? yearMax,  double? priceMin,  double? priceMax,  int? mileageMax,  List<TransmissionType> transmission,  List<FuelType> fuelType,  List<BodyType> bodyType,  String? city,  String? province,  SortBy sortBy,  bool auctionsOnly)?  $default,) {final _that = this;
 switch (_that) {
 case _SearchFilters() when $default != null:
-return $default(_that.keyword,_that.brands,_that.yearMin,_that.yearMax,_that.priceMin,_that.priceMax,_that.mileageMax,_that.transmission,_that.fuelType,_that.bodyType,_that.city,_that.province,_that.sortBy);case _:
+return $default(_that.keyword,_that.brands,_that.yearMin,_that.yearMax,_that.priceMin,_that.priceMax,_that.mileageMax,_that.transmission,_that.fuelType,_that.bodyType,_that.city,_that.province,_that.sortBy,_that.auctionsOnly);case _:
   return null;
 
 }
@@ -221,7 +222,7 @@ return $default(_that.keyword,_that.brands,_that.yearMin,_that.yearMax,_that.pri
 @JsonSerializable()
 
 class _SearchFilters extends SearchFilters {
-  const _SearchFilters({this.keyword, final  List<String> brands = const [], this.yearMin, this.yearMax, this.priceMin, this.priceMax, this.mileageMax, final  List<TransmissionType> transmission = const [], final  List<FuelType> fuelType = const [], final  List<BodyType> bodyType = const [], this.city, this.province, this.sortBy = SortBy.newest}): _brands = brands,_transmission = transmission,_fuelType = fuelType,_bodyType = bodyType,super._();
+  const _SearchFilters({this.keyword, final  List<String> brands = const [], this.yearMin, this.yearMax, this.priceMin, this.priceMax, this.mileageMax, final  List<TransmissionType> transmission = const [], final  List<FuelType> fuelType = const [], final  List<BodyType> bodyType = const [], this.city, this.province, this.sortBy = SortBy.newest, this.auctionsOnly = false}): _brands = brands,_transmission = transmission,_fuelType = fuelType,_bodyType = bodyType,super._();
   factory _SearchFilters.fromJson(Map<String, dynamic> json) => _$SearchFiltersFromJson(json);
 
 @override final  String? keyword;
@@ -261,6 +262,7 @@ class _SearchFilters extends SearchFilters {
 @override final  String? city;
 @override final  String? province;
 @override@JsonKey() final  SortBy sortBy;
+@override@JsonKey() final  bool auctionsOnly;
 
 /// Create a copy of SearchFilters
 /// with the given fields replaced by the non-null parameter values.
@@ -275,16 +277,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SearchFilters&&(identical(other.keyword, keyword) || other.keyword == keyword)&&const DeepCollectionEquality().equals(other._brands, _brands)&&(identical(other.yearMin, yearMin) || other.yearMin == yearMin)&&(identical(other.yearMax, yearMax) || other.yearMax == yearMax)&&(identical(other.priceMin, priceMin) || other.priceMin == priceMin)&&(identical(other.priceMax, priceMax) || other.priceMax == priceMax)&&(identical(other.mileageMax, mileageMax) || other.mileageMax == mileageMax)&&const DeepCollectionEquality().equals(other._transmission, _transmission)&&const DeepCollectionEquality().equals(other._fuelType, _fuelType)&&const DeepCollectionEquality().equals(other._bodyType, _bodyType)&&(identical(other.city, city) || other.city == city)&&(identical(other.province, province) || other.province == province)&&(identical(other.sortBy, sortBy) || other.sortBy == sortBy));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SearchFilters&&(identical(other.keyword, keyword) || other.keyword == keyword)&&const DeepCollectionEquality().equals(other._brands, _brands)&&(identical(other.yearMin, yearMin) || other.yearMin == yearMin)&&(identical(other.yearMax, yearMax) || other.yearMax == yearMax)&&(identical(other.priceMin, priceMin) || other.priceMin == priceMin)&&(identical(other.priceMax, priceMax) || other.priceMax == priceMax)&&(identical(other.mileageMax, mileageMax) || other.mileageMax == mileageMax)&&const DeepCollectionEquality().equals(other._transmission, _transmission)&&const DeepCollectionEquality().equals(other._fuelType, _fuelType)&&const DeepCollectionEquality().equals(other._bodyType, _bodyType)&&(identical(other.city, city) || other.city == city)&&(identical(other.province, province) || other.province == province)&&(identical(other.sortBy, sortBy) || other.sortBy == sortBy)&&(identical(other.auctionsOnly, auctionsOnly) || other.auctionsOnly == auctionsOnly));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,keyword,const DeepCollectionEquality().hash(_brands),yearMin,yearMax,priceMin,priceMax,mileageMax,const DeepCollectionEquality().hash(_transmission),const DeepCollectionEquality().hash(_fuelType),const DeepCollectionEquality().hash(_bodyType),city,province,sortBy);
+int get hashCode => Object.hash(runtimeType,keyword,const DeepCollectionEquality().hash(_brands),yearMin,yearMax,priceMin,priceMax,mileageMax,const DeepCollectionEquality().hash(_transmission),const DeepCollectionEquality().hash(_fuelType),const DeepCollectionEquality().hash(_bodyType),city,province,sortBy,auctionsOnly);
 
 @override
 String toString() {
-  return 'SearchFilters(keyword: $keyword, brands: $brands, yearMin: $yearMin, yearMax: $yearMax, priceMin: $priceMin, priceMax: $priceMax, mileageMax: $mileageMax, transmission: $transmission, fuelType: $fuelType, bodyType: $bodyType, city: $city, province: $province, sortBy: $sortBy)';
+  return 'SearchFilters(keyword: $keyword, brands: $brands, yearMin: $yearMin, yearMax: $yearMax, priceMin: $priceMin, priceMax: $priceMax, mileageMax: $mileageMax, transmission: $transmission, fuelType: $fuelType, bodyType: $bodyType, city: $city, province: $province, sortBy: $sortBy, auctionsOnly: $auctionsOnly)';
 }
 
 
@@ -295,7 +297,7 @@ abstract mixin class _$SearchFiltersCopyWith<$Res> implements $SearchFiltersCopy
   factory _$SearchFiltersCopyWith(_SearchFilters value, $Res Function(_SearchFilters) _then) = __$SearchFiltersCopyWithImpl;
 @override @useResult
 $Res call({
- String? keyword, List<String> brands, int? yearMin, int? yearMax, double? priceMin, double? priceMax, int? mileageMax, List<TransmissionType> transmission, List<FuelType> fuelType, List<BodyType> bodyType, String? city, String? province, SortBy sortBy
+ String? keyword, List<String> brands, int? yearMin, int? yearMax, double? priceMin, double? priceMax, int? mileageMax, List<TransmissionType> transmission, List<FuelType> fuelType, List<BodyType> bodyType, String? city, String? province, SortBy sortBy, bool auctionsOnly
 });
 
 
@@ -312,7 +314,7 @@ class __$SearchFiltersCopyWithImpl<$Res>
 
 /// Create a copy of SearchFilters
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? keyword = freezed,Object? brands = null,Object? yearMin = freezed,Object? yearMax = freezed,Object? priceMin = freezed,Object? priceMax = freezed,Object? mileageMax = freezed,Object? transmission = null,Object? fuelType = null,Object? bodyType = null,Object? city = freezed,Object? province = freezed,Object? sortBy = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? keyword = freezed,Object? brands = null,Object? yearMin = freezed,Object? yearMax = freezed,Object? priceMin = freezed,Object? priceMax = freezed,Object? mileageMax = freezed,Object? transmission = null,Object? fuelType = null,Object? bodyType = null,Object? city = freezed,Object? province = freezed,Object? sortBy = null,Object? auctionsOnly = null,}) {
   return _then(_SearchFilters(
 keyword: freezed == keyword ? _self.keyword : keyword // ignore: cast_nullable_to_non_nullable
 as String?,brands: null == brands ? _self._brands : brands // ignore: cast_nullable_to_non_nullable
@@ -327,7 +329,8 @@ as List<FuelType>,bodyType: null == bodyType ? _self._bodyType : bodyType // ign
 as List<BodyType>,city: freezed == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
 as String?,province: freezed == province ? _self.province : province // ignore: cast_nullable_to_non_nullable
 as String?,sortBy: null == sortBy ? _self.sortBy : sortBy // ignore: cast_nullable_to_non_nullable
-as SortBy,
+as SortBy,auctionsOnly: null == auctionsOnly ? _self.auctionsOnly : auctionsOnly // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

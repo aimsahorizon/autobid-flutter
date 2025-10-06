@@ -36,6 +36,7 @@ _SearchFilters _$SearchFiltersFromJson(
   city: json['city'] as String?,
   province: json['province'] as String?,
   sortBy: $enumDecodeNullable(_$SortByEnumMap, json['sortBy']) ?? SortBy.newest,
+  auctionsOnly: json['auctionsOnly'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$SearchFiltersToJson(_SearchFilters instance) =>
@@ -55,6 +56,7 @@ Map<String, dynamic> _$SearchFiltersToJson(_SearchFilters instance) =>
       'city': instance.city,
       'province': instance.province,
       'sortBy': _$SortByEnumMap[instance.sortBy]!,
+      'auctionsOnly': instance.auctionsOnly,
     };
 
 const _$TransmissionTypeEnumMap = {
@@ -87,4 +89,5 @@ const _$SortByEnumMap = {
   SortBy.yearDesc: 'year_desc',
   SortBy.mileageAsc: 'mileage_asc',
   SortBy.newest: 'newest',
+  SortBy.endingSoon: 'ending_soon',
 };
