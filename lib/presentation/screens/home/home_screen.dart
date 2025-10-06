@@ -3,7 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../data/models/car_model.dart';
 import '../../providers/listing_provider.dart';
+import '../../providers/browse_provider.dart';
 import '../../widgets/car_card.dart';
+import '../browse/filter_bottom_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
   final int initialTabIndex;
@@ -17,6 +19,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late int _selectedIndex;
   bool _isGridView = false;
+  bool _isBrowseGridView = true;
 
   @override
   void initState() {
@@ -27,9 +30,9 @@ class _HomeScreenState extends State<HomeScreen> {
   String _getAppBarTitle() {
     switch (_selectedIndex) {
       case 0:
-        return 'AutoBID';
+        return 'Browse Cars';
       case 1:
-        return 'Search';
+        return 'Watchlist';
       case 2:
         return 'My Bids';
       case 3:
@@ -47,6 +50,66 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Text(_getAppBarTitle()),
         actions: [
+          // Browse tab actions
+          if (_selectedIndex == 0) ...[
+            IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: () {
+                context.push('/search');
+              },
+            ),
+            Consumer<BrowseProvider>(
+              builder: (context, browseProvider, child) {
+                return Stack(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.filter_list),
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (context) => const FilterBottomSheet(),
+                        );
+                      },
+                    ),
+                    if (browseProvider.hasActiveFilters)
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            '${browseProvider.activeFilterCount}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
+            IconButton(
+              icon: Icon(_isBrowseGridView ? Icons.view_list : Icons.grid_view),
+              onPressed: () {
+                setState(() {
+                  _isBrowseGridView = !_isBrowseGridView;
+                });
+              },
+            ),
+          ],
           if (_selectedIndex == 3) // Show create listing button on My Listings tab
             IconButton(
               icon: const Icon(Icons.add),
@@ -100,14 +163,14 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Home',
+            icon: Icon(Icons.directions_car_outlined),
+            selectedIcon: Icon(Icons.directions_car),
+            label: 'Browse',
           ),
           NavigationDestination(
-            icon: Icon(Icons.search),
-            selectedIcon: Icon(Icons.search),
-            label: 'Search',
+            icon: Icon(Icons.favorite_border),
+            selectedIcon: Icon(Icons.favorite),
+            label: 'Watchlist',
           ),
           NavigationDestination(
             icon: Icon(Icons.gavel_outlined),
@@ -115,8 +178,8 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'My Bids',
           ),
           NavigationDestination(
-            icon: Icon(Icons.directions_car_outlined),
-            selectedIcon: Icon(Icons.directions_car),
+            icon: Icon(Icons.list_alt),
+            selectedIcon: Icon(Icons.list_alt),
             label: 'My Listings',
           ),
           NavigationDestination(
@@ -132,9 +195,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _getSelectedPage(int index) {
     switch (index) {
       case 0:
-        return const _HomePage();
+        return _BrowsePage(isGridView: _isBrowseGridView);
       case 1:
-        return const _SearchPage();
+        return const _WatchlistPage();
       case 2:
         return const _MyBidsPage();
       case 3:
@@ -142,62 +205,162 @@ class _HomeScreenState extends State<HomeScreen> {
       case 4:
         return const _ProfileTab();
       default:
-        return const _HomePage();
+        return _BrowsePage(isGridView: _isBrowseGridView);
     }
   }
 }
 
-class _HomePage extends StatelessWidget {
-  const _HomePage();
+class _BrowsePage extends StatefulWidget {
+  final bool isGridView;
+
+  const _BrowsePage({required this.isGridView});
+
+  @override
+  State<_BrowsePage> createState() => _BrowsePageState();
+}
+
+class _BrowsePageState extends State<_BrowsePage> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      if (mounted) {
+        context.read<BrowseProvider>().loadAllCars();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final browseProvider = context.watch<BrowseProvider>();
+    final theme = Theme.of(context);
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.directions_car,
-              size: 100,
-              color: colorScheme.primary.withValues(alpha: 0.3),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Welcome to AutoBID',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+    return RefreshIndicator(
+      onRefresh: () => browseProvider.loadAllCars(),
+      child: browseProvider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : browseProvider.error != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                      const SizedBox(height: 16),
+                      Text(browseProvider.error!),
+                      const SizedBox(height: 16),
+                      FilledButton(
+                        onPressed: () => browseProvider.loadAllCars(),
+                        child: const Text('Retry'),
+                      ),
+                    ],
                   ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Your premier platform for vehicle auctions',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 32),
-            FilledButton.icon(
-              onPressed: () {
-                // Navigate to browse vehicles
-              },
-              icon: const Icon(Icons.search),
-              label: const Text('Browse Vehicles'),
-            ),
-          ],
-        ),
-      ),
+                )
+              : browseProvider.filteredCars.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.inventory_2_outlined,
+                            size: 80,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No cars found',
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            browseProvider.hasActiveFilters
+                                ? 'Try adjusting your filters'
+                                : 'No cars available at the moment',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                          if (browseProvider.hasActiveFilters) ...[
+                            const SizedBox(height: 16),
+                            FilledButton.icon(
+                              onPressed: () => browseProvider.clearFilters(),
+                              icon: const Icon(Icons.clear),
+                              label: const Text('Clear Filters'),
+                            ),
+                          ],
+                        ],
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        // Active filters summary
+                        if (browseProvider.hasActiveFilters)
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            color: theme.colorScheme.primaryContainer,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    '${browseProvider.filteredCars.length} cars found with ${browseProvider.activeFilterCount} filter(s)',
+                                    style: TextStyle(
+                                      color: theme.colorScheme.onPrimaryContainer,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () => browseProvider.clearFilters(),
+                                  child: const Text('Clear All'),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                        // Cars list/grid
+                        Expanded(
+                          child: widget.isGridView
+                              ? GridView.builder(
+                                  padding: const EdgeInsets.all(16),
+                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    childAspectRatio: 0.65,
+                                    crossAxisSpacing: 12,
+                                    mainAxisSpacing: 12,
+                                  ),
+                                  itemCount: browseProvider.filteredCars.length,
+                                  itemBuilder: (context, index) {
+                                    final car = browseProvider.filteredCars[index];
+                                    return CarCard(
+                                      car: car,
+                                      onTap: () => context.push('/car/${car.id}'),
+                                    );
+                                  },
+                                )
+                              : ListView.builder(
+                                  padding: const EdgeInsets.all(16),
+                                  itemCount: browseProvider.filteredCars.length,
+                                  itemBuilder: (context, index) {
+                                    final car = browseProvider.filteredCars[index];
+                                    return Padding(
+                                      padding: const EdgeInsets.only(bottom: 12),
+                                      child: CarCard(
+                                        car: car,
+                                        onTap: () => context.push('/car/${car.id}'),
+                                      ),
+                                    );
+                                  },
+                                ),
+                        ),
+                      ],
+                    ),
     );
   }
 }
 
-class _SearchPage extends StatelessWidget {
-  const _SearchPage();
+class _WatchlistPage extends StatelessWidget {
+  const _WatchlistPage();
 
   @override
   Widget build(BuildContext context) {
@@ -208,18 +371,18 @@ class _SearchPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.search,
+            Icons.favorite_border,
             size: 80,
             color: colorScheme.primary.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           Text(
-            'Search',
+            'Watchlist',
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 8),
           Text(
-            'Coming soon',
+            'Your saved cars will appear here',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
