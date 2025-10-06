@@ -9,12 +9,13 @@ part of 'car_model.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$CarLocation {
-  String get city;
-  String get province;
+
+ String get city; String get province;
 /// Create a copy of CarLocation
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -212,11 +213,8 @@ class _CarLocation implements CarLocation {
   const _CarLocation({required this.city, required this.province});
   factory _CarLocation.fromJson(Map<String, dynamic> json) => _$CarLocationFromJson(json);
 
-  @override
-  final String city;
-
-  @override
-  final String province;
+@override final  String city;
+@override final  String province;
 
 /// Create a copy of CarLocation
 /// with the given fields replaced by the non-null parameter values.
@@ -282,45 +280,13 @@ as String,
 
 /// @nodoc
 mixin _$CarModel {
-  // Basic Info
-  String get id;
-  String get sellerId;
-  String get sellerName;
-  String get brand;
-  String get model;
-  String get variant;
-  int get year;
-  int get mileage;
 
-  // Technical Details
-  TransmissionType get transmission;
-  FuelType get fuelType;
-  BodyType get bodyType;
-  String get color;
-  String get engineSize;
-  int get seats;
-  int get doors;
-
-  // Documents
-  String get plateNumber;
-  String get orcrNumber;
-  CarLocation get location;
-  int get numberOfOwners;
-  bool get serviceHistoryComplete;
-  bool get hasAccidentHistory;
-
-  // Condition & Description
-  CarCondition get condition;
-  String get description;
-  String? get issues;
-  List<String> get images;
-  List<String> get features;
-
-  // Status
-  ListingStatus get status;
-  DateTime get createdAt;
-  DateTime get updatedAt;
-  int get viewCount;
+ String get id; String get sellerId; String get sellerName;// Basic Info
+ String get brand; String get model; String get variant; int get year; int get mileage;// Technical Details
+ TransmissionType get transmission; FuelType get fuelType; BodyType get bodyType; String get color; String get engineSize; int get seats; int get doors;// Documents
+ String get plateNumber; String get orcrNumber; CarLocation get location; int get numberOfOwners; bool get serviceHistoryComplete; bool get hasAccidentHistory;// Condition & Description
+ CarCondition get condition; String get description; String? get issues; List<String> get images; List<String> get features;// Status
+ ListingStatus get status; DateTime get createdAt; DateTime get updatedAt; int get viewCount;
 /// Create a copy of CarModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -555,114 +521,53 @@ class _CarModel implements CarModel {
   const _CarModel({required this.id, required this.sellerId, required this.sellerName, required this.brand, required this.model, required this.variant, required this.year, required this.mileage, required this.transmission, required this.fuelType, required this.bodyType, required this.color, required this.engineSize, required this.seats, required this.doors, required this.plateNumber, required this.orcrNumber, required this.location, required this.numberOfOwners, required this.serviceHistoryComplete, required this.hasAccidentHistory, required this.condition, required this.description, this.issues, required final  List<String> images, final  List<String> features = const [], required this.status, required this.createdAt, required this.updatedAt, this.viewCount = 0}): _images = images,_features = features;
   factory _CarModel.fromJson(Map<String, dynamic> json) => _$CarModelFromJson(json);
 
-  @override
-  final String id;
+@override final  String id;
+@override final  String sellerId;
+@override final  String sellerName;
+// Basic Info
+@override final  String brand;
+@override final  String model;
+@override final  String variant;
+@override final  int year;
+@override final  int mileage;
+// Technical Details
+@override final  TransmissionType transmission;
+@override final  FuelType fuelType;
+@override final  BodyType bodyType;
+@override final  String color;
+@override final  String engineSize;
+@override final  int seats;
+@override final  int doors;
+// Documents
+@override final  String plateNumber;
+@override final  String orcrNumber;
+@override final  CarLocation location;
+@override final  int numberOfOwners;
+@override final  bool serviceHistoryComplete;
+@override final  bool hasAccidentHistory;
+// Condition & Description
+@override final  CarCondition condition;
+@override final  String description;
+@override final  String? issues;
+ final  List<String> _images;
+@override List<String> get images {
+  if (_images is EqualUnmodifiableListView) return _images;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_images);
+}
 
-  @override
-  final String sellerId;
+ final  List<String> _features;
+@override@JsonKey() List<String> get features {
+  if (_features is EqualUnmodifiableListView) return _features;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_features);
+}
 
-  @override
-  final String sellerName;
-
-  // Basic Info
-  @override
-  final String brand;
-
-  @override
-  final String model;
-
-  @override
-  final String variant;
-
-  @override
-  final int year;
-
-  @override
-  final int mileage;
-
-  // Technical Details
-  @override
-  final TransmissionType transmission;
-
-  @override
-  final FuelType fuelType;
-
-  @override
-  final BodyType bodyType;
-
-  @override
-  final String color;
-
-  @override
-  final String engineSize;
-
-  @override
-  final int seats;
-
-  @override
-  final int doors;
-
-  // Documents
-  @override
-  final String plateNumber;
-
-  @override
-  final String orcrNumber;
-
-  @override
-  final CarLocation location;
-
-  @override
-  final int numberOfOwners;
-
-  @override
-  final bool serviceHistoryComplete;
-
-  @override
-  final bool hasAccidentHistory;
-
-  // Condition & Description
-  @override
-  final CarCondition condition;
-
-  @override
-  final String description;
-
-  @override
-  final String? issues;
-
-  final List<String> _images;
-
-  @override
-  List<String> get images {
-    if (_images is EqualUnmodifiableListView) return _images;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_images);
-  }
-
-  final List<String> _features;
-
-  @override
-  @JsonKey()
-  List<String> get features {
-    if (_features is EqualUnmodifiableListView) return _features;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_features);
-  }
-
-  // Status
-  @override
-  final ListingStatus status;
-
-  @override
-  final DateTime createdAt;
-
-  @override
-  final DateTime updatedAt;
-
-  @override
-  @JsonKey()
-  final int viewCount;
+// Status
+@override final  ListingStatus status;
+@override final  DateTime createdAt;
+@override final  DateTime updatedAt;
+@override@JsonKey() final  int viewCount;
 
 /// Create a copy of CarModel
 /// with the given fields replaced by the non-null parameter values.
