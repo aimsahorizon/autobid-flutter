@@ -82,6 +82,10 @@ _CarModel _$CarModelFromJson(Map<String, dynamic> json) => _CarModel(
   description: json['description'] as String,
   issues: json['issues'] as String?,
   images: (json['images'] as List<dynamic>).map((e) => e as String).toList(),
+  categorizedImages: (json['categorizedImages'] as Map<String, dynamic>).map(
+    (k, e) =>
+        MapEntry(k, (e as List<dynamic>).map((e) => e as String).toList()),
+  ),
   status: $enumDecode(_$ListingStatusEnumMap, json['status']),
   createdAt: DateTime.parse(json['createdAt'] as String),
   updatedAt: DateTime.parse(json['updatedAt'] as String),
@@ -150,6 +154,7 @@ Map<String, dynamic> _$CarModelToJson(_CarModel instance) => <String, dynamic>{
   'description': instance.description,
   'issues': instance.issues,
   'images': instance.images,
+  'categorizedImages': instance.categorizedImages,
   'status': _$ListingStatusEnumMap[instance.status]!,
   'createdAt': instance.createdAt.toIso8601String(),
   'updatedAt': instance.updatedAt.toIso8601String(),

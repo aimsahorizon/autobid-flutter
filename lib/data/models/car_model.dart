@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'car_image_category.dart';
 
 part 'car_model.freezed.dart';
 part 'car_model.g.dart';
@@ -248,6 +249,7 @@ abstract class CarModel with _$CarModel {
 
     // MEDIA & STATUS
     required List<String> images,
+    required Map<String, List<String>> categorizedImages,
     required ListingStatus status,
     required DateTime createdAt,
     required DateTime updatedAt,
@@ -256,5 +258,38 @@ abstract class CarModel with _$CarModel {
 
   factory CarModel.fromJson(Map<String, dynamic> json) =>
       _$CarModelFromJson(json);
+}
+
+extension CarModelExtensions on CarModel {
+  CategorizedCarImages getCategorizedImages() {
+    final Map<CarImageCategory, List<String>> parsedImages = {};
+
+    categorizedImages.forEach((key, value) {
+      try {
+        final category = CarImageCategory.values.firstWhere(
+          (c) => c.name == key,
+        );
+        parsedImages[category] = value;
+      } catch (e) {
+        // Skip invalid categories
+      }
+    });
+
+    return CategorizedCarImages(images: parsedImages);
+  }
+
+  bool hasAllRequiredImages() {
+    final categorized = getCategorizedImages();
+
+    // Check if all categories have required minimum images
+    return categorized.hasImagesForCategory(CarImageCategory.exterior) &&
+           categorized.getImagesForCategory(CarImageCategory.exterior).length >= 15 &&
+           categorized.hasImagesForCategory(CarImageCategory.interior) &&
+           categorized.getImagesForCategory(CarImageCategory.interior).length >= 12 &&
+           categorized.hasImagesForCategory(CarImageCategory.engine) &&
+           categorized.getImagesForCategory(CarImageCategory.engine).length >= 6 &&
+           categorized.hasImagesForCategory(CarImageCategory.details) &&
+           categorized.getImagesForCategory(CarImageCategory.details).length >= 13;
+  }
 }
 
