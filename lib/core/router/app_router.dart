@@ -18,11 +18,13 @@ import '../../presentation/screens/kyc/kyc_intro_screen.dart';
 import '../../presentation/screens/kyc/kyc_upload_screen.dart';
 import '../../presentation/screens/kyc/kyc_status_screen.dart';
 import '../../presentation/screens/listings/create/create_listing_step1_basic.dart';
-import '../../presentation/screens/listings/create/create_listing_step2_details.dart';
-import '../../presentation/screens/listings/create/create_listing_step3_documents.dart';
-import '../../presentation/screens/listings/create/create_listing_step4_condition.dart';
-import '../../presentation/screens/listings/create/create_listing_step5_photos.dart';
-import '../../presentation/screens/listings/create/create_listing_step6_review.dart';
+import '../../presentation/screens/listings/create/create_listing_step2_mechanical.dart';
+import '../../presentation/screens/listings/create/create_listing_step3_dimensions.dart';
+import '../../presentation/screens/listings/create/create_listing_step4_exterior.dart';
+import '../../presentation/screens/listings/create/create_listing_step5_condition.dart';
+import '../../presentation/screens/listings/create/create_listing_step6_documentation.dart';
+import '../../presentation/screens/listings/create/create_listing_step7_photos.dart';
+import '../../presentation/screens/listings/create/create_listing_step8_review.dart';
 import '../../presentation/screens/listings/create/listing_success_screen.dart';
 import '../../presentation/screens/browse/browse_cars_screen.dart';
 import '../../presentation/screens/browse/search_screen.dart';
@@ -177,7 +179,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return AuctionDetailScreen(auctionId: auctionId);
         },
       ),
-      // Listings Routes
+      // Listings Routes (8 Steps)
       GoRoute(
         path: '/listing/create/step1',
         name: 'create-listing-step1',
@@ -186,30 +188,40 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/listing/create/step2',
         name: 'create-listing-step2',
-        builder: (context, state) => const CreateListingStep2Details(),
+        builder: (context, state) => const CreateListingStep2Mechanical(),
       ),
       GoRoute(
         path: '/listing/create/step3',
         name: 'create-listing-step3',
-        builder: (context, state) => const CreateListingStep3Documents(),
+        builder: (context, state) => const CreateListingStep3Dimensions(),
       ),
       GoRoute(
         path: '/listing/create/step4',
         name: 'create-listing-step4',
-        builder: (context, state) => const CreateListingStep4Condition(),
+        builder: (context, state) => const CreateListingStep4Exterior(),
       ),
       GoRoute(
         path: '/listing/create/step5',
         name: 'create-listing-step5',
-        builder: (context, state) => const CreateListingStep5Photos(),
+        builder: (context, state) => const CreateListingStep5Condition(),
       ),
       GoRoute(
         path: '/listing/create/step6',
         name: 'create-listing-step6',
-        builder: (context, state) => const CreateListingStep6Review(),
+        builder: (context, state) => const CreateListingStep6Documentation(),
       ),
       GoRoute(
-        path: '/listing/success',
+        path: '/listing/create/step7',
+        name: 'create-listing-step7',
+        builder: (context, state) => const CreateListingStep7Photos(),
+      ),
+      GoRoute(
+        path: '/listing/create/step8',
+        name: 'create-listing-step8',
+        builder: (context, state) => const CreateListingStep8Review(),
+      ),
+      GoRoute(
+        path: '/listing/create/success',
         name: 'listing-success',
         builder: (context, state) => const ListingSuccessScreen(),
       ),
