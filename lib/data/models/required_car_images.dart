@@ -3,12 +3,12 @@ class RequiredCarImages {
   // EXTERIOR IMAGES (15 required)
   static const List<String> exteriorImages = [
     'front_view',
-    'front_3_4_driver',
-    'front_3_4_passenger',
+    'front_3/4_driver',
+    'front_3/4_passenger',
     'side_driver',
     'side_passenger',
-    'rear_3_4_driver',
-    'rear_3_4_passenger',
+    'rear_3/4_driver',
+    'rear_3/4_passenger',
     'rear_view',
     'front_bumper',
     'rear_bumper',
