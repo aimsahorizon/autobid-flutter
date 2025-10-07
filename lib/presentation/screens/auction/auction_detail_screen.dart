@@ -4,10 +4,13 @@ import '../../providers/auction_provider.dart';
 // import '../../providers/bid_provider.dart';
 import '../../../data/models/auction_model.dart';
 import '../../../data/models/auto_bid_config.dart';
+import '../../../data/models/car_model.dart';
 import 'widgets/countdown_timer.dart';
 import 'widgets/current_bid_card.dart';
 import 'widgets/bid_input_widget.dart';
 import 'widgets/auto_bid_dialog.dart';
+import 'widgets/car_image_gallery.dart';
+import 'widgets/categorized_image_gallery.dart';
 import 'tabs/bid_history_tab.dart';
 import 'tabs/car_info_tab.dart';
 
@@ -57,7 +60,7 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
             headerSliverBuilder: (context, innerBoxIsScrolled) {
               return [
                 SliverAppBar(
-                  expandedHeight: 300,
+                  expandedHeight: 380,
                   pinned: true,
                   actions: [
                     IconButton(
@@ -84,32 +87,11 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
                     background: Stack(
                       fit: StackFit.expand,
                       children: [
-                        auction.car?.images.isNotEmpty == true
-                          ? Image.network(
-                              auction.car!.images.first,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  color: Colors.grey[300],
-                                  child: Icon(Icons.directions_car, size: 100, color: Colors.grey[600]),
-                                );
-                              },
-                            )
-                          : Container(
-                              color: Colors.grey[300],
-                              child: Icon(Icons.directions_car, size: 100, color: Colors.grey[600]),
-                            ),
-                        Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.transparent,
-                                Colors.black.withValues(alpha: 0.7),
-                              ],
-                            ),
-                          ),
+                        // Use CarImageGallery widget
+                        CarImageGallery(
+                          images: auction.car?.images ?? [],
+                          height: 380,
+                          showThumbnails: true,
                         ),
                         Positioned(
                           bottom: 16,
@@ -152,6 +134,11 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
                           userBidStatus: provider.getUserBidStatus(auction.id),
                           userBidAmount: provider.getUserBidAmount(auction.id),
                         ),
+                        // Categorized Image Gallery
+                        if (auction.car != null)
+                          CategorizedImageGallery(
+                            categorizedImages: auction.car!.getCategorizedImages(),
+                          ),
                         if (auction.status == AuctionStatus.live) ...[
                           const SizedBox(height: 12),
                           BidInputWidget(
