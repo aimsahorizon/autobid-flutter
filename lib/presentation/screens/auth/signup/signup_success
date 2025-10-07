@@ -175,3 +175,133 @@
 //     );
 //   }
 // }
+
+
+// ==========================================
+
+// import 'package:flutter/material.dart';
+// import 'package:go_router/go_router.dart';
+// import 'package:provider/provider.dart';
+// import '../../../../core/constants/color_constants.dart';
+// import '../../../providers/signup_provider.dart';
+// import '../../../widgets/custom_button.dart';
+
+// class SignupSuccessScreen extends StatelessWidget {
+//   const SignupSuccessScreen({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final colorScheme = Theme.of(context).colorScheme;
+
+//     return Scaffold(
+//       body: SafeArea(
+//         child: SingleChildScrollView(
+//           padding: const EdgeInsets.all(24),
+//           child: Column(
+//             children: [
+//               Container(
+//                 padding: const EdgeInsets.all(24),
+//                 decoration: BoxDecoration(
+//                   color: Colors.orange.withValues(alpha: 0.1),
+//                   shape: BoxShape.circle,
+//                 ),
+//                 child: Icon(
+//                   Icons.hourglass_empty,
+//                   size: 100,
+//                   color: Colors.orange,
+//                 ),
+//               ),
+//               const SizedBox(height: 32),
+//               Text(
+//                 'Registration Complete!',
+//                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+//                       fontWeight: FontWeight.bold,
+//                       color: ColorConstants.primaryGreen,
+//                     ),
+//                 textAlign: TextAlign.center,
+//               ),
+//               const SizedBox(height: 16),
+//               Text(
+//                 'Your account is waiting for verification',
+//                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+//                       color: Colors.grey[600],
+//                     ),
+//                 textAlign: TextAlign.center,
+//               ),
+//               const SizedBox(height: 32),
+//               Container(
+//                 padding: const EdgeInsets.all(20),
+//                 decoration: BoxDecoration(
+//                   color: Colors.orange.withValues(alpha: 0.1),
+//                   borderRadius: BorderRadius.circular(12),
+//                   border: Border.all(
+//                     color: Colors.orange.withValues(alpha: 0.3),
+//                   ),
+//                 ),
+//                 child: Column(
+//                   children: [
+//                     Row(
+//                       children: [
+//                         Icon(Icons.pending_actions, color: Colors.orange, size: 24),
+//                         const SizedBox(width: 12),
+//                         Text(
+//                           'Verification Pending',
+//                           style: TextStyle(
+//                             fontSize: 18,
+//                             fontWeight: FontWeight.bold,
+//                             color: colorScheme.onSurface,
+//                           ),
+//                         ),
+//                       ],
+//                     ),
+//                     const SizedBox(height: 16),
+//                     Text(
+//                       'Our team is reviewing your documents. You will receive a notification once your account is verified. This usually takes 1-2 business days.',
+//                       style: TextStyle(
+//                         fontSize: 14,
+//                         color: Colors.grey[700],
+//                         height: 1.5,
+//                       ),
+//                       textAlign: TextAlign.center,
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//               const SizedBox(height: 24),
+//               Container(
+//                 padding: const EdgeInsets.all(16),
+//                 decoration: BoxDecoration(
+//                   color: Colors.blue.shade50,
+//                   borderRadius: BorderRadius.circular(12),
+//                 ),
+//                 child: Row(
+//                   children: [
+//                     Icon(Icons.info_outline, color: Colors.blue.shade700),
+//                     const SizedBox(width: 12),
+//                     Expanded(
+//                       child: Text(
+//                         'You can explore the app while waiting for verification',
+//                         style: TextStyle(
+//                           fontSize: 13,
+//                           color: Colors.blue.shade900,
+//                         ),
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//               const SizedBox(height: 16),
+//               CustomButton(
+//                 text: 'Continue to Home',
+//                 onPressed: () {
+//                   context.read<SignupProvider>().reset();
+//                   context.go('/');
+//                 },
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
