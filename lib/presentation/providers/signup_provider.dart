@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import '../../data/models/user_model.dart';
 
 class SignupProvider with ChangeNotifier {
   // Step 1: Account Information
@@ -38,9 +39,14 @@ class SignupProvider with ChangeNotifier {
   // Step 6: Selfie
   Uint8List? _selfieImage;
 
+  // Step 7: Proof of Address
+  ProofOfAddressType? _proofOfAddressType;
+  Uint8List? _proofOfAddressImage;
+
   // Submission state
   bool _isSubmitting = false;
   String? _errorMessage;
+  bool _isEditingFromReview = false;
 
   // Getters for Step 1
   String get email => _email;
@@ -78,9 +84,14 @@ class SignupProvider with ChangeNotifier {
   // Getters for Step 6
   Uint8List? get selfieImage => _selfieImage;
 
+  // Getters for Step 7
+  ProofOfAddressType? get proofOfAddressType => _proofOfAddressType;
+  Uint8List? get proofOfAddressImage => _proofOfAddressImage;
+
   // State getters
   bool get isSubmitting => _isSubmitting;
   String? get errorMessage => _errorMessage;
+  bool get isEditingFromReview => _isEditingFromReview;
 
   // Setters for Step 1
   void setEmail(String value) {
@@ -208,6 +219,17 @@ class SignupProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // Setters for Step 7
+  void setProofOfAddressType(ProofOfAddressType? value) {
+    _proofOfAddressType = value;
+    notifyListeners();
+  }
+
+  void setProofOfAddressImage(Uint8List? value) {
+    _proofOfAddressImage = value;
+    notifyListeners();
+  }
+
   // State setters
   void setIsSubmitting(bool value) {
     _isSubmitting = value;
@@ -216,6 +238,11 @@ class SignupProvider with ChangeNotifier {
 
   void setErrorMessage(String? value) {
     _errorMessage = value;
+    notifyListeners();
+  }
+
+  void setIsEditingFromReview(bool value) {
+    _isEditingFromReview = value;
     notifyListeners();
   }
 
@@ -276,6 +303,10 @@ class SignupProvider with ChangeNotifier {
     return _selfieImage != null;
   }
 
+  bool isStep7Complete() {
+    return _proofOfAddressType != null && _proofOfAddressImage != null;
+  }
+
   // Reset all data
   void reset() {
     _email = '';
@@ -302,8 +333,11 @@ class SignupProvider with ChangeNotifier {
     _secondaryIdImage = null;
     _secondaryIdNumber = '';
     _selfieImage = null;
+    _proofOfAddressType = null;
+    _proofOfAddressImage = null;
     _isSubmitting = false;
     _errorMessage = null;
+    _isEditingFromReview = false;
     notifyListeners();
   }
 }
