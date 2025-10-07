@@ -343,7 +343,7 @@ class _AuctionFilterBottomSheetState extends State<AuctionFilterBottomSheet> {
                         labelText: 'Province',
                         border: OutlineInputBorder(),
                       ),
-                      value: _filters.province,
+                      initialValue: _filters.province,
                       items: [
                         const DropdownMenuItem(value: null, child: Text('All Provinces')),
                         ...PhilippineLocations.provinces.map((province) {
@@ -363,10 +363,10 @@ class _AuctionFilterBottomSheetState extends State<AuctionFilterBottomSheet> {
                       const SizedBox(height: 12),
                       DropdownButtonFormField<String>(
                         decoration: const InputDecoration(
-                          labelText: 'Citye',
+                          labelText: 'City',
                           border: OutlineInputBorder(),
                         ),
-                        value: _filters.city,
+                        initialValue: _filters.city,
                         items: [
                           const DropdownMenuItem(value: null, child: Text('All Cities')),
                           ...PhilippineLocations.getCitiesForProvince(_filters.province!).map((city) {
@@ -389,21 +389,25 @@ class _AuctionFilterBottomSheetState extends State<AuctionFilterBottomSheet> {
                     // Sort By
                     _buildSectionTitle('Sort By'),
                     const SizedBox(height: 8),
-                    ...SortBy.values.map((sortBy) {
-                      return RadioListTile<SortBy>(
-                        title: Text(_getSortByLabel(sortBy)),
-                        value: sortBy,
-                        groupValue: _filters.sortBy,
-                        onChanged: (SortBy? value) {
-                          if (value != null) {
-                            setState(() {
-                              _filters = _filters.copyWith(sortBy: value);
-                            });
-                          }
-                        },
-                        contentPadding: EdgeInsets.zero,
-                      );
-                    }),
+                    RadioGroup<SortBy>(
+                      groupValue: _filters.sortBy,
+                      onChanged: (SortBy? value) {
+                        if (value != null) {
+                          setState(() {
+                            _filters = _filters.copyWith(sortBy: value);
+                          });
+                        }
+                      },
+                      child: Column(
+                        children: SortBy.values.map((sortBy) {
+                          return RadioListTile<SortBy>(
+                            title: Text(_getSortByLabel(sortBy)),
+                            value: sortBy,
+                            contentPadding: EdgeInsets.zero,
+                          );
+                        }).toList(),
+                      ),
+                    ),
                   ],
                 ),
               ),
