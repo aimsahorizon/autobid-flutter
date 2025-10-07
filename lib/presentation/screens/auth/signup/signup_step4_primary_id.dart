@@ -312,6 +312,7 @@ class _SignupStep4PrimaryIdState extends State<SignupStep4PrimaryId> {
       onTap: onTap,
       child: Container(
         height: 180,
+        width: double.infinity,
         decoration: BoxDecoration(
           border: Border.all(
             color: imageBytes != null
