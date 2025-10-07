@@ -56,6 +56,9 @@ dependencies:
   # Image Picker
   image_picker: ^1.0.4
 
+  # Image Caching
+  cached_network_image: ^3.4.1
+
   # Utilities
   intl: ^0.20.2
   uuid: ^4.2.1
