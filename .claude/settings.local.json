@@ -18,7 +18,12 @@
       "Bash(git log:*)",
       "Bash(timeout 120 flutter analyze)",
       "Bash(timeout 60 dart run build_runner build:*)",
-      "Bash(timeout 30 flutter analyze --no-pub)"
+      "Bash(timeout 30 flutter analyze --no-pub)",
+      "Bash(timeout 120 dart run build_runner build --delete-conflicting-outputs)",
+      "Bash(timeout 90 dart run build_runner build --delete-conflicting-outputs)",
+      "Bash(for file in signup_step2_personal.dart signup_step3_address.dart signup_step4_primary_id.dart signup_step5_secondary_id.dart signup_step6_selfie.dart signup_step7_proof_address.dart)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []
