@@ -52,37 +52,41 @@ class ImageUploadCard extends StatelessWidget {
   Widget _buildUploadPrompt(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Icon(
-          icon,
-          size: 48,
-          color: colorScheme.primary,
-        ),
-        const SizedBox(height: 12),
-        Text(
-          title,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          subtitle,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 12),
-        FilledButton.icon(
-          onPressed: onTap,
-          icon: const Icon(Icons.camera_alt),
-          label: const Text('Upload'),
-        ),
-      ],
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 48,
+            color: colorScheme.primary,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          FilledButton.icon(
+            onPressed: onTap,
+            icon: const Icon(Icons.camera_alt),
+            label: const Text('Upload'),
+          ),
+        ],
+      ),
     );
   }
 
