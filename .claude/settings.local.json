@@ -14,7 +14,11 @@
       "Bash(dart run:*)",
       "Bash(dart analyze:*)",
       "Bash(timeout 30 dart run build_runner build:*)",
-      "Bash(flutter run:*)"
+      "Bash(flutter run:*)",
+      "Bash(git log:*)",
+      "Bash(timeout 120 flutter analyze)",
+      "Bash(timeout 60 dart run build_runner build:*)",
+      "Bash(timeout 30 flutter analyze --no-pub)"
     ],
     "deny": [],
     "ask": []

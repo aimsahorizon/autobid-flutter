@@ -33,6 +33,13 @@ class ListingProvider extends ChangeNotifier {
   List<String> _images = [];
   List<String> _features = [];
 
+  // Auction settings
+  bool _isAuction = false;
+  double? _auctionStartingPrice;
+  double? _auctionReservePrice;
+  int? _auctionDurationDays;
+  double? _auctionBuyNowPrice;
+
   // My Listings state
   List<CarModel> _myListings = [];
   bool _isLoadingListings = false;
@@ -66,6 +73,12 @@ class ListingProvider extends ChangeNotifier {
   String? get issues => _issues;
   List<String> get images => _images;
   List<String> get features => _features;
+
+  bool get isAuction => _isAuction;
+  double? get auctionStartingPrice => _auctionStartingPrice;
+  double? get auctionReservePrice => _auctionReservePrice;
+  int? get auctionDurationDays => _auctionDurationDays;
+  double? get auctionBuyNowPrice => _auctionBuyNowPrice;
 
   List<CarModel> get myListings => _myListings;
   bool get isLoadingListings => _isLoadingListings;
@@ -221,6 +234,24 @@ class ListingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setIsAuction(bool value) {
+    _isAuction = value;
+    notifyListeners();
+  }
+
+  void setAuctionSettings({
+    required double startingPrice,
+    required double reservePrice,
+    required int durationDays,
+    double? buyNowPrice,
+  }) {
+    _auctionStartingPrice = startingPrice;
+    _auctionReservePrice = reservePrice;
+    _auctionDurationDays = durationDays;
+    _auctionBuyNowPrice = buyNowPrice;
+    notifyListeners();
+  }
+
   // Validation
   bool validateStep1() {
     return _brand != null &&
@@ -269,28 +300,59 @@ class ListingProvider extends ChangeNotifier {
       id: _editingListingId ?? 'car-${DateTime.now().millisecondsSinceEpoch}',
       sellerId: userId,
       sellerName: userName,
+      // BASIC INFO
       brand: _brand!,
       model: _model!,
       variant: _variant!,
       year: _year!,
-      mileage: _mileage!,
-      transmission: _transmission!,
-      fuelType: _fuelType!,
-      bodyType: _bodyType!,
-      color: _color!,
+      // MECHANICAL
       engineSize: _engineSize!,
-      seats: _seats,
+      engineType: EngineType.inline, // Default - should be added to form
+      cylinders: 4, // Default - should be added to form
+      horsepower: 150, // Default - should be added to form
+      torque: 200, // Default - should be added to form
+      transmission: _transmission!,
+      transmissionSpeeds: 6, // Default - should be added to form
+      driveType: DriveType.fwd, // Default - should be added to form
+      fuelType: _fuelType!,
+      fuelConsumption: 7.5, // Default - should be added to form
+      // DIMENSIONS & CAPACITY
+      bodyType: _bodyType!,
       doors: _doors,
+      seats: _seats,
+      curbWeight: 1500, // Default - should be added to form
+      grossWeight: 2000, // Default - should be added to form
+      cargoCapacity: 500, // Default - should be added to form
+      length: 4500, // Default - should be added to form
+      width: 1800, // Default - should be added to form
+      height: 1500, // Default - should be added to form
+      wheelbase: 2700, // Default - should be added to form
+      // EXTERIOR
+      color: _color!,
+      paintType: PaintType.solid, // Default - should be added to form
+      rimSize: 16, // Default - should be added to form
+      rimType: RimType.alloy, // Default - should be added to form
+      tireCondition: TireCondition.good, // Default - should be added to form
+      // CONDITION & HISTORY
+      condition: _condition!,
+      mileage: _mileage!,
+      numberOfOwners: _numberOfOwners,
+      hasAccidentHistory: _hasAccidentHistory,
+      floodDamage: false, // Default - should be added to form
+      serviceHistoryComplete: _serviceHistoryComplete,
+      warrantyRemaining: false, // Default - should be added to form
+      // LOCATION & DOCUMENTATION
+      location: CarLocation(city: _city!, province: _province!),
       plateNumber: _plateNumber!,
       orcrNumber: _orcrNumber!,
-      location: CarLocation(city: _city!, province: _province!),
-      numberOfOwners: _numberOfOwners,
-      serviceHistoryComplete: _serviceHistoryComplete,
-      hasAccidentHistory: _hasAccidentHistory,
-      condition: _condition!,
+      registrationStatus: RegistrationStatus.current, // Default - should be added to form
+      emissionTestValid: true, // Default - should be added to form
+      comprehensiveInsurance: false, // Default - should be added to form
+      // DESCRIPTION & MEDIA
       description: _description,
       issues: _issues,
       images: _images,
+      categorizedImages: {}, // TODO: Implement categorized image upload in listing flow
       features: _features,
       status: isDraft ? ListingStatus.draft : ListingStatus.pendingReview,
       createdAt: DateTime.now(),

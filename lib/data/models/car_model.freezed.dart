@@ -281,12 +281,18 @@ as String,
 /// @nodoc
 mixin _$CarModel {
 
- String get id; String get sellerId; String get sellerName;// Basic Info
- String get brand; String get model; String get variant; int get year; int get mileage;// Technical Details
- TransmissionType get transmission; FuelType get fuelType; BodyType get bodyType; String get color; String get engineSize; int get seats; int get doors;// Documents
- String get plateNumber; String get orcrNumber; CarLocation get location; int get numberOfOwners; bool get serviceHistoryComplete; bool get hasAccidentHistory;// Condition & Description
- CarCondition get condition; String get description; String? get issues; List<String> get images; List<String> get features;// Status
- ListingStatus get status; DateTime get createdAt; DateTime get updatedAt; int get viewCount;
+ String get id; String get sellerId; String get sellerName;// BASIC INFO
+ String get brand; String get model; String get variant; int get year;// MECHANICAL
+ String get engineSize; EngineType get engineType; int get cylinders; int get horsepower; int get torque; TransmissionType get transmission; int get transmissionSpeeds; DriveType get driveType; FuelType get fuelType; double get fuelConsumption; int? get electricRange; double? get batteryCapacity; String? get chargingTime;// DIMENSIONS & CAPACITY
+ BodyType get bodyType; int get doors; int get seats; int get curbWeight; int get grossWeight; int get cargoCapacity; int? get towingCapacity; int? get groundClearance; int get length; int get width; int get height; int get wheelbase;// EXTERIOR
+ String get color; PaintType get paintType; int get rimSize; RimType get rimType; TireCondition get tireCondition;// CONDITION & HISTORY
+ CarCondition get condition; int get mileage; int get numberOfOwners; bool get hasAccidentHistory; bool get floodDamage; bool get serviceHistoryComplete; bool get warrantyRemaining; DateTime? get registrationExpiry;// FEATURES & TECHNOLOGY
+ List<String> get features;// LOCATION & AVAILABILITY
+ CarLocation get location; bool get availableForTestDrive; bool get deliveryAvailable;// DOCUMENTATION
+ String get plateNumber; String get orcrNumber; RegistrationStatus get registrationStatus; bool get emissionTestValid; bool get comprehensiveInsurance;// SELLER PREFERENCES
+ bool get acceptsTrade; bool get financingAvailable; bool get priceNegotiable;// DESCRIPTION
+ String get description; String? get issues;// MEDIA & STATUS
+ List<String> get images; Map<String, List<String>> get categorizedImages; ListingStatus get status; DateTime get createdAt; DateTime get updatedAt; int get viewCount;
 /// Create a copy of CarModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -299,16 +305,16 @@ $CarModelCopyWith<CarModel> get copyWith => _$CarModelCopyWithImpl<CarModel>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CarModel&&(identical(other.id, id) || other.id == id)&&(identical(other.sellerId, sellerId) || other.sellerId == sellerId)&&(identical(other.sellerName, sellerName) || other.sellerName == sellerName)&&(identical(other.brand, brand) || other.brand == brand)&&(identical(other.model, model) || other.model == model)&&(identical(other.variant, variant) || other.variant == variant)&&(identical(other.year, year) || other.year == year)&&(identical(other.mileage, mileage) || other.mileage == mileage)&&(identical(other.transmission, transmission) || other.transmission == transmission)&&(identical(other.fuelType, fuelType) || other.fuelType == fuelType)&&(identical(other.bodyType, bodyType) || other.bodyType == bodyType)&&(identical(other.color, color) || other.color == color)&&(identical(other.engineSize, engineSize) || other.engineSize == engineSize)&&(identical(other.seats, seats) || other.seats == seats)&&(identical(other.doors, doors) || other.doors == doors)&&(identical(other.plateNumber, plateNumber) || other.plateNumber == plateNumber)&&(identical(other.orcrNumber, orcrNumber) || other.orcrNumber == orcrNumber)&&(identical(other.location, location) || other.location == location)&&(identical(other.numberOfOwners, numberOfOwners) || other.numberOfOwners == numberOfOwners)&&(identical(other.serviceHistoryComplete, serviceHistoryComplete) || other.serviceHistoryComplete == serviceHistoryComplete)&&(identical(other.hasAccidentHistory, hasAccidentHistory) || other.hasAccidentHistory == hasAccidentHistory)&&(identical(other.condition, condition) || other.condition == condition)&&(identical(other.description, description) || other.description == description)&&(identical(other.issues, issues) || other.issues == issues)&&const DeepCollectionEquality().equals(other.images, images)&&const DeepCollectionEquality().equals(other.features, features)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.viewCount, viewCount) || other.viewCount == viewCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CarModel&&(identical(other.id, id) || other.id == id)&&(identical(other.sellerId, sellerId) || other.sellerId == sellerId)&&(identical(other.sellerName, sellerName) || other.sellerName == sellerName)&&(identical(other.brand, brand) || other.brand == brand)&&(identical(other.model, model) || other.model == model)&&(identical(other.variant, variant) || other.variant == variant)&&(identical(other.year, year) || other.year == year)&&(identical(other.engineSize, engineSize) || other.engineSize == engineSize)&&(identical(other.engineType, engineType) || other.engineType == engineType)&&(identical(other.cylinders, cylinders) || other.cylinders == cylinders)&&(identical(other.horsepower, horsepower) || other.horsepower == horsepower)&&(identical(other.torque, torque) || other.torque == torque)&&(identical(other.transmission, transmission) || other.transmission == transmission)&&(identical(other.transmissionSpeeds, transmissionSpeeds) || other.transmissionSpeeds == transmissionSpeeds)&&(identical(other.driveType, driveType) || other.driveType == driveType)&&(identical(other.fuelType, fuelType) || other.fuelType == fuelType)&&(identical(other.fuelConsumption, fuelConsumption) || other.fuelConsumption == fuelConsumption)&&(identical(other.electricRange, electricRange) || other.electricRange == electricRange)&&(identical(other.batteryCapacity, batteryCapacity) || other.batteryCapacity == batteryCapacity)&&(identical(other.chargingTime, chargingTime) || other.chargingTime == chargingTime)&&(identical(other.bodyType, bodyType) || other.bodyType == bodyType)&&(identical(other.doors, doors) || other.doors == doors)&&(identical(other.seats, seats) || other.seats == seats)&&(identical(other.curbWeight, curbWeight) || other.curbWeight == curbWeight)&&(identical(other.grossWeight, grossWeight) || other.grossWeight == grossWeight)&&(identical(other.cargoCapacity, cargoCapacity) || other.cargoCapacity == cargoCapacity)&&(identical(other.towingCapacity, towingCapacity) || other.towingCapacity == towingCapacity)&&(identical(other.groundClearance, groundClearance) || other.groundClearance == groundClearance)&&(identical(other.length, length) || other.length == length)&&(identical(other.width, width) || other.width == width)&&(identical(other.height, height) || other.height == height)&&(identical(other.wheelbase, wheelbase) || other.wheelbase == wheelbase)&&(identical(other.color, color) || other.color == color)&&(identical(other.paintType, paintType) || other.paintType == paintType)&&(identical(other.rimSize, rimSize) || other.rimSize == rimSize)&&(identical(other.rimType, rimType) || other.rimType == rimType)&&(identical(other.tireCondition, tireCondition) || other.tireCondition == tireCondition)&&(identical(other.condition, condition) || other.condition == condition)&&(identical(other.mileage, mileage) || other.mileage == mileage)&&(identical(other.numberOfOwners, numberOfOwners) || other.numberOfOwners == numberOfOwners)&&(identical(other.hasAccidentHistory, hasAccidentHistory) || other.hasAccidentHistory == hasAccidentHistory)&&(identical(other.floodDamage, floodDamage) || other.floodDamage == floodDamage)&&(identical(other.serviceHistoryComplete, serviceHistoryComplete) || other.serviceHistoryComplete == serviceHistoryComplete)&&(identical(other.warrantyRemaining, warrantyRemaining) || other.warrantyRemaining == warrantyRemaining)&&(identical(other.registrationExpiry, registrationExpiry) || other.registrationExpiry == registrationExpiry)&&const DeepCollectionEquality().equals(other.features, features)&&(identical(other.location, location) || other.location == location)&&(identical(other.availableForTestDrive, availableForTestDrive) || other.availableForTestDrive == availableForTestDrive)&&(identical(other.deliveryAvailable, deliveryAvailable) || other.deliveryAvailable == deliveryAvailable)&&(identical(other.plateNumber, plateNumber) || other.plateNumber == plateNumber)&&(identical(other.orcrNumber, orcrNumber) || other.orcrNumber == orcrNumber)&&(identical(other.registrationStatus, registrationStatus) || other.registrationStatus == registrationStatus)&&(identical(other.emissionTestValid, emissionTestValid) || other.emissionTestValid == emissionTestValid)&&(identical(other.comprehensiveInsurance, comprehensiveInsurance) || other.comprehensiveInsurance == comprehensiveInsurance)&&(identical(other.acceptsTrade, acceptsTrade) || other.acceptsTrade == acceptsTrade)&&(identical(other.financingAvailable, financingAvailable) || other.financingAvailable == financingAvailable)&&(identical(other.priceNegotiable, priceNegotiable) || other.priceNegotiable == priceNegotiable)&&(identical(other.description, description) || other.description == description)&&(identical(other.issues, issues) || other.issues == issues)&&const DeepCollectionEquality().equals(other.images, images)&&const DeepCollectionEquality().equals(other.categorizedImages, categorizedImages)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.viewCount, viewCount) || other.viewCount == viewCount));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,sellerId,sellerName,brand,model,variant,year,mileage,transmission,fuelType,bodyType,color,engineSize,seats,doors,plateNumber,orcrNumber,location,numberOfOwners,serviceHistoryComplete,hasAccidentHistory,condition,description,issues,const DeepCollectionEquality().hash(images),const DeepCollectionEquality().hash(features),status,createdAt,updatedAt,viewCount]);
+int get hashCode => Object.hashAll([runtimeType,id,sellerId,sellerName,brand,model,variant,year,engineSize,engineType,cylinders,horsepower,torque,transmission,transmissionSpeeds,driveType,fuelType,fuelConsumption,electricRange,batteryCapacity,chargingTime,bodyType,doors,seats,curbWeight,grossWeight,cargoCapacity,towingCapacity,groundClearance,length,width,height,wheelbase,color,paintType,rimSize,rimType,tireCondition,condition,mileage,numberOfOwners,hasAccidentHistory,floodDamage,serviceHistoryComplete,warrantyRemaining,registrationExpiry,const DeepCollectionEquality().hash(features),location,availableForTestDrive,deliveryAvailable,plateNumber,orcrNumber,registrationStatus,emissionTestValid,comprehensiveInsurance,acceptsTrade,financingAvailable,priceNegotiable,description,issues,const DeepCollectionEquality().hash(images),const DeepCollectionEquality().hash(categorizedImages),status,createdAt,updatedAt,viewCount]);
 
 @override
 String toString() {
-  return 'CarModel(id: $id, sellerId: $sellerId, sellerName: $sellerName, brand: $brand, model: $model, variant: $variant, year: $year, mileage: $mileage, transmission: $transmission, fuelType: $fuelType, bodyType: $bodyType, color: $color, engineSize: $engineSize, seats: $seats, doors: $doors, plateNumber: $plateNumber, orcrNumber: $orcrNumber, location: $location, numberOfOwners: $numberOfOwners, serviceHistoryComplete: $serviceHistoryComplete, hasAccidentHistory: $hasAccidentHistory, condition: $condition, description: $description, issues: $issues, images: $images, features: $features, status: $status, createdAt: $createdAt, updatedAt: $updatedAt, viewCount: $viewCount)';
+  return 'CarModel(id: $id, sellerId: $sellerId, sellerName: $sellerName, brand: $brand, model: $model, variant: $variant, year: $year, engineSize: $engineSize, engineType: $engineType, cylinders: $cylinders, horsepower: $horsepower, torque: $torque, transmission: $transmission, transmissionSpeeds: $transmissionSpeeds, driveType: $driveType, fuelType: $fuelType, fuelConsumption: $fuelConsumption, electricRange: $electricRange, batteryCapacity: $batteryCapacity, chargingTime: $chargingTime, bodyType: $bodyType, doors: $doors, seats: $seats, curbWeight: $curbWeight, grossWeight: $grossWeight, cargoCapacity: $cargoCapacity, towingCapacity: $towingCapacity, groundClearance: $groundClearance, length: $length, width: $width, height: $height, wheelbase: $wheelbase, color: $color, paintType: $paintType, rimSize: $rimSize, rimType: $rimType, tireCondition: $tireCondition, condition: $condition, mileage: $mileage, numberOfOwners: $numberOfOwners, hasAccidentHistory: $hasAccidentHistory, floodDamage: $floodDamage, serviceHistoryComplete: $serviceHistoryComplete, warrantyRemaining: $warrantyRemaining, registrationExpiry: $registrationExpiry, features: $features, location: $location, availableForTestDrive: $availableForTestDrive, deliveryAvailable: $deliveryAvailable, plateNumber: $plateNumber, orcrNumber: $orcrNumber, registrationStatus: $registrationStatus, emissionTestValid: $emissionTestValid, comprehensiveInsurance: $comprehensiveInsurance, acceptsTrade: $acceptsTrade, financingAvailable: $financingAvailable, priceNegotiable: $priceNegotiable, description: $description, issues: $issues, images: $images, categorizedImages: $categorizedImages, status: $status, createdAt: $createdAt, updatedAt: $updatedAt, viewCount: $viewCount)';
 }
 
 
@@ -319,7 +325,7 @@ abstract mixin class $CarModelCopyWith<$Res>  {
   factory $CarModelCopyWith(CarModel value, $Res Function(CarModel) _then) = _$CarModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String sellerId, String sellerName, String brand, String model, String variant, int year, int mileage, TransmissionType transmission, FuelType fuelType, BodyType bodyType, String color, String engineSize, int seats, int doors, String plateNumber, String orcrNumber, CarLocation location, int numberOfOwners, bool serviceHistoryComplete, bool hasAccidentHistory, CarCondition condition, String description, String? issues, List<String> images, List<String> features, ListingStatus status, DateTime createdAt, DateTime updatedAt, int viewCount
+ String id, String sellerId, String sellerName, String brand, String model, String variant, int year, String engineSize, EngineType engineType, int cylinders, int horsepower, int torque, TransmissionType transmission, int transmissionSpeeds, DriveType driveType, FuelType fuelType, double fuelConsumption, int? electricRange, double? batteryCapacity, String? chargingTime, BodyType bodyType, int doors, int seats, int curbWeight, int grossWeight, int cargoCapacity, int? towingCapacity, int? groundClearance, int length, int width, int height, int wheelbase, String color, PaintType paintType, int rimSize, RimType rimType, TireCondition tireCondition, CarCondition condition, int mileage, int numberOfOwners, bool hasAccidentHistory, bool floodDamage, bool serviceHistoryComplete, bool warrantyRemaining, DateTime? registrationExpiry, List<String> features, CarLocation location, bool availableForTestDrive, bool deliveryAvailable, String plateNumber, String orcrNumber, RegistrationStatus registrationStatus, bool emissionTestValid, bool comprehensiveInsurance, bool acceptsTrade, bool financingAvailable, bool priceNegotiable, String description, String? issues, List<String> images, Map<String, List<String>> categorizedImages, ListingStatus status, DateTime createdAt, DateTime updatedAt, int viewCount
 });
 
 
@@ -336,7 +342,7 @@ class _$CarModelCopyWithImpl<$Res>
 
 /// Create a copy of CarModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? sellerId = null,Object? sellerName = null,Object? brand = null,Object? model = null,Object? variant = null,Object? year = null,Object? mileage = null,Object? transmission = null,Object? fuelType = null,Object? bodyType = null,Object? color = null,Object? engineSize = null,Object? seats = null,Object? doors = null,Object? plateNumber = null,Object? orcrNumber = null,Object? location = null,Object? numberOfOwners = null,Object? serviceHistoryComplete = null,Object? hasAccidentHistory = null,Object? condition = null,Object? description = null,Object? issues = freezed,Object? images = null,Object? features = null,Object? status = null,Object? createdAt = null,Object? updatedAt = null,Object? viewCount = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? sellerId = null,Object? sellerName = null,Object? brand = null,Object? model = null,Object? variant = null,Object? year = null,Object? engineSize = null,Object? engineType = null,Object? cylinders = null,Object? horsepower = null,Object? torque = null,Object? transmission = null,Object? transmissionSpeeds = null,Object? driveType = null,Object? fuelType = null,Object? fuelConsumption = null,Object? electricRange = freezed,Object? batteryCapacity = freezed,Object? chargingTime = freezed,Object? bodyType = null,Object? doors = null,Object? seats = null,Object? curbWeight = null,Object? grossWeight = null,Object? cargoCapacity = null,Object? towingCapacity = freezed,Object? groundClearance = freezed,Object? length = null,Object? width = null,Object? height = null,Object? wheelbase = null,Object? color = null,Object? paintType = null,Object? rimSize = null,Object? rimType = null,Object? tireCondition = null,Object? condition = null,Object? mileage = null,Object? numberOfOwners = null,Object? hasAccidentHistory = null,Object? floodDamage = null,Object? serviceHistoryComplete = null,Object? warrantyRemaining = null,Object? registrationExpiry = freezed,Object? features = null,Object? location = null,Object? availableForTestDrive = null,Object? deliveryAvailable = null,Object? plateNumber = null,Object? orcrNumber = null,Object? registrationStatus = null,Object? emissionTestValid = null,Object? comprehensiveInsurance = null,Object? acceptsTrade = null,Object? financingAvailable = null,Object? priceNegotiable = null,Object? description = null,Object? issues = freezed,Object? images = null,Object? categorizedImages = null,Object? status = null,Object? createdAt = null,Object? updatedAt = null,Object? viewCount = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,sellerId: null == sellerId ? _self.sellerId : sellerId // ignore: cast_nullable_to_non_nullable
@@ -345,26 +351,61 @@ as String,brand: null == brand ? _self.brand : brand // ignore: cast_nullable_to
 as String,model: null == model ? _self.model : model // ignore: cast_nullable_to_non_nullable
 as String,variant: null == variant ? _self.variant : variant // ignore: cast_nullable_to_non_nullable
 as String,year: null == year ? _self.year : year // ignore: cast_nullable_to_non_nullable
-as int,mileage: null == mileage ? _self.mileage : mileage // ignore: cast_nullable_to_non_nullable
+as int,engineSize: null == engineSize ? _self.engineSize : engineSize // ignore: cast_nullable_to_non_nullable
+as String,engineType: null == engineType ? _self.engineType : engineType // ignore: cast_nullable_to_non_nullable
+as EngineType,cylinders: null == cylinders ? _self.cylinders : cylinders // ignore: cast_nullable_to_non_nullable
+as int,horsepower: null == horsepower ? _self.horsepower : horsepower // ignore: cast_nullable_to_non_nullable
+as int,torque: null == torque ? _self.torque : torque // ignore: cast_nullable_to_non_nullable
 as int,transmission: null == transmission ? _self.transmission : transmission // ignore: cast_nullable_to_non_nullable
-as TransmissionType,fuelType: null == fuelType ? _self.fuelType : fuelType // ignore: cast_nullable_to_non_nullable
-as FuelType,bodyType: null == bodyType ? _self.bodyType : bodyType // ignore: cast_nullable_to_non_nullable
-as BodyType,color: null == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
-as String,engineSize: null == engineSize ? _self.engineSize : engineSize // ignore: cast_nullable_to_non_nullable
-as String,seats: null == seats ? _self.seats : seats // ignore: cast_nullable_to_non_nullable
-as int,doors: null == doors ? _self.doors : doors // ignore: cast_nullable_to_non_nullable
-as int,plateNumber: null == plateNumber ? _self.plateNumber : plateNumber // ignore: cast_nullable_to_non_nullable
+as TransmissionType,transmissionSpeeds: null == transmissionSpeeds ? _self.transmissionSpeeds : transmissionSpeeds // ignore: cast_nullable_to_non_nullable
+as int,driveType: null == driveType ? _self.driveType : driveType // ignore: cast_nullable_to_non_nullable
+as DriveType,fuelType: null == fuelType ? _self.fuelType : fuelType // ignore: cast_nullable_to_non_nullable
+as FuelType,fuelConsumption: null == fuelConsumption ? _self.fuelConsumption : fuelConsumption // ignore: cast_nullable_to_non_nullable
+as double,electricRange: freezed == electricRange ? _self.electricRange : electricRange // ignore: cast_nullable_to_non_nullable
+as int?,batteryCapacity: freezed == batteryCapacity ? _self.batteryCapacity : batteryCapacity // ignore: cast_nullable_to_non_nullable
+as double?,chargingTime: freezed == chargingTime ? _self.chargingTime : chargingTime // ignore: cast_nullable_to_non_nullable
+as String?,bodyType: null == bodyType ? _self.bodyType : bodyType // ignore: cast_nullable_to_non_nullable
+as BodyType,doors: null == doors ? _self.doors : doors // ignore: cast_nullable_to_non_nullable
+as int,seats: null == seats ? _self.seats : seats // ignore: cast_nullable_to_non_nullable
+as int,curbWeight: null == curbWeight ? _self.curbWeight : curbWeight // ignore: cast_nullable_to_non_nullable
+as int,grossWeight: null == grossWeight ? _self.grossWeight : grossWeight // ignore: cast_nullable_to_non_nullable
+as int,cargoCapacity: null == cargoCapacity ? _self.cargoCapacity : cargoCapacity // ignore: cast_nullable_to_non_nullable
+as int,towingCapacity: freezed == towingCapacity ? _self.towingCapacity : towingCapacity // ignore: cast_nullable_to_non_nullable
+as int?,groundClearance: freezed == groundClearance ? _self.groundClearance : groundClearance // ignore: cast_nullable_to_non_nullable
+as int?,length: null == length ? _self.length : length // ignore: cast_nullable_to_non_nullable
+as int,width: null == width ? _self.width : width // ignore: cast_nullable_to_non_nullable
+as int,height: null == height ? _self.height : height // ignore: cast_nullable_to_non_nullable
+as int,wheelbase: null == wheelbase ? _self.wheelbase : wheelbase // ignore: cast_nullable_to_non_nullable
+as int,color: null == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
+as String,paintType: null == paintType ? _self.paintType : paintType // ignore: cast_nullable_to_non_nullable
+as PaintType,rimSize: null == rimSize ? _self.rimSize : rimSize // ignore: cast_nullable_to_non_nullable
+as int,rimType: null == rimType ? _self.rimType : rimType // ignore: cast_nullable_to_non_nullable
+as RimType,tireCondition: null == tireCondition ? _self.tireCondition : tireCondition // ignore: cast_nullable_to_non_nullable
+as TireCondition,condition: null == condition ? _self.condition : condition // ignore: cast_nullable_to_non_nullable
+as CarCondition,mileage: null == mileage ? _self.mileage : mileage // ignore: cast_nullable_to_non_nullable
+as int,numberOfOwners: null == numberOfOwners ? _self.numberOfOwners : numberOfOwners // ignore: cast_nullable_to_non_nullable
+as int,hasAccidentHistory: null == hasAccidentHistory ? _self.hasAccidentHistory : hasAccidentHistory // ignore: cast_nullable_to_non_nullable
+as bool,floodDamage: null == floodDamage ? _self.floodDamage : floodDamage // ignore: cast_nullable_to_non_nullable
+as bool,serviceHistoryComplete: null == serviceHistoryComplete ? _self.serviceHistoryComplete : serviceHistoryComplete // ignore: cast_nullable_to_non_nullable
+as bool,warrantyRemaining: null == warrantyRemaining ? _self.warrantyRemaining : warrantyRemaining // ignore: cast_nullable_to_non_nullable
+as bool,registrationExpiry: freezed == registrationExpiry ? _self.registrationExpiry : registrationExpiry // ignore: cast_nullable_to_non_nullable
+as DateTime?,features: null == features ? _self.features : features // ignore: cast_nullable_to_non_nullable
+as List<String>,location: null == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
+as CarLocation,availableForTestDrive: null == availableForTestDrive ? _self.availableForTestDrive : availableForTestDrive // ignore: cast_nullable_to_non_nullable
+as bool,deliveryAvailable: null == deliveryAvailable ? _self.deliveryAvailable : deliveryAvailable // ignore: cast_nullable_to_non_nullable
+as bool,plateNumber: null == plateNumber ? _self.plateNumber : plateNumber // ignore: cast_nullable_to_non_nullable
 as String,orcrNumber: null == orcrNumber ? _self.orcrNumber : orcrNumber // ignore: cast_nullable_to_non_nullable
-as String,location: null == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
-as CarLocation,numberOfOwners: null == numberOfOwners ? _self.numberOfOwners : numberOfOwners // ignore: cast_nullable_to_non_nullable
-as int,serviceHistoryComplete: null == serviceHistoryComplete ? _self.serviceHistoryComplete : serviceHistoryComplete // ignore: cast_nullable_to_non_nullable
-as bool,hasAccidentHistory: null == hasAccidentHistory ? _self.hasAccidentHistory : hasAccidentHistory // ignore: cast_nullable_to_non_nullable
-as bool,condition: null == condition ? _self.condition : condition // ignore: cast_nullable_to_non_nullable
-as CarCondition,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String,registrationStatus: null == registrationStatus ? _self.registrationStatus : registrationStatus // ignore: cast_nullable_to_non_nullable
+as RegistrationStatus,emissionTestValid: null == emissionTestValid ? _self.emissionTestValid : emissionTestValid // ignore: cast_nullable_to_non_nullable
+as bool,comprehensiveInsurance: null == comprehensiveInsurance ? _self.comprehensiveInsurance : comprehensiveInsurance // ignore: cast_nullable_to_non_nullable
+as bool,acceptsTrade: null == acceptsTrade ? _self.acceptsTrade : acceptsTrade // ignore: cast_nullable_to_non_nullable
+as bool,financingAvailable: null == financingAvailable ? _self.financingAvailable : financingAvailable // ignore: cast_nullable_to_non_nullable
+as bool,priceNegotiable: null == priceNegotiable ? _self.priceNegotiable : priceNegotiable // ignore: cast_nullable_to_non_nullable
+as bool,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,issues: freezed == issues ? _self.issues : issues // ignore: cast_nullable_to_non_nullable
 as String?,images: null == images ? _self.images : images // ignore: cast_nullable_to_non_nullable
-as List<String>,features: null == features ? _self.features : features // ignore: cast_nullable_to_non_nullable
-as List<String>,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as List<String>,categorizedImages: null == categorizedImages ? _self.categorizedImages : categorizedImages // ignore: cast_nullable_to_non_nullable
+as Map<String, List<String>>,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as ListingStatus,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,viewCount: null == viewCount ? _self.viewCount : viewCount // ignore: cast_nullable_to_non_nullable
@@ -462,10 +503,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String sellerId,  String sellerName,  String brand,  String model,  String variant,  int year,  int mileage,  TransmissionType transmission,  FuelType fuelType,  BodyType bodyType,  String color,  String engineSize,  int seats,  int doors,  String plateNumber,  String orcrNumber,  CarLocation location,  int numberOfOwners,  bool serviceHistoryComplete,  bool hasAccidentHistory,  CarCondition condition,  String description,  String? issues,  List<String> images,  List<String> features,  ListingStatus status,  DateTime createdAt,  DateTime updatedAt,  int viewCount)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String sellerId,  String sellerName,  String brand,  String model,  String variant,  int year,  String engineSize,  EngineType engineType,  int cylinders,  int horsepower,  int torque,  TransmissionType transmission,  int transmissionSpeeds,  DriveType driveType,  FuelType fuelType,  double fuelConsumption,  int? electricRange,  double? batteryCapacity,  String? chargingTime,  BodyType bodyType,  int doors,  int seats,  int curbWeight,  int grossWeight,  int cargoCapacity,  int? towingCapacity,  int? groundClearance,  int length,  int width,  int height,  int wheelbase,  String color,  PaintType paintType,  int rimSize,  RimType rimType,  TireCondition tireCondition,  CarCondition condition,  int mileage,  int numberOfOwners,  bool hasAccidentHistory,  bool floodDamage,  bool serviceHistoryComplete,  bool warrantyRemaining,  DateTime? registrationExpiry,  List<String> features,  CarLocation location,  bool availableForTestDrive,  bool deliveryAvailable,  String plateNumber,  String orcrNumber,  RegistrationStatus registrationStatus,  bool emissionTestValid,  bool comprehensiveInsurance,  bool acceptsTrade,  bool financingAvailable,  bool priceNegotiable,  String description,  String? issues,  List<String> images,  Map<String, List<String>> categorizedImages,  ListingStatus status,  DateTime createdAt,  DateTime updatedAt,  int viewCount)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CarModel() when $default != null:
-return $default(_that.id,_that.sellerId,_that.sellerName,_that.brand,_that.model,_that.variant,_that.year,_that.mileage,_that.transmission,_that.fuelType,_that.bodyType,_that.color,_that.engineSize,_that.seats,_that.doors,_that.plateNumber,_that.orcrNumber,_that.location,_that.numberOfOwners,_that.serviceHistoryComplete,_that.hasAccidentHistory,_that.condition,_that.description,_that.issues,_that.images,_that.features,_that.status,_that.createdAt,_that.updatedAt,_that.viewCount);case _:
+return $default(_that.id,_that.sellerId,_that.sellerName,_that.brand,_that.model,_that.variant,_that.year,_that.engineSize,_that.engineType,_that.cylinders,_that.horsepower,_that.torque,_that.transmission,_that.transmissionSpeeds,_that.driveType,_that.fuelType,_that.fuelConsumption,_that.electricRange,_that.batteryCapacity,_that.chargingTime,_that.bodyType,_that.doors,_that.seats,_that.curbWeight,_that.grossWeight,_that.cargoCapacity,_that.towingCapacity,_that.groundClearance,_that.length,_that.width,_that.height,_that.wheelbase,_that.color,_that.paintType,_that.rimSize,_that.rimType,_that.tireCondition,_that.condition,_that.mileage,_that.numberOfOwners,_that.hasAccidentHistory,_that.floodDamage,_that.serviceHistoryComplete,_that.warrantyRemaining,_that.registrationExpiry,_that.features,_that.location,_that.availableForTestDrive,_that.deliveryAvailable,_that.plateNumber,_that.orcrNumber,_that.registrationStatus,_that.emissionTestValid,_that.comprehensiveInsurance,_that.acceptsTrade,_that.financingAvailable,_that.priceNegotiable,_that.description,_that.issues,_that.images,_that.categorizedImages,_that.status,_that.createdAt,_that.updatedAt,_that.viewCount);case _:
   return orElse();
 
 }
@@ -483,10 +524,10 @@ return $default(_that.id,_that.sellerId,_that.sellerName,_that.brand,_that.model
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String sellerId,  String sellerName,  String brand,  String model,  String variant,  int year,  int mileage,  TransmissionType transmission,  FuelType fuelType,  BodyType bodyType,  String color,  String engineSize,  int seats,  int doors,  String plateNumber,  String orcrNumber,  CarLocation location,  int numberOfOwners,  bool serviceHistoryComplete,  bool hasAccidentHistory,  CarCondition condition,  String description,  String? issues,  List<String> images,  List<String> features,  ListingStatus status,  DateTime createdAt,  DateTime updatedAt,  int viewCount)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String sellerId,  String sellerName,  String brand,  String model,  String variant,  int year,  String engineSize,  EngineType engineType,  int cylinders,  int horsepower,  int torque,  TransmissionType transmission,  int transmissionSpeeds,  DriveType driveType,  FuelType fuelType,  double fuelConsumption,  int? electricRange,  double? batteryCapacity,  String? chargingTime,  BodyType bodyType,  int doors,  int seats,  int curbWeight,  int grossWeight,  int cargoCapacity,  int? towingCapacity,  int? groundClearance,  int length,  int width,  int height,  int wheelbase,  String color,  PaintType paintType,  int rimSize,  RimType rimType,  TireCondition tireCondition,  CarCondition condition,  int mileage,  int numberOfOwners,  bool hasAccidentHistory,  bool floodDamage,  bool serviceHistoryComplete,  bool warrantyRemaining,  DateTime? registrationExpiry,  List<String> features,  CarLocation location,  bool availableForTestDrive,  bool deliveryAvailable,  String plateNumber,  String orcrNumber,  RegistrationStatus registrationStatus,  bool emissionTestValid,  bool comprehensiveInsurance,  bool acceptsTrade,  bool financingAvailable,  bool priceNegotiable,  String description,  String? issues,  List<String> images,  Map<String, List<String>> categorizedImages,  ListingStatus status,  DateTime createdAt,  DateTime updatedAt,  int viewCount)  $default,) {final _that = this;
 switch (_that) {
 case _CarModel():
-return $default(_that.id,_that.sellerId,_that.sellerName,_that.brand,_that.model,_that.variant,_that.year,_that.mileage,_that.transmission,_that.fuelType,_that.bodyType,_that.color,_that.engineSize,_that.seats,_that.doors,_that.plateNumber,_that.orcrNumber,_that.location,_that.numberOfOwners,_that.serviceHistoryComplete,_that.hasAccidentHistory,_that.condition,_that.description,_that.issues,_that.images,_that.features,_that.status,_that.createdAt,_that.updatedAt,_that.viewCount);case _:
+return $default(_that.id,_that.sellerId,_that.sellerName,_that.brand,_that.model,_that.variant,_that.year,_that.engineSize,_that.engineType,_that.cylinders,_that.horsepower,_that.torque,_that.transmission,_that.transmissionSpeeds,_that.driveType,_that.fuelType,_that.fuelConsumption,_that.electricRange,_that.batteryCapacity,_that.chargingTime,_that.bodyType,_that.doors,_that.seats,_that.curbWeight,_that.grossWeight,_that.cargoCapacity,_that.towingCapacity,_that.groundClearance,_that.length,_that.width,_that.height,_that.wheelbase,_that.color,_that.paintType,_that.rimSize,_that.rimType,_that.tireCondition,_that.condition,_that.mileage,_that.numberOfOwners,_that.hasAccidentHistory,_that.floodDamage,_that.serviceHistoryComplete,_that.warrantyRemaining,_that.registrationExpiry,_that.features,_that.location,_that.availableForTestDrive,_that.deliveryAvailable,_that.plateNumber,_that.orcrNumber,_that.registrationStatus,_that.emissionTestValid,_that.comprehensiveInsurance,_that.acceptsTrade,_that.financingAvailable,_that.priceNegotiable,_that.description,_that.issues,_that.images,_that.categorizedImages,_that.status,_that.createdAt,_that.updatedAt,_that.viewCount);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -503,10 +544,10 @@ return $default(_that.id,_that.sellerId,_that.sellerName,_that.brand,_that.model
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String sellerId,  String sellerName,  String brand,  String model,  String variant,  int year,  int mileage,  TransmissionType transmission,  FuelType fuelType,  BodyType bodyType,  String color,  String engineSize,  int seats,  int doors,  String plateNumber,  String orcrNumber,  CarLocation location,  int numberOfOwners,  bool serviceHistoryComplete,  bool hasAccidentHistory,  CarCondition condition,  String description,  String? issues,  List<String> images,  List<String> features,  ListingStatus status,  DateTime createdAt,  DateTime updatedAt,  int viewCount)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String sellerId,  String sellerName,  String brand,  String model,  String variant,  int year,  String engineSize,  EngineType engineType,  int cylinders,  int horsepower,  int torque,  TransmissionType transmission,  int transmissionSpeeds,  DriveType driveType,  FuelType fuelType,  double fuelConsumption,  int? electricRange,  double? batteryCapacity,  String? chargingTime,  BodyType bodyType,  int doors,  int seats,  int curbWeight,  int grossWeight,  int cargoCapacity,  int? towingCapacity,  int? groundClearance,  int length,  int width,  int height,  int wheelbase,  String color,  PaintType paintType,  int rimSize,  RimType rimType,  TireCondition tireCondition,  CarCondition condition,  int mileage,  int numberOfOwners,  bool hasAccidentHistory,  bool floodDamage,  bool serviceHistoryComplete,  bool warrantyRemaining,  DateTime? registrationExpiry,  List<String> features,  CarLocation location,  bool availableForTestDrive,  bool deliveryAvailable,  String plateNumber,  String orcrNumber,  RegistrationStatus registrationStatus,  bool emissionTestValid,  bool comprehensiveInsurance,  bool acceptsTrade,  bool financingAvailable,  bool priceNegotiable,  String description,  String? issues,  List<String> images,  Map<String, List<String>> categorizedImages,  ListingStatus status,  DateTime createdAt,  DateTime updatedAt,  int viewCount)?  $default,) {final _that = this;
 switch (_that) {
 case _CarModel() when $default != null:
-return $default(_that.id,_that.sellerId,_that.sellerName,_that.brand,_that.model,_that.variant,_that.year,_that.mileage,_that.transmission,_that.fuelType,_that.bodyType,_that.color,_that.engineSize,_that.seats,_that.doors,_that.plateNumber,_that.orcrNumber,_that.location,_that.numberOfOwners,_that.serviceHistoryComplete,_that.hasAccidentHistory,_that.condition,_that.description,_that.issues,_that.images,_that.features,_that.status,_that.createdAt,_that.updatedAt,_that.viewCount);case _:
+return $default(_that.id,_that.sellerId,_that.sellerName,_that.brand,_that.model,_that.variant,_that.year,_that.engineSize,_that.engineType,_that.cylinders,_that.horsepower,_that.torque,_that.transmission,_that.transmissionSpeeds,_that.driveType,_that.fuelType,_that.fuelConsumption,_that.electricRange,_that.batteryCapacity,_that.chargingTime,_that.bodyType,_that.doors,_that.seats,_that.curbWeight,_that.grossWeight,_that.cargoCapacity,_that.towingCapacity,_that.groundClearance,_that.length,_that.width,_that.height,_that.wheelbase,_that.color,_that.paintType,_that.rimSize,_that.rimType,_that.tireCondition,_that.condition,_that.mileage,_that.numberOfOwners,_that.hasAccidentHistory,_that.floodDamage,_that.serviceHistoryComplete,_that.warrantyRemaining,_that.registrationExpiry,_that.features,_that.location,_that.availableForTestDrive,_that.deliveryAvailable,_that.plateNumber,_that.orcrNumber,_that.registrationStatus,_that.emissionTestValid,_that.comprehensiveInsurance,_that.acceptsTrade,_that.financingAvailable,_that.priceNegotiable,_that.description,_that.issues,_that.images,_that.categorizedImages,_that.status,_that.createdAt,_that.updatedAt,_that.viewCount);case _:
   return null;
 
 }
@@ -518,52 +559,101 @@ return $default(_that.id,_that.sellerId,_that.sellerName,_that.brand,_that.model
 @JsonSerializable()
 
 class _CarModel implements CarModel {
-  const _CarModel({required this.id, required this.sellerId, required this.sellerName, required this.brand, required this.model, required this.variant, required this.year, required this.mileage, required this.transmission, required this.fuelType, required this.bodyType, required this.color, required this.engineSize, required this.seats, required this.doors, required this.plateNumber, required this.orcrNumber, required this.location, required this.numberOfOwners, required this.serviceHistoryComplete, required this.hasAccidentHistory, required this.condition, required this.description, this.issues, required final  List<String> images, final  List<String> features = const [], required this.status, required this.createdAt, required this.updatedAt, this.viewCount = 0}): _images = images,_features = features;
+  const _CarModel({required this.id, required this.sellerId, required this.sellerName, required this.brand, required this.model, required this.variant, required this.year, required this.engineSize, required this.engineType, required this.cylinders, required this.horsepower, required this.torque, required this.transmission, required this.transmissionSpeeds, required this.driveType, required this.fuelType, required this.fuelConsumption, this.electricRange, this.batteryCapacity, this.chargingTime, required this.bodyType, required this.doors, required this.seats, required this.curbWeight, required this.grossWeight, required this.cargoCapacity, this.towingCapacity, this.groundClearance, required this.length, required this.width, required this.height, required this.wheelbase, required this.color, required this.paintType, required this.rimSize, required this.rimType, required this.tireCondition, required this.condition, required this.mileage, required this.numberOfOwners, required this.hasAccidentHistory, required this.floodDamage, required this.serviceHistoryComplete, required this.warrantyRemaining, this.registrationExpiry, final  List<String> features = const [], required this.location, this.availableForTestDrive = false, this.deliveryAvailable = false, required this.plateNumber, required this.orcrNumber, required this.registrationStatus, required this.emissionTestValid, required this.comprehensiveInsurance, this.acceptsTrade = false, this.financingAvailable = false, this.priceNegotiable = false, required this.description, this.issues, required final  List<String> images, required final  Map<String, List<String>> categorizedImages, required this.status, required this.createdAt, required this.updatedAt, this.viewCount = 0}): _features = features,_images = images,_categorizedImages = categorizedImages;
   factory _CarModel.fromJson(Map<String, dynamic> json) => _$CarModelFromJson(json);
 
 @override final  String id;
 @override final  String sellerId;
 @override final  String sellerName;
-// Basic Info
+// BASIC INFO
 @override final  String brand;
 @override final  String model;
 @override final  String variant;
 @override final  int year;
-@override final  int mileage;
-// Technical Details
-@override final  TransmissionType transmission;
-@override final  FuelType fuelType;
-@override final  BodyType bodyType;
-@override final  String color;
+// MECHANICAL
 @override final  String engineSize;
-@override final  int seats;
+@override final  EngineType engineType;
+@override final  int cylinders;
+@override final  int horsepower;
+@override final  int torque;
+@override final  TransmissionType transmission;
+@override final  int transmissionSpeeds;
+@override final  DriveType driveType;
+@override final  FuelType fuelType;
+@override final  double fuelConsumption;
+@override final  int? electricRange;
+@override final  double? batteryCapacity;
+@override final  String? chargingTime;
+// DIMENSIONS & CAPACITY
+@override final  BodyType bodyType;
 @override final  int doors;
-// Documents
-@override final  String plateNumber;
-@override final  String orcrNumber;
-@override final  CarLocation location;
-@override final  int numberOfOwners;
-@override final  bool serviceHistoryComplete;
-@override final  bool hasAccidentHistory;
-// Condition & Description
+@override final  int seats;
+@override final  int curbWeight;
+@override final  int grossWeight;
+@override final  int cargoCapacity;
+@override final  int? towingCapacity;
+@override final  int? groundClearance;
+@override final  int length;
+@override final  int width;
+@override final  int height;
+@override final  int wheelbase;
+// EXTERIOR
+@override final  String color;
+@override final  PaintType paintType;
+@override final  int rimSize;
+@override final  RimType rimType;
+@override final  TireCondition tireCondition;
+// CONDITION & HISTORY
 @override final  CarCondition condition;
-@override final  String description;
-@override final  String? issues;
- final  List<String> _images;
-@override List<String> get images {
-  if (_images is EqualUnmodifiableListView) return _images;
-  // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_images);
-}
-
+@override final  int mileage;
+@override final  int numberOfOwners;
+@override final  bool hasAccidentHistory;
+@override final  bool floodDamage;
+@override final  bool serviceHistoryComplete;
+@override final  bool warrantyRemaining;
+@override final  DateTime? registrationExpiry;
+// FEATURES & TECHNOLOGY
  final  List<String> _features;
+// FEATURES & TECHNOLOGY
 @override@JsonKey() List<String> get features {
   if (_features is EqualUnmodifiableListView) return _features;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_features);
 }
 
-// Status
+// LOCATION & AVAILABILITY
+@override final  CarLocation location;
+@override@JsonKey() final  bool availableForTestDrive;
+@override@JsonKey() final  bool deliveryAvailable;
+// DOCUMENTATION
+@override final  String plateNumber;
+@override final  String orcrNumber;
+@override final  RegistrationStatus registrationStatus;
+@override final  bool emissionTestValid;
+@override final  bool comprehensiveInsurance;
+// SELLER PREFERENCES
+@override@JsonKey() final  bool acceptsTrade;
+@override@JsonKey() final  bool financingAvailable;
+@override@JsonKey() final  bool priceNegotiable;
+// DESCRIPTION
+@override final  String description;
+@override final  String? issues;
+// MEDIA & STATUS
+ final  List<String> _images;
+// MEDIA & STATUS
+@override List<String> get images {
+  if (_images is EqualUnmodifiableListView) return _images;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_images);
+}
+
+ final  Map<String, List<String>> _categorizedImages;
+@override Map<String, List<String>> get categorizedImages {
+  if (_categorizedImages is EqualUnmodifiableMapView) return _categorizedImages;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_categorizedImages);
+}
+
 @override final  ListingStatus status;
 @override final  DateTime createdAt;
 @override final  DateTime updatedAt;
@@ -582,16 +672,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CarModel&&(identical(other.id, id) || other.id == id)&&(identical(other.sellerId, sellerId) || other.sellerId == sellerId)&&(identical(other.sellerName, sellerName) || other.sellerName == sellerName)&&(identical(other.brand, brand) || other.brand == brand)&&(identical(other.model, model) || other.model == model)&&(identical(other.variant, variant) || other.variant == variant)&&(identical(other.year, year) || other.year == year)&&(identical(other.mileage, mileage) || other.mileage == mileage)&&(identical(other.transmission, transmission) || other.transmission == transmission)&&(identical(other.fuelType, fuelType) || other.fuelType == fuelType)&&(identical(other.bodyType, bodyType) || other.bodyType == bodyType)&&(identical(other.color, color) || other.color == color)&&(identical(other.engineSize, engineSize) || other.engineSize == engineSize)&&(identical(other.seats, seats) || other.seats == seats)&&(identical(other.doors, doors) || other.doors == doors)&&(identical(other.plateNumber, plateNumber) || other.plateNumber == plateNumber)&&(identical(other.orcrNumber, orcrNumber) || other.orcrNumber == orcrNumber)&&(identical(other.location, location) || other.location == location)&&(identical(other.numberOfOwners, numberOfOwners) || other.numberOfOwners == numberOfOwners)&&(identical(other.serviceHistoryComplete, serviceHistoryComplete) || other.serviceHistoryComplete == serviceHistoryComplete)&&(identical(other.hasAccidentHistory, hasAccidentHistory) || other.hasAccidentHistory == hasAccidentHistory)&&(identical(other.condition, condition) || other.condition == condition)&&(identical(other.description, description) || other.description == description)&&(identical(other.issues, issues) || other.issues == issues)&&const DeepCollectionEquality().equals(other._images, _images)&&const DeepCollectionEquality().equals(other._features, _features)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.viewCount, viewCount) || other.viewCount == viewCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CarModel&&(identical(other.id, id) || other.id == id)&&(identical(other.sellerId, sellerId) || other.sellerId == sellerId)&&(identical(other.sellerName, sellerName) || other.sellerName == sellerName)&&(identical(other.brand, brand) || other.brand == brand)&&(identical(other.model, model) || other.model == model)&&(identical(other.variant, variant) || other.variant == variant)&&(identical(other.year, year) || other.year == year)&&(identical(other.engineSize, engineSize) || other.engineSize == engineSize)&&(identical(other.engineType, engineType) || other.engineType == engineType)&&(identical(other.cylinders, cylinders) || other.cylinders == cylinders)&&(identical(other.horsepower, horsepower) || other.horsepower == horsepower)&&(identical(other.torque, torque) || other.torque == torque)&&(identical(other.transmission, transmission) || other.transmission == transmission)&&(identical(other.transmissionSpeeds, transmissionSpeeds) || other.transmissionSpeeds == transmissionSpeeds)&&(identical(other.driveType, driveType) || other.driveType == driveType)&&(identical(other.fuelType, fuelType) || other.fuelType == fuelType)&&(identical(other.fuelConsumption, fuelConsumption) || other.fuelConsumption == fuelConsumption)&&(identical(other.electricRange, electricRange) || other.electricRange == electricRange)&&(identical(other.batteryCapacity, batteryCapacity) || other.batteryCapacity == batteryCapacity)&&(identical(other.chargingTime, chargingTime) || other.chargingTime == chargingTime)&&(identical(other.bodyType, bodyType) || other.bodyType == bodyType)&&(identical(other.doors, doors) || other.doors == doors)&&(identical(other.seats, seats) || other.seats == seats)&&(identical(other.curbWeight, curbWeight) || other.curbWeight == curbWeight)&&(identical(other.grossWeight, grossWeight) || other.grossWeight == grossWeight)&&(identical(other.cargoCapacity, cargoCapacity) || other.cargoCapacity == cargoCapacity)&&(identical(other.towingCapacity, towingCapacity) || other.towingCapacity == towingCapacity)&&(identical(other.groundClearance, groundClearance) || other.groundClearance == groundClearance)&&(identical(other.length, length) || other.length == length)&&(identical(other.width, width) || other.width == width)&&(identical(other.height, height) || other.height == height)&&(identical(other.wheelbase, wheelbase) || other.wheelbase == wheelbase)&&(identical(other.color, color) || other.color == color)&&(identical(other.paintType, paintType) || other.paintType == paintType)&&(identical(other.rimSize, rimSize) || other.rimSize == rimSize)&&(identical(other.rimType, rimType) || other.rimType == rimType)&&(identical(other.tireCondition, tireCondition) || other.tireCondition == tireCondition)&&(identical(other.condition, condition) || other.condition == condition)&&(identical(other.mileage, mileage) || other.mileage == mileage)&&(identical(other.numberOfOwners, numberOfOwners) || other.numberOfOwners == numberOfOwners)&&(identical(other.hasAccidentHistory, hasAccidentHistory) || other.hasAccidentHistory == hasAccidentHistory)&&(identical(other.floodDamage, floodDamage) || other.floodDamage == floodDamage)&&(identical(other.serviceHistoryComplete, serviceHistoryComplete) || other.serviceHistoryComplete == serviceHistoryComplete)&&(identical(other.warrantyRemaining, warrantyRemaining) || other.warrantyRemaining == warrantyRemaining)&&(identical(other.registrationExpiry, registrationExpiry) || other.registrationExpiry == registrationExpiry)&&const DeepCollectionEquality().equals(other._features, _features)&&(identical(other.location, location) || other.location == location)&&(identical(other.availableForTestDrive, availableForTestDrive) || other.availableForTestDrive == availableForTestDrive)&&(identical(other.deliveryAvailable, deliveryAvailable) || other.deliveryAvailable == deliveryAvailable)&&(identical(other.plateNumber, plateNumber) || other.plateNumber == plateNumber)&&(identical(other.orcrNumber, orcrNumber) || other.orcrNumber == orcrNumber)&&(identical(other.registrationStatus, registrationStatus) || other.registrationStatus == registrationStatus)&&(identical(other.emissionTestValid, emissionTestValid) || other.emissionTestValid == emissionTestValid)&&(identical(other.comprehensiveInsurance, comprehensiveInsurance) || other.comprehensiveInsurance == comprehensiveInsurance)&&(identical(other.acceptsTrade, acceptsTrade) || other.acceptsTrade == acceptsTrade)&&(identical(other.financingAvailable, financingAvailable) || other.financingAvailable == financingAvailable)&&(identical(other.priceNegotiable, priceNegotiable) || other.priceNegotiable == priceNegotiable)&&(identical(other.description, description) || other.description == description)&&(identical(other.issues, issues) || other.issues == issues)&&const DeepCollectionEquality().equals(other._images, _images)&&const DeepCollectionEquality().equals(other._categorizedImages, _categorizedImages)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.viewCount, viewCount) || other.viewCount == viewCount));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,sellerId,sellerName,brand,model,variant,year,mileage,transmission,fuelType,bodyType,color,engineSize,seats,doors,plateNumber,orcrNumber,location,numberOfOwners,serviceHistoryComplete,hasAccidentHistory,condition,description,issues,const DeepCollectionEquality().hash(_images),const DeepCollectionEquality().hash(_features),status,createdAt,updatedAt,viewCount]);
+int get hashCode => Object.hashAll([runtimeType,id,sellerId,sellerName,brand,model,variant,year,engineSize,engineType,cylinders,horsepower,torque,transmission,transmissionSpeeds,driveType,fuelType,fuelConsumption,electricRange,batteryCapacity,chargingTime,bodyType,doors,seats,curbWeight,grossWeight,cargoCapacity,towingCapacity,groundClearance,length,width,height,wheelbase,color,paintType,rimSize,rimType,tireCondition,condition,mileage,numberOfOwners,hasAccidentHistory,floodDamage,serviceHistoryComplete,warrantyRemaining,registrationExpiry,const DeepCollectionEquality().hash(_features),location,availableForTestDrive,deliveryAvailable,plateNumber,orcrNumber,registrationStatus,emissionTestValid,comprehensiveInsurance,acceptsTrade,financingAvailable,priceNegotiable,description,issues,const DeepCollectionEquality().hash(_images),const DeepCollectionEquality().hash(_categorizedImages),status,createdAt,updatedAt,viewCount]);
 
 @override
 String toString() {
-  return 'CarModel(id: $id, sellerId: $sellerId, sellerName: $sellerName, brand: $brand, model: $model, variant: $variant, year: $year, mileage: $mileage, transmission: $transmission, fuelType: $fuelType, bodyType: $bodyType, color: $color, engineSize: $engineSize, seats: $seats, doors: $doors, plateNumber: $plateNumber, orcrNumber: $orcrNumber, location: $location, numberOfOwners: $numberOfOwners, serviceHistoryComplete: $serviceHistoryComplete, hasAccidentHistory: $hasAccidentHistory, condition: $condition, description: $description, issues: $issues, images: $images, features: $features, status: $status, createdAt: $createdAt, updatedAt: $updatedAt, viewCount: $viewCount)';
+  return 'CarModel(id: $id, sellerId: $sellerId, sellerName: $sellerName, brand: $brand, model: $model, variant: $variant, year: $year, engineSize: $engineSize, engineType: $engineType, cylinders: $cylinders, horsepower: $horsepower, torque: $torque, transmission: $transmission, transmissionSpeeds: $transmissionSpeeds, driveType: $driveType, fuelType: $fuelType, fuelConsumption: $fuelConsumption, electricRange: $electricRange, batteryCapacity: $batteryCapacity, chargingTime: $chargingTime, bodyType: $bodyType, doors: $doors, seats: $seats, curbWeight: $curbWeight, grossWeight: $grossWeight, cargoCapacity: $cargoCapacity, towingCapacity: $towingCapacity, groundClearance: $groundClearance, length: $length, width: $width, height: $height, wheelbase: $wheelbase, color: $color, paintType: $paintType, rimSize: $rimSize, rimType: $rimType, tireCondition: $tireCondition, condition: $condition, mileage: $mileage, numberOfOwners: $numberOfOwners, hasAccidentHistory: $hasAccidentHistory, floodDamage: $floodDamage, serviceHistoryComplete: $serviceHistoryComplete, warrantyRemaining: $warrantyRemaining, registrationExpiry: $registrationExpiry, features: $features, location: $location, availableForTestDrive: $availableForTestDrive, deliveryAvailable: $deliveryAvailable, plateNumber: $plateNumber, orcrNumber: $orcrNumber, registrationStatus: $registrationStatus, emissionTestValid: $emissionTestValid, comprehensiveInsurance: $comprehensiveInsurance, acceptsTrade: $acceptsTrade, financingAvailable: $financingAvailable, priceNegotiable: $priceNegotiable, description: $description, issues: $issues, images: $images, categorizedImages: $categorizedImages, status: $status, createdAt: $createdAt, updatedAt: $updatedAt, viewCount: $viewCount)';
 }
 
 
@@ -602,7 +692,7 @@ abstract mixin class _$CarModelCopyWith<$Res> implements $CarModelCopyWith<$Res>
   factory _$CarModelCopyWith(_CarModel value, $Res Function(_CarModel) _then) = __$CarModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String sellerId, String sellerName, String brand, String model, String variant, int year, int mileage, TransmissionType transmission, FuelType fuelType, BodyType bodyType, String color, String engineSize, int seats, int doors, String plateNumber, String orcrNumber, CarLocation location, int numberOfOwners, bool serviceHistoryComplete, bool hasAccidentHistory, CarCondition condition, String description, String? issues, List<String> images, List<String> features, ListingStatus status, DateTime createdAt, DateTime updatedAt, int viewCount
+ String id, String sellerId, String sellerName, String brand, String model, String variant, int year, String engineSize, EngineType engineType, int cylinders, int horsepower, int torque, TransmissionType transmission, int transmissionSpeeds, DriveType driveType, FuelType fuelType, double fuelConsumption, int? electricRange, double? batteryCapacity, String? chargingTime, BodyType bodyType, int doors, int seats, int curbWeight, int grossWeight, int cargoCapacity, int? towingCapacity, int? groundClearance, int length, int width, int height, int wheelbase, String color, PaintType paintType, int rimSize, RimType rimType, TireCondition tireCondition, CarCondition condition, int mileage, int numberOfOwners, bool hasAccidentHistory, bool floodDamage, bool serviceHistoryComplete, bool warrantyRemaining, DateTime? registrationExpiry, List<String> features, CarLocation location, bool availableForTestDrive, bool deliveryAvailable, String plateNumber, String orcrNumber, RegistrationStatus registrationStatus, bool emissionTestValid, bool comprehensiveInsurance, bool acceptsTrade, bool financingAvailable, bool priceNegotiable, String description, String? issues, List<String> images, Map<String, List<String>> categorizedImages, ListingStatus status, DateTime createdAt, DateTime updatedAt, int viewCount
 });
 
 
@@ -619,7 +709,7 @@ class __$CarModelCopyWithImpl<$Res>
 
 /// Create a copy of CarModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? sellerId = null,Object? sellerName = null,Object? brand = null,Object? model = null,Object? variant = null,Object? year = null,Object? mileage = null,Object? transmission = null,Object? fuelType = null,Object? bodyType = null,Object? color = null,Object? engineSize = null,Object? seats = null,Object? doors = null,Object? plateNumber = null,Object? orcrNumber = null,Object? location = null,Object? numberOfOwners = null,Object? serviceHistoryComplete = null,Object? hasAccidentHistory = null,Object? condition = null,Object? description = null,Object? issues = freezed,Object? images = null,Object? features = null,Object? status = null,Object? createdAt = null,Object? updatedAt = null,Object? viewCount = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? sellerId = null,Object? sellerName = null,Object? brand = null,Object? model = null,Object? variant = null,Object? year = null,Object? engineSize = null,Object? engineType = null,Object? cylinders = null,Object? horsepower = null,Object? torque = null,Object? transmission = null,Object? transmissionSpeeds = null,Object? driveType = null,Object? fuelType = null,Object? fuelConsumption = null,Object? electricRange = freezed,Object? batteryCapacity = freezed,Object? chargingTime = freezed,Object? bodyType = null,Object? doors = null,Object? seats = null,Object? curbWeight = null,Object? grossWeight = null,Object? cargoCapacity = null,Object? towingCapacity = freezed,Object? groundClearance = freezed,Object? length = null,Object? width = null,Object? height = null,Object? wheelbase = null,Object? color = null,Object? paintType = null,Object? rimSize = null,Object? rimType = null,Object? tireCondition = null,Object? condition = null,Object? mileage = null,Object? numberOfOwners = null,Object? hasAccidentHistory = null,Object? floodDamage = null,Object? serviceHistoryComplete = null,Object? warrantyRemaining = null,Object? registrationExpiry = freezed,Object? features = null,Object? location = null,Object? availableForTestDrive = null,Object? deliveryAvailable = null,Object? plateNumber = null,Object? orcrNumber = null,Object? registrationStatus = null,Object? emissionTestValid = null,Object? comprehensiveInsurance = null,Object? acceptsTrade = null,Object? financingAvailable = null,Object? priceNegotiable = null,Object? description = null,Object? issues = freezed,Object? images = null,Object? categorizedImages = null,Object? status = null,Object? createdAt = null,Object? updatedAt = null,Object? viewCount = null,}) {
   return _then(_CarModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,sellerId: null == sellerId ? _self.sellerId : sellerId // ignore: cast_nullable_to_non_nullable
@@ -628,26 +718,61 @@ as String,brand: null == brand ? _self.brand : brand // ignore: cast_nullable_to
 as String,model: null == model ? _self.model : model // ignore: cast_nullable_to_non_nullable
 as String,variant: null == variant ? _self.variant : variant // ignore: cast_nullable_to_non_nullable
 as String,year: null == year ? _self.year : year // ignore: cast_nullable_to_non_nullable
-as int,mileage: null == mileage ? _self.mileage : mileage // ignore: cast_nullable_to_non_nullable
+as int,engineSize: null == engineSize ? _self.engineSize : engineSize // ignore: cast_nullable_to_non_nullable
+as String,engineType: null == engineType ? _self.engineType : engineType // ignore: cast_nullable_to_non_nullable
+as EngineType,cylinders: null == cylinders ? _self.cylinders : cylinders // ignore: cast_nullable_to_non_nullable
+as int,horsepower: null == horsepower ? _self.horsepower : horsepower // ignore: cast_nullable_to_non_nullable
+as int,torque: null == torque ? _self.torque : torque // ignore: cast_nullable_to_non_nullable
 as int,transmission: null == transmission ? _self.transmission : transmission // ignore: cast_nullable_to_non_nullable
-as TransmissionType,fuelType: null == fuelType ? _self.fuelType : fuelType // ignore: cast_nullable_to_non_nullable
-as FuelType,bodyType: null == bodyType ? _self.bodyType : bodyType // ignore: cast_nullable_to_non_nullable
-as BodyType,color: null == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
-as String,engineSize: null == engineSize ? _self.engineSize : engineSize // ignore: cast_nullable_to_non_nullable
-as String,seats: null == seats ? _self.seats : seats // ignore: cast_nullable_to_non_nullable
-as int,doors: null == doors ? _self.doors : doors // ignore: cast_nullable_to_non_nullable
-as int,plateNumber: null == plateNumber ? _self.plateNumber : plateNumber // ignore: cast_nullable_to_non_nullable
+as TransmissionType,transmissionSpeeds: null == transmissionSpeeds ? _self.transmissionSpeeds : transmissionSpeeds // ignore: cast_nullable_to_non_nullable
+as int,driveType: null == driveType ? _self.driveType : driveType // ignore: cast_nullable_to_non_nullable
+as DriveType,fuelType: null == fuelType ? _self.fuelType : fuelType // ignore: cast_nullable_to_non_nullable
+as FuelType,fuelConsumption: null == fuelConsumption ? _self.fuelConsumption : fuelConsumption // ignore: cast_nullable_to_non_nullable
+as double,electricRange: freezed == electricRange ? _self.electricRange : electricRange // ignore: cast_nullable_to_non_nullable
+as int?,batteryCapacity: freezed == batteryCapacity ? _self.batteryCapacity : batteryCapacity // ignore: cast_nullable_to_non_nullable
+as double?,chargingTime: freezed == chargingTime ? _self.chargingTime : chargingTime // ignore: cast_nullable_to_non_nullable
+as String?,bodyType: null == bodyType ? _self.bodyType : bodyType // ignore: cast_nullable_to_non_nullable
+as BodyType,doors: null == doors ? _self.doors : doors // ignore: cast_nullable_to_non_nullable
+as int,seats: null == seats ? _self.seats : seats // ignore: cast_nullable_to_non_nullable
+as int,curbWeight: null == curbWeight ? _self.curbWeight : curbWeight // ignore: cast_nullable_to_non_nullable
+as int,grossWeight: null == grossWeight ? _self.grossWeight : grossWeight // ignore: cast_nullable_to_non_nullable
+as int,cargoCapacity: null == cargoCapacity ? _self.cargoCapacity : cargoCapacity // ignore: cast_nullable_to_non_nullable
+as int,towingCapacity: freezed == towingCapacity ? _self.towingCapacity : towingCapacity // ignore: cast_nullable_to_non_nullable
+as int?,groundClearance: freezed == groundClearance ? _self.groundClearance : groundClearance // ignore: cast_nullable_to_non_nullable
+as int?,length: null == length ? _self.length : length // ignore: cast_nullable_to_non_nullable
+as int,width: null == width ? _self.width : width // ignore: cast_nullable_to_non_nullable
+as int,height: null == height ? _self.height : height // ignore: cast_nullable_to_non_nullable
+as int,wheelbase: null == wheelbase ? _self.wheelbase : wheelbase // ignore: cast_nullable_to_non_nullable
+as int,color: null == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
+as String,paintType: null == paintType ? _self.paintType : paintType // ignore: cast_nullable_to_non_nullable
+as PaintType,rimSize: null == rimSize ? _self.rimSize : rimSize // ignore: cast_nullable_to_non_nullable
+as int,rimType: null == rimType ? _self.rimType : rimType // ignore: cast_nullable_to_non_nullable
+as RimType,tireCondition: null == tireCondition ? _self.tireCondition : tireCondition // ignore: cast_nullable_to_non_nullable
+as TireCondition,condition: null == condition ? _self.condition : condition // ignore: cast_nullable_to_non_nullable
+as CarCondition,mileage: null == mileage ? _self.mileage : mileage // ignore: cast_nullable_to_non_nullable
+as int,numberOfOwners: null == numberOfOwners ? _self.numberOfOwners : numberOfOwners // ignore: cast_nullable_to_non_nullable
+as int,hasAccidentHistory: null == hasAccidentHistory ? _self.hasAccidentHistory : hasAccidentHistory // ignore: cast_nullable_to_non_nullable
+as bool,floodDamage: null == floodDamage ? _self.floodDamage : floodDamage // ignore: cast_nullable_to_non_nullable
+as bool,serviceHistoryComplete: null == serviceHistoryComplete ? _self.serviceHistoryComplete : serviceHistoryComplete // ignore: cast_nullable_to_non_nullable
+as bool,warrantyRemaining: null == warrantyRemaining ? _self.warrantyRemaining : warrantyRemaining // ignore: cast_nullable_to_non_nullable
+as bool,registrationExpiry: freezed == registrationExpiry ? _self.registrationExpiry : registrationExpiry // ignore: cast_nullable_to_non_nullable
+as DateTime?,features: null == features ? _self._features : features // ignore: cast_nullable_to_non_nullable
+as List<String>,location: null == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
+as CarLocation,availableForTestDrive: null == availableForTestDrive ? _self.availableForTestDrive : availableForTestDrive // ignore: cast_nullable_to_non_nullable
+as bool,deliveryAvailable: null == deliveryAvailable ? _self.deliveryAvailable : deliveryAvailable // ignore: cast_nullable_to_non_nullable
+as bool,plateNumber: null == plateNumber ? _self.plateNumber : plateNumber // ignore: cast_nullable_to_non_nullable
 as String,orcrNumber: null == orcrNumber ? _self.orcrNumber : orcrNumber // ignore: cast_nullable_to_non_nullable
-as String,location: null == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
-as CarLocation,numberOfOwners: null == numberOfOwners ? _self.numberOfOwners : numberOfOwners // ignore: cast_nullable_to_non_nullable
-as int,serviceHistoryComplete: null == serviceHistoryComplete ? _self.serviceHistoryComplete : serviceHistoryComplete // ignore: cast_nullable_to_non_nullable
-as bool,hasAccidentHistory: null == hasAccidentHistory ? _self.hasAccidentHistory : hasAccidentHistory // ignore: cast_nullable_to_non_nullable
-as bool,condition: null == condition ? _self.condition : condition // ignore: cast_nullable_to_non_nullable
-as CarCondition,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String,registrationStatus: null == registrationStatus ? _self.registrationStatus : registrationStatus // ignore: cast_nullable_to_non_nullable
+as RegistrationStatus,emissionTestValid: null == emissionTestValid ? _self.emissionTestValid : emissionTestValid // ignore: cast_nullable_to_non_nullable
+as bool,comprehensiveInsurance: null == comprehensiveInsurance ? _self.comprehensiveInsurance : comprehensiveInsurance // ignore: cast_nullable_to_non_nullable
+as bool,acceptsTrade: null == acceptsTrade ? _self.acceptsTrade : acceptsTrade // ignore: cast_nullable_to_non_nullable
+as bool,financingAvailable: null == financingAvailable ? _self.financingAvailable : financingAvailable // ignore: cast_nullable_to_non_nullable
+as bool,priceNegotiable: null == priceNegotiable ? _self.priceNegotiable : priceNegotiable // ignore: cast_nullable_to_non_nullable
+as bool,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,issues: freezed == issues ? _self.issues : issues // ignore: cast_nullable_to_non_nullable
 as String?,images: null == images ? _self._images : images // ignore: cast_nullable_to_non_nullable
-as List<String>,features: null == features ? _self._features : features // ignore: cast_nullable_to_non_nullable
-as List<String>,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as List<String>,categorizedImages: null == categorizedImages ? _self._categorizedImages : categorizedImages // ignore: cast_nullable_to_non_nullable
+as Map<String, List<String>>,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as ListingStatus,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as DateTime,viewCount: null == viewCount ? _self.viewCount : viewCount // ignore: cast_nullable_to_non_nullable

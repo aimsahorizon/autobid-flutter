@@ -55,12 +55,6 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           // Browse tab actions
           if (_selectedIndex == 0) ...[
-            IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: () {
-                context.push('/search');
-              },
-            ),
             Consumer<BrowseProvider>(
               builder: (context, browseProvider, child) {
                 return Stack(
@@ -71,6 +65,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         showModalBottomSheet(
                           context: context,
                           isScrollControlled: true,
+                          useRootNavigator: false,
+                          enableDrag: true,
+                          isDismissible: true,
+                          showDragHandle: false,
+                          useSafeArea: true,
+                          transitionAnimationController: null,
                           builder: (context) => const FilterBottomSheet(),
                         );
                       },

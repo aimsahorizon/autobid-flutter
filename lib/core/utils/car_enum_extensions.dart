@@ -71,6 +71,94 @@ extension BodyTypeExtension on BodyType {
   }
 }
 
+extension EngineTypeExtension on EngineType {
+  String get displayName {
+    switch (this) {
+      case EngineType.inline:
+        return 'Inline';
+      case EngineType.vType:
+        return 'V-Type';
+      case EngineType.boxer:
+        return 'Boxer';
+      case EngineType.rotary:
+        return 'Rotary';
+      case EngineType.electric:
+        return 'Electric';
+    }
+  }
+}
+
+extension DriveTypeExtension on DriveType {
+  String get displayName {
+    switch (this) {
+      case DriveType.fwd:
+        return 'FWD';
+      case DriveType.rwd:
+        return 'RWD';
+      case DriveType.awd:
+        return 'AWD';
+      case DriveType.fourWd:
+        return '4WD';
+    }
+  }
+}
+
+extension PaintTypeExtension on PaintType {
+  String get displayName {
+    switch (this) {
+      case PaintType.solid:
+        return 'Solid';
+      case PaintType.metallic:
+        return 'Metallic';
+      case PaintType.pearlescent:
+        return 'Pearlescent';
+      case PaintType.matte:
+        return 'Matte';
+    }
+  }
+}
+
+extension RimTypeExtension on RimType {
+  String get displayName {
+    switch (this) {
+      case RimType.steel:
+        return 'Steel';
+      case RimType.alloy:
+        return 'Alloy';
+      case RimType.forged:
+        return 'Forged';
+    }
+  }
+}
+
+extension TireConditionExtension on TireCondition {
+  String get displayName {
+    switch (this) {
+      case TireCondition.newTires:
+        return 'New';
+      case TireCondition.good:
+        return 'Good';
+      case TireCondition.fair:
+        return 'Fair';
+      case TireCondition.needsReplacement:
+        return 'Needs Replacement';
+    }
+  }
+}
+
+extension RegistrationStatusExtension on RegistrationStatus {
+  String get displayName {
+    switch (this) {
+      case RegistrationStatus.current:
+        return 'Current';
+      case RegistrationStatus.expiringSoon:
+        return 'Expiring Soon';
+      case RegistrationStatus.expired:
+        return 'Expired';
+    }
+  }
+}
+
 extension CarConditionExtension on CarCondition {
   String get displayName {
     switch (this) {
@@ -84,38 +172,6 @@ extension CarConditionExtension on CarCondition {
         return 'Certified Pre-Owned';
       case CarCondition.forParts:
         return 'For Parts';
-    }
-  }
-
-  String get description {
-    switch (this) {
-      case CarCondition.brandNew:
-        return 'Never been registered, comes with manufacturer warranty';
-      case CarCondition.almostNew:
-        return 'Less than 1 year old with minimal mileage';
-      case CarCondition.used:
-        return 'Previously owned vehicle in good condition';
-      case CarCondition.certified:
-        return 'Certified by dealership with extended warranty';
-      case CarCondition.forParts:
-        return 'Not roadworthy, suitable for parts or restoration';
-    }
-  }
-}
-
-extension ListingStatusExtension on ListingStatus {
-  String get displayName {
-    switch (this) {
-      case ListingStatus.draft:
-        return 'Draft';
-      case ListingStatus.pendingReview:
-        return 'Pending Review';
-      case ListingStatus.active:
-        return 'Active';
-      case ListingStatus.sold:
-        return 'Sold';
-      case ListingStatus.cancelled:
-        return 'Cancelled';
     }
   }
 }
