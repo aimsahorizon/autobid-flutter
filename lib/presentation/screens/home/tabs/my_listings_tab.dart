@@ -46,8 +46,8 @@ class _MyListingsTabState extends State<MyListingsTab>
         // Tab bar
         TabBar(
           controller: _tabController,
-          isScrollable: false,
-          tabAlignment: TabAlignment.fill,
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
           tabs: [
             _buildTab('Active', ListingStatus.active, provider),
             _buildTab('Pending', ListingStatus.pendingReview, provider),
@@ -118,33 +118,8 @@ class _MyListingsTabState extends State<MyListingsTab>
   }
 
   Widget _buildTab(String label, ListingStatus status, ListingProvider provider) {
-    final count = provider.myListings.where((l) => l.status == status).length;
-
     return Tab(
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(label),
-          if (count > 0) ...[
-            const SizedBox(width: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: Color(status.colorValue),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                count.toString(),
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
+      child: Text(label),
     );
   }
 
@@ -220,10 +195,12 @@ class _MyListingsTabState extends State<MyListingsTab>
               final provider = context.read<ListingProvider>();
               provider.loadListingForEdit(listing);
 
-              // For draft listings, navigate to the step after last completed
+              // For draft listings, navigate to the exact step where it was saved
               if (listing.status == ListingStatus.draft) {
-                final nextStep = _getNextIncompleteStep(provider);
-                context.push('/listing/create/step$nextStep');
+                final savedStep = provider.lastCompletedStep > 0
+                    ? provider.lastCompletedStep
+                    : 1;
+                context.push('/listing/create/step$savedStep');
               } else {
                 // For other statuses, start from step 1
                 context.push('/listing/create/step1');
@@ -250,10 +227,12 @@ class _MyListingsTabState extends State<MyListingsTab>
               final provider = context.read<ListingProvider>();
               provider.loadListingForEdit(listing);
 
-              // For draft listings, navigate to the step after last completed
+              // For draft listings, navigate to the exact step where it was saved
               if (listing.status == ListingStatus.draft) {
-                final nextStep = _getNextIncompleteStep(provider);
-                context.push('/listing/create/step$nextStep');
+                final savedStep = provider.lastCompletedStep > 0
+                    ? provider.lastCompletedStep
+                    : 1;
+                context.push('/listing/create/step$savedStep');
               } else {
                 // For other statuses, start from step 1
                 context.push('/listing/create/step1');
@@ -298,23 +277,6 @@ class _MyListingsTabState extends State<MyListingsTab>
         );
       }
     }
-  }
-
-  /// Determines the next incomplete step for a draft listing
-  /// Returns step number (1-8) based on validation status
-  int _getNextIncompleteStep(ListingProvider provider) {
-    // Check each step in order and return the first incomplete one
-    if (!provider.validateStep1()) return 1;
-    if (!provider.validateStep2()) return 2;
-    if (!provider.validateStep3()) return 3;
-    if (!provider.validateStep4()) return 4;
-    if (!provider.validateStep5()) return 5;
-    if (!provider.validateStep6()) return 6;
-    if (!provider.validateStep7()) return 7;
-    if (!provider.validateStep8()) return 8;
-
-    // If all steps are complete, go to step 8 (review)
-    return 8;
   }
 
   String _getEmptyStateTitle(ListingStatus status) {

@@ -30,6 +30,7 @@ class _CreateListingStep2MechanicalState
   void initState() {
     super.initState();
     final provider = context.read<ListingProvider>();
+    provider.setCurrentStep(2);
     _engineSizeController.text = provider.engineSize ?? '';
     _chargingTimeController.text = provider.chargingTime ?? '';
   }
@@ -68,9 +69,7 @@ class _CreateListingStep2MechanicalState
             )!,
           SaveDraftButton(
             stepNumber: 2,
-            validateForm: () {
-              return _formKey.currentState!.validate() && provider.validateStep2();
-            },
+            validateForm: () => _formKey.currentState?.validate() ?? false,
           ),
         ],
       ),

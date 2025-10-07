@@ -21,25 +21,25 @@ class MockCarService {
     // Simulate API delay
     await Future.delayed(const Duration(seconds: 1));
 
-    // Auto-approve for demo (change status from draft to active after 2s)
     final listing = carModel.copyWith(
-      status: ListingStatus.pendingReview,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
 
     _listings.add(listing);
 
-    // Auto-approve after 2 seconds
-    Future.delayed(const Duration(seconds: 2), () {
-      final index = _listings.indexWhere((l) => l.id == listing.id);
-      if (index != -1) {
-        _listings[index] = _listings[index].copyWith(
-          status: ListingStatus.active,
-          updatedAt: DateTime.now(),
-        );
-      }
-    });
+    // Auto-approve after 2 seconds only if status is pendingReview
+    if (listing.status == ListingStatus.pendingReview) {
+      Future.delayed(const Duration(seconds: 2), () {
+        final index = _listings.indexWhere((l) => l.id == listing.id);
+        if (index != -1) {
+          _listings[index] = _listings[index].copyWith(
+            status: ListingStatus.active,
+            updatedAt: DateTime.now(),
+          );
+        }
+      });
+    }
 
     return listing;
   }

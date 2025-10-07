@@ -25,6 +25,7 @@ class _CreateListingStep1BasicState extends State<CreateListingStep1Basic> {
   void initState() {
     super.initState();
     final provider = context.read<ListingProvider>();
+    provider.setCurrentStep(1);
     _modelController.text = provider.model ?? '';
     _variantController.text = provider.variant ?? '';
   }
@@ -74,9 +75,7 @@ class _CreateListingStep1BasicState extends State<CreateListingStep1Basic> {
             )!,
           SaveDraftButton(
             stepNumber: 1,
-            validateForm: () {
-              return _formKey.currentState!.validate() && provider.validateStep1();
-            },
+            validateForm: () => _formKey.currentState?.validate() ?? false,
           ),
         ],
       ),
@@ -110,7 +109,9 @@ class _CreateListingStep1BasicState extends State<CreateListingStep1Basic> {
 
             // Brand dropdown
             DropdownButtonFormField<String>(
-              initialValue: provider.brand,
+              initialValue: CarBrands.popularBrands.contains(provider.brand)
+                  ? provider.brand
+                  : null,
               decoration: const InputDecoration(
                 labelText: 'Brand *',
                 hintText: 'Select vehicle brand',

@@ -31,6 +31,7 @@ class _CreateListingStep6DocumentationState
   void initState() {
     super.initState();
     final provider = context.read<ListingProvider>();
+    provider.setCurrentStep(6);
     _plateController.text = provider.plateNumber ?? '';
     _orcrController.text = provider.orcrNumber ?? '';
   }
@@ -61,9 +62,7 @@ class _CreateListingStep6DocumentationState
             )!,
           SaveDraftButton(
             stepNumber: 6,
-            validateForm: () {
-              return _formKey.currentState!.validate() && provider.validateStep6();
-            },
+            validateForm: () => _formKey.currentState?.validate() ?? false,
           ),
         ],
       ),
@@ -194,7 +193,9 @@ class _CreateListingStep6DocumentationState
             const SizedBox(height: 16),
 
             DropdownButtonFormField<String>(
-              initialValue: provider.province,
+              initialValue: PhilippineProvinces.provinces.contains(provider.province)
+                  ? provider.province
+                  : null,
               decoration: const InputDecoration(
                 labelText: 'Province *',
                 border: OutlineInputBorder(),
@@ -215,7 +216,9 @@ class _CreateListingStep6DocumentationState
             const SizedBox(height: 16),
 
             DropdownButtonFormField<String>(
-              initialValue: provider.city,
+              initialValue: PhilippineCities.cities.contains(provider.city)
+                  ? provider.city
+                  : null,
               decoration: const InputDecoration(
                 labelText: 'City/Municipality *',
                 border: OutlineInputBorder(),

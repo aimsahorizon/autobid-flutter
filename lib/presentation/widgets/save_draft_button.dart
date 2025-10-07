@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../providers/listing_provider.dart';
 
@@ -22,15 +23,6 @@ class SaveDraftButton extends StatelessWidget {
   }
 
   Future<void> _saveDraft(BuildContext context) async {
-    if (!validateForm()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please complete required fields before saving draft'),
-        ),
-      );
-      return;
-    }
-
     final provider = context.read<ListingProvider>();
 
     showDialog(
@@ -81,8 +73,8 @@ class SaveDraftButton extends StatelessWidget {
         ),
       );
 
-      // Navigate back to home
-      Navigator.pop(context);
+      // Navigate to My Listings tab
+      context.go('/home?tab=3');
     } catch (e) {
       if (!context.mounted) return;
       Navigator.pop(context); // Close loading dialog

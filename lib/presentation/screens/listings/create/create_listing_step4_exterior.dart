@@ -28,6 +28,7 @@ class _CreateListingStep4ExteriorState
   void initState() {
     super.initState();
     final provider = context.read<ListingProvider>();
+    provider.setCurrentStep(4);
     _colorController.text = provider.color ?? '';
   }
 
@@ -56,9 +57,7 @@ class _CreateListingStep4ExteriorState
             )!,
           SaveDraftButton(
             stepNumber: 4,
-            validateForm: () {
-              return _formKey.currentState!.validate() && provider.validateStep4();
-            },
+            validateForm: () => _formKey.currentState?.validate() ?? false,
           ),
         ],
       ),

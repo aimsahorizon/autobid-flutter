@@ -103,7 +103,8 @@ class ListingProvider extends ChangeNotifier {
   String? _editingListingId;
 
   // Draft management
-  int _lastCompletedStep = 0; // Track last completed step for drafts
+  int _lastCompletedStep = 0;
+  int _currentStep = 1;
 
   // Getters
   // BASIC INFO
@@ -197,6 +198,11 @@ class ListingProvider extends ChangeNotifier {
   int get lastCompletedStep => _lastCompletedStep;
   String? get editingListingId => _editingListingId;
   bool get isEditing => _editingListingId != null;
+  int get currentStep => _currentStep;
+
+  void setCurrentStep(int step) {
+    _currentStep = step;
+  }
 
   // Setters for form fields
   void setBrand(String? value) {
@@ -632,31 +638,32 @@ class ListingProvider extends ChangeNotifier {
   // Create/Update listing
   Future<CarModel> createListing(String userId, String userName,
       {bool isDraft = false}) async {
+    // For drafts, provide default values for required fields that might be null
     final listing = CarModel(
       id: _editingListingId ?? 'car-${DateTime.now().millisecondsSinceEpoch}',
       sellerId: userId,
       sellerName: userName,
-      // BASIC INFO
-      brand: _brand!,
-      model: _model!,
-      variant: _variant!,
-      year: _year!,
-      // MECHANICAL
-      engineSize: _engineSize!,
+      // BASIC INFO - Use defaults for drafts if null
+      brand: _brand ?? 'Draft',
+      model: _model ?? 'Draft',
+      variant: _variant ?? 'Draft',
+      year: _year ?? DateTime.now().year,
+      // MECHANICAL - Use defaults for drafts if null
+      engineSize: _engineSize ?? 'TBD',
       engineType: _engineType,
       cylinders: _cylinders,
       horsepower: _horsepower,
       torque: _torque,
-      transmission: _transmission!,
+      transmission: _transmission ?? TransmissionType.automatic,
       transmissionSpeeds: _transmissionSpeeds,
       driveType: _driveType,
-      fuelType: _fuelType!,
+      fuelType: _fuelType ?? FuelType.gasoline,
       fuelConsumption: _fuelConsumption,
       electricRange: _electricRange,
       batteryCapacity: _batteryCapacity,
       chargingTime: _chargingTime,
-      // DIMENSIONS & CAPACITY
-      bodyType: _bodyType!,
+      // DIMENSIONS & CAPACITY - Use defaults for drafts if null
+      bodyType: _bodyType ?? BodyType.sedan,
       doors: _doors,
       seats: _seats,
       curbWeight: _curbWeight,
@@ -668,28 +675,31 @@ class ListingProvider extends ChangeNotifier {
       width: _width,
       height: _height,
       wheelbase: _wheelbase,
-      // EXTERIOR
-      color: _color!,
+      // EXTERIOR - Use defaults for drafts if null
+      color: _color ?? 'TBD',
       paintType: _paintType,
       rimSize: _rimSize,
       rimType: _rimType,
       tireCondition: _tireCondition,
-      // CONDITION & HISTORY
-      condition: _condition!,
-      mileage: _mileage!,
+      // CONDITION & HISTORY - Use defaults for drafts if null
+      condition: _condition ?? CarCondition.used,
+      mileage: _mileage ?? 0,
       numberOfOwners: _numberOfOwners,
       hasAccidentHistory: _hasAccidentHistory,
       floodDamage: _floodDamage,
       serviceHistoryComplete: _serviceHistoryComplete,
       warrantyRemaining: _warrantyRemaining,
       registrationExpiry: _registrationExpiry,
-      // LOCATION & AVAILABILITY
-      location: CarLocation(city: _city!, province: _province!),
+      // LOCATION & AVAILABILITY - Use defaults for drafts if null
+      location: CarLocation(
+        city: _city ?? 'TBD',
+        province: _province ?? 'TBD',
+      ),
       availableForTestDrive: _availableForTestDrive,
       deliveryAvailable: _deliveryAvailable,
-      // DOCUMENTATION
-      plateNumber: _plateNumber!,
-      orcrNumber: _orcrNumber!,
+      // DOCUMENTATION - Use defaults for drafts if null
+      plateNumber: _plateNumber ?? 'TBD',
+      orcrNumber: _orcrNumber ?? 'TBD',
       registrationStatus: _registrationStatus,
       emissionTestValid: _emissionTestValid,
       comprehensiveInsurance: _comprehensiveInsurance,
@@ -907,17 +917,26 @@ class ListingProvider extends ChangeNotifier {
     _categorizedImages = {};
     _features = [];
     _lastCompletedStep = 0;
+    _currentStep = 1;
     notifyListeners();
   }
 
   // Save draft with current step
-  Future<CarModel> saveDraft(String userId, String userName, int completedStep) async {
-    _lastCompletedStep = completedStep;
+  Future<CarModel> saveDraft(String userId, String userName, int stepNumber) async {
+    _lastCompletedStep = stepNumber;
 
     final draft = await createListing(userId, userName, isDraft: true);
 
-    // Update the listing with the last completed step info
-    // In production, this would be saved to backend
+    // Add or update the draft in the local listings
+    final existingIndex = _myListings.indexWhere((l) => l.id == draft.id);
+    if (existingIndex != -1) {
+      // Update existing draft
+      _myListings[existingIndex] = draft;
+    } else {
+      // Add new draft
+      _myListings.insert(0, draft);
+    }
+    notifyListeners();
 
     return draft;
   }

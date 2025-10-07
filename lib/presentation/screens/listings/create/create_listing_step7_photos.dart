@@ -26,6 +26,7 @@ class _CreateListingStep7PhotosState extends State<CreateListingStep7Photos>
   @override
   void initState() {
     super.initState();
+    context.read<ListingProvider>().setCurrentStep(7);
     _tabController = TabController(length: 4, vsync: this);
   }
 
@@ -109,9 +110,7 @@ class _CreateListingStep7PhotosState extends State<CreateListingStep7Photos>
             )!,
           SaveDraftButton(
             stepNumber: 7,
-            validateForm: () {
-              return provider.validateStep7();
-            },
+            validateForm: () => true,
           ),
         ],
       ),

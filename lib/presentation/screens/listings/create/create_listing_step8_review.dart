@@ -26,6 +26,7 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
   void initState() {
     super.initState();
     final provider = context.read<ListingProvider>();
+    provider.setCurrentStep(8);
     _descriptionController.text = provider.description;
     _issuesController.text = provider.issues ?? '';
   }
@@ -60,9 +61,7 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
             )!,
           SaveDraftButton(
             stepNumber: 8,
-            validateForm: () {
-              return _formKey.currentState!.validate() && provider.validateStep8();
-            },
+            validateForm: () => _formKey.currentState?.validate() ?? false,
           ),
         ],
       ),

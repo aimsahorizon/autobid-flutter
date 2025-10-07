@@ -23,6 +23,12 @@ class _CreateListingStep3DimensionsState
     extends State<CreateListingStep3Dimensions> {
   final _formKey = GlobalKey<FormState>();
 
+  @override
+  void initState() {
+    super.initState();
+    context.read<ListingProvider>().setCurrentStep(3);
+  }
+
   void _autofillForm() {
     Step3AutofillHelper.autofill(context);
   }
@@ -42,9 +48,7 @@ class _CreateListingStep3DimensionsState
             )!,
           SaveDraftButton(
             stepNumber: 3,
-            validateForm: () {
-              return _formKey.currentState!.validate() && provider.validateStep3();
-            },
+            validateForm: () => _formKey.currentState?.validate() ?? false,
           ),
         ],
       ),

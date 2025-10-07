@@ -29,6 +29,7 @@ class _CreateListingStep5ConditionState
   void initState() {
     super.initState();
     final provider = context.read<ListingProvider>();
+    provider.setCurrentStep(5);
     _mileageController.text =
         provider.mileage != null ? provider.mileage.toString() : '';
   }
@@ -58,9 +59,7 @@ class _CreateListingStep5ConditionState
             )!,
           SaveDraftButton(
             stepNumber: 5,
-            validateForm: () {
-              return _formKey.currentState!.validate() && provider.validateStep5();
-            },
+            validateForm: () => _formKey.currentState?.validate() ?? false,
           ),
         ],
       ),
