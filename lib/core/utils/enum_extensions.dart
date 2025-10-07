@@ -119,3 +119,104 @@ extension ListingStatusExtension on ListingStatus {
     }
   }
 }
+
+extension EngineTypeExtension on EngineType {
+  String get displayName {
+    switch (this) {
+      case EngineType.inline:
+        return 'Inline';
+      case EngineType.vType:
+        return 'V-Type';
+      case EngineType.boxer:
+        return 'Boxer';
+      case EngineType.rotary:
+        return 'Rotary';
+      case EngineType.electric:
+        return 'Electric Motor';
+    }
+  }
+}
+
+extension DriveTypeExtension on DriveType {
+  String get displayName {
+    switch (this) {
+      case DriveType.fwd:
+        return 'FWD';
+      case DriveType.rwd:
+        return 'RWD';
+      case DriveType.awd:
+        return 'AWD';
+      case DriveType.fourWd:
+        return '4WD';
+    }
+  }
+
+  String get fullName {
+    switch (this) {
+      case DriveType.fwd:
+        return 'Front-Wheel Drive';
+      case DriveType.rwd:
+        return 'Rear-Wheel Drive';
+      case DriveType.awd:
+        return 'All-Wheel Drive';
+      case DriveType.fourWd:
+        return 'Four-Wheel Drive';
+    }
+  }
+}
+
+extension PaintTypeExtension on PaintType {
+  String get displayName {
+    switch (this) {
+      case PaintType.solid:
+        return 'Solid';
+      case PaintType.metallic:
+        return 'Metallic';
+      case PaintType.pearlescent:
+        return 'Pearlescent';
+      case PaintType.matte:
+        return 'Matte';
+    }
+  }
+}
+
+extension RimTypeExtension on RimType {
+  String get displayName {
+    switch (this) {
+      case RimType.steel:
+        return 'Steel';
+      case RimType.alloy:
+        return 'Alloy';
+      case RimType.forged:
+        return 'Forged';
+    }
+  }
+}
+
+extension TireConditionExtension on TireCondition {
+  String get displayName {
+    switch (this) {
+      case TireCondition.newTires:
+        return 'New';
+      case TireCondition.good:
+        return 'Good';
+      case TireCondition.fair:
+        return 'Fair';
+      case TireCondition.needsReplacement:
+        return 'Needs Replacement';
+    }
+  }
+}
+
+extension RegistrationStatusExtension on RegistrationStatus {
+  String get displayName {
+    switch (this) {
+      case RegistrationStatus.current:
+        return 'Current';
+      case RegistrationStatus.expiringSoon:
+        return 'Expiring Soon';
+      case RegistrationStatus.expired:
+        return 'Expired';
+    }
+  }
+}
