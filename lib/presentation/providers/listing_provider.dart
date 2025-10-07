@@ -352,6 +352,7 @@ class ListingProvider extends ChangeNotifier {
       description: _description,
       issues: _issues,
       images: _images,
+      categorizedImages: {}, // TODO: Implement categorized image upload in listing flow
       features: _features,
       status: isDraft ? ListingStatus.draft : ListingStatus.pendingReview,
       createdAt: DateTime.now(),
