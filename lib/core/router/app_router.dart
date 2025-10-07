@@ -10,8 +10,10 @@ import '../../presentation/screens/auth/signup/signup_step3_address.dart';
 import '../../presentation/screens/auth/signup/signup_step4_primary_id.dart';
 import '../../presentation/screens/auth/signup/signup_step5_secondary_id.dart';
 import '../../presentation/screens/auth/signup/signup_step6_selfie.dart';
-import '../../presentation/screens/auth/signup/signup_step7_review.dart';
+import '../../presentation/screens/auth/signup/signup_step7_proof_address.dart';
+import '../../presentation/screens/auth/signup/signup_step8_review.dart';
 import '../../presentation/screens/auth/signup/signup_success_screen.dart';
+import '../../presentation/screens/verification/verification_levels_screen.dart';
 import '../../presentation/screens/home/home_screen.dart';
 import '../../presentation/screens/profile/profile_screen.dart';
 import '../../presentation/screens/kyc/kyc_intro_screen.dart';
@@ -108,12 +110,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/signup/step7',
         name: 'signup-step7',
-        builder: (context, state) => const SignupStep7Review(),
+        builder: (context, state) => const SignupStep7ProofAddress(),
+      ),
+      GoRoute(
+        path: '/signup/step8',
+        name: 'signup-step8',
+        builder: (context, state) => const SignupStep8Review(),
       ),
       GoRoute(
         path: '/signup/success',
         name: 'signup-success',
         builder: (context, state) => const SignupSuccessScreen(),
+      ),
+      GoRoute(
+        path: '/verification-levels',
+        name: 'verification-levels',
+        builder: (context, state) => const VerificationLevelsScreen(),
       ),
       GoRoute(
         path: StringConstants.homeRoute,

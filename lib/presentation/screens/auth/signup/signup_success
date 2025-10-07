@@ -1,0 +1,307 @@
+// import 'package:flutter/material.dart';
+// import 'package:go_router/go_router.dart';
+// import 'package:provider/provider.dart';
+// import '../../../../core/constants/color_constants.dart';
+// import '../../../../core/constants/verification_levels.dart';
+// import '../../../providers/signup_provider.dart';
+// import '../../../widgets/custom_button.dart';
+
+// class SignupSuccessScreen extends StatelessWidget {
+//   const SignupSuccessScreen({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final colorScheme = Theme.of(context).colorScheme;
+
+//     return Scaffold(
+//       body: SafeArea(
+//         child: SingleChildScrollView(
+//           padding: const EdgeInsets.all(24),
+//           child: Column(
+//             children: [
+//               Container(
+//                 padding: const EdgeInsets.all(24),
+//                 decoration: BoxDecoration(
+//                   color: ColorConstants.primaryGreen.withValues(alpha: 0.1),
+//                   shape: BoxShape.circle,
+//                 ),
+//                 child: Icon(
+//                   Icons.check_circle_outline,
+//                   size: 100,
+//                   color: ColorConstants.primaryGreen,
+//                 ),
+//               ),
+//               const SizedBox(height: 32),
+//               Text(
+//                 'Account Verified!',
+//                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+//                       fontWeight: FontWeight.bold,
+//                       color: ColorConstants.primaryGreen,
+//                     ),
+//                 textAlign: TextAlign.center,
+//               ),
+//               const SizedBox(height: 16),
+//               Container(
+//                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+//                 decoration: BoxDecoration(
+//                   color: ColorConstants.primaryGreen.withValues(alpha: 0.15),
+//                   borderRadius: BorderRadius.circular(20),
+//                   border: Border.all(
+//                     color: ColorConstants.primaryGreen.withValues(alpha: 0.3),
+//                   ),
+//                 ),
+//                 child: Row(
+//                   mainAxisSize: MainAxisSize.min,
+//                   children: [
+//                     Icon(
+//                       Icons.verified_user,
+//                       color: ColorConstants.primaryGreen,
+//                       size: 20,
+//                     ),
+//                     const SizedBox(width: 8),
+//                     Text(
+//                       'Level 1 - Verified',
+//                       style: TextStyle(
+//                         color: ColorConstants.primaryGreen,
+//                         fontWeight: FontWeight.bold,
+//                         fontSize: 16,
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//               const SizedBox(height: 32),
+//               Container(
+//                 padding: const EdgeInsets.all(20),
+//                 decoration: BoxDecoration(
+//                   color: ColorConstants.primaryGreen.withValues(alpha: 0.1),
+//                   borderRadius: BorderRadius.circular(12),
+//                   border: Border.all(
+//                     color: ColorConstants.primaryGreen.withValues(alpha: 0.3),
+//                   ),
+//                 ),
+//                 child: Column(
+//                   children: [
+//                     Text(
+//                       'You can now:',
+//                       style: TextStyle(
+//                         fontSize: 16,
+//                         fontWeight: FontWeight.bold,
+//                         color: colorScheme.onSurface,
+//                       ),
+//                     ),
+//                     const SizedBox(height: 16),
+//                     _buildBenefit(
+//                       icon: Icons.shopping_cart,
+//                       text: 'Buy vehicles up to ₱500,000',
+//                     ),
+//                     const SizedBox(height: 12),
+//                     _buildBenefit(
+//                       icon: Icons.sell,
+//                       text: 'Sell vehicles up to ₱500,000',
+//                     ),
+//                     const SizedBox(height: 12),
+//                     _buildBenefit(
+//                       icon: Icons.gavel,
+//                       text: 'Place bids in auctions',
+//                     ),
+//                     const SizedBox(height: 12),
+//                     _buildBenefit(
+//                       icon: Icons.verified,
+//                       text: 'Verified badge on profile',
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//               const SizedBox(height: 24),
+//               Container(
+//                 padding: const EdgeInsets.all(16),
+//                 decoration: BoxDecoration(
+//                   color: Colors.blue.shade50,
+//                   borderRadius: BorderRadius.circular(12),
+//                 ),
+//                 child: Row(
+//                   children: [
+//                     Icon(Icons.info_outline, color: Colors.blue.shade700),
+//                     const SizedBox(width: 12),
+//                     Expanded(
+//                       child: Text(
+//                         'Want higher limits? Upgrade to Enhanced or Premium verification',
+//                         style: TextStyle(
+//                           fontSize: 13,
+//                           color: Colors.blue.shade900,
+//                         ),
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//               const SizedBox(height: 24),
+//               OutlinedButton.icon(
+//                 onPressed: () => context.push('/verification-levels'),
+//                 icon: const Icon(Icons.stars),
+//                 label: const Text('View Verification Levels'),
+//                 style: OutlinedButton.styleFrom(
+//                   padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+//                   foregroundColor: ColorConstants.primaryGreen,
+//                   side: BorderSide(color: ColorConstants.primaryGreen),
+//                 ),
+//               ),
+//               const SizedBox(height: 16),
+//               CustomButton(
+//                 text: 'Continue to Home',
+//                 onPressed: () {
+//                   context.read<SignupProvider>().reset();
+//                   context.go('/');
+//                 },
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _buildBenefit({required IconData icon, required String text}) {
+//     return Row(
+//       children: [
+//         Icon(icon, color: ColorConstants.primaryGreen, size: 20),
+//         const SizedBox(width: 12),
+//         Text(
+//           text,
+//           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+//         ),
+//       ],
+//     );
+//   }
+// }
+
+
+// ==========================================
+
+// import 'package:flutter/material.dart';
+// import 'package:go_router/go_router.dart';
+// import 'package:provider/provider.dart';
+// import '../../../../core/constants/color_constants.dart';
+// import '../../../providers/signup_provider.dart';
+// import '../../../widgets/custom_button.dart';
+
+// class SignupSuccessScreen extends StatelessWidget {
+//   const SignupSuccessScreen({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final colorScheme = Theme.of(context).colorScheme;
+
+//     return Scaffold(
+//       body: SafeArea(
+//         child: SingleChildScrollView(
+//           padding: const EdgeInsets.all(24),
+//           child: Column(
+//             children: [
+//               Container(
+//                 padding: const EdgeInsets.all(24),
+//                 decoration: BoxDecoration(
+//                   color: Colors.orange.withValues(alpha: 0.1),
+//                   shape: BoxShape.circle,
+//                 ),
+//                 child: Icon(
+//                   Icons.hourglass_empty,
+//                   size: 100,
+//                   color: Colors.orange,
+//                 ),
+//               ),
+//               const SizedBox(height: 32),
+//               Text(
+//                 'Registration Complete!',
+//                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+//                       fontWeight: FontWeight.bold,
+//                       color: ColorConstants.primaryGreen,
+//                     ),
+//                 textAlign: TextAlign.center,
+//               ),
+//               const SizedBox(height: 16),
+//               Text(
+//                 'Your account is waiting for verification',
+//                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+//                       color: Colors.grey[600],
+//                     ),
+//                 textAlign: TextAlign.center,
+//               ),
+//               const SizedBox(height: 32),
+//               Container(
+//                 padding: const EdgeInsets.all(20),
+//                 decoration: BoxDecoration(
+//                   color: Colors.orange.withValues(alpha: 0.1),
+//                   borderRadius: BorderRadius.circular(12),
+//                   border: Border.all(
+//                     color: Colors.orange.withValues(alpha: 0.3),
+//                   ),
+//                 ),
+//                 child: Column(
+//                   children: [
+//                     Row(
+//                       children: [
+//                         Icon(Icons.pending_actions, color: Colors.orange, size: 24),
+//                         const SizedBox(width: 12),
+//                         Text(
+//                           'Verification Pending',
+//                           style: TextStyle(
+//                             fontSize: 18,
+//                             fontWeight: FontWeight.bold,
+//                             color: colorScheme.onSurface,
+//                           ),
+//                         ),
+//                       ],
+//                     ),
+//                     const SizedBox(height: 16),
+//                     Text(
+//                       'Our team is reviewing your documents. You will receive a notification once your account is verified. This usually takes 1-2 business days.',
+//                       style: TextStyle(
+//                         fontSize: 14,
+//                         color: Colors.grey[700],
+//                         height: 1.5,
+//                       ),
+//                       textAlign: TextAlign.center,
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//               const SizedBox(height: 24),
+//               Container(
+//                 padding: const EdgeInsets.all(16),
+//                 decoration: BoxDecoration(
+//                   color: Colors.blue.shade50,
+//                   borderRadius: BorderRadius.circular(12),
+//                 ),
+//                 child: Row(
+//                   children: [
+//                     Icon(Icons.info_outline, color: Colors.blue.shade700),
+//                     const SizedBox(width: 12),
+//                     Expanded(
+//                       child: Text(
+//                         'You can explore the app while waiting for verification',
+//                         style: TextStyle(
+//                           fontSize: 13,
+//                           color: Colors.blue.shade900,
+//                         ),
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//               const SizedBox(height: 16),
+//               CustomButton(
+//                 text: 'Continue to Home',
+//                 onPressed: () {
+//                   context.read<SignupProvider>().reset();
+//                   context.go('/');
+//                 },
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }

@@ -7,6 +7,7 @@ import '../../../providers/signup_provider.dart';
 import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/signup_stepper.dart';
+import 'signup_step_mixin.dart';
 
 class SignupStep1Account extends StatefulWidget {
   const SignupStep1Account({super.key});
@@ -15,7 +16,8 @@ class SignupStep1Account extends StatefulWidget {
   State<SignupStep1Account> createState() => _SignupStep1AccountState();
 }
 
-class _SignupStep1AccountState extends State<SignupStep1Account> {
+class _SignupStep1AccountState extends State<SignupStep1Account>
+    with SignupStepMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -63,7 +65,7 @@ class _SignupStep1AccountState extends State<SignupStep1Account> {
     provider.setConfirmPassword(_confirmPasswordController.text);
     provider.setPhoneNumber(_phoneController.text.trim());
 
-    context.go('/signup/step2');
+    handleNext('/signup/step2');
   }
 
   @override
@@ -72,6 +74,7 @@ class _SignupStep1AccountState extends State<SignupStep1Account> {
       appBar: AppBar(
         title: const Text('Create Account'),
         centerTitle: true,
+        leading: buildBackButton(),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -199,7 +202,7 @@ class _SignupStep1AccountState extends State<SignupStep1Account> {
                 ),
                 const SizedBox(height: 32),
                 CustomButton(
-                  text: 'Next',
+                  text: getNextButtonText(),
                   onPressed: _handleNext,
                 ),
                 const SizedBox(height: 16),

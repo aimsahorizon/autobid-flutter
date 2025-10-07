@@ -335,6 +335,7 @@ class _SignupStep5SecondaryIdState extends State<SignupStep5SecondaryId> {
       onTap: onTap,
       child: Container(
         height: 200,
+        width: double.infinity,
         decoration: BoxDecoration(
           border: Border.all(
             color: imageBytes != null

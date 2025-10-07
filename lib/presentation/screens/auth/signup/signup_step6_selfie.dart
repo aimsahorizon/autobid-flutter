@@ -259,6 +259,7 @@ class _SignupStep6SelfieState extends State<SignupStep6Selfie> {
       onTap: onTap,
       child: Container(
         height: 300,
+        width: double.infinity,
         decoration: BoxDecoration(
           border: Border.all(
             color: imageBytes != null

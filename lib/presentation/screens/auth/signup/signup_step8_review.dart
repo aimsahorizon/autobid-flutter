@@ -7,18 +7,18 @@ import '../../../providers/signup_provider.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/signup_stepper.dart';
 
-class SignupStep7Review extends StatefulWidget {
-  const SignupStep7Review({super.key});
+class SignupStep8Review extends StatefulWidget {
+  const SignupStep8Review({super.key});
 
   @override
-  State<SignupStep7Review> createState() => _SignupStep7ReviewState();
+  State<SignupStep8Review> createState() => _SignupStep8ReviewState();
 }
 
-class _SignupStep7ReviewState extends State<SignupStep7Review> {
+class _SignupStep8ReviewState extends State<SignupStep8Review> {
   bool _isSubmitting = false;
 
   void _handleBack() {
-    context.go('/signup/step6');
+    context.go('/signup/step7');
   }
 
   Future<void> _handleSubmit() async {
@@ -75,7 +75,7 @@ class _SignupStep7ReviewState extends State<SignupStep7Review> {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SignupStepper(currentStep: 7),
+                        const SignupStepper(currentStep: 8),
                         const SizedBox(height: 32),
                         Text(
                           'Review Your Information',
@@ -99,7 +99,10 @@ class _SignupStep7ReviewState extends State<SignupStep7Review> {
                         _buildSection(
                           context,
                           title: 'Account Information',
-                          onEdit: () => context.go('/signup/step1'),
+                          onEdit: () {
+                            provider.setIsEditingFromReview(true);
+                            context.go('/signup/step1');
+                          },
                           children: [
                             _buildInfoRow('Email', provider.email),
                             _buildInfoRow('Phone', provider.phoneNumber),
@@ -109,7 +112,10 @@ class _SignupStep7ReviewState extends State<SignupStep7Review> {
                         _buildSection(
                           context,
                           title: 'Personal Information',
-                          onEdit: () => context.go('/signup/step2'),
+                          onEdit: () {
+                            provider.setIsEditingFromReview(true);
+                            context.go('/signup/step2');
+                          },
                           children: [
                             _buildInfoRow('Full Name', provider.fullName),
                             _buildInfoRow(
@@ -126,7 +132,10 @@ class _SignupStep7ReviewState extends State<SignupStep7Review> {
                         _buildSection(
                           context,
                           title: 'Address',
-                          onEdit: () => context.go('/signup/step3'),
+                          onEdit: () {
+                            provider.setIsEditingFromReview(true);
+                            context.go('/signup/step3');
+                          },
                           children: [
                             _buildInfoRow('Full Address', provider.fullAddress),
                             _buildInfoRow('Nationality', provider.nationality),
@@ -136,7 +145,10 @@ class _SignupStep7ReviewState extends State<SignupStep7Review> {
                         _buildSection(
                           context,
                           title: 'National ID',
-                          onEdit: () => context.go('/signup/step4'),
+                          onEdit: () {
+                            provider.setIsEditingFromReview(true);
+                            context.go('/signup/step4');
+                          },
                           children: [
                             _buildInfoRow('ID Number', provider.nationalIdNumber),
                             const SizedBox(height: 12),
@@ -201,7 +213,10 @@ class _SignupStep7ReviewState extends State<SignupStep7Review> {
                         _buildSection(
                           context,
                           title: 'Secondary ID',
-                          onEdit: () => context.go('/signup/step5'),
+                          onEdit: () {
+                            provider.setIsEditingFromReview(true);
+                            context.go('/signup/step5');
+                          },
                           children: [
                             _buildInfoRow('ID Type', provider.secondaryIdType),
                             _buildInfoRow('ID Number', provider.secondaryIdNumber),
@@ -222,7 +237,10 @@ class _SignupStep7ReviewState extends State<SignupStep7Review> {
                         _buildSection(
                           context,
                           title: 'Selfie Verification',
-                          onEdit: () => context.go('/signup/step6'),
+                          onEdit: () {
+                            provider.setIsEditingFromReview(true);
+                            context.go('/signup/step6');
+                          },
                           children: [
                             if (provider.selfieImage != null)
                               ClipRRect(
@@ -230,6 +248,31 @@ class _SignupStep7ReviewState extends State<SignupStep7Review> {
                                 child: Image.memory(
                                   provider.selfieImage!,
                                   height: 150,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        _buildSection(
+                          context,
+                          title: 'Proof of Address',
+                          onEdit: () {
+                            provider.setIsEditingFromReview(true);
+                            context.go('/signup/step7');
+                          },
+                          children: [
+                            if (provider.proofOfAddressType != null)
+                              _buildInfoRow('Document Type',
+                                provider.proofOfAddressType?.toString().split('.').last ?? 'N/A'),
+                            const SizedBox(height: 12),
+                            if (provider.proofOfAddressImage != null)
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.memory(
+                                  provider.proofOfAddressImage!,
+                                  height: 100,
                                   width: double.infinity,
                                   fit: BoxFit.cover,
                                 ),
