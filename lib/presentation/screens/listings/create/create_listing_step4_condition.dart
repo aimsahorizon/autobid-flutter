@@ -99,7 +99,6 @@ class _CreateListingStep4ConditionState
                         children: [
                           Radio<CarCondition>(
                             value: condition,
-                            toggleable: true,
                           ),
                           const SizedBox(width: 12),
                           Expanded(

@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/car_brands.dart';
+import '../../../../core/utils/dev_autofill.dart';
 import '../../../providers/listing_provider.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_text_field.dart';
+import '../../../widgets/save_draft_button.dart';
 
 class CreateListingStep1Basic extends StatefulWidget {
   const CreateListingStep1Basic({super.key});
@@ -34,6 +36,29 @@ class _CreateListingStep1BasicState extends State<CreateListingStep1Basic> {
     super.dispose();
   }
 
+  void _autofillForm() {
+    final provider = context.read<ListingProvider>();
+
+    provider.setBrand(CarListingAutofillData.brand);
+    provider.setYear(CarListingAutofillData.year);
+
+    setState(() {
+      _modelController.text = CarListingAutofillData.model;
+      _variantController.text = CarListingAutofillData.variant;
+    });
+
+    provider.setModel(CarListingAutofillData.model);
+    provider.setVariant(CarListingAutofillData.variant);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('✓ Form autofilled (Dev Mode)'),
+        duration: Duration(seconds: 1),
+        backgroundColor: Colors.deepPurple,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ListingProvider>();
@@ -42,12 +67,16 @@ class _CreateListingStep1BasicState extends State<CreateListingStep1Basic> {
       appBar: AppBar(
         title: const Text('Basic Information'),
         actions: [
-          TextButton(
-            onPressed: () {
-              // Save as draft
-              Navigator.pop(context);
+          if (DevAutofill.isEnabled)
+            DevAutofill.showAutofillIconButton(
+              context: context,
+              onAutofill: _autofillForm,
+            )!,
+          SaveDraftButton(
+            stepNumber: 1,
+            validateForm: () {
+              return _formKey.currentState!.validate() && provider.validateStep1();
             },
-            child: const Text('Save Draft'),
           ),
         ],
       ),
