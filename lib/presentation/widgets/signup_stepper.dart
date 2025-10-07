@@ -8,7 +8,7 @@ class SignupStepper extends StatelessWidget {
   const SignupStepper({
     super.key,
     required this.currentStep,
-    this.totalSteps = 7,
+    this.totalSteps = 8,
   });
 
   @override
