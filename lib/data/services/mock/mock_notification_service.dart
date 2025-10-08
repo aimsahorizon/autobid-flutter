@@ -7,6 +7,11 @@ enum NotificationType {
   auctionEndingSoon,
   auctionWon,
   auctionLost,
+  paymentReceived,
+  escrowHeld,
+  itemShipped,
+  escrowReleased,
+  refundProcessed,
 }
 
 class AuctionNotification {
@@ -138,6 +143,83 @@ class MockNotificationService {
   void clearAll() {
     _notifications.clear();
     _notifyListeners();
+  }
+
+  void addPaymentReceivedNotification(String carName, double amount) {
+    final notification = AuctionNotification(
+      id: 'notif_${_notifications.length}',
+      type: NotificationType.paymentReceived,
+      title: 'Payment Confirmed',
+      message: 'Payment of ₱${_formatAmount(amount)} for $carName confirmed',
+      auctionId: '',
+      timestamp: DateTime.now(),
+    );
+
+    _notifications.add(notification);
+    _notifyListeners();
+  }
+
+  void addEscrowHeldNotification(String carName) {
+    final notification = AuctionNotification(
+      id: 'notif_${_notifications.length}',
+      type: NotificationType.escrowHeld,
+      title: 'Payment Secured in Escrow',
+      message: 'Your payment for $carName is held securely in escrow',
+      auctionId: '',
+      timestamp: DateTime.now(),
+    );
+
+    _notifications.add(notification);
+    _notifyListeners();
+  }
+
+  void addItemShippedNotification(String carName, String sellerName) {
+    final notification = AuctionNotification(
+      id: 'notif_${_notifications.length}',
+      type: NotificationType.itemShipped,
+      title: 'Vehicle Shipped',
+      message: '$sellerName marked $carName as shipped',
+      auctionId: '',
+      timestamp: DateTime.now(),
+    );
+
+    _notifications.add(notification);
+    _notifyListeners();
+  }
+
+  void addEscrowReleasedNotification(String carName, double amount) {
+    final notification = AuctionNotification(
+      id: 'notif_${_notifications.length}',
+      type: NotificationType.escrowReleased,
+      title: 'Payment Released',
+      message: 'Payment of ₱${_formatAmount(amount)} released to seller',
+      auctionId: '',
+      timestamp: DateTime.now(),
+    );
+
+    _notifications.add(notification);
+    _notifyListeners();
+  }
+
+  void addRefundProcessedNotification(String carName, double amount) {
+    final notification = AuctionNotification(
+      id: 'notif_${_notifications.length}',
+      type: NotificationType.refundProcessed,
+      title: 'Refund Processed',
+      message: 'Refund of ₱${_formatAmount(amount)} for $carName processed',
+      auctionId: '',
+      timestamp: DateTime.now(),
+    );
+
+    _notifications.add(notification);
+    _notifyListeners();
+  }
+
+  String _formatAmount(double amount) {
+    return amount.toStringAsFixed(2).replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+        );
   }
 
   void _notifyListeners() {
