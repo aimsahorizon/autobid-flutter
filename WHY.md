@@ -1,0 +1,1 @@
+1. Why 7 days? "With an average duration of seven days" (www.auctionmasters.com)
