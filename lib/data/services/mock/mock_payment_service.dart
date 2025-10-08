@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'dart:math';
+import '../../models/dispute_model.dart';
 import '../../models/transaction_model.dart';
 import '../../models/transaction_timeline.dart';
 import '../../../core/utils/fee_calculator.dart';
@@ -289,6 +291,81 @@ class MockPaymentService {
 
     _transactions[index] = approvedTransaction;
     return approvedTransaction;
+  }
+
+  Future<Transaction> requestRefund({
+    required String transactionId,
+    required RefundReason reason,
+    required String description,
+    required List<File> evidencePhotos,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    final index = _transactions.indexWhere((t) => t.id == transactionId);
+    if (index == -1) throw Exception('Transaction not found');
+
+    final now = DateTime.now();
+    final transaction = _transactions[index];
+
+    // Create dispute ID
+    final disputeId = 'DIS${now.millisecondsSinceEpoch}';
+
+    // Update transaction to disputed status
+    final updatedTransaction = transaction.copyWith(
+      escrowStatus: EscrowStatus.disputed,
+      disputeId: disputeId,
+      disputedAt: now,
+      timeline: [
+        ...transaction.timeline,
+        TransactionTimeline(
+          status: 'dispute_opened',
+          timestamp: now,
+          description: 'Buyer requested refund',
+          icon: 'report_problem',
+        ),
+      ],
+    );
+
+    _transactions[index] = updatedTransaction;
+
+    // Auto-approve refund after 5 seconds for demo
+    Future.delayed(const Duration(seconds: 5), () async {
+      await _autoApproveRefund(transactionId);
+    });
+
+    return updatedTransaction;
+  }
+
+  Future<Transaction> _autoApproveRefund(String transactionId) async {
+    final index = _transactions.indexWhere((t) => t.id == transactionId);
+    if (index == -1) throw Exception('Transaction not found');
+
+    final now = DateTime.now();
+    final transaction = _transactions[index];
+
+    final refundedTransaction = transaction.copyWith(
+      escrowStatus: EscrowStatus.refunded,
+      refundedAt: now,
+      completedAt: now,
+      timeline: [
+        ...transaction.timeline,
+        TransactionTimeline(
+          status: 'refund_approved',
+          timestamp: now,
+          description: 'Refund request approved',
+          icon: 'check_circle',
+        ),
+        TransactionTimeline(
+          status: 'refund_processed',
+          timestamp: now,
+          description: 'Refund processed to buyer',
+          icon: 'account_balance',
+        ),
+      ],
+    );
+
+    _transactions[index] = refundedTransaction;
+    return refundedTransaction;
   }
 
   List<Transaction> _generateMockTransactions() {
