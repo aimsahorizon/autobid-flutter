@@ -1,0 +1,358 @@
+import 'dart:math';
+import '../../models/transaction_model.dart';
+import '../../models/transaction_timeline.dart';
+import '../../../core/utils/fee_calculator.dart';
+
+class MockPaymentService {
+  static final MockPaymentService _instance = MockPaymentService._internal();
+  factory MockPaymentService() => _instance;
+  MockPaymentService._internal();
+
+  final List<Transaction> _transactions = [];
+  final Random _random = Random();
+
+  Future<void> initialize() async {
+    if (_transactions.isEmpty) {
+      _transactions.addAll(_generateMockTransactions());
+    }
+  }
+
+  Future<Transaction> createTransaction({
+    required String auctionId,
+    required String carId,
+    required String buyerId,
+    required String sellerId,
+    required String buyerName,
+    required String sellerName,
+    required String carTitle,
+    required double amount,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    final platformFee = FeeCalculator.calculatePlatformFee(amount);
+    final totalAmount = amount + platformFee;
+
+    final transaction = Transaction(
+      id: 'TXN${DateTime.now().millisecondsSinceEpoch}',
+      auctionId: auctionId,
+      carId: carId,
+      buyerId: buyerId,
+      sellerId: sellerId,
+      buyerName: buyerName,
+      sellerName: sellerName,
+      carTitle: carTitle,
+      amount: amount,
+      platformFee: platformFee,
+      totalAmount: totalAmount,
+      escrowStatus: EscrowStatus.pending,
+      createdAt: DateTime.now(),
+      timeline: [
+        TransactionTimeline(
+          status: 'created',
+          timestamp: DateTime.now(),
+          description: 'Transaction created',
+          icon: 'receipt',
+        ),
+      ],
+    );
+
+    _transactions.add(transaction);
+    return transaction;
+  }
+
+  Future<Transaction> submitPayment({
+    required String transactionId,
+    required PaymentMethodType method,
+    required String reference,
+    String? proofUrl,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    final index = _transactions.indexWhere((t) => t.id == transactionId);
+    if (index == -1) throw Exception('Transaction not found');
+
+    final now = DateTime.now();
+    final transaction = _transactions[index];
+
+    final updatedTransaction = transaction.copyWith(
+      paymentMethod: method,
+      paymentReference: reference,
+      paymentProof: proofUrl,
+      paidAt: now,
+      escrowStatus: EscrowStatus.held,
+      timeline: [
+        ...transaction.timeline,
+        TransactionTimeline(
+          status: 'payment_submitted',
+          timestamp: now,
+          description: 'Payment submitted and verified',
+          icon: 'payment',
+        ),
+        TransactionTimeline(
+          status: 'escrow_held',
+          timestamp: now,
+          description: 'Payment secured in escrow',
+          icon: 'lock',
+        ),
+      ],
+    );
+
+    _transactions[index] = updatedTransaction;
+    return updatedTransaction;
+  }
+
+  Future<Transaction?> getTransaction(String id) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    try {
+      return _transactions.firstWhere((t) => t.id == id);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<List<Transaction>> getUserTransactions({
+    required String userId,
+    bool? asBuyer,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 400));
+
+    if (asBuyer == null) {
+      return _transactions
+          .where((t) => t.buyerId == userId || t.sellerId == userId)
+          .toList();
+    }
+
+    return _transactions
+        .where((t) => asBuyer ? t.buyerId == userId : t.sellerId == userId)
+        .toList();
+  }
+
+  Future<Transaction> releaseEscrow(String transactionId) async {
+    await Future.delayed(const Duration(milliseconds: 600));
+
+    final index = _transactions.indexWhere((t) => t.id == transactionId);
+    if (index == -1) throw Exception('Transaction not found');
+
+    final now = DateTime.now();
+    final transaction = _transactions[index];
+
+    final updatedTransaction = transaction.copyWith(
+      escrowStatus: EscrowStatus.released,
+      releasedAt: now,
+      completedAt: now,
+      timeline: [
+        ...transaction.timeline,
+        TransactionTimeline(
+          status: 'delivery_confirmed',
+          timestamp: now,
+          description: 'Buyer confirmed receipt',
+          icon: 'check_circle',
+        ),
+        TransactionTimeline(
+          status: 'payment_released',
+          timestamp: now,
+          description: 'Payment released to seller',
+          icon: 'account_balance',
+        ),
+      ],
+    );
+
+    _transactions[index] = updatedTransaction;
+    return updatedTransaction;
+  }
+
+  Future<Transaction> refundEscrow(String transactionId) async {
+    await Future.delayed(const Duration(milliseconds: 600));
+
+    final index = _transactions.indexWhere((t) => t.id == transactionId);
+    if (index == -1) throw Exception('Transaction not found');
+
+    final now = DateTime.now();
+    final transaction = _transactions[index];
+
+    final updatedTransaction = transaction.copyWith(
+      escrowStatus: EscrowStatus.refunded,
+      completedAt: now,
+      timeline: [
+        ...transaction.timeline,
+        TransactionTimeline(
+          status: 'refund_requested',
+          timestamp: now,
+          description: 'Refund requested by buyer',
+          icon: 'money_off',
+        ),
+        TransactionTimeline(
+          status: 'refund_approved',
+          timestamp: now,
+          description: 'Refund approved and processed',
+          icon: 'check',
+        ),
+      ],
+    );
+
+    _transactions[index] = updatedTransaction;
+    return updatedTransaction;
+  }
+
+  Future<Transaction> markAsShipped(String transactionId) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    final index = _transactions.indexWhere((t) => t.id == transactionId);
+    if (index == -1) throw Exception('Transaction not found');
+
+    final now = DateTime.now();
+    final transaction = _transactions[index];
+
+    final updatedTransaction = transaction.copyWith(
+      timeline: [
+        ...transaction.timeline,
+        TransactionTimeline(
+          status: 'shipped',
+          timestamp: now,
+          description: 'Vehicle marked as shipped',
+          icon: 'local_shipping',
+        ),
+      ],
+    );
+
+    _transactions[index] = updatedTransaction;
+    return updatedTransaction;
+  }
+
+  Future<Transaction> submitTransferEvidenceAndValidate(String transactionId) async {
+    final index = _transactions.indexWhere((t) => t.id == transactionId);
+    if (index == -1) throw Exception('Transaction not found');
+
+    final now = DateTime.now();
+    final transaction = _transactions[index];
+
+    // Update status to validating
+    final updatedTransaction = transaction.copyWith(
+      escrowStatus: EscrowStatus.validating,
+      evidenceSubmittedAt: now,
+      timeline: [
+        ...transaction.timeline,
+        TransactionTimeline(
+          status: 'evidence_submitted',
+          timestamp: now,
+          description: 'Transfer evidence submitted for validation',
+          icon: 'upload_file',
+        ),
+        TransactionTimeline(
+          status: 'validation_started',
+          timestamp: now,
+          description: 'Validation in progress (1-3 business days)',
+          icon: 'verified_user',
+        ),
+      ],
+    );
+
+    _transactions[index] = updatedTransaction;
+
+    // Simulate validation process (7 seconds in demo, shows as 1-3 days)
+    Future.delayed(const Duration(seconds: 7), () async {
+      await _completeValidation(transactionId);
+    });
+
+    return updatedTransaction;
+  }
+
+  Future<Transaction> _completeValidation(String transactionId) async {
+    final index = _transactions.indexWhere((t) => t.id == transactionId);
+    if (index == -1) throw Exception('Transaction not found');
+
+    final now = DateTime.now();
+    final transaction = _transactions[index];
+
+    // Auto-approve and release payment
+    final approvedTransaction = transaction.copyWith(
+      escrowStatus: EscrowStatus.released,
+      validationCompletedAt: now,
+      releasedAt: now,
+      completedAt: now,
+      timeline: [
+        ...transaction.timeline,
+        TransactionTimeline(
+          status: 'validation_approved',
+          timestamp: now,
+          description: 'Transfer evidence validated successfully',
+          icon: 'check_circle',
+        ),
+        TransactionTimeline(
+          status: 'payment_released',
+          timestamp: now,
+          description: 'Payment released to seller',
+          icon: 'account_balance',
+        ),
+      ],
+    );
+
+    _transactions[index] = approvedTransaction;
+    return approvedTransaction;
+  }
+
+  List<Transaction> _generateMockTransactions() {
+    final now = DateTime.now();
+    return [
+      // Completed transaction
+      Transaction(
+        id: 'TXN1001',
+        auctionId: 'AUC001',
+        carId: 'CAR001',
+        buyerId: 'user123',
+        sellerId: 'seller456',
+        buyerName: 'Juan Dela Cruz',
+        sellerName: 'Pedro Santos',
+        carTitle: '2020 Toyota Vios',
+        amount: 450000,
+        platformFee: FeeCalculator.calculatePlatformFee(450000),
+        totalAmount: FeeCalculator.calculateTotal(450000),
+        escrowStatus: EscrowStatus.released,
+        paymentMethod: PaymentMethodType.gcash,
+        paymentReference: 'GC123456789',
+        createdAt: now.subtract(const Duration(days: 10)),
+        paidAt: now.subtract(const Duration(days: 9)),
+        releasedAt: now.subtract(const Duration(days: 2)),
+        completedAt: now.subtract(const Duration(days: 2)),
+        timeline: [
+          TransactionTimeline(
+            status: 'created',
+            timestamp: now.subtract(const Duration(days: 10)),
+            description: 'Transaction created',
+            icon: 'receipt',
+          ),
+          TransactionTimeline(
+            status: 'payment_submitted',
+            timestamp: now.subtract(const Duration(days: 9)),
+            description: 'Payment submitted via GCash',
+            icon: 'payment',
+          ),
+          TransactionTimeline(
+            status: 'escrow_held',
+            timestamp: now.subtract(const Duration(days: 9)),
+            description: 'Payment secured in escrow',
+            icon: 'lock',
+          ),
+          TransactionTimeline(
+            status: 'shipped',
+            timestamp: now.subtract(const Duration(days: 5)),
+            description: 'Vehicle shipped',
+            icon: 'local_shipping',
+          ),
+          TransactionTimeline(
+            status: 'delivery_confirmed',
+            timestamp: now.subtract(const Duration(days: 2)),
+            description: 'Buyer confirmed receipt',
+            icon: 'check_circle',
+          ),
+          TransactionTimeline(
+            status: 'payment_released',
+            timestamp: now.subtract(const Duration(days: 2)),
+            description: 'Payment released to seller',
+            icon: 'account_balance',
+          ),
+        ],
+      ),
+    ];
+  }
+}
