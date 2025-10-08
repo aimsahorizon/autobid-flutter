@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../providers/listing_provider.dart';
 import '../../providers/browse_provider.dart';
+import '../../providers/payment_provider.dart';
 import '../browse/filter_bottom_sheet.dart';
 import 'tabs/browse_tab.dart';
 import 'tabs/watchlist_tab.dart';
@@ -12,8 +13,13 @@ import 'tabs/profile_tab.dart';
 
 class HomeScreen extends StatefulWidget {
   final int initialTabIndex;
+  final int initialSubTabIndex;
 
-  const HomeScreen({super.key, this.initialTabIndex = 0});
+  const HomeScreen({
+    super.key,
+    this.initialTabIndex = 0,
+    this.initialSubTabIndex = 0,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -21,6 +27,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late int _selectedIndex;
+  late int _subTabIndex;
   bool _isGridView = false;
   bool _isBrowseGridView = true;
 
@@ -28,6 +35,12 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _selectedIndex = widget.initialTabIndex;
+    _subTabIndex = widget.initialSubTabIndex;
+
+    // Load transactions to show pending actions badge
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<PaymentProvider>().loadUserTransactions('user123');
+    });
   }
 
   String _getAppBarTitle() {
@@ -164,28 +177,41 @@ class _HomeScreenState extends State<HomeScreen> {
             _selectedIndex = index;
           });
         },
-        destinations: const [
-          NavigationDestination(
+        destinations: [
+          const NavigationDestination(
             icon: Icon(Icons.directions_car_outlined),
             selectedIcon: Icon(Icons.directions_car),
             label: 'Browse',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.favorite_border),
             selectedIcon: Icon(Icons.favorite),
             label: 'Watchlist',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.gavel_outlined),
-            selectedIcon: Icon(Icons.gavel),
-            label: 'My Bids',
+          Consumer<PaymentProvider>(
+            builder: (context, paymentProvider, child) {
+              final pendingCount = paymentProvider.getPendingActionsCount('user123');
+              return NavigationDestination(
+                icon: Badge(
+                  isLabelVisible: pendingCount > 0,
+                  label: Text('$pendingCount'),
+                  child: const Icon(Icons.gavel_outlined),
+                ),
+                selectedIcon: Badge(
+                  isLabelVisible: pendingCount > 0,
+                  label: Text('$pendingCount'),
+                  child: const Icon(Icons.gavel),
+                ),
+                label: 'My Bids',
+              );
+            },
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.list_alt),
             selectedIcon: Icon(Icons.list_alt),
             label: 'My Listings',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person),
             label: 'Profile',
@@ -202,7 +228,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 1:
         return const WatchlistTab();
       case 2:
-        return const MyBidsTab();
+        return MyBidsTab(initialSubTab: _subTabIndex);
       case 3:
         return MyListingsTab(isGridView: _isGridView);
       case 4:
