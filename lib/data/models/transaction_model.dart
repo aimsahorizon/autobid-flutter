@@ -17,6 +17,8 @@ enum EscrowStatus {
   refunded,
   @JsonValue('disputed')
   disputed,
+  @JsonValue('underReview')
+  underReview,
 }
 
 enum PaymentMethodType {
@@ -60,6 +62,11 @@ abstract class Transaction with _$Transaction {
     String? transferEvidenceId,
     DateTime? evidenceSubmittedAt,
     DateTime? validationCompletedAt,
+
+    // Dispute/Refund
+    String? disputeId,
+    DateTime? disputedAt,
+    DateTime? refundedAt,
   }) = _Transaction;
 
   factory Transaction.fromJson(Map<String, dynamic> json) =>
