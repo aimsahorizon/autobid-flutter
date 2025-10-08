@@ -564,10 +564,10 @@ class MockAuctionService implements AuctionRepository {
     _availableCars = _generateFallbackCars();
 
     final durations = [
-      Duration(hours: 1),
-      Duration(hours: 5),
-      Duration(days: 1),
-      Duration(days: 3),
+      Duration(minutes: 1),
+      // Duration(hours: 5),
+      // Duration(days: 1),
+      // Duration(days: 3),
     ];
 
     final basePrices = [150000.0, 250000.0, 350000.0, 500000.0, 750000.0, 1200000.0];
