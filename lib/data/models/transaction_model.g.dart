@@ -47,6 +47,13 @@ _Transaction _$TransactionFromJson(Map<String, dynamic> json) => _Transaction(
   validationCompletedAt: json['validationCompletedAt'] == null
       ? null
       : DateTime.parse(json['validationCompletedAt'] as String),
+  disputeId: json['disputeId'] as String?,
+  disputedAt: json['disputedAt'] == null
+      ? null
+      : DateTime.parse(json['disputedAt'] as String),
+  refundedAt: json['refundedAt'] == null
+      ? null
+      : DateTime.parse(json['refundedAt'] as String),
 );
 
 Map<String, dynamic> _$TransactionToJson(
@@ -75,6 +82,9 @@ Map<String, dynamic> _$TransactionToJson(
   'transferEvidenceId': instance.transferEvidenceId,
   'evidenceSubmittedAt': instance.evidenceSubmittedAt?.toIso8601String(),
   'validationCompletedAt': instance.validationCompletedAt?.toIso8601String(),
+  'disputeId': instance.disputeId,
+  'disputedAt': instance.disputedAt?.toIso8601String(),
+  'refundedAt': instance.refundedAt?.toIso8601String(),
 };
 
 const _$EscrowStatusEnumMap = {
@@ -84,6 +94,7 @@ const _$EscrowStatusEnumMap = {
   EscrowStatus.released: 'released',
   EscrowStatus.refunded: 'refunded',
   EscrowStatus.disputed: 'disputed',
+  EscrowStatus.underReview: 'underReview',
 };
 
 const _$PaymentMethodTypeEnumMap = {

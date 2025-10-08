@@ -131,6 +131,8 @@ class TransactionItem extends StatelessWidget {
         return 'Refunded';
       case EscrowStatus.disputed:
         return 'Disputed';
+      case EscrowStatus.underReview:
+        return 'Under Review';
     }
   }
 }

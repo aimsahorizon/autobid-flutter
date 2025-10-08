@@ -35,6 +35,11 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
     await context.read<TransactionProvider>().loadTransaction(
           widget.transactionId,
         );
+
+    // Check if we should prompt for review
+    if (mounted) {
+      _checkAndPromptReview();
+    }
   }
 
   Future<void> _confirmReceipt() async {
@@ -154,6 +159,62 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
           ),
         );
       }
+    }
+  }
+
+  void _requestRefund(Transaction transaction) {
+    context.push(
+      '/request-refund/${transaction.id}?carTitle=${Uri.encodeComponent(transaction.carTitle)}',
+    );
+  }
+
+  Future<void> _checkAndPromptReview() async {
+    final transaction = context.read<TransactionProvider>().currentTransaction;
+    if (transaction == null) return;
+
+    // Only prompt review if escrow is released or refunded
+    if (transaction.escrowStatus != EscrowStatus.released &&
+        transaction.escrowStatus != EscrowStatus.refunded) {
+      return;
+    }
+
+    // Check if review already exists
+    final existingReview = await context
+        .read<TransactionProvider>()
+        .checkExistingReview(transaction.id);
+
+    if (existingReview != null) {
+      // Review already submitted
+      return;
+    }
+
+    if (!mounted) return;
+
+    // Show review prompt dialog
+    final shouldReview = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Rate Your Experience'),
+        content: const Text(
+          'Would you like to rate your experience with this seller?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Later'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Rate Now'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldReview == true && mounted) {
+      context.push(
+        '/submit-review/${transaction.id}?carTitle=${Uri.encodeComponent(transaction.carTitle)}&sellerName=${Uri.encodeComponent(transaction.sellerName)}',
+      );
     }
   }
 
@@ -379,9 +440,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
             width: double.infinity,
             height: 50,
             child: OutlinedButton(
-              onPressed: () {
-                // Request refund
-              },
+              onPressed: () => _requestRefund(transaction),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Colors.red, width: 2),
                 foregroundColor: Colors.red,
