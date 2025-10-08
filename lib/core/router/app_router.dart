@@ -36,6 +36,8 @@ import '../../presentation/screens/payment/payment_screen.dart';
 import '../../presentation/screens/payment/transactions_screen.dart';
 import '../../presentation/screens/transaction/transaction_detail_screen.dart';
 import '../../presentation/screens/transaction/submit_transfer_evidence_screen.dart';
+import '../../presentation/screens/transaction/request_refund_screen.dart';
+import '../../presentation/screens/review/submit_review_screen.dart';
 import '../../presentation/providers/auth_provider.dart';
 import '../constants/string_constants.dart';
 
@@ -239,6 +241,32 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return SubmitTransferEvidenceScreen(
             transactionId: transactionId,
             carTitle: carTitle,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/request-refund/:transactionId',
+        name: 'request-refund',
+        builder: (context, state) {
+          final transactionId = state.pathParameters['transactionId']!;
+          final carTitle = state.uri.queryParameters['carTitle'] ?? 'Unknown Vehicle';
+          return RequestRefundScreen(
+            transactionId: transactionId,
+            carTitle: carTitle,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/submit-review/:transactionId',
+        name: 'submit-review',
+        builder: (context, state) {
+          final transactionId = state.pathParameters['transactionId']!;
+          final carTitle = state.uri.queryParameters['carTitle'] ?? 'Unknown Vehicle';
+          final sellerName = state.uri.queryParameters['sellerName'] ?? 'Unknown Seller';
+          return SubmitReviewScreen(
+            transactionId: transactionId,
+            carTitle: carTitle,
+            sellerName: sellerName,
           );
         },
       ),
