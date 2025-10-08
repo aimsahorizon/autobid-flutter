@@ -166,6 +166,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 12),
                   _buildActionButton(
                     context,
+                    icon: Icons.receipt_long,
+                    label: 'My Transactions',
+                    onTap: () {
+                      context.push('/transactions');
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _buildActionButton(
+                    context,
                     icon: Icons.security,
                     label: 'Security Settings',
                     onTap: () {

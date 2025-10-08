@@ -32,6 +32,12 @@ import '../../presentation/screens/browse/browse_cars_screen.dart';
 import '../../presentation/screens/browse/search_screen.dart';
 import '../../presentation/screens/browse/car_detail_screen.dart';
 import '../../presentation/screens/auction/auction_detail_screen.dart';
+import '../../presentation/screens/payment/payment_screen.dart';
+import '../../presentation/screens/payment/transactions_screen.dart';
+import '../../presentation/screens/transaction/transaction_detail_screen.dart';
+import '../../presentation/screens/transaction/submit_transfer_evidence_screen.dart';
+import '../../presentation/screens/transaction/request_refund_screen.dart';
+import '../../presentation/screens/review/submit_review_screen.dart';
 import '../../presentation/providers/auth_provider.dart';
 import '../constants/string_constants.dart';
 
@@ -132,8 +138,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'home',
         builder: (context, state) {
           final tabParam = state.uri.queryParameters['tab'];
+          final subTabParam = state.uri.queryParameters['subTab'];
           final initialTab = tabParam != null ? (int.tryParse(tabParam) ?? 0) : 0;
-          return HomeScreen(initialTabIndex: initialTab);
+          final initialSubTab = subTabParam != null ? (int.tryParse(subTabParam) ?? 0) : 0;
+          return HomeScreen(
+            initialTabIndex: initialTab,
+            initialSubTabIndex: initialSubTab,
+          );
         },
       ),
       GoRoute(
@@ -189,6 +200,74 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final auctionId = state.pathParameters['id']!;
           return AuctionDetailScreen(auctionId: auctionId);
+        },
+      ),
+      // Payment Routes
+      GoRoute(
+        path: '/payment/:auctionId',
+        name: 'payment',
+        builder: (context, state) {
+          final auctionId = state.pathParameters['auctionId']!;
+          final carTitle = state.uri.queryParameters['carTitle'] ?? 'Vehicle';
+          final winningBid = double.tryParse(
+                  state.uri.queryParameters['winningBid'] ?? '0') ??
+              0;
+          return PaymentScreen(
+            auctionId: auctionId,
+            carTitle: carTitle,
+            winningBid: winningBid,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/transaction/:id',
+        name: 'transaction',
+        builder: (context, state) {
+          final transactionId = state.pathParameters['id']!;
+          return TransactionDetailScreen(transactionId: transactionId);
+        },
+      ),
+      GoRoute(
+        path: '/transactions',
+        name: 'transactions',
+        builder: (context, state) => const TransactionsScreen(),
+      ),
+      GoRoute(
+        path: '/submit-evidence/:transactionId',
+        name: 'submit-evidence',
+        builder: (context, state) {
+          final transactionId = state.pathParameters['transactionId']!;
+          final carTitle = state.uri.queryParameters['carTitle'] ?? 'Unknown Vehicle';
+          return SubmitTransferEvidenceScreen(
+            transactionId: transactionId,
+            carTitle: carTitle,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/request-refund/:transactionId',
+        name: 'request-refund',
+        builder: (context, state) {
+          final transactionId = state.pathParameters['transactionId']!;
+          final carTitle = state.uri.queryParameters['carTitle'] ?? 'Unknown Vehicle';
+          return RequestRefundScreen(
+            transactionId: transactionId,
+            carTitle: carTitle,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/submit-review/:transactionId',
+        name: 'submit-review',
+        builder: (context, state) {
+          final transactionId = state.pathParameters['transactionId']!;
+          final carTitle = state.uri.queryParameters['carTitle'] ?? 'Unknown Vehicle';
+          final sellerName = state.uri.queryParameters['sellerName'] ?? 'Unknown Seller';
+          return SubmitReviewScreen(
+            transactionId: transactionId,
+            carTitle: carTitle,
+            sellerName: sellerName,
+          );
         },
       ),
       // Listings Routes (8 Steps)

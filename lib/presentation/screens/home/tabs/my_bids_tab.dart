@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/auction_provider.dart';
 import '../../../../data/models/auction_model.dart';
+import '../../../../core/constants/color_constants.dart';
 import '../../../widgets/active_bid_card.dart';
+import '../../../providers/payment_provider.dart';
+import '../../../../data/models/transaction_model.dart';
+import '../../../../core/constants/escrow_statuses.dart';
 
 class MyBidsTab extends StatefulWidget {
-  const MyBidsTab({super.key});
+  final int initialSubTab;
+
+  const MyBidsTab({super.key, this.initialSubTab = 0});
 
   @override
   State<MyBidsTab> createState() => _MyBidsTabState();
@@ -17,7 +24,16 @@ class _MyBidsTabState extends State<MyBidsTab> with SingleTickerProviderStateMix
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(
+      length: 3,
+      vsync: this,
+      initialIndex: widget.initialSubTab,
+    );
+
+    // Load transactions to show pending actions count
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<PaymentProvider>().loadUserTransactions('user123');
+    });
   }
 
   @override
@@ -30,6 +46,81 @@ class _MyBidsTabState extends State<MyBidsTab> with SingleTickerProviderStateMix
   Widget build(BuildContext context) {
     return Column(
       children: [
+        // Pending actions banner
+        Consumer<PaymentProvider>(
+          builder: (context, paymentProvider, child) {
+            final pendingCount = paymentProvider.getPendingActionsCount('user123');
+
+            if (pendingCount == 0) return const SizedBox.shrink();
+
+            return Container(
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.orange[400]!,
+                    Colors.orange[600]!,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.orange.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.notification_important,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '$pendingCount Pending ${pendingCount == 1 ? 'Action' : 'Actions'}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        const Text(
+                          'Complete payments or confirm receipts',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
         TabBar(
           controller: _tabController,
           tabs: const [
@@ -131,12 +222,25 @@ class _ActiveTab extends StatelessWidget {
   }
 }
 
-class _WonTab extends StatelessWidget {
+class _WonTab extends StatefulWidget {
+  @override
+  State<_WonTab> createState() => _WonTabState();
+}
+
+class _WonTabState extends State<_WonTab> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<PaymentProvider>().loadUserTransactions('user123');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuctionProvider>(
-      builder: (context, provider, child) {
-        final wonAuctions = provider.getUserWonAuctions();
+    return Consumer2<AuctionProvider, PaymentProvider>(
+      builder: (context, auctionProvider, paymentProvider, child) {
+        final wonAuctions = auctionProvider.getUserWonAuctions();
 
         if (wonAuctions.isEmpty) {
           return _buildEmptyState(
@@ -151,10 +255,12 @@ class _WonTab extends StatelessWidget {
           itemCount: wonAuctions.length,
           itemBuilder: (context, index) {
             final auction = wonAuctions[index];
+            final transaction = paymentProvider.getTransactionByAuctionId(auction.id);
 
             return _AuctionResultCard(
               auction: auction,
               won: true,
+              transaction: transaction,
               onTap: () {
                 Navigator.pushNamed(
                   context,
@@ -349,79 +455,110 @@ class _WatchingTab extends StatelessWidget {
 class _AuctionResultCard extends StatelessWidget {
   final Auction auction;
   final bool won;
+  final Transaction? transaction;
   final VoidCallback onTap;
 
   const _AuctionResultCard({
     required this.auction,
     required this.won,
+    this.transaction,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final carTitle = auction.car != null
+        ? '${auction.car!.year} ${auction.car!.brand} ${auction.car!.model}'
+        : 'Vehicle';
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: Colors.grey[300],
-                ),
-                child: Icon(Icons.directions_car, size: 40, color: Colors.grey[600]),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            '2020 Toyota Camry',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.grey[300],
+                    ),
+                    child: auction.car?.images.isNotEmpty == true
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              auction.car!.images.first,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => Icon(
+                                Icons.directions_car,
+                                size: 40,
+                                color: Colors.grey[600],
+                              ),
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          )
+                        : Icon(Icons.directions_car,
+                            size: 40, color: Colors.grey[600]),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                carTitle,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Icon(
+                              won ? Icons.emoji_events : Icons.cancel,
+                              color: won ? Colors.green : Colors.grey,
+                              size: 20,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Final Bid: ₱${_formatCurrency(auction.currentBid)}',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        Icon(
-                          won ? Icons.emoji_events : Icons.cancel,
-                          color: won ? Colors.green : Colors.grey,
-                          size: 20,
+                        const SizedBox(height: 4),
+                        Text(
+                          won
+                              ? 'Congratulations! You won this auction'
+                              : 'Auction ended',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: won ? Colors.green : Colors.grey[600],
+                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Final Bid: ₱${_formatCurrency(auction.currentBid)}',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      won ? 'Congratulations! You won this auction' : 'Auction ended',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: won ? Colors.green : Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+            ),
+            if (won) ...[
+              const SizedBox(height: 12),
+              _buildEscrowStatusChip(context),
+              const SizedBox(height: 12),
+              _buildActionButtons(context, carTitle),
             ],
-          ),
+          ],
         ),
       ),
     );
@@ -432,6 +569,289 @@ class _AuctionResultCard extends StatelessWidget {
           RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
           (Match m) => '${m[1]},',
         );
+  }
+
+  Widget _buildEscrowStatusChip(BuildContext context) {
+    if (transaction == null) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.orange.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.warning_amber, size: 16, color: Colors.orange),
+            const SizedBox(width: 6),
+            Text(
+              'Payment Required',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.orange[900],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final statusInfo = EscrowStatuses.getInfo(transaction!.escrowStatus);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: statusInfo.color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: statusInfo.color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(statusInfo.icon, size: 16, color: statusInfo.color),
+          const SizedBox(width: 6),
+          Text(
+            statusInfo.displayName,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: statusInfo.color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(BuildContext context, String carTitle) {
+    // No transaction - show pay now button
+    if (transaction == null) {
+      return SizedBox(
+        width: double.infinity,
+        height: 50,
+        child: ElevatedButton.icon(
+          onPressed: () {
+            context.push(
+              '/payment/${auction.id}?carTitle=$carTitle&winningBid=${auction.currentBid}',
+            );
+          },
+          icon: const Icon(Icons.payment),
+          label: const Text('Pay Now', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: ColorConstants.primaryGreen,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Payment pending - show pay now + view transaction
+    if (transaction!.escrowStatus == EscrowStatus.pending) {
+      return SizedBox(
+        height: 50,
+        child: Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  context.push(
+                    '/payment/${auction.id}?carTitle=$carTitle&winningBid=${auction.currentBid}',
+                  );
+                },
+                icon: const Icon(Icons.payment, size: 18),
+                label: const Text('Pay Now', style: TextStyle(fontSize: 15)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: ColorConstants.primaryGreen,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () {
+                  context.push('/transaction/${transaction!.id}');
+                },
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: ColorConstants.primaryGreen, width: 2),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text('View', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Validating - show validation status + view transaction
+    if (transaction!.escrowStatus == EscrowStatus.validating) {
+      return SizedBox(
+        width: double.infinity,
+        height: 50,
+        child: OutlinedButton.icon(
+          onPressed: () {
+            context.push('/transaction/${transaction!.id}');
+          },
+          icon: const Icon(Icons.verified_user, size: 18),
+          label: const Text('View Validation Status', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+          style: OutlinedButton.styleFrom(
+            side: const BorderSide(color: Colors.amber, width: 2),
+            foregroundColor: Colors.amber[900],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Escrow held - show confirm receipt + view transaction
+    if (transaction!.escrowStatus == EscrowStatus.held) {
+      return SizedBox(
+        height: 50,
+        child: Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Confirm Vehicle Receipt'),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Have you received the vehicle?'),
+                          const SizedBox(height: 16),
+                          const Text('Next, you\'ll need to submit:'),
+                          const SizedBox(height: 8),
+                          _buildRequirementRow('Transfer documents (CR/OR)'),
+                          _buildRequirementRow('Vehicle photos & odometer'),
+                          _buildRequirementRow('VIN verification'),
+                          _buildRequirementRow('Delivery receipt'),
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.info_outline, size: 16, color: Colors.blue[700]),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'This protects both you and the seller',
+                                    style: TextStyle(fontSize: 12, color: Colors.blue[900]),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('Cancel'),
+                        ),
+                        FilledButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('Continue'),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirmed == true && context.mounted) {
+                    // Navigate to transfer evidence screen
+                    context.push(
+                      '/submit-evidence/${transaction!.id}?carTitle=${Uri.encodeComponent(carTitle)}',
+                    );
+                  }
+                },
+                icon: const Icon(Icons.check_circle, size: 18),
+                label: const Text('Confirm Receipt', style: TextStyle(fontSize: 15)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: ColorConstants.primaryGreen,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () {
+                  context.push('/transaction/${transaction!.id}');
+                },
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: ColorConstants.primaryGreen, width: 2),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text('View', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Released or refunded - just show view transaction
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: OutlinedButton.icon(
+        onPressed: () {
+          context.push('/transaction/${transaction!.id}');
+        },
+        icon: const Icon(Icons.receipt_long, size: 18),
+        label: const Text('View Transaction', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: ColorConstants.primaryGreen, width: 2),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+    );
+  }
+
+  static Widget _buildRequirementRow(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          const Icon(Icons.check_circle_outline, size: 16, color: ColorConstants.primaryGreen),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 13),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

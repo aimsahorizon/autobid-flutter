@@ -11,10 +11,18 @@ import 'presentation/providers/browse_provider.dart';
 import 'presentation/providers/watchlist_provider.dart';
 import 'presentation/providers/auction_provider.dart';
 import 'presentation/providers/bid_provider.dart';
+import 'presentation/providers/payment_provider.dart';
+import 'presentation/providers/transaction_provider.dart';
 import 'data/services/mock/mock_kyc_service.dart';
 import 'data/services/mock/mock_car_service.dart';
+import 'data/services/mock/mock_payment_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize mock services
+  await MockPaymentService().initialize();
+
   runApp(
     provider.MultiProvider(
       providers: [
@@ -38,6 +46,12 @@ void main() {
         ),
         provider.ChangeNotifierProvider(
           create: (_) => BidProvider(),
+        ),
+        provider.ChangeNotifierProvider(
+          create: (_) => PaymentProvider(),
+        ),
+        provider.ChangeNotifierProvider(
+          create: (_) => TransactionProvider(),
         ),
       ],
       child: const ProviderScope(
