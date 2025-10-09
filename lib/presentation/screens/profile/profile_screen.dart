@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+@Deprecated('Use ProfileTab instead. This screen will be removed in a future version.')
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
