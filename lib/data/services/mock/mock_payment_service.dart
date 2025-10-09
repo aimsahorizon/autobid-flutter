@@ -371,7 +371,7 @@ class MockPaymentService {
   List<Transaction> _generateMockTransactions() {
     final now = DateTime.now();
     return [
-      // Completed transaction
+      // As Buyer - Completed transaction
       Transaction(
         id: 'TXN1001',
         auctionId: 'AUC001',
@@ -427,6 +427,131 @@ class MockPaymentService {
             timestamp: now.subtract(const Duration(days: 2)),
             description: 'Payment released to seller',
             icon: 'account_balance',
+          ),
+        ],
+      ),
+
+      // As Seller - Completed sale
+      Transaction(
+        id: 'TXN2001',
+        auctionId: 'AUC101',
+        carId: 'CAR101',
+        buyerId: 'buyer789',
+        sellerId: 'user123',
+        buyerName: 'Maria Garcia',
+        sellerName: 'Juan Dela Cruz',
+        carTitle: '2019 Honda Civic',
+        amount: 680000,
+        platformFee: FeeCalculator.calculatePlatformFee(680000),
+        totalAmount: FeeCalculator.calculateTotal(680000),
+        escrowStatus: EscrowStatus.released,
+        paymentMethod: PaymentMethodType.bankTransfer,
+        paymentReference: 'BPI123456789',
+        createdAt: now.subtract(const Duration(days: 15)),
+        paidAt: now.subtract(const Duration(days: 14)),
+        releasedAt: now.subtract(const Duration(days: 5)),
+        completedAt: now.subtract(const Duration(days: 5)),
+        timeline: [
+          TransactionTimeline(
+            status: 'created',
+            timestamp: now.subtract(const Duration(days: 15)),
+            description: 'Transaction created',
+            icon: 'receipt',
+          ),
+          TransactionTimeline(
+            status: 'payment_submitted',
+            timestamp: now.subtract(const Duration(days: 14)),
+            description: 'Payment submitted via Bank Transfer',
+            icon: 'payment',
+          ),
+          TransactionTimeline(
+            status: 'escrow_held',
+            timestamp: now.subtract(const Duration(days: 14)),
+            description: 'Payment secured in escrow',
+            icon: 'lock',
+          ),
+          TransactionTimeline(
+            status: 'shipped',
+            timestamp: now.subtract(const Duration(days: 8)),
+            description: 'Vehicle shipped',
+            icon: 'local_shipping',
+          ),
+          TransactionTimeline(
+            status: 'delivery_confirmed',
+            timestamp: now.subtract(const Duration(days: 5)),
+            description: 'Buyer confirmed receipt',
+            icon: 'check_circle',
+          ),
+          TransactionTimeline(
+            status: 'payment_released',
+            timestamp: now.subtract(const Duration(days: 5)),
+            description: 'Payment released to seller',
+            icon: 'account_balance',
+          ),
+        ],
+      ),
+
+      // As Seller - In Escrow (buyer paid, waiting for shipment)
+      Transaction(
+        id: 'TXN2002',
+        auctionId: 'AUC102',
+        carId: 'CAR102',
+        buyerId: 'buyer456',
+        sellerId: 'user123',
+        buyerName: 'Carlos Reyes',
+        sellerName: 'Juan Dela Cruz',
+        carTitle: '2021 Mitsubishi Montero',
+        amount: 1250000,
+        platformFee: FeeCalculator.calculatePlatformFee(1250000),
+        totalAmount: FeeCalculator.calculateTotal(1250000),
+        escrowStatus: EscrowStatus.held,
+        paymentMethod: PaymentMethodType.paymaya,
+        paymentReference: 'PM987654321',
+        createdAt: now.subtract(const Duration(days: 2)),
+        paidAt: now.subtract(const Duration(days: 1)),
+        timeline: [
+          TransactionTimeline(
+            status: 'created',
+            timestamp: now.subtract(const Duration(days: 2)),
+            description: 'Transaction created',
+            icon: 'receipt',
+          ),
+          TransactionTimeline(
+            status: 'payment_submitted',
+            timestamp: now.subtract(const Duration(days: 1)),
+            description: 'Payment submitted via PayMaya',
+            icon: 'payment',
+          ),
+          TransactionTimeline(
+            status: 'escrow_held',
+            timestamp: now.subtract(const Duration(days: 1)),
+            description: 'Payment secured in escrow',
+            icon: 'lock',
+          ),
+        ],
+      ),
+
+      // As Seller - Pending payment
+      Transaction(
+        id: 'TXN2003',
+        auctionId: 'AUC103',
+        carId: 'CAR103',
+        buyerId: 'buyer111',
+        sellerId: 'user123',
+        buyerName: 'Ana Lopez',
+        sellerName: 'Juan Dela Cruz',
+        carTitle: '2018 Ford Ranger',
+        amount: 580000,
+        platformFee: FeeCalculator.calculatePlatformFee(580000),
+        totalAmount: FeeCalculator.calculateTotal(580000),
+        escrowStatus: EscrowStatus.pending,
+        createdAt: now.subtract(const Duration(hours: 6)),
+        timeline: [
+          TransactionTimeline(
+            status: 'created',
+            timestamp: now.subtract(const Duration(hours: 6)),
+            description: 'Transaction created',
+            icon: 'receipt',
           ),
         ],
       ),
