@@ -39,6 +39,7 @@ import '../../presentation/screens/transaction/submit_transfer_evidence_screen.d
 import '../../presentation/screens/transaction/request_refund_screen.dart';
 import '../../presentation/screens/review/submit_review_screen.dart';
 import '../../presentation/screens/review/seller_reviews_screen.dart';
+import '../../presentation/screens/notifications/notifications_screen.dart';
 import '../../presentation/providers/auth_provider.dart';
 import '../constants/string_constants.dart';
 
@@ -282,6 +283,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             sellerName: sellerName,
           );
         },
+      ),
+      GoRoute(
+        path: '/notifications',
+        name: 'notifications',
+        builder: (context, state) => const NotificationsScreen(),
       ),
       // Listings Routes (8 Steps)
       GoRoute(
