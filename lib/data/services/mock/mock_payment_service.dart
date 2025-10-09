@@ -28,11 +28,24 @@ class MockPaymentService {
     required String sellerName,
     required String carTitle,
     required double amount,
+    double? listingFee, // Optional, fetched from auction if available
   }) async {
     await Future.delayed(const Duration(milliseconds: 500));
 
-    final platformFee = FeeCalculator.calculatePlatformFee(amount);
-    final totalAmount = amount + platformFee;
+    // Calculate comprehensive fee breakdown using new tiered pricing
+    // - Economy (< ₱800k): 5% transaction fee
+    // - Mid-Range (₱800k - ₱2M): 4% transaction fee
+    // - Premium (> ₱2M): 3% transaction fee
+    final breakdown = FeeCalculator.getFeeBreakdown(
+      salePrice: amount,
+      includeListingFee: listingFee != null,
+    );
+
+    // Legacy platformFee field = transaction fee (for backward compatibility)
+    final platformFee = breakdown.transactionFee;
+
+    // totalAmount = what buyer pays (currently same as sale price)
+    final totalAmount = breakdown.totalBuyerAmount;
 
     final transaction = Transaction(
       id: 'TXN${DateTime.now().millisecondsSinceEpoch}',
@@ -44,7 +57,7 @@ class MockPaymentService {
       sellerName: sellerName,
       carTitle: carTitle,
       amount: amount,
-      platformFee: platformFee,
+      platformFee: platformFee, // Legacy field
       totalAmount: totalAmount,
       escrowStatus: EscrowStatus.pending,
       createdAt: DateTime.now(),
@@ -56,6 +69,14 @@ class MockPaymentService {
           icon: 'receipt',
         ),
       ],
+      // ADDED: Detailed fee breakdown fields
+      listingFee: listingFee ?? 0.0,
+      transactionFeeRate: breakdown.transactionFeeRate,
+      transactionFee: breakdown.transactionFee,
+      priceTier: breakdown.priceTier,
+      sellerPayout: listingFee != null
+          ? breakdown.sellerReceives
+          : amount - breakdown.transactionFee,
     );
 
     _transactions.add(transaction);
