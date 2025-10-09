@@ -329,3 +329,111 @@ abstract class _$SignOutAction extends $Notifier<AsyncValue<void>> {
     element.handleValue(ref, created);
   }
 }
+
+@ProviderFor(UpdateProfileAction)
+const updateProfileActionProvider = UpdateProfileActionProvider._();
+
+final class UpdateProfileActionProvider
+    extends $NotifierProvider<UpdateProfileAction, AsyncValue<void>> {
+  const UpdateProfileActionProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'updateProfileActionProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$updateProfileActionHash();
+
+  @$internal
+  @override
+  UpdateProfileAction create() => UpdateProfileAction();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AsyncValue<void> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AsyncValue<void>>(value),
+    );
+  }
+}
+
+String _$updateProfileActionHash() =>
+    r'6928ca3630d7ed1cd4de6b75880f311ef8f29664';
+
+abstract class _$UpdateProfileAction extends $Notifier<AsyncValue<void>> {
+  AsyncValue<void> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build();
+    final ref = this.ref as $Ref<AsyncValue<void>, AsyncValue<void>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<void>, AsyncValue<void>>,
+              AsyncValue<void>,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, created);
+  }
+}
+
+@ProviderFor(ChangePasswordAction)
+const changePasswordActionProvider = ChangePasswordActionProvider._();
+
+final class ChangePasswordActionProvider
+    extends $NotifierProvider<ChangePasswordAction, AsyncValue<void>> {
+  const ChangePasswordActionProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'changePasswordActionProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$changePasswordActionHash();
+
+  @$internal
+  @override
+  ChangePasswordAction create() => ChangePasswordAction();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AsyncValue<void> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AsyncValue<void>>(value),
+    );
+  }
+}
+
+String _$changePasswordActionHash() =>
+    r'82f221ba3ed78ac4b9403d6ed2a494dc1b0fe6c2';
+
+abstract class _$ChangePasswordAction extends $Notifier<AsyncValue<void>> {
+  AsyncValue<void> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build();
+    final ref = this.ref as $Ref<AsyncValue<void>, AsyncValue<void>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<void>, AsyncValue<void>>,
+              AsyncValue<void>,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, created);
+  }
+}
