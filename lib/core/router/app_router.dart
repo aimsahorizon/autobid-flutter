@@ -38,6 +38,7 @@ import '../../presentation/screens/transaction/transaction_detail_screen.dart';
 import '../../presentation/screens/transaction/submit_transfer_evidence_screen.dart';
 import '../../presentation/screens/transaction/request_refund_screen.dart';
 import '../../presentation/screens/review/submit_review_screen.dart';
+import '../../presentation/screens/review/seller_reviews_screen.dart';
 import '../../presentation/providers/auth_provider.dart';
 import '../constants/string_constants.dart';
 
@@ -266,6 +267,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return SubmitReviewScreen(
             transactionId: transactionId,
             carTitle: carTitle,
+            sellerName: sellerName,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/seller-reviews/:sellerId',
+        name: 'seller-reviews',
+        builder: (context, state) {
+          final sellerId = state.pathParameters['sellerId']!;
+          final sellerName = state.uri.queryParameters['sellerName'] ?? 'Seller';
+          return SellerReviewsScreen(
+            sellerId: sellerId,
             sellerName: sellerName,
           );
         },

@@ -171,6 +171,7 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: SellerInfoCard(
+                    sellerId: car.sellerId,
                     sellerName: car.sellerName,
                     onContact: () {
                       // Contact seller functionality
