@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as riverpod;
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' as provider;
 import '../../providers/listing_provider.dart';
 import '../../providers/browse_provider.dart';
 import '../../providers/payment_provider.dart';
+import '../../providers/notification_provider.dart';
 import '../browse/filter_bottom_sheet.dart';
 import 'tabs/browse_tab.dart';
 import 'tabs/watchlist_tab.dart';
@@ -11,7 +13,7 @@ import 'tabs/my_bids_tab.dart';
 import 'tabs/my_listings_tab.dart';
 import 'tabs/profile_tab.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends riverpod.ConsumerStatefulWidget {
   final int initialTabIndex;
   final int initialSubTabIndex;
 
@@ -22,10 +24,10 @@ class HomeScreen extends StatefulWidget {
   });
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  riverpod.ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends riverpod.ConsumerState<HomeScreen> {
   late int _selectedIndex;
   late int _subTabIndex;
   bool _isGridView = false;
@@ -39,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Load transactions to show pending actions badge
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PaymentProvider>().loadUserTransactions('user123');
+      provider.Provider.of<PaymentProvider>(context, listen: false).loadUserTransactions('user123');
     });
   }
 
@@ -68,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           // Browse tab actions
           if (_selectedIndex == 0) ...[
-            Consumer<BrowseProvider>(
+            provider.Consumer<BrowseProvider>(
               builder: (context, browseProvider, child) {
                 return Stack(
                   children: [
@@ -131,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: const Icon(Icons.add),
               tooltip: 'Create Listing',
               onPressed: () {
-                context.read<ListingProvider>().reset();
+                provider.Provider.of<ListingProvider>(context, listen: false).reset();
                 context.push('/listing/create/step1');
               },
             ),
@@ -145,10 +147,58 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
           if (_selectedIndex != 4) // Don't show profile icon on profile tab
-            IconButton(
-              icon: const Icon(Icons.notifications_outlined),
-              onPressed: () {
-                // Navigate to notifications
+            riverpod.Consumer(
+              builder: (context, ref, child) {
+                final unreadCountAsync = ref.watch(unreadNotificationCountProvider);
+                return unreadCountAsync.when(
+                  data: (unreadCount) => Stack(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.notifications_outlined),
+                        onPressed: () {
+                          context.push('/notifications');
+                        },
+                      ),
+                      if (unreadCount > 0)
+                        Positioned(
+                          right: 8,
+                          top: 8,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: Text(
+                              '$unreadCount',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  loading: () => IconButton(
+                    icon: const Icon(Icons.notifications_outlined),
+                    onPressed: () {
+                      context.push('/notifications');
+                    },
+                  ),
+                  error: (_, __) => IconButton(
+                    icon: const Icon(Icons.notifications_outlined),
+                    onPressed: () {
+                      context.push('/notifications');
+                    },
+                  ),
+                );
               },
             ),
           if (_selectedIndex != 4)
@@ -188,7 +238,7 @@ class _HomeScreenState extends State<HomeScreen> {
             selectedIcon: Icon(Icons.favorite),
             label: 'Watchlist',
           ),
-          Consumer<PaymentProvider>(
+          provider.Consumer<PaymentProvider>(
             builder: (context, paymentProvider, child) {
               final pendingCount = paymentProvider.getPendingActionsCount('user123');
               return NavigationDestination(

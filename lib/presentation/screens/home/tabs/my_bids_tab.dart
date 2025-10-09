@@ -46,81 +46,6 @@ class _MyBidsTabState extends State<MyBidsTab> with SingleTickerProviderStateMix
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Pending actions banner
-        Consumer<PaymentProvider>(
-          builder: (context, paymentProvider, child) {
-            final pendingCount = paymentProvider.getPendingActionsCount('user123');
-
-            if (pendingCount == 0) return const SizedBox.shrink();
-
-            return Container(
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.orange[400]!,
-                    Colors.orange[600]!,
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.orange.withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.notification_important,
-                      color: Colors.white,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '$pendingCount Pending ${pendingCount == 1 ? 'Action' : 'Actions'}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        const Text(
-                          'Complete payments or confirm receipts',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.white,
-                    size: 16,
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
         TabBar(
           controller: _tabController,
           tabs: const [
@@ -227,17 +152,28 @@ class _WonTab extends StatefulWidget {
   State<_WonTab> createState() => _WonTabState();
 }
 
-class _WonTabState extends State<_WonTab> {
+class _WonTabState extends State<_WonTab> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   @override
   void initState() {
     super.initState();
+    _loadTransactions();
+  }
+
+  void _loadTransactions() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PaymentProvider>().loadUserTransactions('user123');
+      if (mounted) {
+        context.read<PaymentProvider>().loadUserTransactions('user123');
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
+
     return Consumer2<AuctionProvider, PaymentProvider>(
       builder: (context, auctionProvider, paymentProvider, child) {
         final wonAuctions = auctionProvider.getUserWonAuctions();
@@ -250,26 +186,28 @@ class _WonTabState extends State<_WonTab> {
           );
         }
 
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: wonAuctions.length,
-          itemBuilder: (context, index) {
-            final auction = wonAuctions[index];
-            final transaction = paymentProvider.getTransactionByAuctionId(auction.id);
-
-            return _AuctionResultCard(
-              auction: auction,
-              won: true,
-              transaction: transaction,
-              onTap: () {
-                Navigator.pushNamed(
-                  context,
-                  '/auction',
-                  arguments: auction.id,
-                );
-              },
-            );
+        return RefreshIndicator(
+          onRefresh: () async {
+            await context.read<PaymentProvider>().loadUserTransactions('user123');
           },
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: wonAuctions.length,
+            itemBuilder: (context, index) {
+              final auction = wonAuctions[index];
+              final transaction = paymentProvider.getTransactionByAuctionId(auction.id);
+
+              return _AuctionResultCard(
+                auction: auction,
+                won: true,
+                transaction: transaction,
+                onTap: () {
+                  context.push('/auction/${auction.id}');
+                },
+                onRefresh: _loadTransactions,
+              );
+            },
+          ),
         );
       },
     );
@@ -457,12 +395,14 @@ class _AuctionResultCard extends StatelessWidget {
   final bool won;
   final Transaction? transaction;
   final VoidCallback onTap;
+  final VoidCallback? onRefresh;
 
   const _AuctionResultCard({
     required this.auction,
     required this.won,
     this.transaction,
     required this.onTap,
+    this.onRefresh,
   });
 
   @override
@@ -632,10 +572,11 @@ class _AuctionResultCard extends StatelessWidget {
         width: double.infinity,
         height: 50,
         child: ElevatedButton.icon(
-          onPressed: () {
-            context.push(
-              '/payment/${auction.id}?carTitle=$carTitle&winningBid=${auction.currentBid}',
+          onPressed: () async {
+            await context.push(
+              '/payment/${auction.id}?carTitle=${Uri.encodeComponent(carTitle)}&winningBid=${auction.currentBid}',
             );
+            onRefresh?.call();
           },
           icon: const Icon(Icons.payment),
           label: const Text('Pay Now', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
@@ -650,7 +591,7 @@ class _AuctionResultCard extends StatelessWidget {
       );
     }
 
-    // Payment pending - show pay now + view transaction
+    // Payment pending - show pay now + view auction
     if (transaction!.escrowStatus == EscrowStatus.pending) {
       return SizedBox(
         height: 50,
@@ -659,10 +600,11 @@ class _AuctionResultCard extends StatelessWidget {
             Expanded(
               flex: 2,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  context.push(
-                    '/payment/${auction.id}?carTitle=$carTitle&winningBid=${auction.currentBid}',
+                onPressed: () async {
+                  await context.push(
+                    '/payment/${auction.id}?carTitle=${Uri.encodeComponent(carTitle)}&winningBid=${auction.currentBid}',
                   );
+                  onRefresh?.call();
                 },
                 icon: const Icon(Icons.payment, size: 18),
                 label: const Text('Pay Now', style: TextStyle(fontSize: 15)),
@@ -678,8 +620,9 @@ class _AuctionResultCard extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: OutlinedButton(
-                onPressed: () {
-                  context.push('/transaction/${transaction!.id}');
+                onPressed: () async {
+                  await context.push('/auction/${auction.id}');
+                  onRefresh?.call();
                 },
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: ColorConstants.primaryGreen, width: 2),
@@ -695,17 +638,18 @@ class _AuctionResultCard extends StatelessWidget {
       );
     }
 
-    // Validating - show validation status + view transaction
+    // Validating - show view transaction only
     if (transaction!.escrowStatus == EscrowStatus.validating) {
       return SizedBox(
         width: double.infinity,
         height: 50,
         child: OutlinedButton.icon(
-          onPressed: () {
-            context.push('/transaction/${transaction!.id}');
+          onPressed: () async {
+            await context.push('/transaction/${transaction!.id}');
+            onRefresh?.call();
           },
           icon: const Icon(Icons.verified_user, size: 18),
-          label: const Text('View Validation Status', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+          label: const Text('View Transaction', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
           style: OutlinedButton.styleFrom(
             side: const BorderSide(color: Colors.amber, width: 2),
             foregroundColor: Colors.amber[900],
@@ -779,10 +723,10 @@ class _AuctionResultCard extends StatelessWidget {
                   );
 
                   if (confirmed == true && context.mounted) {
-                    // Navigate to transfer evidence screen
-                    context.push(
+                    await context.push(
                       '/submit-evidence/${transaction!.id}?carTitle=${Uri.encodeComponent(carTitle)}',
                     );
+                    onRefresh?.call();
                   }
                 },
                 icon: const Icon(Icons.check_circle, size: 18),
@@ -799,8 +743,9 @@ class _AuctionResultCard extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: OutlinedButton(
-                onPressed: () {
-                  context.push('/transaction/${transaction!.id}');
+                onPressed: () async {
+                  await context.push('/transaction/${transaction!.id}');
+                  onRefresh?.call();
                 },
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: ColorConstants.primaryGreen, width: 2),
@@ -816,13 +761,14 @@ class _AuctionResultCard extends StatelessWidget {
       );
     }
 
-    // Released or refunded - just show view transaction
+    // Released, refunded, or disputed - just show view transaction
     return SizedBox(
       width: double.infinity,
       height: 50,
       child: OutlinedButton.icon(
-        onPressed: () {
-          context.push('/transaction/${transaction!.id}');
+        onPressed: () async {
+          await context.push('/transaction/${transaction!.id}');
+          onRefresh?.call();
         },
         icon: const Icon(Icons.receipt_long, size: 18),
         label: const Text('View Transaction', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
