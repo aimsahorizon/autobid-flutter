@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../data/services/mock/mock_review_service.dart';
 import '../../../widgets/reviews/rating_badge.dart';
+import '../../../providers/auth_provider.dart';
 import '../widgets/profile_stat_item.dart';
 import '../widgets/profile_info_tile.dart';
 import '../widgets/profile_action_button.dart';
 
-class ProfileTab extends StatefulWidget {
+class ProfileTab extends ConsumerStatefulWidget {
   const ProfileTab({super.key});
 
   @override
-  State<ProfileTab> createState() => _ProfileTabState();
+  ConsumerState<ProfileTab> createState() => _ProfileTabState();
 }
 
-class _ProfileTabState extends State<ProfileTab> {
+class _ProfileTabState extends ConsumerState<ProfileTab> {
   final _reviewService = MockReviewService();
   double _averageRating = 0;
   int _reviewCount = 0;
@@ -226,7 +228,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   icon: Icons.edit,
                   label: 'Edit Profile',
                   onTap: () {
-                    // Navigate to edit profile
+                    context.push('/profile/edit');
                   },
                 ),
                 const SizedBox(height: 12),
@@ -242,7 +244,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   icon: Icons.security,
                   label: 'Security Settings',
                   onTap: () {
-                    // Navigate to security settings
+                    context.push('/profile/security');
                   },
                 ),
                 const SizedBox(height: 12),
@@ -250,7 +252,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   icon: Icons.help_outline,
                   label: 'Help & Support',
                   onTap: () {
-                    // Navigate to help
+                    context.push('/profile/help');
                   },
                 ),
                 const SizedBox(height: 24),
@@ -281,22 +283,19 @@ class _ProfileTabState extends State<ProfileTab> {
     );
   }
 
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
+  Future<void> _showLogoutDialog(BuildContext context) async {
+    final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Logout'),
         content: const Text('Are you sure you want to logout?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(context, false),
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () {
-              Navigator.pop(context);
-              context.go('/login');
-            },
+            onPressed: () => Navigator.pop(context, true),
             style: FilledButton.styleFrom(
               backgroundColor: Colors.red,
             ),
@@ -305,5 +304,25 @@ class _ProfileTabState extends State<ProfileTab> {
         ],
       ),
     );
+
+    if (result == true && mounted) {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      // Perform logout
+      final signOutAction = ref.read(signOutActionProvider.notifier);
+      await signOutAction.signOut();
+
+      if (mounted) {
+        Navigator.pop(context); // Dismiss loading dialog
+        // The router will automatically redirect to login due to auth state change
+      }
+    }
   }
 }

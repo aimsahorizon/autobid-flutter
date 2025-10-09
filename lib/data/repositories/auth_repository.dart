@@ -13,6 +13,16 @@ abstract class AuthRepository {
   });
   Future<AuthResult> signInWithGoogle();
   Future<void> signOut();
+  Future<AuthResult> updateProfile({
+    String? fullName,
+    String? phoneNumber,
+    DateTime? dateOfBirth,
+    String? gender,
+  });
+  Future<AuthResult> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  });
 }
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -54,5 +64,31 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<void> signOut() {
     return _authService.signOut();
+  }
+
+  @override
+  Future<AuthResult> updateProfile({
+    String? fullName,
+    String? phoneNumber,
+    DateTime? dateOfBirth,
+    String? gender,
+  }) {
+    return _authService.updateProfile(
+      fullName: fullName,
+      phoneNumber: phoneNumber,
+      dateOfBirth: dateOfBirth,
+      gender: gender,
+    );
+  }
+
+  @override
+  Future<AuthResult> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) {
+    return _authService.changePassword(
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    );
   }
 }

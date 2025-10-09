@@ -16,6 +16,9 @@ import '../../presentation/screens/auth/signup/signup_success_screen.dart';
 import '../../presentation/screens/verification/verification_levels_screen.dart';
 import '../../presentation/screens/home/home_screen.dart';
 import '../../presentation/screens/profile/profile_screen.dart';
+import '../../presentation/screens/profile/edit_profile_screen.dart';
+import '../../presentation/screens/profile/security_settings_screen.dart';
+import '../../presentation/screens/profile/help_support_screen.dart';
 import '../../presentation/screens/kyc/kyc_intro_screen.dart';
 import '../../presentation/screens/kyc/kyc_upload_screen.dart';
 import '../../presentation/screens/kyc/kyc_status_screen.dart';
@@ -153,6 +156,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: StringConstants.profileRoute,
         name: 'profile',
         builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: '/profile/edit',
+        name: 'edit-profile',
+        builder: (context, state) => const EditProfileScreen(),
+      ),
+      GoRoute(
+        path: '/profile/security',
+        name: 'security-settings',
+        builder: (context, state) => const SecuritySettingsScreen(),
+      ),
+      GoRoute(
+        path: '/profile/help',
+        name: 'help-support',
+        builder: (context, state) => const HelpSupportScreen(),
       ),
       GoRoute(
         path: '/kyc-intro',

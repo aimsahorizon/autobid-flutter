@@ -155,6 +155,90 @@ class MockAuthService {
     _authStateController.add(null);
   }
 
+  Future<AuthResult> updateProfile({
+    String? fullName,
+    String? phoneNumber,
+    DateTime? dateOfBirth,
+    String? gender,
+  }) async {
+    try {
+      await Future.delayed(const Duration(milliseconds: 800));
+
+      if (_currentUser == null) {
+        return AuthResult(
+          success: false,
+          errorMessage: 'No user is currently signed in',
+        );
+      }
+
+      // Validate phone if provided
+      if (phoneNumber != null && phoneNumber.isNotEmpty) {
+        if (!_isValidPhone(phoneNumber)) {
+          return AuthResult(
+            success: false,
+            errorMessage: 'Invalid phone number format',
+          );
+        }
+      }
+
+      // Update user with new data
+      final updatedUser = _currentUser!.copyWith(
+        fullName: fullName ?? _currentUser!.fullName,
+        phoneNumber: phoneNumber,
+        dateOfBirth: dateOfBirth,
+        gender: gender,
+      );
+
+      _currentUser = updatedUser;
+      _authStateController.add(updatedUser);
+
+      return AuthResult(success: true, user: updatedUser);
+    } catch (e) {
+      return AuthResult(
+        success: false,
+        errorMessage: 'Failed to update profile',
+      );
+    }
+  }
+
+  Future<AuthResult> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      await Future.delayed(const Duration(milliseconds: 800));
+
+      if (_currentUser == null) {
+        return AuthResult(
+          success: false,
+          errorMessage: 'No user is currently signed in',
+        );
+      }
+
+      // Mock validation - in production, verify currentPassword
+      if (currentPassword.isEmpty || newPassword.isEmpty) {
+        return AuthResult(
+          success: false,
+          errorMessage: 'Both passwords are required',
+        );
+      }
+
+      if (newPassword.length < 6) {
+        return AuthResult(
+          success: false,
+          errorMessage: 'New password must be at least 6 characters',
+        );
+      }
+
+      return AuthResult(success: true, user: _currentUser);
+    } catch (e) {
+      return AuthResult(
+        success: false,
+        errorMessage: 'Failed to change password',
+      );
+    }
+  }
+
   bool _isValidEmail(String email) {
     final emailRegex = RegExp(
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
