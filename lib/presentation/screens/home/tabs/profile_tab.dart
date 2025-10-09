@@ -1,14 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/constants/verification_levels.dart';
-import '../../../../data/models/user_model.dart';
-import '../../../widgets/trust_badges.dart';
+import '../../../../data/services/mock/mock_review_service.dart';
+import '../../../widgets/reviews/rating_badge.dart';
 import '../widgets/profile_stat_item.dart';
 import '../widgets/profile_info_tile.dart';
 import '../widgets/profile_action_button.dart';
 
-class ProfileTab extends StatelessWidget {
+class ProfileTab extends StatefulWidget {
   const ProfileTab({super.key});
+
+  @override
+  State<ProfileTab> createState() => _ProfileTabState();
+}
+
+class _ProfileTabState extends State<ProfileTab> {
+  final _reviewService = MockReviewService();
+  double _averageRating = 0;
+  int _reviewCount = 0;
+  bool _isLoadingReviews = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadReviews();
+  }
+
+  Future<void> _loadReviews() async {
+    // Mock user ID - would come from auth
+    const userId = 'user123';
+    final reviews = await _reviewService.getSellerReviews(userId);
+
+    if (!mounted) return;
+
+    setState(() {
+      _reviewCount = reviews.length;
+      if (reviews.isNotEmpty) {
+        final sum = reviews.fold<double>(0, (sum, r) => sum + r.overallRating);
+        _averageRating = sum / reviews.length;
+      }
+      _isLoadingReviews = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,8 +50,7 @@ class ProfileTab extends StatelessWidget {
     const userName = 'John Doe';
     const userEmail = 'john.doe@example.com';
     const userPhone = '+1 234 567 8900';
-    const verificationLevel = VerificationLevel.level1;
-    final verificationConfig = VerificationLevels.getConfig(verificationLevel);
+    const userId = 'user123';
 
     return SingleChildScrollView(
       child: Column(
@@ -76,142 +107,6 @@ class ProfileTab extends StatelessWidget {
             ),
           ),
 
-          // Verification Level Card
-          Container(
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: colorScheme.primary.withValues(alpha: 0.3),
-                width: 2,
-              ),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      verificationConfig.icon,
-                      color: colorScheme.primary,
-                      size: 32,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            verificationConfig.displayName,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                          Text(
-                            verificationConfig.description,
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Buy Limit',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color:
-                                  colorScheme.onSurface.withValues(alpha: 0.6),
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            VerificationLevels.formatLimit(
-                                verificationConfig.buyLimit),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      width: 1,
-                      height: 40,
-                      color: colorScheme.outline.withValues(alpha: 0.3),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Sell Limit',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: colorScheme.onSurface
-                                    .withValues(alpha: 0.6),
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              VerificationLevels.formatLimit(
-                                  verificationConfig.sellLimit),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                if (verificationLevel != VerificationLevel.level3 &&
-                    verificationLevel != VerificationLevel.dealer) ...[
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: () => context.push('/verification-levels'),
-                      icon: const Icon(Icons.arrow_upward),
-                      label: const Text('Upgrade Verification'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: colorScheme.primary,
-                        side: BorderSide(color: colorScheme.primary),
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-
-          // Trust Badges
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: TrustBadges(
-              emailVerified: true,
-              phoneVerified: true,
-              idVerified: true,
-              addressVerified: true,
-            ),
-          ),
-
           // Stats Section
           Container(
             padding: const EdgeInsets.all(24),
@@ -236,6 +131,61 @@ class ProfileTab extends StatelessWidget {
               ],
             ),
           ),
+
+          const Divider(height: 1),
+
+          // Seller Reviews Section
+          if (!_isLoadingReviews && _reviewCount > 0)
+            Container(
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey[300]!),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.star, color: Colors.amber, size: 24),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Seller Rating',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  RatingBadge(
+                    rating: _averageRating,
+                    reviewCount: _reviewCount,
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        context.push(
+                          '/seller-reviews/$userId?sellerName=${Uri.encodeComponent(userName)}',
+                        );
+                      },
+                      icon: const Icon(Icons.rate_review, size: 18),
+                      label: const Text('View All Reviews'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+          if (_isLoadingReviews)
+            const Padding(
+              padding: EdgeInsets.all(24),
+              child: Center(child: CircularProgressIndicator()),
+            ),
 
           const Divider(height: 1),
 
@@ -277,6 +227,14 @@ class ProfileTab extends StatelessWidget {
                   label: 'Edit Profile',
                   onTap: () {
                     // Navigate to edit profile
+                  },
+                ),
+                const SizedBox(height: 12),
+                ProfileActionButton(
+                  icon: Icons.receipt_long,
+                  label: 'My Transactions',
+                  onTap: () {
+                    context.push('/transactions');
                   },
                 ),
                 const SizedBox(height: 12),
