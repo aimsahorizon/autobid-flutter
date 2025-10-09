@@ -134,3 +134,65 @@ class SignOutAction extends _$SignOutAction {
     state = const AsyncValue.data(null);
   }
 }
+
+// Update Profile Action
+@riverpod
+class UpdateProfileAction extends _$UpdateProfileAction {
+  @override
+  AsyncValue<void> build() => const AsyncValue.data(null);
+
+  Future<void> updateProfile({
+    String? fullName,
+    String? phoneNumber,
+    DateTime? dateOfBirth,
+    String? gender,
+  }) async {
+    state = const AsyncValue.loading();
+
+    final repository = ref.read(authRepositoryProvider);
+    final result = await repository.updateProfile(
+      fullName: fullName,
+      phoneNumber: phoneNumber,
+      dateOfBirth: dateOfBirth,
+      gender: gender,
+    );
+
+    if (result.success) {
+      state = const AsyncValue.data(null);
+    } else {
+      state = AsyncValue.error(
+        result.errorMessage ?? 'Failed to update profile',
+        StackTrace.current,
+      );
+    }
+  }
+}
+
+// Change Password Action
+@riverpod
+class ChangePasswordAction extends _$ChangePasswordAction {
+  @override
+  AsyncValue<void> build() => const AsyncValue.data(null);
+
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    state = const AsyncValue.loading();
+
+    final repository = ref.read(authRepositoryProvider);
+    final result = await repository.changePassword(
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    );
+
+    if (result.success) {
+      state = const AsyncValue.data(null);
+    } else {
+      state = AsyncValue.error(
+        result.errorMessage ?? 'Failed to change password',
+        StackTrace.current,
+      );
+    }
+  }
+}
