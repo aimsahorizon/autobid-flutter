@@ -52,8 +52,8 @@ abstract class PricingConfig with _$PricingConfig {
     @Default(0.03) double premiumTransactionFeeRate,
 
     /// Minimum transaction fee (PHP)
-    /// Ensures minimum revenue even on very low-priced sales
-    @Default(50.0) double minTransactionFee,
+    /// Set to 0 to use pure percentage-based fees
+    @Default(0.0) double minTransactionFee,
 
     /// Maximum transaction fee cap (PHP) - optional ceiling
     /// Set to null for no maximum cap

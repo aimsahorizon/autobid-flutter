@@ -75,8 +75,7 @@ class PricingCalculator {
   /// Formula:
   /// 1. Determine tier based on sale price
   /// 2. Apply corresponding fee rate
-  /// 3. Enforce minimum fee if configured
-  /// 4. Apply maximum cap if configured
+  /// 3. Apply maximum cap if configured
   ///
   /// Example:
   /// - ₱500,000 sale → Economy tier → 5% → ₱25,000 fee
@@ -86,8 +85,8 @@ class PricingCalculator {
     final feeRate = getTransactionFeeRate(salePrice);
     double fee = salePrice * feeRate;
 
-    // Apply minimum fee
-    if (fee < config.minTransactionFee) {
+    // Apply minimum fee if configured (default is 0)
+    if (config.minTransactionFee > 0 && fee < config.minTransactionFee) {
       fee = config.minTransactionFee;
     }
 
@@ -102,12 +101,14 @@ class PricingCalculator {
   /// Calculate comprehensive fee breakdown for a transaction
   ///
   /// This provides a complete picture of all fees and amounts:
-  /// - What the buyer pays
+  /// - What the buyer pays (sale price + transaction fee)
   /// - Platform fees breakdown
-  /// - What the seller receives
+  /// - What the seller receives (sale price - listing fee)
   ///
-  /// Note: Currently, transaction fee is paid by seller (deducted from proceeds).
-  /// Alternative models could split fee or charge buyer premium.
+  /// Fee Model (Buyer's Premium):
+  /// - Listing Fee: Paid by seller (deducted from proceeds)
+  /// - Transaction Fee: Paid by buyer (added to total payment)
+  /// - Similar to Copart's buyer's premium model
   FeeBreakdown calculateFeeBreakdown({
     required double salePrice,
     bool includeListingFee = true,
@@ -118,9 +119,9 @@ class PricingCalculator {
     final totalPlatformFees = listingFee + transactionFee;
     final priceTier = determinePriceTier(salePrice);
 
-    // Current model: Buyer pays sale price, seller pays fees
-    final totalBuyerAmount = salePrice;
-    final sellerReceives = salePrice - totalPlatformFees;
+    // Buyer's Premium Model: Buyer pays transaction fee, seller pays listing fee
+    final totalBuyerAmount = salePrice + transactionFee;
+    final sellerReceives = salePrice - listingFee;
 
     return FeeBreakdown(
       salePrice: salePrice,
@@ -134,26 +135,33 @@ class PricingCalculator {
     );
   }
 
-  /// Calculate total amount for buyer (currently same as sale price)
+  /// Calculate total amount for buyer (sale price + transaction fee)
   ///
-  /// In some auction models, buyer pays additional buyer's premium:
-  /// - Copart: 5-10% buyer's premium
-  /// - Christie's/Sotheby's: 20-25% buyer's premium
+  /// Buyer's Premium Model:
+  /// - Buyer pays the winning bid PLUS the platform transaction fee
+  /// - Similar to Copart (5-10% buyer's premium) and other auction platforms
+  /// - Transparent: Buyer knows total cost upfront
   ///
-  /// Current model: Seller pays all fees, buyer pays listing price only
+  /// Example:
+  /// - ₱500,000 bid → Buyer pays ₱525,000 (₱500k + ₱25k [5%])
+  /// - ₱1,000,000 bid → Buyer pays ₱1,040,000 (₱1M + ₱40k [4%])
+  /// - ₱3,000,000 bid → Buyer pays ₱3,090,000 (₱3M + ₱90k [3%])
   double calculateBuyerTotal(double salePrice) {
-    return salePrice;
+    final transactionFee = calculateTransactionFee(salePrice);
+    return salePrice + transactionFee;
   }
 
-  /// Calculate amount seller receives after all fees
+  /// Calculate amount seller receives after listing fee
   ///
-  /// Formula: Sale Price - Listing Fee - Transaction Fee
+  /// Buyer's Premium Model:
+  /// - Seller receives: Sale Price - Listing Fee
+  /// - Transaction fee is paid by buyer (not deducted from seller)
   ///
   /// Example for ₱1,000,000 sale:
   /// - Sale price: ₱1,000,000
   /// - Listing fee: ₱400
-  /// - Transaction fee (4%): ₱40,000
-  /// - Seller receives: ₱959,600
+  /// - Seller receives: ₱999,600
+  /// - (Transaction fee of ₱40,000 is paid by buyer separately)
   double calculateSellerPayout({
     required double salePrice,
     bool includeListingFee = true,

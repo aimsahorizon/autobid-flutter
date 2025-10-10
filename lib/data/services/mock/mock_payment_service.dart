@@ -32,19 +32,24 @@ class MockPaymentService {
   }) async {
     await Future.delayed(const Duration(milliseconds: 500));
 
-    // Calculate comprehensive fee breakdown using new tiered pricing
-    // - Economy (< ₱800k): 5% transaction fee
-    // - Mid-Range (₱800k - ₱2M): 4% transaction fee
-    // - Premium (> ₱2M): 3% transaction fee
+    // Calculate comprehensive fee breakdown using tiered buyer's premium pricing
+    // Buyer's Premium Model:
+    // - Buyer pays: Sale Price + Transaction Fee
+    // - Seller pays: Listing Fee only (deducted from proceeds)
+    //
+    // Transaction Fee Tiers:
+    // - Economy (< ₱800k): 5% buyer's premium
+    // - Mid-Range (₱800k - ₱2M): 4% buyer's premium
+    // - Premium (> ₱2M): 3% buyer's premium
     final breakdown = FeeCalculator.getFeeBreakdown(
       salePrice: amount,
       includeListingFee: listingFee != null,
     );
 
-    // Legacy platformFee field = transaction fee (for backward compatibility)
+    // platformFee = transaction fee paid by buyer
     final platformFee = breakdown.transactionFee;
 
-    // totalAmount = what buyer pays (currently same as sale price)
+    // totalAmount = sale price + transaction fee (buyer's total payment)
     final totalAmount = breakdown.totalBuyerAmount;
 
     final transaction = Transaction(
@@ -56,9 +61,9 @@ class MockPaymentService {
       buyerName: buyerName,
       sellerName: sellerName,
       carTitle: carTitle,
-      amount: amount,
-      platformFee: platformFee, // Legacy field
-      totalAmount: totalAmount,
+      amount: amount, // Winning bid amount
+      platformFee: platformFee, // Buyer's premium (transaction fee)
+      totalAmount: totalAmount, // Total buyer pays (bid + premium)
       escrowStatus: EscrowStatus.pending,
       createdAt: DateTime.now(),
       timeline: [
@@ -69,14 +74,12 @@ class MockPaymentService {
           icon: 'receipt',
         ),
       ],
-      // ADDED: Detailed fee breakdown fields
+      // Detailed fee breakdown fields
       listingFee: listingFee ?? 0.0,
       transactionFeeRate: breakdown.transactionFeeRate,
       transactionFee: breakdown.transactionFee,
       priceTier: breakdown.priceTier,
-      sellerPayout: listingFee != null
-          ? breakdown.sellerReceives
-          : amount - breakdown.transactionFee,
+      sellerPayout: breakdown.sellerReceives, // Seller gets bid - listing fee
     );
 
     _transactions.add(transaction);
@@ -391,9 +394,66 @@ class MockPaymentService {
 
   List<Transaction> _generateMockTransactions() {
     final now = DateTime.now();
+
+    // Helper to create transaction with proper fee breakdown
+    // Using Buyer's Premium Model
+    Transaction _createMockTransaction({
+      required String id,
+      required String auctionId,
+      required String carId,
+      required String buyerId,
+      required String sellerId,
+      required String buyerName,
+      required String sellerName,
+      required String carTitle,
+      required double amount,
+      required EscrowStatus escrowStatus,
+      PaymentMethodType? paymentMethod,
+      String? paymentReference,
+      required DateTime createdAt,
+      DateTime? paidAt,
+      DateTime? releasedAt,
+      DateTime? completedAt,
+      required List<TransactionTimeline> timeline,
+      double listingFee = 400.0,
+    }) {
+      final breakdown = FeeCalculator.getFeeBreakdown(
+        salePrice: amount,
+        includeListingFee: true,
+      );
+
+      return Transaction(
+        id: id,
+        auctionId: auctionId,
+        carId: carId,
+        buyerId: buyerId,
+        sellerId: sellerId,
+        buyerName: buyerName,
+        sellerName: sellerName,
+        carTitle: carTitle,
+        amount: amount, // Winning bid
+        platformFee: breakdown.transactionFee, // Buyer's premium
+        totalAmount: breakdown.totalBuyerAmount, // Bid + premium
+        escrowStatus: escrowStatus,
+        paymentMethod: paymentMethod,
+        paymentReference: paymentReference,
+        createdAt: createdAt,
+        paidAt: paidAt,
+        releasedAt: releasedAt,
+        completedAt: completedAt,
+        timeline: timeline,
+        // Fee breakdown fields
+        listingFee: listingFee,
+        transactionFeeRate: breakdown.transactionFeeRate,
+        transactionFee: breakdown.transactionFee,
+        priceTier: breakdown.priceTier,
+        sellerPayout: breakdown.sellerReceives, // Seller gets bid - listing fee
+      );
+    }
+
     return [
       // As Buyer - Completed transaction
-      Transaction(
+      _createMockTransaction(
         id: 'TXN1001',
         auctionId: 'AUC001',
         carId: 'CAR001',
@@ -403,8 +463,6 @@ class MockPaymentService {
         sellerName: 'Pedro Santos',
         carTitle: '2020 Toyota Vios',
         amount: 450000,
-        platformFee: FeeCalculator.calculatePlatformFee(450000),
-        totalAmount: FeeCalculator.calculateTotal(450000),
         escrowStatus: EscrowStatus.released,
         paymentMethod: PaymentMethodType.gcash,
         paymentReference: 'GC123456789',
@@ -453,7 +511,7 @@ class MockPaymentService {
       ),
 
       // As Seller - Completed sale
-      Transaction(
+      _createMockTransaction(
         id: 'TXN2001',
         auctionId: 'AUC101',
         carId: 'CAR101',
@@ -463,8 +521,6 @@ class MockPaymentService {
         sellerName: 'Juan Dela Cruz',
         carTitle: '2019 Honda Civic',
         amount: 680000,
-        platformFee: FeeCalculator.calculatePlatformFee(680000),
-        totalAmount: FeeCalculator.calculateTotal(680000),
         escrowStatus: EscrowStatus.released,
         paymentMethod: PaymentMethodType.bankTransfer,
         paymentReference: 'BPI123456789',
@@ -513,7 +569,7 @@ class MockPaymentService {
       ),
 
       // As Seller - In Escrow (buyer paid, waiting for shipment)
-      Transaction(
+      _createMockTransaction(
         id: 'TXN2002',
         auctionId: 'AUC102',
         carId: 'CAR102',
@@ -523,8 +579,6 @@ class MockPaymentService {
         sellerName: 'Juan Dela Cruz',
         carTitle: '2021 Mitsubishi Montero',
         amount: 1250000,
-        platformFee: FeeCalculator.calculatePlatformFee(1250000),
-        totalAmount: FeeCalculator.calculateTotal(1250000),
         escrowStatus: EscrowStatus.held,
         paymentMethod: PaymentMethodType.paymaya,
         paymentReference: 'PM987654321',
@@ -553,7 +607,7 @@ class MockPaymentService {
       ),
 
       // As Seller - Pending payment
-      Transaction(
+      _createMockTransaction(
         id: 'TXN2003',
         auctionId: 'AUC103',
         carId: 'CAR103',
@@ -563,8 +617,6 @@ class MockPaymentService {
         sellerName: 'Juan Dela Cruz',
         carTitle: '2018 Ford Ranger',
         amount: 580000,
-        platformFee: FeeCalculator.calculatePlatformFee(580000),
-        totalAmount: FeeCalculator.calculateTotal(580000),
         escrowStatus: EscrowStatus.pending,
         createdAt: now.subtract(const Duration(hours: 6)),
         timeline: [

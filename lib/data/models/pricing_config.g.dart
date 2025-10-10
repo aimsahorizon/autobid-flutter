@@ -21,8 +21,7 @@ _PricingConfig _$PricingConfigFromJson(Map<String, dynamic> json) =>
           (json['midRangePriceThreshold'] as num?)?.toDouble() ?? 2000000.0,
       premiumTransactionFeeRate:
           (json['premiumTransactionFeeRate'] as num?)?.toDouble() ?? 0.03,
-      minTransactionFee:
-          (json['minTransactionFee'] as num?)?.toDouble() ?? 50.0,
+      minTransactionFee: (json['minTransactionFee'] as num?)?.toDouble() ?? 0.0,
       maxTransactionFee: (json['maxTransactionFee'] as num?)?.toDouble(),
       listingFeeRefundable: json['listingFeeRefundable'] as bool? ?? false,
       listingFeeUpfront: json['listingFeeUpfront'] as bool? ?? true,

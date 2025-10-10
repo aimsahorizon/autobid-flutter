@@ -31,7 +31,7 @@ mixin _$PricingConfig {
 /// Industry: Lower rate for high-value transactions
 /// Similar to Escrow.com's premium tier (0.89% - 3.25%)
  double get premiumTransactionFeeRate;/// Minimum transaction fee (PHP)
-/// Ensures minimum revenue even on very low-priced sales
+/// Set to 0 to use pure percentage-based fees
  double get minTransactionFee;/// Maximum transaction fee cap (PHP) - optional ceiling
 /// Set to null for no maximum cap
  double? get maxTransactionFee;/// Whether listing fee is refundable if auction doesn't complete
@@ -241,7 +241,7 @@ return $default(_that.listingFee,_that.minListingFee,_that.maxListingFee,_that.e
 @JsonSerializable()
 
 class _PricingConfig implements PricingConfig {
-  const _PricingConfig({this.listingFee = 400.0, this.minListingFee = 300.0, this.maxListingFee = 500.0, this.economyTransactionFeeRate = 0.05, this.economyPriceThreshold = 800000.0, this.midRangeTransactionFeeRate = 0.04, this.midRangePriceThreshold = 2000000.0, this.premiumTransactionFeeRate = 0.03, this.minTransactionFee = 50.0, this.maxTransactionFee, this.listingFeeRefundable = false, this.listingFeeUpfront = true});
+  const _PricingConfig({this.listingFee = 400.0, this.minListingFee = 300.0, this.maxListingFee = 500.0, this.economyTransactionFeeRate = 0.05, this.economyPriceThreshold = 800000.0, this.midRangeTransactionFeeRate = 0.04, this.midRangePriceThreshold = 2000000.0, this.premiumTransactionFeeRate = 0.03, this.minTransactionFee = 0.0, this.maxTransactionFee, this.listingFeeRefundable = false, this.listingFeeUpfront = true});
   factory _PricingConfig.fromJson(Map<String, dynamic> json) => _$PricingConfigFromJson(json);
 
 /// Fixed listing fee charged when creating an auction (PHP 300-500)
@@ -268,7 +268,7 @@ class _PricingConfig implements PricingConfig {
 /// Similar to Escrow.com's premium tier (0.89% - 3.25%)
 @override@JsonKey() final  double premiumTransactionFeeRate;
 /// Minimum transaction fee (PHP)
-/// Ensures minimum revenue even on very low-priced sales
+/// Set to 0 to use pure percentage-based fees
 @override@JsonKey() final  double minTransactionFee;
 /// Maximum transaction fee cap (PHP) - optional ceiling
 /// Set to null for no maximum cap

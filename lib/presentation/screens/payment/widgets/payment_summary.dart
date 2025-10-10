@@ -14,7 +14,9 @@ class PaymentSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final breakdown = FeeCalculator.getBreakdown(amount);
+    // Get detailed fee breakdown with dynamic tiered pricing
+    final feeBreakdown = FeeCalculator.getFeeBreakdown(salePrice: amount);
+    final feeRate = FeeCalculator.formatFeeRate(amount);
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -38,7 +40,7 @@ class PaymentSummary extends StatelessWidget {
               ),
               if (showDetails)
                 Tooltip(
-                  message: 'Platform fee: 3% + ₱50',
+                  message: 'Platform fee: $feeRate (tiered pricing)',
                   child: Icon(
                     Icons.info_outline,
                     color: Colors.grey[600],
@@ -52,22 +54,22 @@ class PaymentSummary extends StatelessWidget {
           const SizedBox(height: 12),
           _buildRow(
             'Winning Bid',
-            FeeCalculator.formatCurrency(breakdown['amount']!),
+            FeeCalculator.formatCurrency(amount),
             false,
           ),
           const SizedBox(height: 8),
           _buildRow(
             'Platform Fee',
-            FeeCalculator.formatCurrency(breakdown['platformFee']!),
+            FeeCalculator.formatCurrency(feeBreakdown.transactionFee),
             false,
-            subtitle: '3% + ₱50',
+            subtitle: feeRate, // Dynamic rate: 5%, 4%, or 3%
           ),
           const SizedBox(height: 12),
           const Divider(),
           const SizedBox(height: 12),
           _buildRow(
             'Total Amount',
-            FeeCalculator.formatCurrency(breakdown['total']!),
+            FeeCalculator.formatCurrency(feeBreakdown.totalBuyerAmount),
             true,
           ),
           if (showDetails) ...[

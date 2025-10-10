@@ -15,13 +15,18 @@ Successfully implemented a comprehensive pricing and revenue model for the AutoB
   - Bring A Trailer: $99 flat fee
 
 ### 2. Transaction Fee (Tiered)
-Transaction fees are percentage-based and vary by vehicle sale price tier:
+Transaction fees are **pure percentage-based** and vary by vehicle sale price tier:
 
 | Price Tier | Range | Fee Rate | Example Calculation |
 |-----------|-------|----------|---------------------|
 | **Economy** | < ₱800,000 | 5% | ₱500,000 × 5% = ₱25,000 |
 | **Mid-Range** | ₱800,000 - ₱2,000,000 | 4% | ₱1,000,000 × 4% = ₱40,000 |
 | **Premium** | > ₱2,000,000 | 3% | ₱3,000,000 × 3% = ₱90,000 |
+
+**Key Features**:
+- Pure percentage calculation (no minimum fee or fixed component)
+- Automatically adjusts based on final sale price
+- Deducted from seller's proceeds, not added to buyer's payment
 
 **Industry Reference**:
 - Escrow.com: 0.89% - 3.25% for vehicle transactions
@@ -30,8 +35,9 @@ Transaction fees are percentage-based and vary by vehicle sale price tier:
 
 ### 3. Fee Payment Model
 - **Listing Fee**: Paid by seller upfront when creating auction
-- **Transaction Fee**: Deducted from seller's proceeds at sale completion
-- **Buyer Payment**: Currently pays only the winning bid amount (no buyer premium)
+- **Transaction Fee**: Pure percentage deducted from seller's proceeds at sale completion
+- **Buyer Payment**: Pays only the winning bid amount (no buyer premium)
+- **Total Amount**: Equals the sale price throughout the entire payment process
 
 ## Technical Implementation
 

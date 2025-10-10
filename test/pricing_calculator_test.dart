@@ -103,58 +103,57 @@ void main() {
       expect(calculator.calculateTransactionFee(3000000), equals(90000.0));
     });
 
-    test('should enforce minimum transaction fee', () {
-      // Very low sale price should use minimum fee (₱50)
-      expect(calculator.calculateTransactionFee(100), equals(50.0));
-      expect(calculator.calculateTransactionFee(500), equals(50.0));
+    test('should calculate pure percentage without minimum fee', () {
+      // Very low sale prices use pure percentage (no ₱50 minimum)
+      // ₱100 × 5% = ₱5
+      expect(calculator.calculateTransactionFee(100), equals(5.0));
+      // ₱500 × 5% = ₱25
+      expect(calculator.calculateTransactionFee(500), equals(25.0));
     });
   });
 
-  group('PricingCalculator - Fee Breakdown', () {
+  group('PricingCalculator - Fee Breakdown (Buyer\'s Premium Model)', () {
     final calculator = PricingCalculator.withDefaultConfig();
 
     test('should provide complete breakdown for economy tier sale', () {
-      // ₱500,000 sale
+      // ₱500,000 sale - Buyer's Premium Model
       final breakdown = calculator.calculateFeeBreakdown(salePrice: 500000);
 
       expect(breakdown.salePrice, equals(500000.0));
-      expect(breakdown.listingFee, equals(400.0));
+      expect(breakdown.listingFee, equals(400.0)); // Seller pays
       expect(breakdown.transactionFeeRate, equals(0.05));
-      expect(breakdown.transactionFee, equals(25000.0)); // 5%
+      expect(breakdown.transactionFee, equals(25000.0)); // 5% buyer's premium
       expect(breakdown.totalPlatformFees, equals(25400.0)); // 400 + 25000
-      expect(breakdown.totalBuyerAmount, equals(500000.0));
-      expect(breakdown.sellerReceives,
-          equals(474600.0)); // 500000 - 400 - 25000
+      expect(breakdown.totalBuyerAmount, equals(525000.0)); // 500000 + 25000
+      expect(breakdown.sellerReceives, equals(499600.0)); // 500000 - 400
       expect(breakdown.priceTier, equals(PriceTier.economy));
     });
 
     test('should provide complete breakdown for mid-range tier sale', () {
-      // ₱1,000,000 sale
+      // ₱1,000,000 sale - Buyer's Premium Model
       final breakdown = calculator.calculateFeeBreakdown(salePrice: 1000000);
 
       expect(breakdown.salePrice, equals(1000000.0));
-      expect(breakdown.listingFee, equals(400.0));
+      expect(breakdown.listingFee, equals(400.0)); // Seller pays
       expect(breakdown.transactionFeeRate, equals(0.04));
-      expect(breakdown.transactionFee, equals(40000.0)); // 4%
+      expect(breakdown.transactionFee, equals(40000.0)); // 4% buyer's premium
       expect(breakdown.totalPlatformFees, equals(40400.0)); // 400 + 40000
-      expect(breakdown.totalBuyerAmount, equals(1000000.0));
-      expect(breakdown.sellerReceives,
-          equals(959600.0)); // 1000000 - 400 - 40000
+      expect(breakdown.totalBuyerAmount, equals(1040000.0)); // 1000000 + 40000
+      expect(breakdown.sellerReceives, equals(999600.0)); // 1000000 - 400
       expect(breakdown.priceTier, equals(PriceTier.midRange));
     });
 
     test('should provide complete breakdown for premium tier sale', () {
-      // ₱3,000,000 sale
+      // ₱3,000,000 sale - Buyer's Premium Model
       final breakdown = calculator.calculateFeeBreakdown(salePrice: 3000000);
 
       expect(breakdown.salePrice, equals(3000000.0));
-      expect(breakdown.listingFee, equals(400.0));
+      expect(breakdown.listingFee, equals(400.0)); // Seller pays
       expect(breakdown.transactionFeeRate, equals(0.03));
-      expect(breakdown.transactionFee, equals(90000.0)); // 3%
+      expect(breakdown.transactionFee, equals(90000.0)); // 3% buyer's premium
       expect(breakdown.totalPlatformFees, equals(90400.0)); // 400 + 90000
-      expect(breakdown.totalBuyerAmount, equals(3000000.0));
-      expect(breakdown.sellerReceives,
-          equals(2909600.0)); // 3000000 - 400 - 90000
+      expect(breakdown.totalBuyerAmount, equals(3090000.0)); // 3000000 + 90000
+      expect(breakdown.sellerReceives, equals(2999600.0)); // 3000000 - 400
       expect(breakdown.priceTier, equals(PriceTier.premium));
     });
 
@@ -166,29 +165,33 @@ void main() {
 
       expect(breakdown.listingFee, equals(0.0));
       expect(breakdown.totalPlatformFees, equals(40000.0)); // Only transaction fee
-      expect(breakdown.sellerReceives, equals(960000.0)); // 1000000 - 40000
+      expect(breakdown.totalBuyerAmount, equals(1040000.0)); // 1000000 + 40000
+      expect(breakdown.sellerReceives, equals(1000000.0)); // Full sale price
     });
   });
 
-  group('PricingCalculator - Seller Payout', () {
+  group('PricingCalculator - Seller Payout (Buyer\'s Premium Model)', () {
     final calculator = PricingCalculator.withDefaultConfig();
 
     test('should calculate correct seller payout for economy tier', () {
-      // ₱500,000 - ₱400 (listing) - ₱25,000 (5% transaction) = ₱474,600
+      // ₱500,000 - ₱400 (listing only) = ₱499,600
+      // Transaction fee paid by buyer, not deducted from seller
       final payout = calculator.calculateSellerPayout(salePrice: 500000);
-      expect(payout, equals(474600.0));
+      expect(payout, equals(499600.0));
     });
 
     test('should calculate correct seller payout for mid-range tier', () {
-      // ₱1,000,000 - ₱400 (listing) - ₱40,000 (4% transaction) = ₱959,600
+      // ₱1,000,000 - ₱400 (listing only) = ₱999,600
+      // Transaction fee paid by buyer, not deducted from seller
       final payout = calculator.calculateSellerPayout(salePrice: 1000000);
-      expect(payout, equals(959600.0));
+      expect(payout, equals(999600.0));
     });
 
     test('should calculate correct seller payout for premium tier', () {
-      // ₱3,000,000 - ₱400 (listing) - ₱90,000 (3% transaction) = ₱2,909,600
+      // ₱3,000,000 - ₱400 (listing only) = ₱2,999,600
+      // Transaction fee paid by buyer, not deducted from seller
       final payout = calculator.calculateSellerPayout(salePrice: 3000000);
-      expect(payout, equals(2909600.0));
+      expect(payout, equals(2999600.0));
     });
 
     test('should exclude listing fee when requested', () {
@@ -196,19 +199,23 @@ void main() {
         salePrice: 1000000,
         includeListingFee: false,
       );
-      // ₱1,000,000 - ₱40,000 (4% transaction only) = ₱960,000
-      expect(payout, equals(960000.0));
+      // ₱1,000,000 (full sale price, no fees deducted)
+      expect(payout, equals(1000000.0));
     });
   });
 
-  group('PricingCalculator - Buyer Total', () {
+  group('PricingCalculator - Buyer Total (Buyer\'s Premium Model)', () {
     final calculator = PricingCalculator.withDefaultConfig();
 
-    test('should return same as sale price (no buyer premium in current model)',
-        () {
-      expect(calculator.calculateBuyerTotal(500000), equals(500000.0));
-      expect(calculator.calculateBuyerTotal(1000000), equals(1000000.0));
-      expect(calculator.calculateBuyerTotal(3000000), equals(3000000.0));
+    test('should add buyer\'s premium to sale price', () {
+      // ₱500,000 + ₱25,000 (5%) = ₱525,000
+      expect(calculator.calculateBuyerTotal(500000), equals(525000.0));
+
+      // ₱1,000,000 + ₱40,000 (4%) = ₱1,040,000
+      expect(calculator.calculateBuyerTotal(1000000), equals(1040000.0));
+
+      // ₱3,000,000 + ₱90,000 (3%) = ₱3,090,000
+      expect(calculator.calculateBuyerTotal(3000000), equals(3090000.0));
     });
   });
 
@@ -320,34 +327,37 @@ void main() {
     });
   });
 
-  group('PricingCalculator - Real-World Scenarios', () {
+  group('PricingCalculator - Real-World Scenarios (Buyer\'s Premium)', () {
     final calculator = PricingCalculator.withDefaultConfig();
 
     test('Toyota Vios sale (₱450,000) - economy tier', () {
       final breakdown = calculator.calculateFeeBreakdown(salePrice: 450000);
 
       expect(breakdown.priceTier, equals(PriceTier.economy));
-      expect(breakdown.transactionFee, equals(22500.0)); // 5%
+      expect(breakdown.transactionFee, equals(22500.0)); // 5% buyer's premium
       expect(breakdown.totalPlatformFees, equals(22900.0)); // 400 + 22500
-      expect(breakdown.sellerReceives, equals(427100.0));
+      expect(breakdown.totalBuyerAmount, equals(472500.0)); // 450000 + 22500
+      expect(breakdown.sellerReceives, equals(449600.0)); // 450000 - 400
     });
 
     test('Honda Civic sale (₱1,200,000) - mid-range tier', () {
       final breakdown = calculator.calculateFeeBreakdown(salePrice: 1200000);
 
       expect(breakdown.priceTier, equals(PriceTier.midRange));
-      expect(breakdown.transactionFee, equals(48000.0)); // 4%
-      expect(breakdown.totalPlatformFees, equals(48400.0));
-      expect(breakdown.sellerReceives, equals(1151600.0));
+      expect(breakdown.transactionFee, equals(48000.0)); // 4% buyer's premium
+      expect(breakdown.totalPlatformFees, equals(48400.0)); // 400 + 48000
+      expect(breakdown.totalBuyerAmount, equals(1248000.0)); // 1200000 + 48000
+      expect(breakdown.sellerReceives, equals(1199600.0)); // 1200000 - 400
     });
 
     test('BMW 5 Series sale (₱2,500,000) - premium tier', () {
       final breakdown = calculator.calculateFeeBreakdown(salePrice: 2500000);
 
       expect(breakdown.priceTier, equals(PriceTier.premium));
-      expect(breakdown.transactionFee, equals(75000.0)); // 3%
-      expect(breakdown.totalPlatformFees, equals(75400.0));
-      expect(breakdown.sellerReceives, equals(2424600.0));
+      expect(breakdown.transactionFee, equals(75000.0)); // 3% buyer's premium
+      expect(breakdown.totalPlatformFees, equals(75400.0)); // 400 + 75000
+      expect(breakdown.totalBuyerAmount, equals(2575000.0)); // 2500000 + 75000
+      expect(breakdown.sellerReceives, equals(2499600.0)); // 2500000 - 400
     });
   });
 }
