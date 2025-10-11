@@ -48,6 +48,10 @@ class _CreateListingStep4ExteriorState
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/'),
+        ),
         title: const Text('Exterior Details'),
         actions: [
           if (DevAutofill.isEnabled)
@@ -244,14 +248,28 @@ class _CreateListingStep4ExteriorState
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: CustomButton(
-            text: 'Next',
-            onPressed: () {
-              if (_formKey.currentState!.validate() &&
-                  provider.validateStep4()) {
-                context.push('/listing/create/step5');
-              }
-            },
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => context.push('/listing/create/step3'),
+                  child: const Text('Back'),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                flex: 2,
+                child: CustomButton(
+                  text: 'Next',
+                  onPressed: () {
+                    if (_formKey.currentState!.validate() &&
+                        provider.validateStep4()) {
+                      context.push('/listing/create/step5');
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),

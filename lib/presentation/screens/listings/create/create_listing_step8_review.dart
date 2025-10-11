@@ -52,6 +52,10 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/'),
+        ),
         title: const Text('Final Details'),
         actions: [
           if (DevAutofill.isEnabled)
@@ -261,20 +265,34 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: CustomButton(
-            text: 'Next',
-            onPressed: () {
-              if (provider.validateStep8()) {
-                context.push('/listing/create/step9');
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                        'Please write at least 50 characters description'),
-                  ),
-                );
-              }
-            },
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => context.push('/listing/create/step7'),
+                  child: const Text('Back'),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                flex: 2,
+                child: CustomButton(
+                  text: 'Next',
+                  onPressed: () {
+                    if (provider.validateStep8()) {
+                      context.push('/listing/create/step9');
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              'Please write at least 50 characters description'),
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),

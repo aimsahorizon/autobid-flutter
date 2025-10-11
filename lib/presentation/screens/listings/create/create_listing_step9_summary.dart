@@ -31,6 +31,10 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/'),
+        ),
         title: const Text('Listing Summary'),
         actions: [
           SaveDraftButton(
@@ -356,11 +360,25 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: CustomButton(
-            text: 'Submit Listing',
-            onPressed: () async {
-              await _submitListing(context, provider);
-            },
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => context.push('/listing/create/step8'),
+                  child: const Text('Back'),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                flex: 2,
+                child: CustomButton(
+                  text: 'Submit Listing',
+                  onPressed: () async {
+                    await _submitListing(context, provider);
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),

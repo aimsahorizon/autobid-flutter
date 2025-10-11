@@ -60,6 +60,10 @@ class _CreateListingStep2MechanicalState
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/'),
+        ),
         title: const Text('Mechanical Specifications'),
         actions: [
           if (DevAutofill.isEnabled)
@@ -366,14 +370,28 @@ class _CreateListingStep2MechanicalState
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: CustomButton(
-            text: 'Next',
-            onPressed: () {
-              if (_formKey.currentState!.validate() &&
-                  provider.validateStep2()) {
-                context.push('/listing/create/step3');
-              }
-            },
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => context.push('/listing/create/step1'),
+                  child: const Text('Back'),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                flex: 2,
+                child: CustomButton(
+                  text: 'Next',
+                  onPressed: () {
+                    if (_formKey.currentState!.validate() &&
+                        provider.validateStep2()) {
+                      context.push('/listing/create/step3');
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),

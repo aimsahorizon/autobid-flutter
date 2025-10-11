@@ -101,6 +101,10 @@ class _CreateListingStep7PhotosState extends State<CreateListingStep7Photos>
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/'),
+        ),
         title: const Text('Photos'),
         actions: [
           if (DevAutofill.isEnabled)
@@ -264,20 +268,34 @@ class _CreateListingStep7PhotosState extends State<CreateListingStep7Photos>
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: CustomButton(
-            text: 'Next',
-            onPressed: () {
-              if (provider.validateStep7()) {
-                context.push('/listing/create/step8');
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                        'Please upload all 46 required photos ($totalImages/$requiredTotal completed)'),
-                  ),
-                );
-              }
-            },
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => context.push('/listing/create/step6'),
+                  child: const Text('Back'),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                flex: 2,
+                child: CustomButton(
+                  text: 'Next',
+                  onPressed: () {
+                    if (provider.validateStep7()) {
+                      context.push('/listing/create/step8');
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              'Please upload all 46 required photos ($totalImages/$requiredTotal completed)'),
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),

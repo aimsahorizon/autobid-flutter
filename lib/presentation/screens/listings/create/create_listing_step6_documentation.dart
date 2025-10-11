@@ -53,6 +53,10 @@ class _CreateListingStep6DocumentationState
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/'),
+        ),
         title: const Text('Documentation & Location'),
         actions: [
           if (DevAutofill.isEnabled)
@@ -239,14 +243,28 @@ class _CreateListingStep6DocumentationState
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: CustomButton(
-            text: 'Next',
-            onPressed: () {
-              if (_formKey.currentState!.validate() &&
-                  provider.validateStep6()) {
-                context.push('/listing/create/step7');
-              }
-            },
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => context.push('/listing/create/step5'),
+                  child: const Text('Back'),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                flex: 2,
+                child: CustomButton(
+                  text: 'Next',
+                  onPressed: () {
+                    if (_formKey.currentState!.validate() &&
+                        provider.validateStep6()) {
+                      context.push('/listing/create/step7');
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),
