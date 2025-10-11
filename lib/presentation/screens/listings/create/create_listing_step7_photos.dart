@@ -121,7 +121,7 @@ class _CreateListingStep7PhotosState extends State<CreateListingStep7Photos>
             child: Column(
               children: [
                 LinearProgressIndicator(
-                  value: 7 / 8,
+                  value: 7 / 9,
                   backgroundColor: Colors.grey[200],
                 ),
                 const SizedBox(height: 24),
@@ -133,7 +133,7 @@ class _CreateListingStep7PhotosState extends State<CreateListingStep7Photos>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Step 7 of 8',
+                          'Step 7 of 9',
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: Colors.grey[600],
