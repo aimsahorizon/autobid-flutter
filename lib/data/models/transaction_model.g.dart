@@ -54,6 +54,11 @@ _Transaction _$TransactionFromJson(Map<String, dynamic> json) => _Transaction(
   refundedAt: json['refundedAt'] == null
       ? null
       : DateTime.parse(json['refundedAt'] as String),
+  listingFee: (json['listingFee'] as num?)?.toDouble() ?? 0.0,
+  transactionFeeRate: (json['transactionFeeRate'] as num?)?.toDouble() ?? 0.0,
+  transactionFee: (json['transactionFee'] as num?)?.toDouble() ?? 0.0,
+  priceTier: $enumDecodeNullable(_$PriceTierEnumMap, json['priceTier']),
+  sellerPayout: (json['sellerPayout'] as num?)?.toDouble() ?? 0.0,
 );
 
 Map<String, dynamic> _$TransactionToJson(
@@ -85,6 +90,11 @@ Map<String, dynamic> _$TransactionToJson(
   'disputeId': instance.disputeId,
   'disputedAt': instance.disputedAt?.toIso8601String(),
   'refundedAt': instance.refundedAt?.toIso8601String(),
+  'listingFee': instance.listingFee,
+  'transactionFeeRate': instance.transactionFeeRate,
+  'transactionFee': instance.transactionFee,
+  'priceTier': _$PriceTierEnumMap[instance.priceTier],
+  'sellerPayout': instance.sellerPayout,
 };
 
 const _$EscrowStatusEnumMap = {
@@ -103,4 +113,10 @@ const _$PaymentMethodTypeEnumMap = {
   PaymentMethodType.bankTransfer: 'bank_transfer',
   PaymentMethodType.cash: 'cash',
   PaymentMethodType.card: 'card',
+};
+
+const _$PriceTierEnumMap = {
+  PriceTier.economy: 'economy',
+  PriceTier.midRange: 'midRange',
+  PriceTier.premium: 'premium',
 };
