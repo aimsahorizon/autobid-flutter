@@ -565,6 +565,9 @@ class MockAuctionService implements AuctionRepository {
 
     final durations = [
       Duration(minutes: 1),
+      Duration(minutes: 5),
+      Duration(minutes: 10),
+      Duration(minutes: 20),
       // Duration(hours: 5),
       // Duration(days: 1),
       // Duration(days: 3),
