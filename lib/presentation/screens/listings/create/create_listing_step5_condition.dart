@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../data/models/car_model.dart';
+import '../../../../data/models/vehicle_condition_attribute.dart';
+import '../../../../data/services/mock_vehicle_conditions_service.dart';
 import '../../../../core/utils/enum_extensions.dart';
 import '../../../../core/utils/dev_autofill.dart';
 import '../../../../core/utils/listing_autofill_helpers.dart';
@@ -11,6 +13,25 @@ import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/counter_input_field.dart';
 import '../../../widgets/save_draft_button.dart';
+import '../../../widgets/condition_category_section.dart';
+
+/// ═══════════════════════════════════════════════════════════════════════════
+/// REFACTORED STEP 5: DYNAMIC VEHICLE CONDITION & HISTORY
+/// ═══════════════════════════════════════════════════════════════════════════
+///
+/// This is a refactored version of the Vehicle History step that:
+/// 1. ✅ Dynamically renders condition toggles from mock API data
+/// 2. ✅ Groups toggles by category (Service, Damage, Body & Modifications, Usage)
+/// 3. ✅ Updates local state immediately and syncs with parent form provider
+/// 4. ✅ Maintains compatibility with existing multi-step form flow
+/// 5. ✅ Mobile-first UI with accessibility (large touch targets, clear labels)
+/// 6. ✅ Automatically renders new attributes added to mock data (no code changes needed)
+/// 7. ✅ Uses reusable components (ConditionToggle, ConditionCategorySection)
+/// 8. ✅ Simulates data fetching with loading state
+/// 9. ✅ Shows toast/snackbar on save confirmation
+///
+/// INTEGRATION: Replace Step 5 class with this implementation
+/// ═══════════════════════════════════════════════════════════════════════════
 
 class CreateListingStep5Condition extends StatefulWidget {
   const CreateListingStep5Condition({super.key});
@@ -25,6 +46,23 @@ class _CreateListingStep5ConditionState
   final _formKey = GlobalKey<FormState>();
   final _mileageController = TextEditingController();
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // STATE: DYNAMIC CONDITION ATTRIBUTES
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Loading state: Shows shimmer/spinner while fetching data
+  bool _isLoading = true;
+
+  /// List of all condition attributes fetched from mock API
+  List<VehicleConditionAttribute> _attributes = [];
+
+  /// Grouped attributes by category for rendering sections
+  Map<String, List<VehicleConditionAttribute>> _groupedAttributes = {};
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // LIFECYCLE: INIT & DISPOSE
+  // ═══════════════════════════════════════════════════════════════════════════
+
   @override
   void initState() {
     super.initState();
@@ -32,6 +70,9 @@ class _CreateListingStep5ConditionState
     provider.setCurrentStep(5);
     _mileageController.text =
         provider.mileage != null ? provider.mileage.toString() : '';
+
+    // Fetch condition attributes from mock API
+    _loadConditionAttributes();
   }
 
   @override
@@ -40,9 +81,202 @@ class _CreateListingStep5ConditionState
     super.dispose();
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // DATA FETCHING: MOCK API CALL
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Loads condition attributes from mock service
+  /// Simulates network delay and shows loading state
+  Future<void> _loadConditionAttributes() async {
+    setState(() => _isLoading = true);
+
+    try {
+      // Fetch attributes from mock API (500ms delay)
+      final fetchedAttributes =
+          await MockVehicleConditionsService.fetchConditionAttributes();
+
+      // Sync with existing provider state
+      // Map provider boolean fields to attribute values
+      final syncedAttributes = _syncWithProviderState(fetchedAttributes);
+
+      // Group by category for section rendering
+      final grouped =
+          MockVehicleConditionsService.groupByCategory(syncedAttributes);
+
+      setState(() {
+        _attributes = syncedAttributes;
+        _groupedAttributes = grouped;
+        _isLoading = false;
+      });
+    } catch (e) {
+      // Handle error (show snackbar in production)
+      setState(() => _isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load conditions: $e')),
+        );
+      }
+    }
+  }
+
+  /// Syncs fetched attributes with existing provider state
+  /// This ensures continuity if user navigates back to this step
+  List<VehicleConditionAttribute> _syncWithProviderState(
+    List<VehicleConditionAttribute> attributes,
+  ) {
+    final provider = context.read<ListingProvider>();
+
+    return attributes.map((attr) {
+      // Map attribute ID to provider field and get current value
+      final currentValue = _getProviderValue(attr.id, provider);
+      return attr.copyWith(value: currentValue);
+    }).toList();
+  }
+
+  /// Gets current value from provider based on attribute ID
+  /// This is the integration point with existing form state
+  bool _getProviderValue(String attributeId, ListingProvider provider) {
+    switch (attributeId) {
+      case 'serviceHistoryComplete':
+        return provider.serviceHistoryComplete;
+      case 'hasAccidentHistory':
+        return provider.hasAccidentHistory;
+      case 'floodDamage':
+        return provider.floodDamage;
+      case 'fireDamage':
+        return provider.fireDamage;
+      case 'frameDamage':
+        return provider.frameDamage;
+      case 'isRepainted':
+        return provider.isRepainted;
+      case 'hasModifications':
+        return provider.hasModifications;
+      case 'originalParts':
+        return provider.originalParts;
+      case 'commercialUse':
+        return provider.commercialUse;
+      case 'smokerVehicle':
+        return provider.smokerVehicle;
+      case 'warrantyRemaining':
+        return provider.warrantyRemaining;
+      default:
+        return false; // New attributes default to false
+    }
+  }
+
+  /// Updates provider when attribute value changes
+  /// This is the integration point for saving to parent form state
+  void _updateProviderValue(
+    String attributeId,
+    bool value,
+    ListingProvider provider,
+  ) {
+    switch (attributeId) {
+      case 'serviceHistoryComplete':
+        provider.setServiceHistoryComplete(value);
+        break;
+      case 'hasAccidentHistory':
+        provider.setHasAccidentHistory(value);
+        break;
+      case 'floodDamage':
+        provider.setFloodDamage(value);
+        break;
+      case 'fireDamage':
+        provider.setFireDamage(value);
+        break;
+      case 'frameDamage':
+        provider.setFrameDamage(value);
+        break;
+      case 'isRepainted':
+        provider.setIsRepainted(value);
+        break;
+      case 'hasModifications':
+        provider.setHasModifications(value);
+        break;
+      case 'originalParts':
+        provider.setOriginalParts(value);
+        break;
+      case 'commercialUse':
+        provider.setCommercialUse(value);
+        break;
+      case 'smokerVehicle':
+        provider.setSmokerVehicle(value);
+        break;
+      case 'warrantyRemaining':
+        provider.setWarrantyRemaining(value);
+        break;
+      default:
+        // New attributes: extend provider or handle differently
+        debugPrint('Unknown attribute: $attributeId');
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // EVENT HANDLERS
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Handles toggle change for a condition attribute
+  /// Updates both local state and provider state immediately
+  void _onAttributeChanged(String attributeId, bool newValue) {
+    final provider = context.read<ListingProvider>();
+
+    setState(() {
+      // Update local attribute value
+      final index = _attributes.indexWhere((attr) => attr.id == attributeId);
+      if (index != -1) {
+        _attributes[index] = _attributes[index].copyWith(value: newValue);
+
+        // Re-group attributes to update category badges
+        _groupedAttributes =
+            MockVehicleConditionsService.groupByCategory(_attributes);
+      }
+    });
+
+    // Sync with provider state (maintains compatibility with existing flow)
+    _updateProviderValue(attributeId, newValue, provider);
+  }
+
+  /// Autofill helper for dev mode
   void _autofillForm() {
     Step5AutofillHelper.autofill(context, _mileageController);
   }
+
+  /// Handles "Next" button press
+  /// Validates form and navigates to next step
+  void _onNextPressed() {
+    final provider = context.read<ListingProvider>();
+
+    if (_formKey.currentState!.validate() && provider.validateStep5()) {
+      // Show success toast confirming changes saved
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle, color: Colors.white),
+              const SizedBox(width: 12),
+              const Text('Vehicle condition saved successfully'),
+            ],
+          ),
+          backgroundColor: Colors.green.shade700,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+      // Navigate to next step (preserves existing flow)
+      context.push('/listing/create/step6');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select condition and enter mileage'),
+        ),
+      );
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // UI: BUILD METHOD
+  // ═══════════════════════════════════════════════════════════════════════════
 
   @override
   Widget build(BuildContext context) {
@@ -72,12 +306,14 @@ class _CreateListingStep5ConditionState
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            // Progress indicator
             LinearProgressIndicator(
               value: 5 / 9,
               backgroundColor: Colors.grey[200],
             ),
             const SizedBox(height: 24),
 
+            // Step header
             Text(
               'Step 5 of 9',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -94,7 +330,9 @@ class _CreateListingStep5ConditionState
             ),
             const SizedBox(height: 24),
 
-            // CONDITION SELECTION
+            // ═══════════════════════════════════════════════════════════════
+            // OVERALL CONDITION SELECTION (UNCHANGED)
+            // ═══════════════════════════════════════════════════════════════
             Text(
               'Overall Condition *',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -123,9 +361,7 @@ class _CreateListingStep5ConditionState
                         padding: const EdgeInsets.all(16),
                         child: Row(
                           children: [
-                            Radio<CarCondition>(
-                              value: condition,
-                            ),
+                            Radio<CarCondition>(value: condition),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
@@ -163,7 +399,9 @@ class _CreateListingStep5ConditionState
             ),
             const SizedBox(height: 24),
 
-            // MILEAGE
+            // ═══════════════════════════════════════════════════════════════
+            // MILEAGE & OWNERS (UNCHANGED)
+            // ═══════════════════════════════════════════════════════════════
             CustomTextField(
               controller: _mileageController,
               labelText: 'Mileage (km) *',
@@ -192,7 +430,12 @@ class _CreateListingStep5ConditionState
             ),
             const SizedBox(height: 24),
 
-            // HISTORY FLAGS
+            // ═══════════════════════════════════════════════════════════════
+            // DYNAMIC VEHICLE HISTORY SECTION
+            // Replaces hardcoded SwitchListTiles with dynamic rendering
+            // ═══════════════════════════════════════════════════════════════
+
+            // Section header
             Text(
               'Vehicle History',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -201,107 +444,21 @@ class _CreateListingStep5ConditionState
             ),
             const SizedBox(height: 8),
 
-            SwitchListTile(
-              title: const Text('Complete Service History'),
-              subtitle: const Text('All maintenance records available'),
-              value: provider.serviceHistoryComplete,
-              onChanged: provider.setServiceHistoryComplete,
-              contentPadding: EdgeInsets.zero,
-            ),
-            const Divider(),
-
-            SwitchListTile(
-              title: const Text('Has Accident History'),
-              subtitle: const Text('Vehicle has been involved in an accident'),
-              value: provider.hasAccidentHistory,
-              onChanged: provider.setHasAccidentHistory,
-              contentPadding: EdgeInsets.zero,
-            ),
-            const Divider(),
-
-            SwitchListTile(
-              title: const Text('Flood Damage'),
-              subtitle: const Text('Vehicle has flood/water damage'),
-              value: provider.floodDamage,
-              onChanged: provider.setFloodDamage,
-              contentPadding: EdgeInsets.zero,
-            ),
-            const Divider(),
-
-            SwitchListTile(
-              title: const Text('Fire Damage'),
-              subtitle: const Text('Vehicle has fire damage'),
-              value: provider.fireDamage,
-              onChanged: provider.setFireDamage,
-              contentPadding: EdgeInsets.zero,
-            ),
-            const Divider(),
-
-            SwitchListTile(
-              title: const Text('Structural/Frame Damage'),
-              subtitle: const Text('Chassis or frame has been repaired or damaged'),
-              value: provider.frameDamage,
-              onChanged: provider.setFrameDamage,
-              contentPadding: EdgeInsets.zero,
-            ),
-            const Divider(),
-
-            SwitchListTile(
-              title: const Text('Repainted'),
-              subtitle: const Text('Vehicle has been repainted (full or partial)'),
-              value: provider.isRepainted,
-              onChanged: provider.setIsRepainted,
-              contentPadding: EdgeInsets.zero,
-            ),
-            const Divider(),
-
-            SwitchListTile(
-              title: const Text('Modified/Aftermarket Parts'),
-              subtitle: const Text('Has performance or cosmetic modifications'),
-              value: provider.hasModifications,
-              onChanged: provider.setHasModifications,
-              contentPadding: EdgeInsets.zero,
-            ),
-            const Divider(),
-
-            SwitchListTile(
-              title: const Text('Original Parts'),
-              subtitle: const Text('All major parts are original from manufacturer'),
-              value: provider.originalParts,
-              onChanged: provider.setOriginalParts,
-              contentPadding: EdgeInsets.zero,
-            ),
-            const Divider(),
-
-            SwitchListTile(
-              title: const Text('Taxi/Rental/Fleet Use'),
-              subtitle: const Text('Previously used as taxi, rental, or fleet vehicle'),
-              value: provider.commercialUse,
-              onChanged: provider.setCommercialUse,
-              contentPadding: EdgeInsets.zero,
-            ),
-            const Divider(),
-
-            SwitchListTile(
-              title: const Text('Smoker Vehicle'),
-              subtitle: const Text('Vehicle was regularly smoked in'),
-              value: provider.smokerVehicle,
-              onChanged: provider.setSmokerVehicle,
-              contentPadding: EdgeInsets.zero,
-            ),
-            const Divider(),
-
-            SwitchListTile(
-              title: const Text('Warranty Remaining'),
-              subtitle: const Text('Factory or extended warranty still active'),
-              value: provider.warrantyRemaining,
-              onChanged: provider.setWarrantyRemaining,
-              contentPadding: EdgeInsets.zero,
-            ),
+            // Loading state: Show shimmer/spinner while fetching
+            if (_isLoading)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(32),
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            // Data loaded: Render categorized toggles dynamically
+            else
+              ..._buildCategorySections(),
 
             const SizedBox(height: 24),
 
-            // Info box
+            // Info box (unchanged)
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -330,6 +487,8 @@ class _CreateListingStep5ConditionState
           ],
         ),
       ),
+
+      // Bottom navigation (unchanged - preserves existing flow)
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -346,18 +505,7 @@ class _CreateListingStep5ConditionState
                 flex: 2,
                 child: CustomButton(
                   text: 'Next',
-                  onPressed: () {
-                    if (_formKey.currentState!.validate() &&
-                        provider.validateStep5()) {
-                      context.push('/listing/create/step6');
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Please select condition and enter mileage'),
-                        ),
-                      );
-                    }
-                  },
+                  onPressed: _onNextPressed,
                 ),
               ),
             ],
@@ -365,5 +513,49 @@ class _CreateListingStep5ConditionState
         ),
       ),
     );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // UI HELPERS: DYNAMIC SECTION RENDERING
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Builds category sections dynamically from grouped attributes
+  /// This is where the magic happens: new categories/attributes auto-render!
+  List<Widget> _buildCategorySections() {
+    final sections = <Widget>[];
+
+    // Iterate through categories in defined order
+    for (final category in VehicleConditionCategory.allCategories) {
+      final attributes = _groupedAttributes[category];
+
+      // Skip empty categories
+      if (attributes == null || attributes.isEmpty) continue;
+
+      // Render category section with all its toggles
+      sections.add(
+        ConditionCategorySection(
+          categoryName: category,
+          attributes: attributes,
+          onAttributeChanged: _onAttributeChanged,
+        ),
+      );
+    }
+
+    // If no sections rendered, show empty state
+    if (sections.isEmpty) {
+      return [
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Text(
+              'No condition attributes available',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          ),
+        ),
+      ];
+    }
+
+    return sections;
   }
 }
