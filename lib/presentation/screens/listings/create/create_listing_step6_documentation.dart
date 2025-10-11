@@ -233,69 +233,6 @@ class _CreateListingStep6DocumentationState
               validator: (value) =>
                   value == null ? 'Please select city' : null,
             ),
-            const SizedBox(height: 24),
-
-            // AVAILABILITY SECTION
-            Text(
-              'Availability Options',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 8),
-
-            SwitchListTile(
-              title: const Text('Available for Test Drive'),
-              subtitle: const Text('Allow buyers to test drive before bidding'),
-              value: provider.availableForTestDrive,
-              onChanged: provider.setAvailableForTestDrive,
-              contentPadding: EdgeInsets.zero,
-            ),
-            const Divider(),
-
-            SwitchListTile(
-              title: const Text('Delivery Available'),
-              subtitle: const Text('Can deliver vehicle to buyer'),
-              value: provider.deliveryAvailable,
-              onChanged: provider.setDeliveryAvailable,
-              contentPadding: EdgeInsets.zero,
-            ),
-            const SizedBox(height: 24),
-
-            // SELLER PREFERENCES SECTION
-            Text(
-              'Seller Preferences',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 8),
-
-            SwitchListTile(
-              title: const Text('Accepts Trade-In'),
-              subtitle: const Text('Open to trade-in offers'),
-              value: provider.acceptsTrade,
-              onChanged: provider.setAcceptsTrade,
-              contentPadding: EdgeInsets.zero,
-            ),
-            const Divider(),
-
-            SwitchListTile(
-              title: const Text('Financing Available'),
-              subtitle: const Text('Financing options available'),
-              value: provider.financingAvailable,
-              onChanged: provider.setFinancingAvailable,
-              contentPadding: EdgeInsets.zero,
-            ),
-            const Divider(),
-
-            SwitchListTile(
-              title: const Text('Price Negotiable'),
-              subtitle: const Text('Open to price negotiation'),
-              value: provider.priceNegotiable,
-              onChanged: provider.setPriceNegotiable,
-              contentPadding: EdgeInsets.zero,
-            ),
           ],
         ),
       ),
