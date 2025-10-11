@@ -30,6 +30,7 @@ import '../../presentation/screens/listings/create/create_listing_step5_conditio
 import '../../presentation/screens/listings/create/create_listing_step6_documentation.dart';
 import '../../presentation/screens/listings/create/create_listing_step7_photos.dart';
 import '../../presentation/screens/listings/create/create_listing_step8_review.dart';
+import '../../presentation/screens/listings/create/create_listing_step9_summary.dart';
 import '../../presentation/screens/listings/create/listing_success_screen.dart';
 import '../../presentation/screens/browse/browse_cars_screen.dart';
 import '../../presentation/screens/browse/search_screen.dart';
@@ -307,7 +308,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'notifications',
         builder: (context, state) => const NotificationsScreen(),
       ),
-      // Listings Routes (8 Steps)
+      // Listings Routes (9 Steps)
       GoRoute(
         path: '/listing/create/step1',
         name: 'create-listing-step1',
@@ -347,6 +348,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/listing/create/step8',
         name: 'create-listing-step8',
         builder: (context, state) => const CreateListingStep8Review(),
+      ),
+      GoRoute(
+        path: '/listing/create/step9',
+        name: 'create-listing-step9',
+        builder: (context, state) => const CreateListingStep9Summary(),
       ),
       GoRoute(
         path: '/listing/create/success',
