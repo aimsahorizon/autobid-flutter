@@ -69,13 +69,13 @@ class _CreateListingStep5ConditionState
           padding: const EdgeInsets.all(16),
           children: [
             LinearProgressIndicator(
-              value: 5 / 8,
+              value: 5 / 9,
               backgroundColor: Colors.grey[200],
             ),
             const SizedBox(height: 24),
 
             Text(
-              'Step 5 of 8',
+              'Step 5 of 9',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.grey[600],
                   ),
