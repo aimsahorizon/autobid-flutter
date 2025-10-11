@@ -147,11 +147,32 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
             const SizedBox(height: 24),
 
             // FEATURES SECTION
-            Text(
-              'Features',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Features',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.green.shade200),
                   ),
+                  child: Text(
+                    '${provider.features.length} selected',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green.shade700,
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             Text(
@@ -162,18 +183,78 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
             ),
             const SizedBox(height: 12),
 
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: CarFeatures.standardFeatures.map((feature) {
-                final isSelected = provider.features.contains(feature);
-                return FilterChip(
-                  label: Text(feature),
-                  selected: isSelected,
-                  onSelected: (_) => provider.toggleFeature(feature),
-                );
-              }).toList(),
-            ),
+            // Categorized features with expansion tiles
+            ...CarFeatures.categories.map((category) {
+              final categoryFeatures = CarFeatures.getFeaturesForCategory(category);
+              final selectedCount = categoryFeatures
+                  .where((f) => provider.features.contains(f))
+                  .length;
+
+              return Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                child: Theme(
+                  data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                  child: ExpansionTile(
+                    initiallyExpanded: selectedCount > 0,
+                    title: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            category,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        if (selectedCount > 0)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.green.shade50,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.green.shade200),
+                            ),
+                            child: Text(
+                              '$selectedCount/${categoryFeatures.length}',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green.shade700,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: categoryFeatures.map((feature) {
+                            final isSelected = provider.features.contains(feature);
+                            return FilterChip(
+                              label: Text(
+                                feature,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                              selected: isSelected,
+                              onSelected: (_) => provider.toggleFeature(feature),
+                              selectedColor: Colors.green.shade100,
+                              checkmarkColor: Colors.green.shade700,
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
           ],
         ),
       ),
