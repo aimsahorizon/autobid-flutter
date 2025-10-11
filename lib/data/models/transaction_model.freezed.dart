@@ -17,7 +17,22 @@ mixin _$Transaction {
 
  String get id; String get auctionId; String get carId; String get buyerId; String get sellerId; String get buyerName; String get sellerName; String get carTitle; double get amount; double get platformFee; double get totalAmount; EscrowStatus get escrowStatus; PaymentMethodType? get paymentMethod; String? get paymentReference; String? get paymentProof; DateTime get createdAt; DateTime? get paidAt; DateTime? get releasedAt; DateTime? get completedAt; List<TransactionTimeline> get timeline;// Transfer validation
  String? get transferEvidenceId; DateTime? get evidenceSubmittedAt; DateTime? get validationCompletedAt;// Dispute/Refund
- String? get disputeId; DateTime? get disputedAt; DateTime? get refundedAt;
+ String? get disputeId; DateTime? get disputedAt; DateTime? get refundedAt;// ===== EXTENDED: Detailed Fee Breakdown =====
+// These fields provide transparency on platform fees:
+// - Listing fee: Fixed fee charged when auction was created
+// - Transaction fee: Percentage-based fee on final sale price
+// - Fee rate & tier: Which pricing tier was applied
+/// Listing fee charged to seller when auction was created (PHP 300-500)
+/// Separate from transaction fee, covers listing operational costs
+ double get listingFee;/// Transaction fee rate applied (e.g., 0.05 = 5%, 0.04 = 4%, 0.03 = 3%)
+/// Varies by price tier: Economy (5%), Mid-Range (4%), Premium (3%)
+ double get transactionFeeRate;/// Calculated transaction fee amount (salePrice * transactionFeeRate)
+/// This is the escrow handling fee deducted from seller's proceeds
+ double get transactionFee;/// Price tier used for fee calculation
+/// Determines which transaction fee rate applies
+ PriceTier? get priceTier;/// Amount seller receives after all fees deducted
+/// Formula: amount - listingFee - transactionFee
+ double get sellerPayout;
 /// Create a copy of Transaction
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,16 +45,16 @@ $TransactionCopyWith<Transaction> get copyWith => _$TransactionCopyWithImpl<Tran
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Transaction&&(identical(other.id, id) || other.id == id)&&(identical(other.auctionId, auctionId) || other.auctionId == auctionId)&&(identical(other.carId, carId) || other.carId == carId)&&(identical(other.buyerId, buyerId) || other.buyerId == buyerId)&&(identical(other.sellerId, sellerId) || other.sellerId == sellerId)&&(identical(other.buyerName, buyerName) || other.buyerName == buyerName)&&(identical(other.sellerName, sellerName) || other.sellerName == sellerName)&&(identical(other.carTitle, carTitle) || other.carTitle == carTitle)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.platformFee, platformFee) || other.platformFee == platformFee)&&(identical(other.totalAmount, totalAmount) || other.totalAmount == totalAmount)&&(identical(other.escrowStatus, escrowStatus) || other.escrowStatus == escrowStatus)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.paymentReference, paymentReference) || other.paymentReference == paymentReference)&&(identical(other.paymentProof, paymentProof) || other.paymentProof == paymentProof)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.paidAt, paidAt) || other.paidAt == paidAt)&&(identical(other.releasedAt, releasedAt) || other.releasedAt == releasedAt)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt)&&const DeepCollectionEquality().equals(other.timeline, timeline)&&(identical(other.transferEvidenceId, transferEvidenceId) || other.transferEvidenceId == transferEvidenceId)&&(identical(other.evidenceSubmittedAt, evidenceSubmittedAt) || other.evidenceSubmittedAt == evidenceSubmittedAt)&&(identical(other.validationCompletedAt, validationCompletedAt) || other.validationCompletedAt == validationCompletedAt)&&(identical(other.disputeId, disputeId) || other.disputeId == disputeId)&&(identical(other.disputedAt, disputedAt) || other.disputedAt == disputedAt)&&(identical(other.refundedAt, refundedAt) || other.refundedAt == refundedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Transaction&&(identical(other.id, id) || other.id == id)&&(identical(other.auctionId, auctionId) || other.auctionId == auctionId)&&(identical(other.carId, carId) || other.carId == carId)&&(identical(other.buyerId, buyerId) || other.buyerId == buyerId)&&(identical(other.sellerId, sellerId) || other.sellerId == sellerId)&&(identical(other.buyerName, buyerName) || other.buyerName == buyerName)&&(identical(other.sellerName, sellerName) || other.sellerName == sellerName)&&(identical(other.carTitle, carTitle) || other.carTitle == carTitle)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.platformFee, platformFee) || other.platformFee == platformFee)&&(identical(other.totalAmount, totalAmount) || other.totalAmount == totalAmount)&&(identical(other.escrowStatus, escrowStatus) || other.escrowStatus == escrowStatus)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.paymentReference, paymentReference) || other.paymentReference == paymentReference)&&(identical(other.paymentProof, paymentProof) || other.paymentProof == paymentProof)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.paidAt, paidAt) || other.paidAt == paidAt)&&(identical(other.releasedAt, releasedAt) || other.releasedAt == releasedAt)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt)&&const DeepCollectionEquality().equals(other.timeline, timeline)&&(identical(other.transferEvidenceId, transferEvidenceId) || other.transferEvidenceId == transferEvidenceId)&&(identical(other.evidenceSubmittedAt, evidenceSubmittedAt) || other.evidenceSubmittedAt == evidenceSubmittedAt)&&(identical(other.validationCompletedAt, validationCompletedAt) || other.validationCompletedAt == validationCompletedAt)&&(identical(other.disputeId, disputeId) || other.disputeId == disputeId)&&(identical(other.disputedAt, disputedAt) || other.disputedAt == disputedAt)&&(identical(other.refundedAt, refundedAt) || other.refundedAt == refundedAt)&&(identical(other.listingFee, listingFee) || other.listingFee == listingFee)&&(identical(other.transactionFeeRate, transactionFeeRate) || other.transactionFeeRate == transactionFeeRate)&&(identical(other.transactionFee, transactionFee) || other.transactionFee == transactionFee)&&(identical(other.priceTier, priceTier) || other.priceTier == priceTier)&&(identical(other.sellerPayout, sellerPayout) || other.sellerPayout == sellerPayout));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,auctionId,carId,buyerId,sellerId,buyerName,sellerName,carTitle,amount,platformFee,totalAmount,escrowStatus,paymentMethod,paymentReference,paymentProof,createdAt,paidAt,releasedAt,completedAt,const DeepCollectionEquality().hash(timeline),transferEvidenceId,evidenceSubmittedAt,validationCompletedAt,disputeId,disputedAt,refundedAt]);
+int get hashCode => Object.hashAll([runtimeType,id,auctionId,carId,buyerId,sellerId,buyerName,sellerName,carTitle,amount,platformFee,totalAmount,escrowStatus,paymentMethod,paymentReference,paymentProof,createdAt,paidAt,releasedAt,completedAt,const DeepCollectionEquality().hash(timeline),transferEvidenceId,evidenceSubmittedAt,validationCompletedAt,disputeId,disputedAt,refundedAt,listingFee,transactionFeeRate,transactionFee,priceTier,sellerPayout]);
 
 @override
 String toString() {
-  return 'Transaction(id: $id, auctionId: $auctionId, carId: $carId, buyerId: $buyerId, sellerId: $sellerId, buyerName: $buyerName, sellerName: $sellerName, carTitle: $carTitle, amount: $amount, platformFee: $platformFee, totalAmount: $totalAmount, escrowStatus: $escrowStatus, paymentMethod: $paymentMethod, paymentReference: $paymentReference, paymentProof: $paymentProof, createdAt: $createdAt, paidAt: $paidAt, releasedAt: $releasedAt, completedAt: $completedAt, timeline: $timeline, transferEvidenceId: $transferEvidenceId, evidenceSubmittedAt: $evidenceSubmittedAt, validationCompletedAt: $validationCompletedAt, disputeId: $disputeId, disputedAt: $disputedAt, refundedAt: $refundedAt)';
+  return 'Transaction(id: $id, auctionId: $auctionId, carId: $carId, buyerId: $buyerId, sellerId: $sellerId, buyerName: $buyerName, sellerName: $sellerName, carTitle: $carTitle, amount: $amount, platformFee: $platformFee, totalAmount: $totalAmount, escrowStatus: $escrowStatus, paymentMethod: $paymentMethod, paymentReference: $paymentReference, paymentProof: $paymentProof, createdAt: $createdAt, paidAt: $paidAt, releasedAt: $releasedAt, completedAt: $completedAt, timeline: $timeline, transferEvidenceId: $transferEvidenceId, evidenceSubmittedAt: $evidenceSubmittedAt, validationCompletedAt: $validationCompletedAt, disputeId: $disputeId, disputedAt: $disputedAt, refundedAt: $refundedAt, listingFee: $listingFee, transactionFeeRate: $transactionFeeRate, transactionFee: $transactionFee, priceTier: $priceTier, sellerPayout: $sellerPayout)';
 }
 
 
@@ -50,7 +65,7 @@ abstract mixin class $TransactionCopyWith<$Res>  {
   factory $TransactionCopyWith(Transaction value, $Res Function(Transaction) _then) = _$TransactionCopyWithImpl;
 @useResult
 $Res call({
- String id, String auctionId, String carId, String buyerId, String sellerId, String buyerName, String sellerName, String carTitle, double amount, double platformFee, double totalAmount, EscrowStatus escrowStatus, PaymentMethodType? paymentMethod, String? paymentReference, String? paymentProof, DateTime createdAt, DateTime? paidAt, DateTime? releasedAt, DateTime? completedAt, List<TransactionTimeline> timeline, String? transferEvidenceId, DateTime? evidenceSubmittedAt, DateTime? validationCompletedAt, String? disputeId, DateTime? disputedAt, DateTime? refundedAt
+ String id, String auctionId, String carId, String buyerId, String sellerId, String buyerName, String sellerName, String carTitle, double amount, double platformFee, double totalAmount, EscrowStatus escrowStatus, PaymentMethodType? paymentMethod, String? paymentReference, String? paymentProof, DateTime createdAt, DateTime? paidAt, DateTime? releasedAt, DateTime? completedAt, List<TransactionTimeline> timeline, String? transferEvidenceId, DateTime? evidenceSubmittedAt, DateTime? validationCompletedAt, String? disputeId, DateTime? disputedAt, DateTime? refundedAt, double listingFee, double transactionFeeRate, double transactionFee, PriceTier? priceTier, double sellerPayout
 });
 
 
@@ -67,7 +82,7 @@ class _$TransactionCopyWithImpl<$Res>
 
 /// Create a copy of Transaction
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? auctionId = null,Object? carId = null,Object? buyerId = null,Object? sellerId = null,Object? buyerName = null,Object? sellerName = null,Object? carTitle = null,Object? amount = null,Object? platformFee = null,Object? totalAmount = null,Object? escrowStatus = null,Object? paymentMethod = freezed,Object? paymentReference = freezed,Object? paymentProof = freezed,Object? createdAt = null,Object? paidAt = freezed,Object? releasedAt = freezed,Object? completedAt = freezed,Object? timeline = null,Object? transferEvidenceId = freezed,Object? evidenceSubmittedAt = freezed,Object? validationCompletedAt = freezed,Object? disputeId = freezed,Object? disputedAt = freezed,Object? refundedAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? auctionId = null,Object? carId = null,Object? buyerId = null,Object? sellerId = null,Object? buyerName = null,Object? sellerName = null,Object? carTitle = null,Object? amount = null,Object? platformFee = null,Object? totalAmount = null,Object? escrowStatus = null,Object? paymentMethod = freezed,Object? paymentReference = freezed,Object? paymentProof = freezed,Object? createdAt = null,Object? paidAt = freezed,Object? releasedAt = freezed,Object? completedAt = freezed,Object? timeline = null,Object? transferEvidenceId = freezed,Object? evidenceSubmittedAt = freezed,Object? validationCompletedAt = freezed,Object? disputeId = freezed,Object? disputedAt = freezed,Object? refundedAt = freezed,Object? listingFee = null,Object? transactionFeeRate = null,Object? transactionFee = null,Object? priceTier = freezed,Object? sellerPayout = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,auctionId: null == auctionId ? _self.auctionId : auctionId // ignore: cast_nullable_to_non_nullable
@@ -95,7 +110,12 @@ as DateTime?,validationCompletedAt: freezed == validationCompletedAt ? _self.val
 as DateTime?,disputeId: freezed == disputeId ? _self.disputeId : disputeId // ignore: cast_nullable_to_non_nullable
 as String?,disputedAt: freezed == disputedAt ? _self.disputedAt : disputedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,refundedAt: freezed == refundedAt ? _self.refundedAt : refundedAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,listingFee: null == listingFee ? _self.listingFee : listingFee // ignore: cast_nullable_to_non_nullable
+as double,transactionFeeRate: null == transactionFeeRate ? _self.transactionFeeRate : transactionFeeRate // ignore: cast_nullable_to_non_nullable
+as double,transactionFee: null == transactionFee ? _self.transactionFee : transactionFee // ignore: cast_nullable_to_non_nullable
+as double,priceTier: freezed == priceTier ? _self.priceTier : priceTier // ignore: cast_nullable_to_non_nullable
+as PriceTier?,sellerPayout: null == sellerPayout ? _self.sellerPayout : sellerPayout // ignore: cast_nullable_to_non_nullable
+as double,
   ));
 }
 
@@ -180,10 +200,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String auctionId,  String carId,  String buyerId,  String sellerId,  String buyerName,  String sellerName,  String carTitle,  double amount,  double platformFee,  double totalAmount,  EscrowStatus escrowStatus,  PaymentMethodType? paymentMethod,  String? paymentReference,  String? paymentProof,  DateTime createdAt,  DateTime? paidAt,  DateTime? releasedAt,  DateTime? completedAt,  List<TransactionTimeline> timeline,  String? transferEvidenceId,  DateTime? evidenceSubmittedAt,  DateTime? validationCompletedAt,  String? disputeId,  DateTime? disputedAt,  DateTime? refundedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String auctionId,  String carId,  String buyerId,  String sellerId,  String buyerName,  String sellerName,  String carTitle,  double amount,  double platformFee,  double totalAmount,  EscrowStatus escrowStatus,  PaymentMethodType? paymentMethod,  String? paymentReference,  String? paymentProof,  DateTime createdAt,  DateTime? paidAt,  DateTime? releasedAt,  DateTime? completedAt,  List<TransactionTimeline> timeline,  String? transferEvidenceId,  DateTime? evidenceSubmittedAt,  DateTime? validationCompletedAt,  String? disputeId,  DateTime? disputedAt,  DateTime? refundedAt,  double listingFee,  double transactionFeeRate,  double transactionFee,  PriceTier? priceTier,  double sellerPayout)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Transaction() when $default != null:
-return $default(_that.id,_that.auctionId,_that.carId,_that.buyerId,_that.sellerId,_that.buyerName,_that.sellerName,_that.carTitle,_that.amount,_that.platformFee,_that.totalAmount,_that.escrowStatus,_that.paymentMethod,_that.paymentReference,_that.paymentProof,_that.createdAt,_that.paidAt,_that.releasedAt,_that.completedAt,_that.timeline,_that.transferEvidenceId,_that.evidenceSubmittedAt,_that.validationCompletedAt,_that.disputeId,_that.disputedAt,_that.refundedAt);case _:
+return $default(_that.id,_that.auctionId,_that.carId,_that.buyerId,_that.sellerId,_that.buyerName,_that.sellerName,_that.carTitle,_that.amount,_that.platformFee,_that.totalAmount,_that.escrowStatus,_that.paymentMethod,_that.paymentReference,_that.paymentProof,_that.createdAt,_that.paidAt,_that.releasedAt,_that.completedAt,_that.timeline,_that.transferEvidenceId,_that.evidenceSubmittedAt,_that.validationCompletedAt,_that.disputeId,_that.disputedAt,_that.refundedAt,_that.listingFee,_that.transactionFeeRate,_that.transactionFee,_that.priceTier,_that.sellerPayout);case _:
   return orElse();
 
 }
@@ -201,10 +221,10 @@ return $default(_that.id,_that.auctionId,_that.carId,_that.buyerId,_that.sellerI
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String auctionId,  String carId,  String buyerId,  String sellerId,  String buyerName,  String sellerName,  String carTitle,  double amount,  double platformFee,  double totalAmount,  EscrowStatus escrowStatus,  PaymentMethodType? paymentMethod,  String? paymentReference,  String? paymentProof,  DateTime createdAt,  DateTime? paidAt,  DateTime? releasedAt,  DateTime? completedAt,  List<TransactionTimeline> timeline,  String? transferEvidenceId,  DateTime? evidenceSubmittedAt,  DateTime? validationCompletedAt,  String? disputeId,  DateTime? disputedAt,  DateTime? refundedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String auctionId,  String carId,  String buyerId,  String sellerId,  String buyerName,  String sellerName,  String carTitle,  double amount,  double platformFee,  double totalAmount,  EscrowStatus escrowStatus,  PaymentMethodType? paymentMethod,  String? paymentReference,  String? paymentProof,  DateTime createdAt,  DateTime? paidAt,  DateTime? releasedAt,  DateTime? completedAt,  List<TransactionTimeline> timeline,  String? transferEvidenceId,  DateTime? evidenceSubmittedAt,  DateTime? validationCompletedAt,  String? disputeId,  DateTime? disputedAt,  DateTime? refundedAt,  double listingFee,  double transactionFeeRate,  double transactionFee,  PriceTier? priceTier,  double sellerPayout)  $default,) {final _that = this;
 switch (_that) {
 case _Transaction():
-return $default(_that.id,_that.auctionId,_that.carId,_that.buyerId,_that.sellerId,_that.buyerName,_that.sellerName,_that.carTitle,_that.amount,_that.platformFee,_that.totalAmount,_that.escrowStatus,_that.paymentMethod,_that.paymentReference,_that.paymentProof,_that.createdAt,_that.paidAt,_that.releasedAt,_that.completedAt,_that.timeline,_that.transferEvidenceId,_that.evidenceSubmittedAt,_that.validationCompletedAt,_that.disputeId,_that.disputedAt,_that.refundedAt);case _:
+return $default(_that.id,_that.auctionId,_that.carId,_that.buyerId,_that.sellerId,_that.buyerName,_that.sellerName,_that.carTitle,_that.amount,_that.platformFee,_that.totalAmount,_that.escrowStatus,_that.paymentMethod,_that.paymentReference,_that.paymentProof,_that.createdAt,_that.paidAt,_that.releasedAt,_that.completedAt,_that.timeline,_that.transferEvidenceId,_that.evidenceSubmittedAt,_that.validationCompletedAt,_that.disputeId,_that.disputedAt,_that.refundedAt,_that.listingFee,_that.transactionFeeRate,_that.transactionFee,_that.priceTier,_that.sellerPayout);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -221,10 +241,10 @@ return $default(_that.id,_that.auctionId,_that.carId,_that.buyerId,_that.sellerI
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String auctionId,  String carId,  String buyerId,  String sellerId,  String buyerName,  String sellerName,  String carTitle,  double amount,  double platformFee,  double totalAmount,  EscrowStatus escrowStatus,  PaymentMethodType? paymentMethod,  String? paymentReference,  String? paymentProof,  DateTime createdAt,  DateTime? paidAt,  DateTime? releasedAt,  DateTime? completedAt,  List<TransactionTimeline> timeline,  String? transferEvidenceId,  DateTime? evidenceSubmittedAt,  DateTime? validationCompletedAt,  String? disputeId,  DateTime? disputedAt,  DateTime? refundedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String auctionId,  String carId,  String buyerId,  String sellerId,  String buyerName,  String sellerName,  String carTitle,  double amount,  double platformFee,  double totalAmount,  EscrowStatus escrowStatus,  PaymentMethodType? paymentMethod,  String? paymentReference,  String? paymentProof,  DateTime createdAt,  DateTime? paidAt,  DateTime? releasedAt,  DateTime? completedAt,  List<TransactionTimeline> timeline,  String? transferEvidenceId,  DateTime? evidenceSubmittedAt,  DateTime? validationCompletedAt,  String? disputeId,  DateTime? disputedAt,  DateTime? refundedAt,  double listingFee,  double transactionFeeRate,  double transactionFee,  PriceTier? priceTier,  double sellerPayout)?  $default,) {final _that = this;
 switch (_that) {
 case _Transaction() when $default != null:
-return $default(_that.id,_that.auctionId,_that.carId,_that.buyerId,_that.sellerId,_that.buyerName,_that.sellerName,_that.carTitle,_that.amount,_that.platformFee,_that.totalAmount,_that.escrowStatus,_that.paymentMethod,_that.paymentReference,_that.paymentProof,_that.createdAt,_that.paidAt,_that.releasedAt,_that.completedAt,_that.timeline,_that.transferEvidenceId,_that.evidenceSubmittedAt,_that.validationCompletedAt,_that.disputeId,_that.disputedAt,_that.refundedAt);case _:
+return $default(_that.id,_that.auctionId,_that.carId,_that.buyerId,_that.sellerId,_that.buyerName,_that.sellerName,_that.carTitle,_that.amount,_that.platformFee,_that.totalAmount,_that.escrowStatus,_that.paymentMethod,_that.paymentReference,_that.paymentProof,_that.createdAt,_that.paidAt,_that.releasedAt,_that.completedAt,_that.timeline,_that.transferEvidenceId,_that.evidenceSubmittedAt,_that.validationCompletedAt,_that.disputeId,_that.disputedAt,_that.refundedAt,_that.listingFee,_that.transactionFeeRate,_that.transactionFee,_that.priceTier,_that.sellerPayout);case _:
   return null;
 
 }
@@ -236,7 +256,7 @@ return $default(_that.id,_that.auctionId,_that.carId,_that.buyerId,_that.sellerI
 @JsonSerializable()
 
 class _Transaction implements Transaction {
-  const _Transaction({required this.id, required this.auctionId, required this.carId, required this.buyerId, required this.sellerId, required this.buyerName, required this.sellerName, required this.carTitle, required this.amount, required this.platformFee, required this.totalAmount, required this.escrowStatus, this.paymentMethod, this.paymentReference, this.paymentProof, required this.createdAt, this.paidAt, this.releasedAt, this.completedAt, final  List<TransactionTimeline> timeline = const [], this.transferEvidenceId, this.evidenceSubmittedAt, this.validationCompletedAt, this.disputeId, this.disputedAt, this.refundedAt}): _timeline = timeline;
+  const _Transaction({required this.id, required this.auctionId, required this.carId, required this.buyerId, required this.sellerId, required this.buyerName, required this.sellerName, required this.carTitle, required this.amount, required this.platformFee, required this.totalAmount, required this.escrowStatus, this.paymentMethod, this.paymentReference, this.paymentProof, required this.createdAt, this.paidAt, this.releasedAt, this.completedAt, final  List<TransactionTimeline> timeline = const [], this.transferEvidenceId, this.evidenceSubmittedAt, this.validationCompletedAt, this.disputeId, this.disputedAt, this.refundedAt, this.listingFee = 0.0, this.transactionFeeRate = 0.0, this.transactionFee = 0.0, this.priceTier, this.sellerPayout = 0.0}): _timeline = timeline;
   factory _Transaction.fromJson(Map<String, dynamic> json) => _$TransactionFromJson(json);
 
 @override final  String id;
@@ -273,6 +293,26 @@ class _Transaction implements Transaction {
 @override final  String? disputeId;
 @override final  DateTime? disputedAt;
 @override final  DateTime? refundedAt;
+// ===== EXTENDED: Detailed Fee Breakdown =====
+// These fields provide transparency on platform fees:
+// - Listing fee: Fixed fee charged when auction was created
+// - Transaction fee: Percentage-based fee on final sale price
+// - Fee rate & tier: Which pricing tier was applied
+/// Listing fee charged to seller when auction was created (PHP 300-500)
+/// Separate from transaction fee, covers listing operational costs
+@override@JsonKey() final  double listingFee;
+/// Transaction fee rate applied (e.g., 0.05 = 5%, 0.04 = 4%, 0.03 = 3%)
+/// Varies by price tier: Economy (5%), Mid-Range (4%), Premium (3%)
+@override@JsonKey() final  double transactionFeeRate;
+/// Calculated transaction fee amount (salePrice * transactionFeeRate)
+/// This is the escrow handling fee deducted from seller's proceeds
+@override@JsonKey() final  double transactionFee;
+/// Price tier used for fee calculation
+/// Determines which transaction fee rate applies
+@override final  PriceTier? priceTier;
+/// Amount seller receives after all fees deducted
+/// Formula: amount - listingFee - transactionFee
+@override@JsonKey() final  double sellerPayout;
 
 /// Create a copy of Transaction
 /// with the given fields replaced by the non-null parameter values.
@@ -287,16 +327,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Transaction&&(identical(other.id, id) || other.id == id)&&(identical(other.auctionId, auctionId) || other.auctionId == auctionId)&&(identical(other.carId, carId) || other.carId == carId)&&(identical(other.buyerId, buyerId) || other.buyerId == buyerId)&&(identical(other.sellerId, sellerId) || other.sellerId == sellerId)&&(identical(other.buyerName, buyerName) || other.buyerName == buyerName)&&(identical(other.sellerName, sellerName) || other.sellerName == sellerName)&&(identical(other.carTitle, carTitle) || other.carTitle == carTitle)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.platformFee, platformFee) || other.platformFee == platformFee)&&(identical(other.totalAmount, totalAmount) || other.totalAmount == totalAmount)&&(identical(other.escrowStatus, escrowStatus) || other.escrowStatus == escrowStatus)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.paymentReference, paymentReference) || other.paymentReference == paymentReference)&&(identical(other.paymentProof, paymentProof) || other.paymentProof == paymentProof)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.paidAt, paidAt) || other.paidAt == paidAt)&&(identical(other.releasedAt, releasedAt) || other.releasedAt == releasedAt)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt)&&const DeepCollectionEquality().equals(other._timeline, _timeline)&&(identical(other.transferEvidenceId, transferEvidenceId) || other.transferEvidenceId == transferEvidenceId)&&(identical(other.evidenceSubmittedAt, evidenceSubmittedAt) || other.evidenceSubmittedAt == evidenceSubmittedAt)&&(identical(other.validationCompletedAt, validationCompletedAt) || other.validationCompletedAt == validationCompletedAt)&&(identical(other.disputeId, disputeId) || other.disputeId == disputeId)&&(identical(other.disputedAt, disputedAt) || other.disputedAt == disputedAt)&&(identical(other.refundedAt, refundedAt) || other.refundedAt == refundedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Transaction&&(identical(other.id, id) || other.id == id)&&(identical(other.auctionId, auctionId) || other.auctionId == auctionId)&&(identical(other.carId, carId) || other.carId == carId)&&(identical(other.buyerId, buyerId) || other.buyerId == buyerId)&&(identical(other.sellerId, sellerId) || other.sellerId == sellerId)&&(identical(other.buyerName, buyerName) || other.buyerName == buyerName)&&(identical(other.sellerName, sellerName) || other.sellerName == sellerName)&&(identical(other.carTitle, carTitle) || other.carTitle == carTitle)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.platformFee, platformFee) || other.platformFee == platformFee)&&(identical(other.totalAmount, totalAmount) || other.totalAmount == totalAmount)&&(identical(other.escrowStatus, escrowStatus) || other.escrowStatus == escrowStatus)&&(identical(other.paymentMethod, paymentMethod) || other.paymentMethod == paymentMethod)&&(identical(other.paymentReference, paymentReference) || other.paymentReference == paymentReference)&&(identical(other.paymentProof, paymentProof) || other.paymentProof == paymentProof)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.paidAt, paidAt) || other.paidAt == paidAt)&&(identical(other.releasedAt, releasedAt) || other.releasedAt == releasedAt)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt)&&const DeepCollectionEquality().equals(other._timeline, _timeline)&&(identical(other.transferEvidenceId, transferEvidenceId) || other.transferEvidenceId == transferEvidenceId)&&(identical(other.evidenceSubmittedAt, evidenceSubmittedAt) || other.evidenceSubmittedAt == evidenceSubmittedAt)&&(identical(other.validationCompletedAt, validationCompletedAt) || other.validationCompletedAt == validationCompletedAt)&&(identical(other.disputeId, disputeId) || other.disputeId == disputeId)&&(identical(other.disputedAt, disputedAt) || other.disputedAt == disputedAt)&&(identical(other.refundedAt, refundedAt) || other.refundedAt == refundedAt)&&(identical(other.listingFee, listingFee) || other.listingFee == listingFee)&&(identical(other.transactionFeeRate, transactionFeeRate) || other.transactionFeeRate == transactionFeeRate)&&(identical(other.transactionFee, transactionFee) || other.transactionFee == transactionFee)&&(identical(other.priceTier, priceTier) || other.priceTier == priceTier)&&(identical(other.sellerPayout, sellerPayout) || other.sellerPayout == sellerPayout));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,auctionId,carId,buyerId,sellerId,buyerName,sellerName,carTitle,amount,platformFee,totalAmount,escrowStatus,paymentMethod,paymentReference,paymentProof,createdAt,paidAt,releasedAt,completedAt,const DeepCollectionEquality().hash(_timeline),transferEvidenceId,evidenceSubmittedAt,validationCompletedAt,disputeId,disputedAt,refundedAt]);
+int get hashCode => Object.hashAll([runtimeType,id,auctionId,carId,buyerId,sellerId,buyerName,sellerName,carTitle,amount,platformFee,totalAmount,escrowStatus,paymentMethod,paymentReference,paymentProof,createdAt,paidAt,releasedAt,completedAt,const DeepCollectionEquality().hash(_timeline),transferEvidenceId,evidenceSubmittedAt,validationCompletedAt,disputeId,disputedAt,refundedAt,listingFee,transactionFeeRate,transactionFee,priceTier,sellerPayout]);
 
 @override
 String toString() {
-  return 'Transaction(id: $id, auctionId: $auctionId, carId: $carId, buyerId: $buyerId, sellerId: $sellerId, buyerName: $buyerName, sellerName: $sellerName, carTitle: $carTitle, amount: $amount, platformFee: $platformFee, totalAmount: $totalAmount, escrowStatus: $escrowStatus, paymentMethod: $paymentMethod, paymentReference: $paymentReference, paymentProof: $paymentProof, createdAt: $createdAt, paidAt: $paidAt, releasedAt: $releasedAt, completedAt: $completedAt, timeline: $timeline, transferEvidenceId: $transferEvidenceId, evidenceSubmittedAt: $evidenceSubmittedAt, validationCompletedAt: $validationCompletedAt, disputeId: $disputeId, disputedAt: $disputedAt, refundedAt: $refundedAt)';
+  return 'Transaction(id: $id, auctionId: $auctionId, carId: $carId, buyerId: $buyerId, sellerId: $sellerId, buyerName: $buyerName, sellerName: $sellerName, carTitle: $carTitle, amount: $amount, platformFee: $platformFee, totalAmount: $totalAmount, escrowStatus: $escrowStatus, paymentMethod: $paymentMethod, paymentReference: $paymentReference, paymentProof: $paymentProof, createdAt: $createdAt, paidAt: $paidAt, releasedAt: $releasedAt, completedAt: $completedAt, timeline: $timeline, transferEvidenceId: $transferEvidenceId, evidenceSubmittedAt: $evidenceSubmittedAt, validationCompletedAt: $validationCompletedAt, disputeId: $disputeId, disputedAt: $disputedAt, refundedAt: $refundedAt, listingFee: $listingFee, transactionFeeRate: $transactionFeeRate, transactionFee: $transactionFee, priceTier: $priceTier, sellerPayout: $sellerPayout)';
 }
 
 
@@ -307,7 +347,7 @@ abstract mixin class _$TransactionCopyWith<$Res> implements $TransactionCopyWith
   factory _$TransactionCopyWith(_Transaction value, $Res Function(_Transaction) _then) = __$TransactionCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String auctionId, String carId, String buyerId, String sellerId, String buyerName, String sellerName, String carTitle, double amount, double platformFee, double totalAmount, EscrowStatus escrowStatus, PaymentMethodType? paymentMethod, String? paymentReference, String? paymentProof, DateTime createdAt, DateTime? paidAt, DateTime? releasedAt, DateTime? completedAt, List<TransactionTimeline> timeline, String? transferEvidenceId, DateTime? evidenceSubmittedAt, DateTime? validationCompletedAt, String? disputeId, DateTime? disputedAt, DateTime? refundedAt
+ String id, String auctionId, String carId, String buyerId, String sellerId, String buyerName, String sellerName, String carTitle, double amount, double platformFee, double totalAmount, EscrowStatus escrowStatus, PaymentMethodType? paymentMethod, String? paymentReference, String? paymentProof, DateTime createdAt, DateTime? paidAt, DateTime? releasedAt, DateTime? completedAt, List<TransactionTimeline> timeline, String? transferEvidenceId, DateTime? evidenceSubmittedAt, DateTime? validationCompletedAt, String? disputeId, DateTime? disputedAt, DateTime? refundedAt, double listingFee, double transactionFeeRate, double transactionFee, PriceTier? priceTier, double sellerPayout
 });
 
 
@@ -324,7 +364,7 @@ class __$TransactionCopyWithImpl<$Res>
 
 /// Create a copy of Transaction
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? auctionId = null,Object? carId = null,Object? buyerId = null,Object? sellerId = null,Object? buyerName = null,Object? sellerName = null,Object? carTitle = null,Object? amount = null,Object? platformFee = null,Object? totalAmount = null,Object? escrowStatus = null,Object? paymentMethod = freezed,Object? paymentReference = freezed,Object? paymentProof = freezed,Object? createdAt = null,Object? paidAt = freezed,Object? releasedAt = freezed,Object? completedAt = freezed,Object? timeline = null,Object? transferEvidenceId = freezed,Object? evidenceSubmittedAt = freezed,Object? validationCompletedAt = freezed,Object? disputeId = freezed,Object? disputedAt = freezed,Object? refundedAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? auctionId = null,Object? carId = null,Object? buyerId = null,Object? sellerId = null,Object? buyerName = null,Object? sellerName = null,Object? carTitle = null,Object? amount = null,Object? platformFee = null,Object? totalAmount = null,Object? escrowStatus = null,Object? paymentMethod = freezed,Object? paymentReference = freezed,Object? paymentProof = freezed,Object? createdAt = null,Object? paidAt = freezed,Object? releasedAt = freezed,Object? completedAt = freezed,Object? timeline = null,Object? transferEvidenceId = freezed,Object? evidenceSubmittedAt = freezed,Object? validationCompletedAt = freezed,Object? disputeId = freezed,Object? disputedAt = freezed,Object? refundedAt = freezed,Object? listingFee = null,Object? transactionFeeRate = null,Object? transactionFee = null,Object? priceTier = freezed,Object? sellerPayout = null,}) {
   return _then(_Transaction(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,auctionId: null == auctionId ? _self.auctionId : auctionId // ignore: cast_nullable_to_non_nullable
@@ -352,7 +392,12 @@ as DateTime?,validationCompletedAt: freezed == validationCompletedAt ? _self.val
 as DateTime?,disputeId: freezed == disputeId ? _self.disputeId : disputeId // ignore: cast_nullable_to_non_nullable
 as String?,disputedAt: freezed == disputedAt ? _self.disputedAt : disputedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,refundedAt: freezed == refundedAt ? _self.refundedAt : refundedAt // ignore: cast_nullable_to_non_nullable
-as DateTime?,
+as DateTime?,listingFee: null == listingFee ? _self.listingFee : listingFee // ignore: cast_nullable_to_non_nullable
+as double,transactionFeeRate: null == transactionFeeRate ? _self.transactionFeeRate : transactionFeeRate // ignore: cast_nullable_to_non_nullable
+as double,transactionFee: null == transactionFee ? _self.transactionFee : transactionFee // ignore: cast_nullable_to_non_nullable
+as double,priceTier: freezed == priceTier ? _self.priceTier : priceTier // ignore: cast_nullable_to_non_nullable
+as PriceTier?,sellerPayout: null == sellerPayout ? _self.sellerPayout : sellerPayout // ignore: cast_nullable_to_non_nullable
+as double,
   ));
 }
 

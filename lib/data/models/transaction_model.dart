@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'transaction_timeline.dart';
+import 'pricing_config.dart';
 
 part 'transaction_model.freezed.dart';
 part 'transaction_model.g.dart';
@@ -67,6 +68,32 @@ abstract class Transaction with _$Transaction {
     String? disputeId,
     DateTime? disputedAt,
     DateTime? refundedAt,
+
+    // ===== EXTENDED: Detailed Fee Breakdown =====
+    // These fields provide transparency on platform fees:
+    // - Listing fee: Fixed fee charged when auction was created
+    // - Transaction fee: Percentage-based fee on final sale price
+    // - Fee rate & tier: Which pricing tier was applied
+
+    /// Listing fee charged to seller when auction was created (PHP 300-500)
+    /// Separate from transaction fee, covers listing operational costs
+    @Default(0.0) double listingFee,
+
+    /// Transaction fee rate applied (e.g., 0.05 = 5%, 0.04 = 4%, 0.03 = 3%)
+    /// Varies by price tier: Economy (5%), Mid-Range (4%), Premium (3%)
+    @Default(0.0) double transactionFeeRate,
+
+    /// Calculated transaction fee amount (salePrice * transactionFeeRate)
+    /// This is the escrow handling fee deducted from seller's proceeds
+    @Default(0.0) double transactionFee,
+
+    /// Price tier used for fee calculation
+    /// Determines which transaction fee rate applies
+    PriceTier? priceTier,
+
+    /// Amount seller receives after all fees deducted
+    /// Formula: amount - listingFee - transactionFee
+    @Default(0.0) double sellerPayout,
   }) = _Transaction;
 
   factory Transaction.fromJson(Map<String, dynamic> json) =>

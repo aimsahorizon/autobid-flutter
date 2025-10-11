@@ -7,6 +7,7 @@ import '../../models/car_model.dart';
 import '../../../core/constants/bid_increments.dart';
 import '../../../config/app_config.dart';
 import '../../../domain/repositories/auction_repository.dart';
+import '../../../domain/services/pricing_calculator.dart';
 
 class MockAuctionService implements AuctionRepository {
   static final MockAuctionService _instance = MockAuctionService._internal();
@@ -1101,8 +1102,16 @@ class MockAuctionService implements AuctionRepository {
     required int durationDays,
     double? buyNowPrice,
     CarModel? car,
+    double? customListingFee, // Optional custom fee, uses default if null
   }) {
     final now = DateTime.now();
+
+    // Calculate listing fee using the pricing calculator
+    // Industry standard: ₱300-500 per listing (similar to Copart, Manheim)
+    // Default is ₱400 as configured in PricingConfig
+    final listingFee = customListingFee ??
+        PricingCalculator.withDefaultConfig().calculateListingFee();
+
     final auction = Auction(
       id: 'auction_${_auctions.length}',
       carId: carId,
@@ -1119,6 +1128,10 @@ class MockAuctionService implements AuctionRepository {
       createdAt: now,
       updatedAt: now,
       car: car,
+      // ADDED: Listing fee fields
+      listingFee: listingFee,
+      listingFeePaid: true, // In demo, assume paid immediately
+      listingFeePaidAt: now, // Paid at creation time
     );
 
     _auctions.add(auction);
