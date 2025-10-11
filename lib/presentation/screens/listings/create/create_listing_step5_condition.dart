@@ -190,7 +190,7 @@ class _CreateListingStep5ConditionState
 
             // HISTORY FLAGS
             Text(
-              'History',
+              'Vehicle History',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -208,7 +208,7 @@ class _CreateListingStep5ConditionState
 
             SwitchListTile(
               title: const Text('Has Accident History'),
-              subtitle: const Text('Vehicle has been in an accident'),
+              subtitle: const Text('Vehicle has been involved in an accident'),
               value: provider.hasAccidentHistory,
               onChanged: provider.setHasAccidentHistory,
               contentPadding: EdgeInsets.zero,
@@ -220,6 +220,69 @@ class _CreateListingStep5ConditionState
               subtitle: const Text('Vehicle has flood/water damage'),
               value: provider.floodDamage,
               onChanged: provider.setFloodDamage,
+              contentPadding: EdgeInsets.zero,
+            ),
+            const Divider(),
+
+            SwitchListTile(
+              title: const Text('Fire Damage'),
+              subtitle: const Text('Vehicle has fire damage'),
+              value: provider.fireDamage,
+              onChanged: provider.setFireDamage,
+              contentPadding: EdgeInsets.zero,
+            ),
+            const Divider(),
+
+            SwitchListTile(
+              title: const Text('Structural/Frame Damage'),
+              subtitle: const Text('Chassis or frame has been repaired or damaged'),
+              value: provider.frameDamage,
+              onChanged: provider.setFrameDamage,
+              contentPadding: EdgeInsets.zero,
+            ),
+            const Divider(),
+
+            SwitchListTile(
+              title: const Text('Repainted'),
+              subtitle: const Text('Vehicle has been repainted (full or partial)'),
+              value: provider.isRepainted,
+              onChanged: provider.setIsRepainted,
+              contentPadding: EdgeInsets.zero,
+            ),
+            const Divider(),
+
+            SwitchListTile(
+              title: const Text('Modified/Aftermarket Parts'),
+              subtitle: const Text('Has performance or cosmetic modifications'),
+              value: provider.hasModifications,
+              onChanged: provider.setHasModifications,
+              contentPadding: EdgeInsets.zero,
+            ),
+            const Divider(),
+
+            SwitchListTile(
+              title: const Text('Original Parts'),
+              subtitle: const Text('All major parts are original from manufacturer'),
+              value: provider.originalParts,
+              onChanged: provider.setOriginalParts,
+              contentPadding: EdgeInsets.zero,
+            ),
+            const Divider(),
+
+            SwitchListTile(
+              title: const Text('Taxi/Rental/Fleet Use'),
+              subtitle: const Text('Previously used as taxi, rental, or fleet vehicle'),
+              value: provider.commercialUse,
+              onChanged: provider.setCommercialUse,
+              contentPadding: EdgeInsets.zero,
+            ),
+            const Divider(),
+
+            SwitchListTile(
+              title: const Text('Smoker Vehicle'),
+              subtitle: const Text('Vehicle was regularly smoked in'),
+              value: provider.smokerVehicle,
+              onChanged: provider.setSmokerVehicle,
               contentPadding: EdgeInsets.zero,
             ),
             const Divider(),
