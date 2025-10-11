@@ -56,6 +56,13 @@ class ListingProvider extends ChangeNotifier {
   int _numberOfOwners = 1;
   bool _hasAccidentHistory = false;
   bool _floodDamage = false;
+  bool _fireDamage = false;
+  bool _frameDamage = false;
+  bool _isRepainted = false;
+  bool _hasModifications = false;
+  bool _originalParts = true;
+  bool _commercialUse = false;
+  bool _smokerVehicle = false;
   bool _serviceHistoryComplete = false;
   bool _warrantyRemaining = false;
   DateTime? _registrationExpiry;
@@ -155,6 +162,13 @@ class ListingProvider extends ChangeNotifier {
   int get numberOfOwners => _numberOfOwners;
   bool get hasAccidentHistory => _hasAccidentHistory;
   bool get floodDamage => _floodDamage;
+  bool get fireDamage => _fireDamage;
+  bool get frameDamage => _frameDamage;
+  bool get isRepainted => _isRepainted;
+  bool get hasModifications => _hasModifications;
+  bool get originalParts => _originalParts;
+  bool get commercialUse => _commercialUse;
+  bool get smokerVehicle => _smokerVehicle;
   bool get serviceHistoryComplete => _serviceHistoryComplete;
   bool get warrantyRemaining => _warrantyRemaining;
   DateTime? get registrationExpiry => _registrationExpiry;
@@ -470,6 +484,41 @@ class ListingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setFireDamage(bool value) {
+    _fireDamage = value;
+    notifyListeners();
+  }
+
+  void setFrameDamage(bool value) {
+    _frameDamage = value;
+    notifyListeners();
+  }
+
+  void setIsRepainted(bool value) {
+    _isRepainted = value;
+    notifyListeners();
+  }
+
+  void setHasModifications(bool value) {
+    _hasModifications = value;
+    notifyListeners();
+  }
+
+  void setOriginalParts(bool value) {
+    _originalParts = value;
+    notifyListeners();
+  }
+
+  void setCommercialUse(bool value) {
+    _commercialUse = value;
+    notifyListeners();
+  }
+
+  void setSmokerVehicle(bool value) {
+    _smokerVehicle = value;
+    notifyListeners();
+  }
+
   void setCondition(CarCondition? value) {
     _condition = value;
     notifyListeners();
@@ -687,6 +736,13 @@ class ListingProvider extends ChangeNotifier {
       numberOfOwners: _numberOfOwners,
       hasAccidentHistory: _hasAccidentHistory,
       floodDamage: _floodDamage,
+      fireDamage: _fireDamage,
+      frameDamage: _frameDamage,
+      isRepainted: _isRepainted,
+      hasModifications: _hasModifications,
+      originalParts: _originalParts,
+      commercialUse: _commercialUse,
+      smokerVehicle: _smokerVehicle,
       serviceHistoryComplete: _serviceHistoryComplete,
       warrantyRemaining: _warrantyRemaining,
       registrationExpiry: _registrationExpiry,
@@ -800,6 +856,13 @@ class ListingProvider extends ChangeNotifier {
     _numberOfOwners = car.numberOfOwners;
     _hasAccidentHistory = car.hasAccidentHistory;
     _floodDamage = car.floodDamage;
+    _fireDamage = car.fireDamage;
+    _frameDamage = car.frameDamage;
+    _isRepainted = car.isRepainted;
+    _hasModifications = car.hasModifications;
+    _originalParts = car.originalParts;
+    _commercialUse = car.commercialUse;
+    _smokerVehicle = car.smokerVehicle;
     _serviceHistoryComplete = car.serviceHistoryComplete;
     _warrantyRemaining = car.warrantyRemaining;
     _registrationExpiry = car.registrationExpiry;
@@ -892,6 +955,13 @@ class ListingProvider extends ChangeNotifier {
     _numberOfOwners = 1;
     _hasAccidentHistory = false;
     _floodDamage = false;
+    _fireDamage = false;
+    _frameDamage = false;
+    _isRepainted = false;
+    _hasModifications = false;
+    _originalParts = true;
+    _commercialUse = false;
+    _smokerVehicle = false;
     _serviceHistoryComplete = false;
     _warrantyRemaining = false;
     _registrationExpiry = null;
