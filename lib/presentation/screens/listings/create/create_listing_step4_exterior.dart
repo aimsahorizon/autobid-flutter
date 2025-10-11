@@ -67,13 +67,13 @@ class _CreateListingStep4ExteriorState
           padding: const EdgeInsets.all(16),
           children: [
             LinearProgressIndicator(
-              value: 4 / 8,
+              value: 4 / 9,
               backgroundColor: Colors.grey[200],
             ),
             const SizedBox(height: 24),
 
             Text(
-              'Step 4 of 8',
+              'Step 4 of 9',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.grey[600],
                   ),
