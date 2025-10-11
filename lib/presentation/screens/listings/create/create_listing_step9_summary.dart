@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/constants/car_features.dart';
 import '../../../../core/utils/enum_extensions.dart';
 import '../../../providers/listing_provider.dart';
 import '../../../widgets/custom_button.dart';
@@ -177,8 +178,17 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> {
               _buildInfoRow('Condition', provider.condition?.displayName ?? 'N/A'),
               _buildInfoRow('Mileage', provider.mileage != null ? '${NumberFormat('#,###').format(provider.mileage)} km' : 'N/A'),
               _buildInfoRow('Number of Owners', provider.numberOfOwners.toString()),
+              const SizedBox(height: 8),
+              _buildSubsectionTitle('Vehicle History'),
               _buildInfoRow('Accident History', provider.hasAccidentHistory ? 'Yes' : 'No'),
               _buildInfoRow('Flood Damage', provider.floodDamage ? 'Yes' : 'No'),
+              _buildInfoRow('Fire Damage', provider.fireDamage ? 'Yes' : 'No'),
+              _buildInfoRow('Structural/Frame Damage', provider.frameDamage ? 'Yes' : 'No'),
+              _buildInfoRow('Repainted', provider.isRepainted ? 'Yes' : 'No'),
+              _buildInfoRow('Modified/Aftermarket Parts', provider.hasModifications ? 'Yes' : 'No'),
+              _buildInfoRow('Original Parts', provider.originalParts ? 'Yes' : 'No'),
+              _buildInfoRow('Taxi/Rental/Fleet Use', provider.commercialUse ? 'Yes' : 'No'),
+              _buildInfoRow('Smoker Vehicle', provider.smokerVehicle ? 'Yes' : 'No'),
               _buildInfoRow('Complete Service History', provider.serviceHistoryComplete ? 'Yes' : 'No'),
               _buildInfoRow('Warranty Remaining', provider.warrantyRemaining ? 'Yes' : 'No'),
               if (provider.registrationExpiry != null) ...[
@@ -198,8 +208,6 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> {
               _buildSubsectionTitle('Location'),
               _buildInfoRow('City', provider.city ?? 'N/A'),
               _buildInfoRow('Province', provider.province ?? 'N/A'),
-              _buildInfoRow('Available for Test Drive', provider.availableForTestDrive ? 'Yes' : 'No'),
-              _buildInfoRow('Delivery Available', provider.deliveryAvailable ? 'Yes' : 'No'),
               const SizedBox(height: 8),
               _buildSubsectionTitle('Documentation'),
               _buildInfoRow('Plate Number', provider.plateNumber ?? 'N/A'),
@@ -207,11 +215,6 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> {
               _buildInfoRow('Registration Status', provider.registrationStatus.displayName),
               _buildInfoRow('Emission Test Valid', provider.emissionTestValid ? 'Yes' : 'No'),
               _buildInfoRow('Comprehensive Insurance', provider.comprehensiveInsurance ? 'Yes' : 'No'),
-              const SizedBox(height: 8),
-              _buildSubsectionTitle('Seller Preferences'),
-              _buildInfoRow('Accepts Trade', provider.acceptsTrade ? 'Yes' : 'No'),
-              _buildInfoRow('Financing Available', provider.financingAvailable ? 'Yes' : 'No'),
-              _buildInfoRow('Price Negotiable', provider.priceNegotiable ? 'Yes' : 'No'),
             ],
             onEdit: () => context.go('/listing/create/step6'),
           ),
@@ -262,7 +265,7 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> {
                   ),
                 ),
               ],
-              _buildSubsectionTitle('Features (${provider.features.length})'),
+              _buildSubsectionTitle('Features (${provider.features.length} total)'),
               if (provider.features.isEmpty)
                 Padding(
                   padding: const EdgeInsets.only(left: 16, top: 4),
@@ -275,23 +278,48 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> {
                   ),
                 )
               else
-                Padding(
-                  padding: const EdgeInsets.only(left: 16, top: 4),
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: provider.features.map((feature) {
-                      return Chip(
-                        label: Text(
-                          feature,
-                          style: const TextStyle(fontSize: 12),
+                ...CarFeatures.categories.map((category) {
+                  final categoryFeatures = CarFeatures.getFeaturesForCategory(category)
+                      .where((f) => provider.features.contains(f))
+                      .toList();
+
+                  if (categoryFeatures.isEmpty) return const SizedBox.shrink();
+
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 16, top: 8, bottom: 4),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '$category (${categoryFeatures.length})',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[600],
+                          ),
                         ),
-                        backgroundColor: Colors.green.shade50,
-                        side: BorderSide(color: Colors.green.shade200),
-                      );
-                    }).toList(),
-                  ),
-                ),
+                        const SizedBox(height: 4),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: categoryFeatures.map((feature) {
+                            return Chip(
+                              label: Text(
+                                feature,
+                                style: const TextStyle(fontSize: 11),
+                              ),
+                              backgroundColor: Colors.green.shade50,
+                              side: BorderSide(color: Colors.green.shade200),
+                              visualDensity: VisualDensity.compact,
+                              padding: EdgeInsets.zero,
+                              labelPadding: const EdgeInsets.symmetric(horizontal: 8),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
             ],
             onEdit: () => context.go('/listing/create/step8'),
           ),
