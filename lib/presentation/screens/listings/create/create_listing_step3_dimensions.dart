@@ -58,13 +58,13 @@ class _CreateListingStep3DimensionsState
           padding: const EdgeInsets.all(16),
           children: [
             LinearProgressIndicator(
-              value: 3 / 8,
+              value: 3 / 9,
               backgroundColor: Colors.grey[200],
             ),
             const SizedBox(height: 24),
 
             Text(
-              'Step 3 of 8',
+              'Step 3 of 9',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.grey[600],
                   ),
