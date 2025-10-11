@@ -79,13 +79,13 @@ class _CreateListingStep2MechanicalState
           padding: const EdgeInsets.all(16),
           children: [
             LinearProgressIndicator(
-              value: 2 / 8,
+              value: 2 / 9,
               backgroundColor: Colors.grey[200],
             ),
             const SizedBox(height: 24),
 
             Text(
-              'Step 2 of 8',
+              'Step 2 of 9',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.grey[600],
                   ),
