@@ -1,455 +1,141 @@
-CLAUDE.md - Adaptive Engineering Standards v3.0
+# CLAUDE.md - Adaptive Engineering Standards v3.1 (Optimized)
 
-0. Project Context [Auto-Updated]
+## 0. Project Context [Auto-Updated]
 
-Project Name: AutoBID - Online Reused Car Auction
-Project Type: Multi-Platform App
-Target Platforms: iOS, Android, Web
+**Project:** AutoBID - Online Reused Car Auction
+**Type:** Multi-Platform App
+**Platforms:** iOS, Android, Web
+**Phase:** Beta (v0.8.4) ← Auto-detected
+**Version:** 0.8.6+14
+**Updated:** 2025-10-12
 
-Development Phase: Beta (v0.8.3) ← Claude auto-detects
-├─ Prototype (v0.0.x) - Proof of concept, rapid iteration
-├─ Alpha (v0.1.x-v0.4.x) - Core features, internal testing
-├─ Beta (v0.5.x-v0.9.x) - Feature complete, user testing
-├─ MVP (v1.0.x) - Public launch, minimum viable features
-├─ Growth (v1.x.x-v2.x.x) - Feature expansion, scaling
-├─ Maturity (v3.x.x+) - Optimization, maintenance, legacy support
-└─ Sunset - Deprecation, migration planning
+**Tech Stack:**
+- Primary: Flutter 3.9.2 (Dart ^3.9.2)
+- State: Riverpod 3.0.1 + Provider 6.1.1 (→Riverpod)
+- Backend: Mock Services (Firebase 4.1.1 planned)
+- DB: In-memory (Firestore 6.0.2 planned)
+- Test: flutter_test, Manual
+- CI/CD: Manual
 
-Tech Stack:
-  Primary: Flutter 3.9.2 (Dart SDK ^3.9.2)
-  State Management: Riverpod 3.0.1 + Provider 6.1.1 (migrating to full Riverpod)
-  Backend: Mock Services (Firebase 4.1.1 planned for production)
-  Database: In-memory (Cloud Firestore 6.0.2 planned)
-  Testing: flutter_test, Manual testing
-  CI/CD: Manual
-
-Current Version: 0.8.4+12
-Build Targets: Debug, Release
-Last Updated: 2025-10-12
+**Build Targets:** Debug, Release
 
 ---
 
-1. Engineering Standards [Phase-Adaptive]
+## 1. Current Phase Standards: Beta (v0.5.x-v0.9.x)
 
-Core Principles (All Phases):
-- Architecture: Clean/Domain-Driven/Modular as appropriate
-- Code: Null-safe, typed, version-controlled
-- Dependencies: Documented, audited for security
+**Quality:** ≥70% cov, lint ✓, 0 warn
+**Performance:** <50ms interact, <2s API, 60 FPS
+**Security:** OWASP Top 10, encrypted storage
+**Testing:** Unit + integration, beta feedback
+**Docs:** User guides + API docs
 
-Phase-Specific Standards:
-
-Prototype (v0.0.x):
-- Quality: Lint-clean preferred, no coverage requirement
-- Performance: Functional > optimal
-- Security: Basic input validation only
-- Testing: Manual testing acceptable
-- Documentation: README + inline comments
-
-Alpha (v0.1.x-v0.4.x):
-- Quality: ≥50% test coverage, lint-clean
-- Performance: <100ms interactions, basic profiling
-- Security: Authentication, basic authorization
-- Testing: Unit tests for core logic
-- Documentation: API docs + architecture diagrams
-
-Beta (v0.5.x-v0.9.x): ← CURRENT PHASE
-- Quality: ≥70% test coverage, lint-clean, no warnings
-- Performance: <50ms interactions, <2s API, 60 FPS
-- Security: OWASP Top 10 addressed, encrypted storage
-- Testing: Unit + integration tests, beta user feedback
-- Documentation: User guides + API docs
-
-MVP/Production (v1.0.x+):
-- Quality: ≥80% test coverage, lint-clean, zero warnings
-- Performance: <16ms frames, <1s API, optimized assets
-- Security: OWASP compliance, penetration tested, TLS
-- Testing: Unit + integration + E2E + load testing
-- Documentation: Full user docs + runbooks + SLAs
-
-Growth (v1.x.x-v2.x.x):
-- Quality: ≥85% coverage, mutation testing
-- Performance: CDN, caching, <10ms API p99
-- Security: Regular audits, bug bounty program
-- Testing: Automated regression, canary deployments
-- Documentation: Changelogs + migration guides
-
-Maturity (v3.x.x+):
-- Quality: ≥90% coverage, legacy code refactoring
-- Performance: Multi-region, edge computing
-- Security: Compliance certifications (SOC2, ISO27001)
-- Testing: Chaos engineering, disaster recovery drills
-- Documentation: Deprecation notices + sunset plans
-
----
-
-1.5. Platform-Specific Standards
-
-Multi-Platform (Current):
+**Platform (Multi-Platform):**
 - UI: Shared design system, platform adaptations
-- Performance: Meet strictest platform requirement
+- Performance: Meet strictest requirement
 - Assets: Platform-specific bundles
-- Testing: All target platform test suites
+- Testing: All platform test suites
 - Distribution: Coordinated releases
 
 ---
 
-2. Response Templates
+## 2. Core Instructions
 
-Feature Complete:
-✅ [Feature Name] v[X.Y.Z]
-Files: [count] modified
-Branch: feature/[name]
-Coverage: [%]
-Next: [action]
+**Phase Detection:** `v0.0→Proto | 0.1-4→Alpha | 0.5-9→Beta | 1.0→MVP | 1-2→Growth | 3+→Maturity`
 
-Bug Fix:
-🔧 Fixed: [issue]
-File: [path]
-Change: [summary]
-Verified: ✓
+**Workflow:**
+1. Check PROJECT_STRUCTURE.md first
+2. Apply current phase standards (Section 1)
+3. Complete user's tasks
+4. **[AUTO] Post-Task Checklist:**
+   - [ ] Update CLAUDE.md Section 0 if version/phase changed
+   - [ ] Update PROJECT_STRUCTURE.md if structure/features changed
+   - [ ] Generate semantic commits for all changes
+   - [ ] Bump pubspec.yaml version (highest impact commit type)
+   - [ ] Ask user: "Ready to commit? (Y/n)"
 
-Code Delivery:
-📦 [Description]
-Changed: [file1, file2...]
-Tests: [pass/fail]
-Version: [X.Y.Z]
+**CRITICAL:** Always run Post-Task Checklist before final response.
 
-Commits:
-- feat: add login screen
-- fix: resolve navigation bug
-- update: upgrade dependencies
+**Version Bumps:**
+- `feat` → Minor (+0.1.0)
+- `fix|update|perf|build` → Patch (+0.0.1)
+- `feat!|BREAKING CHANGE` → Major (+1.0.0)
+- `docs|style|refactor|test|chore|ci` → No change
 
----
-
-3. Conventional Commits and Semantic Versioning
-
-Use conventional commit format for all commits. Each commit type determines the version change:
-
-Patch version (+0.0.1): fix, update, perf, build
-Minor version (+0.1.0): feat
-Major version (+1.0.0): feat! or commits with BREAKING CHANGE
-No version change: docs, style, refactor, test, chore, ci
-Special: revert varies based on what's being reverted
-
-Auto-Commit Rules:
-- One file = One commit (atomic commits)
-- Max 50 chars in commit message
-- Present tense (add, not added)
-- No period at end
-- Scope optional: feat(auth): add OAuth2 login
-
-Auto-Action Triggers:
-- New feature → Create feature branch → feat: [description]
-- Bug fix → Update CHANGELOG → fix: [description]
-- Breaking change → Migration guide + ! → feat!: [description]
-- Performance fix → Profile metrics → perf: [description]
-- Every major changes → suggest branch name in the beginning: "username/branch-description"
+**Output:** Minimal unless asked (Section 7 in CLAUDE_WORKFLOW.md)
 
 ---
 
-4. PROJECT_STRUCTURE.md and Export History
+## 3. Auto-Read Triggers [CRITICAL]
 
-Claude maintains and auto updates PROJECT_STRUCTURE.md with:
-- Folder tree (auto-updated on changes)
-- Feature matrix (name|status|version|branch)
-- Tech debt log (priority ranked)
-- Performance baseline (FPS, memory, startup)
-- Dependency map (package:version:last-updated)
+**ALWAYS read referenced file BEFORE responding when triggered:**
 
----
+| Trigger | Read File | Section |
+|---------|-----------|---------|
+| Version changes phase | CLAUDE_PHASES.md | New phase section |
+| Need phase graduation criteria | CLAUDE_PHASES.md | Section 9 |
+| Platform requirements unclear | CLAUDE_PHASES.md | Section 1.5 |
+| Commit/PR work needed | CLAUDE_WORKFLOW.md | Sections 2-3 |
+| Code pattern examples needed | CLAUDE_WORKFLOW.md | Section 6 |
+| Performance checklist | CLAUDE_WORKFLOW.md | Section 8 |
+| Release commands | CLAUDE_PHASES.md | Section 9 |
+| User types `@context` | CLAUDE_WORKFLOW.md | Project Notes |
+| User types `@verify|@profile|@deps|@export|@next|@commit` | CLAUDE_WORKFLOW.md | Section 5 |
+| Need response template | CLAUDE_WORKFLOW.md | Section 2 |
+| Error recovery needed | CLAUDE_WORKFLOW.md | Section 12 |
 
-5. Workflow Optimization
-
-Quick Commands:
-@verify - Run tests + lint
-@profile - Check performance metrics
-@deps - Audit dependencies
-@export - Generate PR summary with commits
-@next - Suggest next task
-@commit - Generate commit messages for all changes
-@update-context - Update CLAUDE.md project info
-
-Auto-Commit Workflow:
-For each changed file:
-1. Analyze change type
-2. Generate semantic commit: [type]: [concise description under 50 chars]
-3. Group related changes if needed
-4. Update version based on highest impact change
-
-Decision Tree:
-Issue reported?
-├─ Critical? → Hotfix branch → fix: [message] → Patch
-├─ Feature? → Feature branch → feat: [message] → Minor
-└─ Refactor? → Chore branch → refactor: [message] → No change
+**MANDATORY:** If trigger matched → Read file → Process → Respond
 
 ---
 
-6. Code Patterns
+## 4. Quick Reference
 
-State Management (Riverpod):
-@riverpod
-class FeatureController extends _$FeatureController {
-  @override
-  FutureOr<State> build() => repository.fetch();
-}
+**Shortcuts:**
+- `+feat` = New feature (minor)
+- `+fix` = Bug fix (patch)
+- `+break` = Breaking change (major)
+- `!perf|!sec` = Critical priority
 
-Repository Pattern:
-// Domain layer - pure abstraction
-abstract class IRepository {
-  Future<Entity> fetch(String id);
-}
+**Commands:**
+- `@verify` - Run tests + lint
+- `@context` - Show current state
+- `@commit` - Generate commits
+- `@export` - PR summary
 
-// Data layer - implementation
-class RepositoryImpl implements IRepository {
-  // API/Cache logic here
-}
-
-Error Handling:
-// Consistent Result type
-sealed class Result<T> {
-  const Result();
-}
-class Success<T> extends Result<T> {
-  final T data;
-  const Success(this.data);
-}
-class Failure<T> extends Result<T> {
-  final String message;
-  const Failure(this.message);
-}
+**Current Focus:** Vehicle condition enhancement with custom attributes
+**Branch:** nekolaiv/carlisting-enhancement
 
 ---
 
-7. Minimal Output Rules
+## 5. Project-Specific Notes [Auto-Updated]
 
-1. No explanations unless asked
-2. No bash commands unless debugging
-3. No redundant comments in code
-4. Use shortcuts: 
-   - STD = passes all standards
-   - CA = follows Clean Architecture
-   - ✓ = verified working
+**Patterns:**
+- Freezed models with abstract class
+- Mock services (instant-2s delays)
+- Multi-step flows: 8-step KYC, 6-step listing, 7-step auction
+- Philippine data: locations, payments, IDs
+- Material Design 3, green theme (#4CAF50)
+- Grid/List view toggles, color-coded timers
 
----
+**Preferences:**
+- Concise responses, minimal explanations
+- Atomic commits per file
+- Auto-updates to CLAUDE.md + PROJECT_STRUCTURE.md
+- Mock services for thesis demo
+- Solo dev, beginner-friendly
 
-8. Performance Checklist
-
-- Widget rebuilds minimized (const widgets)
-- Images optimized (<100KB per image)
-- Lazy loading implemented
-- Memory leaks checked (dispose controllers)
-- Network calls cached
-- Animations at 60 FPS
-
----
-
-9. Release Checklist [Phase-Adaptive]
-
-Prototype → Alpha (v0.0.x → v0.1.0):
-- [ ] Core functionality works
-- [ ] Basic error handling
-- [ ] README with setup instructions
-- [ ] Tag: v0.1.0-alpha.1
-
-Alpha → Beta (v0.4.x → v0.5.0):
-- [ ] All planned features implemented
-- [ ] ≥50% test coverage
-- [ ] Lint-clean, no critical warnings
-- [ ] Security basics in place (auth, input validation)
-- [ ] Beta user feedback process ready
-- [ ] Tag: v0.5.0-beta.1
-
-Beta → MVP (v0.9.x → v1.0.0): ← NEXT MILESTONE
-- [ ] ≥70% test coverage (Beta standard met)
-- [ ] Zero lint warnings
-- [ ] Security audit passed (OWASP Top 10)
-- [ ] Performance benchmarks met (<50ms interactions, 60 FPS)
-- [ ] User documentation complete
-- [ ] Production monitoring ready
-- [ ] Rollback plan documented
-- [ ] Legal/compliance review (if applicable)
-- [ ] Tag: v1.0.0
-
-MVP → Growth (v1.0.x → v1.1.0):
-- [ ] Analytics instrumented
-- [ ] A/B testing framework ready
-- [ ] Scalability tested (10x current load)
-- [ ] Customer support system operational
-- [ ] Feature flagging implemented
-- [ ] Tag: v1.1.0
-
-Growth → Maturity (v2.x.x → v3.0.0):
-- [ ] Multi-region deployment
-- [ ] SLA commitments met (99.9%+ uptime)
-- [ ] Disaster recovery tested
-- [ ] Technical debt <20%
-- [ ] Team knowledge transfer complete
-- [ ] Tag: v3.0.0
-
-Pre-Release Commands (All Phases):
-- lint: flutter analyze / dart analyze
-- format: dart format .
-- test: flutter test --coverage (if tests exist)
-- build: flutter build [apk|web|windows] --release
-
-Release Commands (All Phases):
-- version: bump in pubspec.yaml
-- changelog: update CHANGELOG.md
-- tag: git tag v[X.Y.Z]
-- push: git push origin v[X.Y.Z]
+**Architecture:**
+- Hybrid: Riverpod + Provider (→full Riverpod)
+- Clean Architecture (Presentation→Domain→Data)
+- Freezed + JSON serialization
+- Mock services with realistic PH data
+- In-memory storage (Firebase planned)
 
 ---
 
-10. Context Persistence
+## Extended Documentation
 
-Claude automatically maintains:
-- Current version from pubspec.yaml
-- Project phase (MVP→Scale→Maintenance)
-- Tech stack additions/changes
-- Last updated timestamp
-- Project-specific patterns discovered
+- **CLAUDE_PHASES.md** - All phase standards, platform specs, release checklists
+- **CLAUDE_WORKFLOW.md** - Templates, commits, patterns, quick commands
+- **PROJECT_STRUCTURE.md** - Folder tree, features, tech debt, dependencies
 
-Claude remembers:
-- Current feature being worked on
-- Last version number
-- Open tech debt items
-- Performance baseline
-- Recent architectural decisions
-- User preferences and patterns
-
-Request with: @context to see current state
-
----
-
-11. Efficiency Shortcuts
-
-+feat = New feature (minor version)
-+fix = Bug fix (patch version)
-+break = Breaking change (major)
-+test = Add tests only
-+docs = Documentation only
-!perf = Performance critical
-!sec = Security critical
-
----
-
-12. Error Recovery
-
-If something breaks:
-1. @rollback - Revert last change
-2. @debug - Show detailed logs
-3. @clean - Clean rebuild
-4. @reset - Reset to last stable
-
----
-
-Definition of Done
-
-✅ Checklist:
-- Feature works as specified
-- Tests pass (>80% coverage)
-- No lint warnings
-- Performance verified
-- Docs updated
-- Version bumped
-- PR ready
-
----
-
-Project-Specific Notes [Auto-Updated]
-
-Claude will populate this section based on:
-- User requirements and preferences
-- Discovered patterns in codebase
-- Custom business logic rules
-- API endpoints and contracts
-- Performance bottlenecks found
-- Team conventions observed
-- Integration requirements
-
-Current Project Patterns:
-- Freezed models with abstract class keyword for immutability
-- Mock services with realistic delays (instant to 2s) for demo
-- Multi-step flows: 8-step KYC, 6-step listing creation, 7-step auction
-- Philippine-specific data: locations, payment methods, government IDs
-- Material Design 3 with green primary theme (#4CAF50)
-- Grid/List view toggles for browsing
-- Countdown timers with color-coded urgency (green/orange/red)
-
-User Preferences:
-- Prefers concise responses, minimal explanations
-- Wants atomic commits per file with semantic versioning
-- Expects auto-updates to PROJECT_STRUCTURE.md and CLAUDE.md
-- Uses mock services for thesis demo (Firebase integration planned later)
-- Solo developer, beginner-friendly approaches preferred
-
-Technical Decisions:
-- Hybrid state management: Riverpod + Provider (migrating to full Riverpod)
-- Clean Architecture enforced (Presentation → Domain → Data layers)
-- All models use Freezed + JSON serialization
-- Mock services return realistic Philippine market data
-- KYC system requires 8 steps with government ID verification
-- Auction system uses simulated real-time updates (15-30s intervals)
-- Payment/Escrow system with mock GCash/PayMaya/Bank transfers
-- No backend yet - all data stored in-memory via mock services
-
----
-
-Instructions for Claude:
-
-1. Auto-detect project phase from version number:
-   - v0.0.x → Prototype
-   - v0.1.x-v0.4.x → Alpha
-   - v0.5.x-v0.9.x → Beta ← CURRENT
-   - v1.0.x → MVP
-   - v1.x.x-v2.x.x → Growth
-   - v3.x.x+ → Maturity
-
-2. Apply phase-appropriate standards automatically from Section 1
-3. Check platform requirements from Section 1.5 based on Target Platforms
-4. Adjust "Definition of Done" based on current phase
-5. Always check PROJECT_STRUCTURE.md first before starting work
-6. Use templates from Section 2 for responses
-7. Auto-generate semantic commits for each file (Section 3)
-8. Auto-increment pubspec.yaml version after completing tasks in each prompt
-9. Auto-update CLAUDE.md Section 0 when version changes or phase transitions
-10. Update Project-Specific Notes from learnings during development
-11. Suggest phase graduation when next milestone criteria met (Section 9)
-12. Warn if standards violated for current phase
-13. Remind user to /export conversation after major work
-14. Maintain single source of truth across CLAUDE.md and PROJECT_STRUCTURE.md
-15. Never explain unless asked (Section 7: Minimal Output Rules)
-16. Focus on deliverables only
-17. Follow conventional commit format strictly (Section 3)
-18. One atomic commit per logical change
-
-Version Update Rules:
-- After completing ALL tasks in user's prompt, update pubspec.yaml
-- Determine version bump from highest-impact commit type made:
-  - feat → Minor (+0.1.0)
-  - fix/update/perf/build → Patch (+0.0.1)
-  - feat!/BREAKING CHANGE → Major (+1.0.0)
-  - docs/style/refactor/test/chore/ci → No version change
-- If no version-impacting changes, skip version bump
-- Update CLAUDE.md Section 0 "Current Version" after bumping
-
-Export Reminders:
-- After feature completion: "Ready to /export"
-- After bug fixes: "Consider /export for history"
-- End of session: "Remember to /export this session"
-
-Commit Examples:
-- feat: add OAuth2 authentication
-- fix: resolve null pointer in user service
-- update: upgrade flutter to 3.24.0
-- perf: optimize list rendering with keys
-- feat!: change API response format
-- docs: add setup instructions
-- test: add widget tests for login
-
-Current Focus: Vehicle condition enhancement with custom attributes (Branch: nekolaiv/carlisting-enhancement)
-
----
-
-Last Updated: 2025-10-12
-Schema Version: 3.0
+**Schema:** v3.1 (Optimized)
