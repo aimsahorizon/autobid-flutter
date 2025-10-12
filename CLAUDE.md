@@ -84,34 +84,6 @@ Maturity (v3.x.x+):
 
 1.5. Platform-Specific Standards
 
-Mobile (iOS/Android):
-- UI: Native feel, gesture support, offline-first
-- Performance: <2s cold start, <200MB memory
-- Assets: 1x/2x/3x image variants, <100KB per image (Beta phase)
-- Testing: Device farm testing (5+ devices for MVP)
-- Distribution: App Store + Play Store compliance
-
-Web/PWA:
-- UI: Responsive (mobile/tablet/desktop), <5s LCP
-- Performance: Lighthouse score >90 (MVP), lazy loading
-- Assets: WebP/AVIF images, code splitting
-- Testing: Cross-browser (Chrome, Firefox, Safari, Edge)
-- Distribution: CDN, SSL, CORS configured
-
-Desktop (Windows/macOS/Linux):
-- UI: Native window controls, keyboard shortcuts
-- Performance: <1s startup, <100MB base memory
-- Assets: Bundled resources, system theme support
-- Testing: Installer testing, update mechanisms
-- Distribution: Signed binaries, auto-updates
-
-API/Backend:
-- Architecture: RESTful/GraphQL/gRPC standards
-- Performance: <100ms p95, rate limiting
-- Security: JWT/OAuth2, API versioning
-- Testing: Contract tests, load testing (1000+ RPS for Production)
-- Distribution: Docker, k8s, health checks
-
 Multi-Platform (Current):
 - UI: Shared design system, platform adaptations
 - Performance: Meet strictest platform requirement
