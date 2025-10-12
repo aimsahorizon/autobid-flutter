@@ -226,26 +226,43 @@ class _CreateListingStep4ExteriorState
                   );
                 }),
                 ...provider.customPaintTypes.map((type) {
-                  return Chip(
-                    label: Text(type),
-                    deleteIcon: const Icon(Icons.close, size: 16),
-                    onDeleted: () {
-                      setState(() {
-                        provider.customPaintTypes.remove(type);
-                      });
+                  final isSelected = provider.selectedCustomPaintType == type;
+                  return ChoiceChip(
+                    label: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(type),
+                        const SizedBox(width: 4),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              provider.customPaintTypes.remove(type);
+                              if (provider.selectedCustomPaintType == type) {
+                                provider.setSelectedCustomPaintType(null);
+                              }
+                            });
+                          },
+                          child: const Icon(Icons.cancel, size: 16),
+                        ),
+                      ],
+                    ),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      if (selected) {
+                        provider.setPaintType(null);
+                        provider.setSelectedCustomPaintType(type);
+                      }
                     },
                   );
                 }),
+                ActionChip(
+                  avatar: const Icon(Icons.add_circle_outline, size: 18),
+                  label: const Text('Add option'),
+                  onPressed: _showAddCustomPaintTypeDialog,
+                  backgroundColor: Colors.grey[100],
+                  side: BorderSide(color: Colors.grey[400]!, style: BorderStyle.none),
+                ),
               ],
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              onPressed: _showAddCustomPaintTypeDialog,
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add Custom Paint Type'),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-              ),
             ),
             const SizedBox(height: 24),
 
@@ -276,21 +293,29 @@ class _CreateListingStep4ExteriorState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      DropdownButtonFormField<RimType>(
-                        initialValue: provider.rimType,
+                      DropdownButtonFormField<RimType?>(
+                        value: provider.rimType,
                         decoration: const InputDecoration(
                           labelText: 'Rim Type *',
                           border: OutlineInputBorder(),
+                          hintText: 'Select rim type',
                         ),
-                        items: RimType.values.map((type) {
-                          return DropdownMenuItem(
-                            value: type,
-                            child: Text(type.displayName),
-                          );
-                        }).toList(),
+                        items: [
+                          const DropdownMenuItem<RimType?>(
+                            value: null,
+                            child: Text('Select rim type', style: TextStyle(color: Colors.grey)),
+                          ),
+                          ...RimType.values.map((type) {
+                            return DropdownMenuItem<RimType?>(
+                              value: type,
+                              child: Text(type.displayName),
+                            );
+                          }).toList(),
+                        ],
                         onChanged: (value) {
-                          if (value != null) provider.setRimType(value);
+                          provider.setRimType(value);
                         },
+                        validator: (value) => value == null ? 'Please select rim type' : null,
                       ),
                       if (provider.customRimTypes.isNotEmpty) ...[
                         const SizedBox(height: 8),
