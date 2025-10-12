@@ -5,6 +5,7 @@ part 'vehicle_condition_attribute.g.dart';
 
 /// Represents a single vehicle condition attribute (e.g., "Has Accident History")
 /// This model supports dynamic rendering of condition toggles in the listing form
+/// Handles both predefined attributes and custom user-added attributes
 @freezed
 abstract class VehicleConditionAttribute with _$VehicleConditionAttribute {
   const factory VehicleConditionAttribute({
@@ -31,6 +32,13 @@ abstract class VehicleConditionAttribute with _$VehicleConditionAttribute {
 
     /// Whether this is a positive indicator (green) or negative (orange/red)
     @Default(false) bool isPositive,
+
+    /// Whether this is a custom attribute added by user (not in predefined list)
+    /// Custom attributes are stored separately and not mapped to provider fields
+    @Default(false) bool isCustom,
+
+    /// Timestamp when custom attribute was added (for custom attributes only)
+    DateTime? addedAt,
   }) = _VehicleConditionAttribute;
 
   factory VehicleConditionAttribute.fromJson(Map<String, dynamic> json) =>
@@ -44,6 +52,7 @@ class VehicleConditionCategory {
   static const String bodyAndModifications = 'Body & Modifications';
   static const String usage = 'Usage';
   static const String warranty = 'Warranty';
+  static const String custom = 'Custom'; // For user-added attributes
 
   /// Get all available categories in display order
   static List<String> get allCategories => [
@@ -52,7 +61,17 @@ class VehicleConditionCategory {
         bodyAndModifications,
         usage,
         warranty,
+        custom, // Custom category appears last
       ];
+
+  /// Check if a category is predefined
+  static bool isPredefinedCategory(String category) {
+    return category == service ||
+        category == damage ||
+        category == bodyAndModifications ||
+        category == usage ||
+        category == warranty;
+  }
 
   /// Get icon for category
   static String getCategoryIcon(String category) {
@@ -67,8 +86,10 @@ class VehicleConditionCategory {
         return '🚗';
       case warranty:
         return '✅';
+      case custom:
+        return '✏️';
       default:
-        return '📋';
+        return '📋'; // Fallback for unknown categories
     }
   }
 }
