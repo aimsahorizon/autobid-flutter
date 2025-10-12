@@ -1,22 +1,123 @@
-CLAUDE.md - Optimized Engineering Standards v2.0
+CLAUDE.md - Adaptive Engineering Standards v3.0
 
 0. Project Context [Auto-Updated]
-Project: AutoBID - Online Reused Car Auction
-Type: Mobile App
-Phase: MVP Development
-Stack: Flutter 3.9.2, Riverpod 3.0.1, Firebase (planned), Mock Services
-Current Version: 0.8.3+11
+
+Project Name: AutoBID - Online Reused Car Auction
+Project Type: Multi-Platform App
+Target Platforms: iOS, Android, Web
+
+Development Phase: Beta (v0.8.3) ← Claude auto-detects
+├─ Prototype (v0.0.x) - Proof of concept, rapid iteration
+├─ Alpha (v0.1.x-v0.4.x) - Core features, internal testing
+├─ Beta (v0.5.x-v0.9.x) - Feature complete, user testing
+├─ MVP (v1.0.x) - Public launch, minimum viable features
+├─ Growth (v1.x.x-v2.x.x) - Feature expansion, scaling
+├─ Maturity (v3.x.x+) - Optimization, maintenance, legacy support
+└─ Sunset - Deprecation, migration planning
+
+Tech Stack:
+  Primary: Flutter 3.9.2 (Dart SDK ^3.9.2)
+  State Management: Riverpod 3.0.1 + Provider 6.1.1 (migrating to full Riverpod)
+  Backend: Mock Services (Firebase 4.1.1 planned for production)
+  Database: In-memory (Cloud Firestore 6.0.2 planned)
+  Testing: flutter_test, Manual testing
+  CI/CD: Manual
+
+Current Version: 0.8.4+12
+Build Targets: Debug, Release
 Last Updated: 2025-10-12
 
 ---
 
-1. Engineering Standards
-- Architecture: Clean (Presentation→Domain→Data), SOLID, DRY, KISS
-- Code: Null-safe, immutable, testable, no deprecated APIs
-- Quality: ≥80% coverage, lint-clean, <16ms frames, <2s API
-- Security: OWASP Mobile, TLS, secure storage, no hardcoded secrets
-- Access: WCAG 2.1 AA, i18n via ARB, responsive design
-- Dependencies: Verified packages only, regular security audits
+1. Engineering Standards [Phase-Adaptive]
+
+Core Principles (All Phases):
+- Architecture: Clean/Domain-Driven/Modular as appropriate
+- Code: Null-safe, typed, version-controlled
+- Dependencies: Documented, audited for security
+
+Phase-Specific Standards:
+
+Prototype (v0.0.x):
+- Quality: Lint-clean preferred, no coverage requirement
+- Performance: Functional > optimal
+- Security: Basic input validation only
+- Testing: Manual testing acceptable
+- Documentation: README + inline comments
+
+Alpha (v0.1.x-v0.4.x):
+- Quality: ≥50% test coverage, lint-clean
+- Performance: <100ms interactions, basic profiling
+- Security: Authentication, basic authorization
+- Testing: Unit tests for core logic
+- Documentation: API docs + architecture diagrams
+
+Beta (v0.5.x-v0.9.x): ← CURRENT PHASE
+- Quality: ≥70% test coverage, lint-clean, no warnings
+- Performance: <50ms interactions, <2s API, 60 FPS
+- Security: OWASP Top 10 addressed, encrypted storage
+- Testing: Unit + integration tests, beta user feedback
+- Documentation: User guides + API docs
+
+MVP/Production (v1.0.x+):
+- Quality: ≥80% test coverage, lint-clean, zero warnings
+- Performance: <16ms frames, <1s API, optimized assets
+- Security: OWASP compliance, penetration tested, TLS
+- Testing: Unit + integration + E2E + load testing
+- Documentation: Full user docs + runbooks + SLAs
+
+Growth (v1.x.x-v2.x.x):
+- Quality: ≥85% coverage, mutation testing
+- Performance: CDN, caching, <10ms API p99
+- Security: Regular audits, bug bounty program
+- Testing: Automated regression, canary deployments
+- Documentation: Changelogs + migration guides
+
+Maturity (v3.x.x+):
+- Quality: ≥90% coverage, legacy code refactoring
+- Performance: Multi-region, edge computing
+- Security: Compliance certifications (SOC2, ISO27001)
+- Testing: Chaos engineering, disaster recovery drills
+- Documentation: Deprecation notices + sunset plans
+
+---
+
+1.5. Platform-Specific Standards
+
+Mobile (iOS/Android):
+- UI: Native feel, gesture support, offline-first
+- Performance: <2s cold start, <200MB memory
+- Assets: 1x/2x/3x image variants, <100KB per image (Beta phase)
+- Testing: Device farm testing (5+ devices for MVP)
+- Distribution: App Store + Play Store compliance
+
+Web/PWA:
+- UI: Responsive (mobile/tablet/desktop), <5s LCP
+- Performance: Lighthouse score >90 (MVP), lazy loading
+- Assets: WebP/AVIF images, code splitting
+- Testing: Cross-browser (Chrome, Firefox, Safari, Edge)
+- Distribution: CDN, SSL, CORS configured
+
+Desktop (Windows/macOS/Linux):
+- UI: Native window controls, keyboard shortcuts
+- Performance: <1s startup, <100MB base memory
+- Assets: Bundled resources, system theme support
+- Testing: Installer testing, update mechanisms
+- Distribution: Signed binaries, auto-updates
+
+API/Backend:
+- Architecture: RESTful/GraphQL/gRPC standards
+- Performance: <100ms p95, rate limiting
+- Security: JWT/OAuth2, API versioning
+- Testing: Contract tests, load testing (1000+ RPS for Production)
+- Distribution: Docker, k8s, health checks
+
+Multi-Platform (Current):
+- UI: Shared design system, platform adaptations
+- Performance: Meet strictest platform requirement
+- Assets: Platform-specific bundles
+- Testing: All target platform test suites
+- Distribution: Coordinated releases
 
 ---
 
@@ -170,19 +271,60 @@ class Failure<T> extends Result<T> {
 
 ---
 
-9. Release Checklist
+9. Release Checklist [Phase-Adaptive]
 
-pre_release:
-- lint: dart analyze
+Prototype → Alpha (v0.0.x → v0.1.0):
+- [ ] Core functionality works
+- [ ] Basic error handling
+- [ ] README with setup instructions
+- [ ] Tag: v0.1.0-alpha.1
+
+Alpha → Beta (v0.4.x → v0.5.0):
+- [ ] All planned features implemented
+- [ ] ≥50% test coverage
+- [ ] Lint-clean, no critical warnings
+- [ ] Security basics in place (auth, input validation)
+- [ ] Beta user feedback process ready
+- [ ] Tag: v0.5.0-beta.1
+
+Beta → MVP (v0.9.x → v1.0.0): ← NEXT MILESTONE
+- [ ] ≥70% test coverage (Beta standard met)
+- [ ] Zero lint warnings
+- [ ] Security audit passed (OWASP Top 10)
+- [ ] Performance benchmarks met (<50ms interactions, 60 FPS)
+- [ ] User documentation complete
+- [ ] Production monitoring ready
+- [ ] Rollback plan documented
+- [ ] Legal/compliance review (if applicable)
+- [ ] Tag: v1.0.0
+
+MVP → Growth (v1.0.x → v1.1.0):
+- [ ] Analytics instrumented
+- [ ] A/B testing framework ready
+- [ ] Scalability tested (10x current load)
+- [ ] Customer support system operational
+- [ ] Feature flagging implemented
+- [ ] Tag: v1.1.0
+
+Growth → Maturity (v2.x.x → v3.0.0):
+- [ ] Multi-region deployment
+- [ ] SLA commitments met (99.9%+ uptime)
+- [ ] Disaster recovery tested
+- [ ] Technical debt <20%
+- [ ] Team knowledge transfer complete
+- [ ] Tag: v3.0.0
+
+Pre-Release Commands (All Phases):
+- lint: flutter analyze / dart analyze
 - format: dart format .
-- test: flutter test --coverage
-- build: flutter build apk --release
+- test: flutter test --coverage (if tests exist)
+- build: flutter build [apk|web|windows] --release
 
-release:
+Release Commands (All Phases):
 - version: bump in pubspec.yaml
-- changelog: update with changes
+- changelog: update CHANGELOG.md
 - tag: git tag v[X.Y.Z]
-- branch: merge to main
+- push: git push origin v[X.Y.Z]
 
 ---
 
@@ -282,19 +424,32 @@ Technical Decisions:
 ---
 
 Instructions for Claude:
-1. Always check PROJECT_STRUCTURE.md first
-2. Use templates for responses
-3. Auto-generate semantic commits for each file
-4. Auto-increment pubspec.yaml version after completing tasks in each prompt
-5. Auto-update CLAUDE.md Section 0 on changes
-6. Remind user to /export conversation after major work
-7. Update Project-Specific Notes from learnings
-8. Maintain single source of truth
-9. Optimize for production deployment
-10. Never explain unless asked
-11. Focus on deliverables only
-12. Follow conventional commit format strictly
-13. One atomic commit per logical change
+
+1. Auto-detect project phase from version number:
+   - v0.0.x → Prototype
+   - v0.1.x-v0.4.x → Alpha
+   - v0.5.x-v0.9.x → Beta ← CURRENT
+   - v1.0.x → MVP
+   - v1.x.x-v2.x.x → Growth
+   - v3.x.x+ → Maturity
+
+2. Apply phase-appropriate standards automatically from Section 1
+3. Check platform requirements from Section 1.5 based on Target Platforms
+4. Adjust "Definition of Done" based on current phase
+5. Always check PROJECT_STRUCTURE.md first before starting work
+6. Use templates from Section 2 for responses
+7. Auto-generate semantic commits for each file (Section 3)
+8. Auto-increment pubspec.yaml version after completing tasks in each prompt
+9. Auto-update CLAUDE.md Section 0 when version changes or phase transitions
+10. Update Project-Specific Notes from learnings during development
+11. Suggest phase graduation when next milestone criteria met (Section 9)
+12. Warn if standards violated for current phase
+13. Remind user to /export conversation after major work
+14. Maintain single source of truth across CLAUDE.md and PROJECT_STRUCTURE.md
+15. Never explain unless asked (Section 7: Minimal Output Rules)
+16. Focus on deliverables only
+17. Follow conventional commit format strictly (Section 3)
+18. One atomic commit per logical change
 
 Version Update Rules:
 - After completing ALL tasks in user's prompt, update pubspec.yaml
@@ -325,4 +480,4 @@ Current Focus: Vehicle condition enhancement with custom attributes (Branch: nek
 ---
 
 Last Updated: 2025-10-12
-Schema Version: 2.0
+Schema Version: 3.0
