@@ -1,4 +1,7 @@
 class CarFeatures {
+  // Custom features category for user-added features
+  static const String customCategory = 'Custom Features';
+
   // Categorized features for better organization
   static const Map<String, List<String>> categorizedFeatures = {
     'Safety & Security': [
