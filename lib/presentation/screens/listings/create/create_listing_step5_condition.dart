@@ -126,7 +126,23 @@ class _CreateListingStep5ConditionState
   ) {
     final provider = context.read<ListingProvider>();
 
-    return attributes.map((attr) {
+    // Add custom attributes from provider
+    final customAttrs = provider.customConditionAttributesList.map((attrMap) {
+      return VehicleConditionAttribute(
+        id: attrMap['id'] as String,
+        label: attrMap['label'] as String,
+        description: attrMap['description'] as String,
+        category: attrMap['category'] as String,
+        value: provider.customConditionAttributes[attrMap['id']] ?? false,
+        isCustom: true,
+        sortOrder: 999, // Custom attributes appear last
+      );
+    }).toList();
+
+    // Merge custom attributes with predefined ones
+    final allAttributes = [...attributes, ...customAttrs];
+
+    return allAttributes.map((attr) {
       // Map attribute ID to provider field and get current value
       final currentValue = _getProviderValue(attr.id, provider);
       return attr.copyWith(value: currentValue);
@@ -275,6 +291,104 @@ class _CreateListingStep5ConditionState
         ),
       );
     }
+  }
+
+  /// Shows dialog to add custom condition attribute
+  void _showAddCustomAttributeDialog(String category) {
+    final labelController = TextEditingController();
+    final descriptionController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Add Custom ${category} Option'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Add a custom option to the $category category that is not in the standard list.',
+                style: const TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: labelController,
+                autofocus: true,
+                textCapitalization: TextCapitalization.words,
+                decoration: const InputDecoration(
+                  labelText: 'Option Label',
+                  hintText: 'e.g., Recently Serviced',
+                  border: OutlineInputBorder(),
+                ),
+                maxLength: 50,
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: descriptionController,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  hintText: 'Brief description of this condition',
+                  border: OutlineInputBorder(),
+                ),
+                maxLength: 100,
+                maxLines: 2,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final label = labelController.text.trim();
+              final description = descriptionController.text.trim();
+
+              if (label.isNotEmpty && description.isNotEmpty) {
+                // Generate ID from label (camelCase)
+                final id = label
+                    .toLowerCase()
+                    .replaceAll(RegExp(r'[^\w\s]'), '')
+                    .split(' ')
+                    .asMap()
+                    .map((i, word) => MapEntry(
+                          i,
+                          i == 0
+                              ? word
+                              : word[0].toUpperCase() + word.substring(1),
+                        ))
+                    .values
+                    .join('');
+
+                final provider = context.read<ListingProvider>();
+                provider.addCustomConditionAttribute(
+                  id: id,
+                  label: label,
+                  description: description,
+                  category: category,
+                );
+
+                // Reload attributes to include new custom one
+                _loadConditionAttributes();
+
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Added custom option: $label'),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              }
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -531,15 +645,32 @@ class _CreateListingStep5ConditionState
     for (final category in VehicleConditionCategory.allCategories) {
       final attributes = _groupedAttributes[category];
 
-      // Skip empty categories
-      if (attributes == null || attributes.isEmpty) continue;
+      // Skip empty categories (except custom - always show to allow adding)
+      if ((attributes == null || attributes.isEmpty) &&
+          category != VehicleConditionCategory.custom) continue;
 
       // Render category section with all its toggles
       sections.add(
         ConditionCategorySection(
           categoryName: category,
-          attributes: attributes,
+          attributes: attributes ?? [],
           onAttributeChanged: _onAttributeChanged,
+        ),
+      );
+
+      // Add "Add Custom Option" button for each category
+      sections.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 24),
+          child: OutlinedButton.icon(
+            onPressed: () => _showAddCustomAttributeDialog(category),
+            icon: const Icon(Icons.add, size: 18),
+            label: Text('Add Custom ${category} Option'),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              textStyle: const TextStyle(fontSize: 13),
+            ),
+          ),
         ),
       );
     }
