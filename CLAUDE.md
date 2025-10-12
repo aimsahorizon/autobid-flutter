@@ -1,12 +1,12 @@
 CLAUDE.md - Optimized Engineering Standards v2.0
 
 0. Project Context [Auto-Updated]
-Project: AutoBID - Online Reused Car Auction  
-Type: Mobile App  
-Phase: [MVP/Scale/Maintenance] ← Claude updates  
-Stack: Flutter, Riverpod, [backends/APIs] ← Claude updates     
-Current Version: [from pubspec.yaml] ← Claude updates  
-Last Updated: [timestamp] ← Claude updates
+Project: AutoBID - Online Reused Car Auction
+Type: Mobile App
+Phase: MVP Development
+Stack: Flutter 3.9.2, Riverpod 3.0.1, Firebase (planned), Mock Services
+Current Version: 0.8.3+11
+Last Updated: 2025-10-12
 
 ---
 
@@ -254,13 +254,30 @@ Claude will populate this section based on:
 - Integration requirements
 
 Current Project Patterns:
-[Claude updates this section automatically]
+- Freezed models with abstract class keyword for immutability
+- Mock services with realistic delays (instant to 2s) for demo
+- Multi-step flows: 8-step KYC, 6-step listing creation, 7-step auction
+- Philippine-specific data: locations, payment methods, government IDs
+- Material Design 3 with green primary theme (#4CAF50)
+- Grid/List view toggles for browsing
+- Countdown timers with color-coded urgency (green/orange/red)
 
 User Preferences:
-[Claude learns and documents your coding style]
+- Prefers concise responses, minimal explanations
+- Wants atomic commits per file with semantic versioning
+- Expects auto-updates to PROJECT_STRUCTURE.md and CLAUDE.md
+- Uses mock services for thesis demo (Firebase integration planned later)
+- Solo developer, beginner-friendly approaches preferred
 
 Technical Decisions:
-[Claude logs key architectural choices made]
+- Hybrid state management: Riverpod + Provider (migrating to full Riverpod)
+- Clean Architecture enforced (Presentation → Domain → Data layers)
+- All models use Freezed + JSON serialization
+- Mock services return realistic Philippine market data
+- KYC system requires 8 steps with government ID verification
+- Auction system uses simulated real-time updates (15-30s intervals)
+- Payment/Escrow system with mock GCash/PayMaya/Bank transfers
+- No backend yet - all data stored in-memory via mock services
 
 ---
 
@@ -268,7 +285,7 @@ Instructions for Claude:
 1. Always check PROJECT_STRUCTURE.md first
 2. Use templates for responses
 3. Auto-generate semantic commits for each file
-4. Auto-increment versions based on commit types
+4. Auto-increment pubspec.yaml version after completing tasks in each prompt
 5. Auto-update CLAUDE.md Section 0 on changes
 6. Remind user to /export conversation after major work
 7. Update Project-Specific Notes from learnings
@@ -278,6 +295,16 @@ Instructions for Claude:
 11. Focus on deliverables only
 12. Follow conventional commit format strictly
 13. One atomic commit per logical change
+
+Version Update Rules:
+- After completing ALL tasks in user's prompt, update pubspec.yaml
+- Determine version bump from highest-impact commit type made:
+  - feat → Minor (+0.1.0)
+  - fix/update/perf/build → Patch (+0.0.1)
+  - feat!/BREAKING CHANGE → Major (+1.0.0)
+  - docs/style/refactor/test/chore/ci → No version change
+- If no version-impacting changes, skip version bump
+- Update CLAUDE.md Section 0 "Current Version" after bumping
 
 Export Reminders:
 - After feature completion: "Ready to /export"
@@ -293,9 +320,9 @@ Commit Examples:
 - docs: add setup instructions
 - test: add widget tests for login
 
-Current Focus: [Set by claude or from PROJECT_STRUCTURE.md]
+Current Focus: Vehicle condition enhancement with custom attributes (Branch: nekolaiv/carlisting-enhancement)
 
 ---
 
-Last Updated: [Auto-timestamp by claude]
+Last Updated: 2025-10-12
 Schema Version: 2.0
