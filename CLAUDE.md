@@ -6,7 +6,7 @@
 **Type:** Multi-Platform App
 **Platforms:** iOS, Android, Web
 **Phase:** Beta (v0.8.4) ← Auto-detected
-**Version:** 0.8.6+14
+**Version:** 0.8.8+16
 **Updated:** 2025-10-12
 
 **Tech Stack:**
@@ -49,11 +49,16 @@
 4. **[AUTO] Post-Task Checklist:**
    - [ ] Update CLAUDE.md Section 0 if version/phase changed
    - [ ] Update PROJECT_STRUCTURE.md if structure/features changed
-   - [ ] Generate semantic commits for all changes
+   - [ ] Generate semantic commits (ONE FILE = ONE COMMIT, single line only)
    - [ ] Bump pubspec.yaml version (highest impact commit type)
    - [ ] Ask user: "Ready to commit? (Y/n)"
 
 **CRITICAL:** Always run Post-Task Checklist before final response.
+
+**Commit Rules:**
+- One file = one commit (atomic)
+- Single line message only (no body, no Co-Authored-By, no metadata)
+- Format: `[type]: [description <50 chars]`
 
 **Version Bumps:**
 - `feat` → Minor (+0.1.0)
