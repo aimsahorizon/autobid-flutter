@@ -33,6 +33,53 @@ class _CreateListingStep3DimensionsState
     Step3AutofillHelper.autofill(context);
   }
 
+  void _showAddCustomBodyTypeDialog() {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Custom Body Type'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Enter a custom body type not in the standard list.'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              autofocus: true,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(
+                labelText: 'Body Type',
+                hintText: 'e.g., Roadster, Limousine',
+                border: OutlineInputBorder(),
+              ),
+              maxLength: 30,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final type = controller.text.trim();
+              if (type.isNotEmpty) {
+                context.read<ListingProvider>().addCustomBodyType(type);
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Added custom body type: $type')),
+                );
+              }
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ListingProvider>();
@@ -94,16 +141,38 @@ class _CreateListingStep3DimensionsState
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: BodyType.values.map((type) {
-                final isSelected = provider.bodyType == type;
-                return ChoiceChip(
-                  label: Text(type.displayName),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    if (selected) provider.setBodyType(type);
-                  },
-                );
-              }).toList(),
+              children: [
+                ...BodyType.values.map((type) {
+                  final isSelected = provider.bodyType == type;
+                  return ChoiceChip(
+                    label: Text(type.displayName),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      if (selected) provider.setBodyType(type);
+                    },
+                  );
+                }),
+                ...provider.customBodyTypes.map((type) {
+                  return Chip(
+                    label: Text(type),
+                    deleteIcon: const Icon(Icons.close, size: 16),
+                    onDeleted: () {
+                      setState(() {
+                        provider.customBodyTypes.remove(type);
+                      });
+                    },
+                  );
+                }),
+              ],
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: _showAddCustomBodyTypeDialog,
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Add Custom Body Type'),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+              ),
             ),
             const SizedBox(height: 24),
 
