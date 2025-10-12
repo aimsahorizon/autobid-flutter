@@ -5,9 +5,9 @@
 **Project:** AutoBID - Online Reused Car Auction
 **Type:** Multi-Platform App
 **Platforms:** iOS, Android, Web
-**Phase:** Beta (v0.9.0) ← Auto-detected
-**Version:** 0.9.0+17
-**Updated:** 2025-10-12
+**Phase:** Beta (v0.10.0) ← Auto-detected
+**Version:** 0.10.0+18
+**Updated:** 2025-10-13
 
 **Tech Stack:**
 - Primary: Flutter 3.9.2 (Dart ^3.9.2)
