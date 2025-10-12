@@ -67,6 +67,11 @@ class ListingProvider extends ChangeNotifier {
   bool _warrantyRemaining = false;
   DateTime? _registrationExpiry;
 
+  // CUSTOM CONDITION ATTRIBUTES
+  // Stores user-added attributes not in predefined list
+  // Key: attribute ID (camelCase), Value: toggle state
+  Map<String, bool> _customConditionAttributes = {};
+
   // LOCATION & AVAILABILITY
   String? _city;
   String? _province;
@@ -172,6 +177,7 @@ class ListingProvider extends ChangeNotifier {
   bool get serviceHistoryComplete => _serviceHistoryComplete;
   bool get warrantyRemaining => _warrantyRemaining;
   DateTime? get registrationExpiry => _registrationExpiry;
+  Map<String, bool> get customConditionAttributes => _customConditionAttributes;
 
   // LOCATION & AVAILABILITY
   String? get city => _city;
@@ -516,6 +522,11 @@ class ListingProvider extends ChangeNotifier {
 
   void setSmokerVehicle(bool value) {
     _smokerVehicle = value;
+    notifyListeners();
+  }
+
+  void setCustomConditionAttribute(String id, bool value) {
+    _customConditionAttributes[id] = value;
     notifyListeners();
   }
 
@@ -965,6 +976,7 @@ class ListingProvider extends ChangeNotifier {
     _serviceHistoryComplete = false;
     _warrantyRemaining = false;
     _registrationExpiry = null;
+    _customConditionAttributes = {};
     // LOCATION & AVAILABILITY
     _city = null;
     _province = null;
