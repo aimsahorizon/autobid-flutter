@@ -42,6 +42,100 @@ class _CreateListingStep4ExteriorState
     Step4AutofillHelper.autofill(context, _colorController);
   }
 
+  void _showAddCustomPaintTypeDialog() {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Custom Paint Type'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Enter a custom paint type.'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              autofocus: true,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(
+                labelText: 'Paint Type',
+                hintText: 'e.g., Satin, Gloss',
+                border: OutlineInputBorder(),
+              ),
+              maxLength: 30,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final type = controller.text.trim();
+              if (type.isNotEmpty) {
+                context.read<ListingProvider>().addCustomPaintType(type);
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Added custom paint type: $type')),
+                );
+              }
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddCustomRimTypeDialog() {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Custom Rim Type'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Enter a custom rim type.'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              autofocus: true,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(
+                labelText: 'Rim Type',
+                hintText: 'e.g., Carbon Fiber, Chrome',
+                border: OutlineInputBorder(),
+              ),
+              maxLength: 30,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final type = controller.text.trim();
+              if (type.isNotEmpty) {
+                context.read<ListingProvider>().addCustomRimType(type);
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Added custom rim type: $type')),
+                );
+              }
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ListingProvider>();
@@ -120,16 +214,38 @@ class _CreateListingStep4ExteriorState
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: PaintType.values.map((type) {
-                final isSelected = provider.paintType == type;
-                return ChoiceChip(
-                  label: Text(type.displayName),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    if (selected) provider.setPaintType(type);
-                  },
-                );
-              }).toList(),
+              children: [
+                ...PaintType.values.map((type) {
+                  final isSelected = provider.paintType == type;
+                  return ChoiceChip(
+                    label: Text(type.displayName),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      if (selected) provider.setPaintType(type);
+                    },
+                  );
+                }),
+                ...provider.customPaintTypes.map((type) {
+                  return Chip(
+                    label: Text(type),
+                    deleteIcon: const Icon(Icons.close, size: 16),
+                    onDeleted: () {
+                      setState(() {
+                        provider.customPaintTypes.remove(type);
+                      });
+                    },
+                  );
+                }),
+              ],
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: _showAddCustomPaintTypeDialog,
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Add Custom Paint Type'),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+              ),
             ),
             const SizedBox(height: 24),
 
@@ -157,21 +273,52 @@ class _CreateListingStep4ExteriorState
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: DropdownButtonFormField<RimType>(
-                    initialValue: provider.rimType,
-                    decoration: const InputDecoration(
-                      labelText: 'Rim Type *',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: RimType.values.map((type) {
-                      return DropdownMenuItem(
-                        value: type,
-                        child: Text(type.displayName),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) provider.setRimType(value);
-                    },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      DropdownButtonFormField<RimType>(
+                        initialValue: provider.rimType,
+                        decoration: const InputDecoration(
+                          labelText: 'Rim Type *',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: RimType.values.map((type) {
+                          return DropdownMenuItem(
+                            value: type,
+                            child: Text(type.displayName),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) provider.setRimType(value);
+                        },
+                      ),
+                      if (provider.customRimTypes.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 4,
+                          runSpacing: 4,
+                          children: provider.customRimTypes.map((type) {
+                            return Chip(
+                              label: Text(type, style: const TextStyle(fontSize: 11)),
+                              deleteIcon: const Icon(Icons.close, size: 14),
+                              visualDensity: VisualDensity.compact,
+                              onDeleted: () {
+                                setState(() {
+                                  provider.customRimTypes.remove(type);
+                                });
+                              },
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                      const SizedBox(height: 4),
+                      TextButton.icon(
+                        onPressed: _showAddCustomRimTypeDialog,
+                        icon: const Icon(Icons.add, size: 16),
+                        label: const Text('Add Custom', style: TextStyle(fontSize: 12)),
+                        style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                      ),
+                    ],
                   ),
                 ),
               ],
