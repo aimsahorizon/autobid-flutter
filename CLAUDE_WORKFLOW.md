@@ -37,6 +37,14 @@ Version: [X.Y.Z]
 
 **Format:** `[type]([scope]): [description <50 chars]`
 
+**CRITICAL Rules:**
+- **One file = one commit** (atomic, never group files)
+- **Single line only** (no body, no author, no metadata)
+- **Max 50 chars**
+- **Present tense** (add, not added)
+- **No period at end**
+- **Scope optional:** `feat(auth): add OAuth2`
+
 **Types:**
 - `feat` - New feature → Minor (+0.1.0)
 - `fix` - Bug fix → Patch (+0.0.1)
@@ -52,12 +60,21 @@ Version: [X.Y.Z]
 - `revert` - Revert commit → Varies
 - `feat!` or `BREAKING CHANGE` → Major (+1.0.0)
 
-**Rules:**
-- One file = one commit (atomic)
-- Max 50 chars
-- Present tense (add, not added)
-- No period at end
-- Scope optional: `feat(auth): add OAuth2`
+**Commit Command Format:**
+```bash
+# ✓ CORRECT - Single line, one file
+git add file.dart
+git commit -m "feat: add user authentication"
+
+# ✗ WRONG - Multi-line with metadata
+git commit -m "feat: add user authentication
+
+Co-Authored-By: Someone <email>"
+
+# ✗ WRONG - Multiple files in one commit
+git add file1.dart file2.dart
+git commit -m "feat: add multiple features"
+```
 
 **Examples:**
 ```
