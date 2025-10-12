@@ -156,10 +156,66 @@ class MockVehicleConditionsService {
     }
 
     // Sort attributes within each category by sortOrder
+    // Custom attributes appear last within their category
     for (final category in grouped.keys) {
-      grouped[category]!.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+      grouped[category]!.sort((a, b) {
+        // Custom attributes always appear after predefined ones
+        if (a.isCustom && !b.isCustom) return 1;
+        if (!a.isCustom && b.isCustom) return -1;
+        // Within same type, sort by sortOrder
+        return a.sortOrder.compareTo(b.sortOrder);
+      });
     }
 
     return grouped;
+  }
+
+  /// Merge predefined attributes with custom user-added attributes
+  /// Custom attributes from storage are added to the predefined list
+  static List<VehicleConditionAttribute> mergeWithCustomAttributes(
+    List<VehicleConditionAttribute> predefinedAttributes,
+    List<VehicleConditionAttribute> customAttributes,
+  ) {
+    // Create a map of predefined attribute IDs for quick lookup
+    final predefinedIds = predefinedAttributes.map((attr) => attr.id).toSet();
+
+    // Filter out any custom attributes that conflict with predefined ones
+    final validCustomAttributes = customAttributes.where((attr) {
+      return !predefinedIds.contains(attr.id) && attr.isCustom;
+    }).toList();
+
+    // Combine lists
+    return [...predefinedAttributes, ...validCustomAttributes];
+  }
+
+  /// Validate custom attribute before adding
+  /// Returns null if valid, error message if invalid
+  static String? validateCustomAttribute(VehicleConditionAttribute attribute) {
+    // Check ID is not empty
+    if (attribute.id.trim().isEmpty) {
+      return 'Attribute ID cannot be empty';
+    }
+
+    // Check label is not empty
+    if (attribute.label.trim().isEmpty) {
+      return 'Attribute label cannot be empty';
+    }
+
+    // Check description is not empty
+    if (attribute.description.trim().isEmpty) {
+      return 'Attribute description cannot be empty';
+    }
+
+    // Check category is valid
+    if (attribute.category.trim().isEmpty) {
+      return 'Attribute category cannot be empty';
+    }
+
+    // ID should follow camelCase pattern for consistency
+    if (!RegExp(r'^[a-z][a-zA-Z0-9]*$').hasMatch(attribute.id)) {
+      return 'Attribute ID must be camelCase (e.g., "customAttribute")';
+    }
+
+    return null; // Valid
   }
 }
