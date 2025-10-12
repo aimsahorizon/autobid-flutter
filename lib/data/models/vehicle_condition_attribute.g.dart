@@ -17,6 +17,10 @@ _VehicleConditionAttribute _$VehicleConditionAttributeFromJson(
   sortOrder: (json['sortOrder'] as num?)?.toInt() ?? 0,
   iconData: json['iconData'] as String?,
   isPositive: json['isPositive'] as bool? ?? false,
+  isCustom: json['isCustom'] as bool? ?? false,
+  addedAt: json['addedAt'] == null
+      ? null
+      : DateTime.parse(json['addedAt'] as String),
 );
 
 Map<String, dynamic> _$VehicleConditionAttributeToJson(
@@ -30,4 +34,6 @@ Map<String, dynamic> _$VehicleConditionAttributeToJson(
   'sortOrder': instance.sortOrder,
   'iconData': instance.iconData,
   'isPositive': instance.isPositive,
+  'isCustom': instance.isCustom,
+  'addedAt': instance.addedAt?.toIso8601String(),
 };

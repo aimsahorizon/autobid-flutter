@@ -23,7 +23,10 @@ mixin _$VehicleConditionAttribute {
  bool get value;/// Sort order within category (lower = appears first)
  int get sortOrder;/// Icon identifier for visual representation (optional)
  String? get iconData;/// Whether this is a positive indicator (green) or negative (orange/red)
- bool get isPositive;
+ bool get isPositive;/// Whether this is a custom attribute added by user (not in predefined list)
+/// Custom attributes are stored separately and not mapped to provider fields
+ bool get isCustom;/// Timestamp when custom attribute was added (for custom attributes only)
+ DateTime? get addedAt;
 /// Create a copy of VehicleConditionAttribute
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -36,16 +39,16 @@ $VehicleConditionAttributeCopyWith<VehicleConditionAttribute> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is VehicleConditionAttribute&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&(identical(other.description, description) || other.description == description)&&(identical(other.category, category) || other.category == category)&&(identical(other.value, value) || other.value == value)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.iconData, iconData) || other.iconData == iconData)&&(identical(other.isPositive, isPositive) || other.isPositive == isPositive));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is VehicleConditionAttribute&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&(identical(other.description, description) || other.description == description)&&(identical(other.category, category) || other.category == category)&&(identical(other.value, value) || other.value == value)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.iconData, iconData) || other.iconData == iconData)&&(identical(other.isPositive, isPositive) || other.isPositive == isPositive)&&(identical(other.isCustom, isCustom) || other.isCustom == isCustom)&&(identical(other.addedAt, addedAt) || other.addedAt == addedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,label,description,category,value,sortOrder,iconData,isPositive);
+int get hashCode => Object.hash(runtimeType,id,label,description,category,value,sortOrder,iconData,isPositive,isCustom,addedAt);
 
 @override
 String toString() {
-  return 'VehicleConditionAttribute(id: $id, label: $label, description: $description, category: $category, value: $value, sortOrder: $sortOrder, iconData: $iconData, isPositive: $isPositive)';
+  return 'VehicleConditionAttribute(id: $id, label: $label, description: $description, category: $category, value: $value, sortOrder: $sortOrder, iconData: $iconData, isPositive: $isPositive, isCustom: $isCustom, addedAt: $addedAt)';
 }
 
 
@@ -56,7 +59,7 @@ abstract mixin class $VehicleConditionAttributeCopyWith<$Res>  {
   factory $VehicleConditionAttributeCopyWith(VehicleConditionAttribute value, $Res Function(VehicleConditionAttribute) _then) = _$VehicleConditionAttributeCopyWithImpl;
 @useResult
 $Res call({
- String id, String label, String description, String category, bool value, int sortOrder, String? iconData, bool isPositive
+ String id, String label, String description, String category, bool value, int sortOrder, String? iconData, bool isPositive, bool isCustom, DateTime? addedAt
 });
 
 
@@ -73,7 +76,7 @@ class _$VehicleConditionAttributeCopyWithImpl<$Res>
 
 /// Create a copy of VehicleConditionAttribute
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? label = null,Object? description = null,Object? category = null,Object? value = null,Object? sortOrder = null,Object? iconData = freezed,Object? isPositive = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? label = null,Object? description = null,Object? category = null,Object? value = null,Object? sortOrder = null,Object? iconData = freezed,Object? isPositive = null,Object? isCustom = null,Object? addedAt = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
@@ -83,7 +86,9 @@ as String,value: null == value ? _self.value : value // ignore: cast_nullable_to
 as bool,sortOrder: null == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
 as int,iconData: freezed == iconData ? _self.iconData : iconData // ignore: cast_nullable_to_non_nullable
 as String?,isPositive: null == isPositive ? _self.isPositive : isPositive // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,isCustom: null == isCustom ? _self.isCustom : isCustom // ignore: cast_nullable_to_non_nullable
+as bool,addedAt: freezed == addedAt ? _self.addedAt : addedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
@@ -168,10 +173,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String label,  String description,  String category,  bool value,  int sortOrder,  String? iconData,  bool isPositive)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String label,  String description,  String category,  bool value,  int sortOrder,  String? iconData,  bool isPositive,  bool isCustom,  DateTime? addedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _VehicleConditionAttribute() when $default != null:
-return $default(_that.id,_that.label,_that.description,_that.category,_that.value,_that.sortOrder,_that.iconData,_that.isPositive);case _:
+return $default(_that.id,_that.label,_that.description,_that.category,_that.value,_that.sortOrder,_that.iconData,_that.isPositive,_that.isCustom,_that.addedAt);case _:
   return orElse();
 
 }
@@ -189,10 +194,10 @@ return $default(_that.id,_that.label,_that.description,_that.category,_that.valu
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String label,  String description,  String category,  bool value,  int sortOrder,  String? iconData,  bool isPositive)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String label,  String description,  String category,  bool value,  int sortOrder,  String? iconData,  bool isPositive,  bool isCustom,  DateTime? addedAt)  $default,) {final _that = this;
 switch (_that) {
 case _VehicleConditionAttribute():
-return $default(_that.id,_that.label,_that.description,_that.category,_that.value,_that.sortOrder,_that.iconData,_that.isPositive);case _:
+return $default(_that.id,_that.label,_that.description,_that.category,_that.value,_that.sortOrder,_that.iconData,_that.isPositive,_that.isCustom,_that.addedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -209,10 +214,10 @@ return $default(_that.id,_that.label,_that.description,_that.category,_that.valu
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String label,  String description,  String category,  bool value,  int sortOrder,  String? iconData,  bool isPositive)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String label,  String description,  String category,  bool value,  int sortOrder,  String? iconData,  bool isPositive,  bool isCustom,  DateTime? addedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _VehicleConditionAttribute() when $default != null:
-return $default(_that.id,_that.label,_that.description,_that.category,_that.value,_that.sortOrder,_that.iconData,_that.isPositive);case _:
+return $default(_that.id,_that.label,_that.description,_that.category,_that.value,_that.sortOrder,_that.iconData,_that.isPositive,_that.isCustom,_that.addedAt);case _:
   return null;
 
 }
@@ -224,7 +229,7 @@ return $default(_that.id,_that.label,_that.description,_that.category,_that.valu
 @JsonSerializable()
 
 class _VehicleConditionAttribute implements VehicleConditionAttribute {
-  const _VehicleConditionAttribute({required this.id, required this.label, required this.description, required this.category, this.value = false, this.sortOrder = 0, this.iconData, this.isPositive = false});
+  const _VehicleConditionAttribute({required this.id, required this.label, required this.description, required this.category, this.value = false, this.sortOrder = 0, this.iconData, this.isPositive = false, this.isCustom = false, this.addedAt});
   factory _VehicleConditionAttribute.fromJson(Map<String, dynamic> json) => _$VehicleConditionAttributeFromJson(json);
 
 /// Unique identifier for the attribute (e.g., "hasAccidentHistory")
@@ -243,6 +248,11 @@ class _VehicleConditionAttribute implements VehicleConditionAttribute {
 @override final  String? iconData;
 /// Whether this is a positive indicator (green) or negative (orange/red)
 @override@JsonKey() final  bool isPositive;
+/// Whether this is a custom attribute added by user (not in predefined list)
+/// Custom attributes are stored separately and not mapped to provider fields
+@override@JsonKey() final  bool isCustom;
+/// Timestamp when custom attribute was added (for custom attributes only)
+@override final  DateTime? addedAt;
 
 /// Create a copy of VehicleConditionAttribute
 /// with the given fields replaced by the non-null parameter values.
@@ -257,16 +267,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _VehicleConditionAttribute&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&(identical(other.description, description) || other.description == description)&&(identical(other.category, category) || other.category == category)&&(identical(other.value, value) || other.value == value)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.iconData, iconData) || other.iconData == iconData)&&(identical(other.isPositive, isPositive) || other.isPositive == isPositive));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _VehicleConditionAttribute&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&(identical(other.description, description) || other.description == description)&&(identical(other.category, category) || other.category == category)&&(identical(other.value, value) || other.value == value)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder)&&(identical(other.iconData, iconData) || other.iconData == iconData)&&(identical(other.isPositive, isPositive) || other.isPositive == isPositive)&&(identical(other.isCustom, isCustom) || other.isCustom == isCustom)&&(identical(other.addedAt, addedAt) || other.addedAt == addedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,label,description,category,value,sortOrder,iconData,isPositive);
+int get hashCode => Object.hash(runtimeType,id,label,description,category,value,sortOrder,iconData,isPositive,isCustom,addedAt);
 
 @override
 String toString() {
-  return 'VehicleConditionAttribute(id: $id, label: $label, description: $description, category: $category, value: $value, sortOrder: $sortOrder, iconData: $iconData, isPositive: $isPositive)';
+  return 'VehicleConditionAttribute(id: $id, label: $label, description: $description, category: $category, value: $value, sortOrder: $sortOrder, iconData: $iconData, isPositive: $isPositive, isCustom: $isCustom, addedAt: $addedAt)';
 }
 
 
@@ -277,7 +287,7 @@ abstract mixin class _$VehicleConditionAttributeCopyWith<$Res> implements $Vehic
   factory _$VehicleConditionAttributeCopyWith(_VehicleConditionAttribute value, $Res Function(_VehicleConditionAttribute) _then) = __$VehicleConditionAttributeCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String label, String description, String category, bool value, int sortOrder, String? iconData, bool isPositive
+ String id, String label, String description, String category, bool value, int sortOrder, String? iconData, bool isPositive, bool isCustom, DateTime? addedAt
 });
 
 
@@ -294,7 +304,7 @@ class __$VehicleConditionAttributeCopyWithImpl<$Res>
 
 /// Create a copy of VehicleConditionAttribute
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? label = null,Object? description = null,Object? category = null,Object? value = null,Object? sortOrder = null,Object? iconData = freezed,Object? isPositive = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? label = null,Object? description = null,Object? category = null,Object? value = null,Object? sortOrder = null,Object? iconData = freezed,Object? isPositive = null,Object? isCustom = null,Object? addedAt = freezed,}) {
   return _then(_VehicleConditionAttribute(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
@@ -304,7 +314,9 @@ as String,value: null == value ? _self.value : value // ignore: cast_nullable_to
 as bool,sortOrder: null == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
 as int,iconData: freezed == iconData ? _self.iconData : iconData // ignore: cast_nullable_to_non_nullable
 as String?,isPositive: null == isPositive ? _self.isPositive : isPositive // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,isCustom: null == isCustom ? _self.isCustom : isCustom // ignore: cast_nullable_to_non_nullable
+as bool,addedAt: freezed == addedAt ? _self.addedAt : addedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
