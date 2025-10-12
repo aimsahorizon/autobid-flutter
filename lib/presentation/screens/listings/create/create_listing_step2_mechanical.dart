@@ -54,6 +54,194 @@ class _CreateListingStep2MechanicalState
     );
   }
 
+  void _showAddCustomEngineTypeDialog() {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Custom Engine Type'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Enter a custom engine type not in the standard list.'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              autofocus: true,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(
+                labelText: 'Engine Type',
+                hintText: 'e.g., W-Type, Radial',
+                border: OutlineInputBorder(),
+              ),
+              maxLength: 30,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final type = controller.text.trim();
+              if (type.isNotEmpty) {
+                context.read<ListingProvider>().addCustomEngineType(type);
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Added custom engine type: $type')),
+                );
+              }
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddCustomTransmissionTypeDialog() {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Custom Transmission'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Enter a custom transmission type.'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              autofocus: true,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(
+                labelText: 'Transmission Type',
+                hintText: 'e.g., Sequential, Automated Manual',
+                border: OutlineInputBorder(),
+              ),
+              maxLength: 30,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final type = controller.text.trim();
+              if (type.isNotEmpty) {
+                context.read<ListingProvider>().addCustomTransmissionType(type);
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Added custom transmission: $type')),
+                );
+              }
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddCustomDriveTypeDialog() {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Custom Drive Type'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Enter a custom drive type.'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              autofocus: true,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(
+                labelText: 'Drive Type',
+                hintText: 'e.g., Part-time 4WD',
+                border: OutlineInputBorder(),
+              ),
+              maxLength: 30,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final type = controller.text.trim();
+              if (type.isNotEmpty) {
+                context.read<ListingProvider>().addCustomDriveType(type);
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Added custom drive type: $type')),
+                );
+              }
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddCustomFuelTypeDialog() {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Custom Fuel Type'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Enter a custom fuel type.'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              autofocus: true,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(
+                labelText: 'Fuel Type',
+                hintText: 'e.g., Ethanol, Biodiesel',
+                border: OutlineInputBorder(),
+              ),
+              maxLength: 30,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final type = controller.text.trim();
+              if (type.isNotEmpty) {
+                context.read<ListingProvider>().addCustomFuelType(type);
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Added custom fuel type: $type')),
+                );
+              }
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ListingProvider>();
@@ -140,6 +328,33 @@ class _CreateListingStep2MechanicalState
                 if (value != null) provider.setEngineType(value);
               },
             ),
+            if (provider.customEngineTypes.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: provider.customEngineTypes.map((type) {
+                  return Chip(
+                    label: Text(type),
+                    deleteIcon: const Icon(Icons.close, size: 16),
+                    onDeleted: () {
+                      setState(() {
+                        provider.customEngineTypes.remove(type);
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+            ],
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: _showAddCustomEngineTypeDialog,
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Add Custom Engine Type'),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+              ),
+            ),
             const SizedBox(height: 16),
 
             Row(
@@ -216,16 +431,38 @@ class _CreateListingStep2MechanicalState
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: TransmissionType.values.map((type) {
-                final isSelected = provider.transmission == type;
-                return ChoiceChip(
-                  label: Text(type.displayName),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    if (selected) provider.setTransmission(type);
-                  },
-                );
-              }).toList(),
+              children: [
+                ...TransmissionType.values.map((type) {
+                  final isSelected = provider.transmission == type;
+                  return ChoiceChip(
+                    label: Text(type.displayName),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      if (selected) provider.setTransmission(type);
+                    },
+                  );
+                }),
+                ...provider.customTransmissionTypes.map((type) {
+                  return Chip(
+                    label: Text(type),
+                    deleteIcon: const Icon(Icons.close, size: 16),
+                    onDeleted: () {
+                      setState(() {
+                        provider.customTransmissionTypes.remove(type);
+                      });
+                    },
+                  );
+                }),
+              ],
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: _showAddCustomTransmissionTypeDialog,
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Add Custom Transmission'),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+              ),
             ),
             const SizedBox(height: 16),
 
@@ -244,21 +481,52 @@ class _CreateListingStep2MechanicalState
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: DropdownButtonFormField<DriveType>(
-                    initialValue: provider.driveType,
-                    decoration: const InputDecoration(
-                      labelText: 'Drive Type *',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: DriveType.values.map((type) {
-                      return DropdownMenuItem(
-                        value: type,
-                        child: Text(type.displayName),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) provider.setDriveType(value);
-                    },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      DropdownButtonFormField<DriveType>(
+                        initialValue: provider.driveType,
+                        decoration: const InputDecoration(
+                          labelText: 'Drive Type *',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: DriveType.values.map((type) {
+                          return DropdownMenuItem(
+                            value: type,
+                            child: Text(type.displayName),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) provider.setDriveType(value);
+                        },
+                      ),
+                      if (provider.customDriveTypes.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 4,
+                          runSpacing: 4,
+                          children: provider.customDriveTypes.map((type) {
+                            return Chip(
+                              label: Text(type, style: const TextStyle(fontSize: 11)),
+                              deleteIcon: const Icon(Icons.close, size: 14),
+                              visualDensity: VisualDensity.compact,
+                              onDeleted: () {
+                                setState(() {
+                                  provider.customDriveTypes.remove(type);
+                                });
+                              },
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                      const SizedBox(height: 4),
+                      TextButton.icon(
+                        onPressed: _showAddCustomDriveTypeDialog,
+                        icon: const Icon(Icons.add, size: 16),
+                        label: const Text('Add Custom', style: TextStyle(fontSize: 12)),
+                        style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -276,16 +544,38 @@ class _CreateListingStep2MechanicalState
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: FuelType.values.map((type) {
-                final isSelected = provider.fuelType == type;
-                return ChoiceChip(
-                  label: Text(type.displayName),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    if (selected) provider.setFuelType(type);
-                  },
-                );
-              }).toList(),
+              children: [
+                ...FuelType.values.map((type) {
+                  final isSelected = provider.fuelType == type;
+                  return ChoiceChip(
+                    label: Text(type.displayName),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      if (selected) provider.setFuelType(type);
+                    },
+                  );
+                }),
+                ...provider.customFuelTypes.map((type) {
+                  return Chip(
+                    label: Text(type),
+                    deleteIcon: const Icon(Icons.close, size: 16),
+                    onDeleted: () {
+                      setState(() {
+                        provider.customFuelTypes.remove(type);
+                      });
+                    },
+                  );
+                }),
+              ],
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: _showAddCustomFuelTypeDialog,
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Add Custom Fuel Type'),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+              ),
             ),
 
             // Electric/Hybrid Specific Fields
