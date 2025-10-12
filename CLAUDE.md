@@ -5,8 +5,8 @@
 **Project:** AutoBID - Online Reused Car Auction
 **Type:** Multi-Platform App
 **Platforms:** iOS, Android, Web
-**Phase:** Beta (v0.8.4) ← Auto-detected
-**Version:** 0.8.8+16
+**Phase:** Beta (v0.9.0) ← Auto-detected
+**Version:** 0.9.0+17
 **Updated:** 2025-10-12
 
 **Tech Stack:**
@@ -106,7 +106,7 @@
 - `@commit` - Generate commits
 - `@export` - PR summary
 
-**Current Focus:** Vehicle condition enhancement with custom attributes
+**Current Focus:** Custom attribute system for listing enums and features
 **Branch:** nekolaiv/carlisting-enhancement
 
 ---
