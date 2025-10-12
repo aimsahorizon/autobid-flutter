@@ -153,26 +153,43 @@ class _CreateListingStep3DimensionsState
                   );
                 }),
                 ...provider.customBodyTypes.map((type) {
-                  return Chip(
-                    label: Text(type),
-                    deleteIcon: const Icon(Icons.close, size: 16),
-                    onDeleted: () {
-                      setState(() {
-                        provider.customBodyTypes.remove(type);
-                      });
+                  final isSelected = provider.selectedCustomBodyType == type;
+                  return ChoiceChip(
+                    label: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(type),
+                        const SizedBox(width: 4),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              provider.customBodyTypes.remove(type);
+                              if (provider.selectedCustomBodyType == type) {
+                                provider.setSelectedCustomBodyType(null);
+                              }
+                            });
+                          },
+                          child: const Icon(Icons.cancel, size: 16),
+                        ),
+                      ],
+                    ),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      if (selected) {
+                        provider.setBodyType(null);
+                        provider.setSelectedCustomBodyType(type);
+                      }
                     },
                   );
                 }),
+                ActionChip(
+                  avatar: const Icon(Icons.add_circle_outline, size: 18),
+                  label: const Text('Add option'),
+                  onPressed: _showAddCustomBodyTypeDialog,
+                  backgroundColor: Colors.grey[100],
+                  side: BorderSide(color: Colors.grey[400]!, style: BorderStyle.none),
+                ),
               ],
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              onPressed: _showAddCustomBodyTypeDialog,
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add Custom Body Type'),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-              ),
             ),
             const SizedBox(height: 24),
 
