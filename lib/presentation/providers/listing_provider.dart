@@ -72,6 +72,10 @@ class ListingProvider extends ChangeNotifier {
   // Key: attribute ID (camelCase), Value: toggle state
   Map<String, bool> _customConditionAttributes = {};
 
+  // CUSTOM CONDITION ATTRIBUTES LIST
+  // Stores metadata about custom attributes (label, description, category)
+  List<Map<String, dynamic>> _customConditionAttributesList = [];
+
   // LOCATION & AVAILABILITY
   String? _city;
   String? _province;
@@ -98,6 +102,20 @@ class ListingProvider extends ChangeNotifier {
   List<String> _images = [];
   Map<String, List<String>> _categorizedImages = {};
   List<String> _features = [];
+
+  // CUSTOM FEATURES
+  // Stores user-added features not in predefined list
+  List<String> _customFeatures = [];
+
+  // CUSTOM ENUM VALUES
+  // Stores user-added custom values for enum types
+  List<String> _customEngineTypes = [];
+  List<String> _customTransmissionTypes = [];
+  List<String> _customDriveTypes = [];
+  List<String> _customFuelTypes = [];
+  List<String> _customBodyTypes = [];
+  List<String> _customPaintTypes = [];
+  List<String> _customRimTypes = [];
 
   // Auction settings
   bool _isAuction = false;
@@ -178,6 +196,7 @@ class ListingProvider extends ChangeNotifier {
   bool get warrantyRemaining => _warrantyRemaining;
   DateTime? get registrationExpiry => _registrationExpiry;
   Map<String, bool> get customConditionAttributes => _customConditionAttributes;
+  List<Map<String, dynamic>> get customConditionAttributesList => _customConditionAttributesList;
 
   // LOCATION & AVAILABILITY
   String? get city => _city;
@@ -205,6 +224,14 @@ class ListingProvider extends ChangeNotifier {
   List<String> get images => _images;
   Map<String, List<String>> get categorizedImages => _categorizedImages;
   List<String> get features => _features;
+  List<String> get customFeatures => _customFeatures;
+  List<String> get customEngineTypes => _customEngineTypes;
+  List<String> get customTransmissionTypes => _customTransmissionTypes;
+  List<String> get customDriveTypes => _customDriveTypes;
+  List<String> get customFuelTypes => _customFuelTypes;
+  List<String> get customBodyTypes => _customBodyTypes;
+  List<String> get customPaintTypes => _customPaintTypes;
+  List<String> get customRimTypes => _customRimTypes;
 
   bool get isAuction => _isAuction;
   double? get auctionStartingPrice => _auctionStartingPrice;
@@ -530,6 +557,34 @@ class ListingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void addCustomConditionAttribute({
+    required String id,
+    required String label,
+    required String description,
+    required String category,
+  }) {
+    // Check if attribute already exists
+    final exists = _customConditionAttributesList.any((attr) => attr['id'] == id);
+    if (!exists) {
+      _customConditionAttributesList.add({
+        'id': id,
+        'label': label,
+        'description': description,
+        'category': category,
+        'addedAt': DateTime.now().toIso8601String(),
+      });
+      // Initialize with false value
+      _customConditionAttributes[id] = false;
+      notifyListeners();
+    }
+  }
+
+  void removeCustomConditionAttribute(String id) {
+    _customConditionAttributesList.removeWhere((attr) => attr['id'] == id);
+    _customConditionAttributes.remove(id);
+    notifyListeners();
+  }
+
   void setCondition(CarCondition? value) {
     _condition = value;
     notifyListeners();
@@ -611,6 +666,70 @@ class ListingProvider extends ChangeNotifier {
       _features.add(feature);
     }
     notifyListeners();
+  }
+
+  void addCustomFeature(String feature) {
+    if (!_customFeatures.contains(feature)) {
+      _customFeatures.add(feature);
+      // Also add to regular features list
+      _features.add(feature);
+      notifyListeners();
+    }
+  }
+
+  void removeCustomFeature(String feature) {
+    _customFeatures.remove(feature);
+    _features.remove(feature);
+    notifyListeners();
+  }
+
+  void addCustomEngineType(String type) {
+    if (!_customEngineTypes.contains(type)) {
+      _customEngineTypes.add(type);
+      notifyListeners();
+    }
+  }
+
+  void addCustomTransmissionType(String type) {
+    if (!_customTransmissionTypes.contains(type)) {
+      _customTransmissionTypes.add(type);
+      notifyListeners();
+    }
+  }
+
+  void addCustomDriveType(String type) {
+    if (!_customDriveTypes.contains(type)) {
+      _customDriveTypes.add(type);
+      notifyListeners();
+    }
+  }
+
+  void addCustomFuelType(String type) {
+    if (!_customFuelTypes.contains(type)) {
+      _customFuelTypes.add(type);
+      notifyListeners();
+    }
+  }
+
+  void addCustomBodyType(String type) {
+    if (!_customBodyTypes.contains(type)) {
+      _customBodyTypes.add(type);
+      notifyListeners();
+    }
+  }
+
+  void addCustomPaintType(String type) {
+    if (!_customPaintTypes.contains(type)) {
+      _customPaintTypes.add(type);
+      notifyListeners();
+    }
+  }
+
+  void addCustomRimType(String type) {
+    if (!_customRimTypes.contains(type)) {
+      _customRimTypes.add(type);
+      notifyListeners();
+    }
   }
 
   void setIsAuction(bool value) {
@@ -977,6 +1096,7 @@ class ListingProvider extends ChangeNotifier {
     _warrantyRemaining = false;
     _registrationExpiry = null;
     _customConditionAttributes = {};
+    _customConditionAttributesList = [];
     // LOCATION & AVAILABILITY
     _city = null;
     _province = null;
@@ -998,6 +1118,14 @@ class ListingProvider extends ChangeNotifier {
     _images = [];
     _categorizedImages = {};
     _features = [];
+    _customFeatures = [];
+    _customEngineTypes = [];
+    _customTransmissionTypes = [];
+    _customDriveTypes = [];
+    _customFuelTypes = [];
+    _customBodyTypes = [];
+    _customPaintTypes = [];
+    _customRimTypes = [];
     _lastCompletedStep = 0;
     _currentStep = 1;
     notifyListeners();
