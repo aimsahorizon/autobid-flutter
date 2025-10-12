@@ -135,6 +135,7 @@ class _CreateListingStep5ConditionState
 
   /// Gets current value from provider based on attribute ID
   /// This is the integration point with existing form state
+  /// For custom attributes, checks customConditionAttributes map
   bool _getProviderValue(String attributeId, ListingProvider provider) {
     switch (attributeId) {
       case 'serviceHistoryComplete':
@@ -160,12 +161,14 @@ class _CreateListingStep5ConditionState
       case 'warrantyRemaining':
         return provider.warrantyRemaining;
       default:
-        return false; // New attributes default to false
+        // Custom attributes: check customConditionAttributes map
+        return provider.customConditionAttributes[attributeId] ?? false;
     }
   }
 
   /// Updates provider when attribute value changes
   /// This is the integration point for saving to parent form state
+  /// For custom attributes, stores in customConditionAttributes map
   void _updateProviderValue(
     String attributeId,
     bool value,
@@ -206,8 +209,8 @@ class _CreateListingStep5ConditionState
         provider.setWarrantyRemaining(value);
         break;
       default:
-        // New attributes: extend provider or handle differently
-        debugPrint('Unknown attribute: $attributeId');
+        // Custom attributes: store in customConditionAttributes map
+        provider.setCustomConditionAttribute(attributeId, value);
     }
   }
 
