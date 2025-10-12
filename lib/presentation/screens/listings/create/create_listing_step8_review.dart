@@ -46,6 +46,66 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
     );
   }
 
+  void _showAddCustomFeatureDialog(BuildContext context, ListingProvider provider) {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Custom Feature'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Enter a feature that is not listed in the standard categories.',
+              style: TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              autofocus: true,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(
+                labelText: 'Feature Name',
+                hintText: 'e.g., Custom Sound System',
+                border: OutlineInputBorder(),
+              ),
+              maxLength: 50,
+              onSubmitted: (value) {
+                if (value.trim().isNotEmpty) {
+                  provider.addCustomFeature(value.trim());
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final feature = controller.text.trim();
+              if (feature.isNotEmpty) {
+                provider.addCustomFeature(feature);
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Added custom feature: $feature'),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              }
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ListingProvider>();
@@ -259,6 +319,84 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
                 ),
               );
             }).toList(),
+
+            // CUSTOM FEATURES SECTION
+            if (provider.customFeatures.isNotEmpty)
+              Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                child: Theme(
+                  data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                  child: ExpansionTile(
+                    initiallyExpanded: true,
+                    title: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            CarFeatures.customCategory,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.blue.shade200),
+                          ),
+                          child: Text(
+                            '${provider.customFeatures.length}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue.shade700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: provider.customFeatures.map((feature) {
+                            return FilterChip(
+                              label: Text(
+                                feature,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                              selected: true,
+                              onSelected: null,
+                              onDeleted: () => provider.removeCustomFeature(feature),
+                              deleteIcon: const Icon(Icons.close, size: 16),
+                              selectedColor: Colors.blue.shade100,
+                              checkmarkColor: Colors.blue.shade700,
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+            // ADD CUSTOM FEATURE BUTTON
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: () => _showAddCustomFeatureDialog(context, provider),
+              icon: const Icon(Icons.add),
+              label: const Text('Add Custom Feature'),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+            ),
           ],
         ),
       ),
