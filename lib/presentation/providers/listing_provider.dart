@@ -16,13 +16,13 @@ class ListingProvider extends ChangeNotifier {
 
   // MECHANICAL
   String? _engineSize;
-  EngineType _engineType = EngineType.inline;
+  EngineType? _engineType;
   int _cylinders = 4;
   int _horsepower = 150;
   int _torque = 200;
   TransmissionType? _transmission;
   int _transmissionSpeeds = 6;
-  DriveType _driveType = DriveType.fwd;
+  DriveType? _driveType;
   FuelType? _fuelType;
   double _fuelConsumption = 7.5;
   int? _electricRange;
@@ -45,9 +45,9 @@ class ListingProvider extends ChangeNotifier {
 
   // EXTERIOR
   String? _color;
-  PaintType _paintType = PaintType.solid;
+  PaintType? _paintType;
   int _rimSize = 16;
-  RimType _rimType = RimType.alloy;
+  RimType? _rimType;
   TireCondition _tireCondition = TireCondition.good;
 
   // CONDITION & HISTORY
@@ -117,6 +117,13 @@ class ListingProvider extends ChangeNotifier {
   List<String> _customPaintTypes = [];
   List<String> _customRimTypes = [];
 
+  // SELECTED CUSTOM VALUES
+  // Tracks which custom values are currently selected
+  String? _selectedCustomTransmission;
+  String? _selectedCustomFuelType;
+  String? _selectedCustomBodyType;
+  String? _selectedCustomPaintType;
+
   // Auction settings
   bool _isAuction = false;
   double? _auctionStartingPrice;
@@ -145,13 +152,13 @@ class ListingProvider extends ChangeNotifier {
 
   // MECHANICAL
   String? get engineSize => _engineSize;
-  EngineType get engineType => _engineType;
+  EngineType? get engineType => _engineType;
   int get cylinders => _cylinders;
   int get horsepower => _horsepower;
   int get torque => _torque;
   TransmissionType? get transmission => _transmission;
   int get transmissionSpeeds => _transmissionSpeeds;
-  DriveType get driveType => _driveType;
+  DriveType? get driveType => _driveType;
   FuelType? get fuelType => _fuelType;
   double get fuelConsumption => _fuelConsumption;
   int? get electricRange => _electricRange;
@@ -174,9 +181,9 @@ class ListingProvider extends ChangeNotifier {
 
   // EXTERIOR
   String? get color => _color;
-  PaintType get paintType => _paintType;
+  PaintType? get paintType => _paintType;
   int get rimSize => _rimSize;
-  RimType get rimType => _rimType;
+  RimType? get rimType => _rimType;
   TireCondition get tireCondition => _tireCondition;
 
   // CONDITION & HISTORY
@@ -232,6 +239,10 @@ class ListingProvider extends ChangeNotifier {
   List<String> get customBodyTypes => _customBodyTypes;
   List<String> get customPaintTypes => _customPaintTypes;
   List<String> get customRimTypes => _customRimTypes;
+  String? get selectedCustomTransmission => _selectedCustomTransmission;
+  String? get selectedCustomFuelType => _selectedCustomFuelType;
+  String? get selectedCustomBodyType => _selectedCustomBodyType;
+  String? get selectedCustomPaintType => _selectedCustomPaintType;
 
   bool get isAuction => _isAuction;
   double? get auctionStartingPrice => _auctionStartingPrice;
@@ -302,9 +313,11 @@ class ListingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setEngineType(EngineType value) {
-    _engineType = value;
-    notifyListeners();
+  void setEngineType(EngineType? value) {
+    if (value != null) {
+      _engineType = value;
+      notifyListeners();
+    }
   }
 
   void setCylinders(int value) {
@@ -327,9 +340,11 @@ class ListingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setDriveType(DriveType value) {
-    _driveType = value;
-    notifyListeners();
+  void setDriveType(DriveType? value) {
+    if (value != null) {
+      _driveType = value;
+      notifyListeners();
+    }
   }
 
   void setFuelConsumption(double value) {
@@ -407,9 +422,11 @@ class ListingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setPaintType(PaintType value) {
-    _paintType = value;
-    notifyListeners();
+  void setPaintType(PaintType? value) {
+    if (value != null) {
+      _paintType = value;
+      notifyListeners();
+    }
   }
 
   void setRimSize(int value) {
@@ -417,9 +434,11 @@ class ListingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setRimType(RimType value) {
-    _rimType = value;
-    notifyListeners();
+  void setRimType(RimType? value) {
+    if (value != null) {
+      _rimType = value;
+      notifyListeners();
+    }
   }
 
   void setTireCondition(TireCondition value) {
@@ -732,6 +751,27 @@ class ListingProvider extends ChangeNotifier {
     }
   }
 
+  // Setters for selected custom values
+  void setSelectedCustomTransmission(String? value) {
+    _selectedCustomTransmission = value;
+    notifyListeners();
+  }
+
+  void setSelectedCustomFuelType(String? value) {
+    _selectedCustomFuelType = value;
+    notifyListeners();
+  }
+
+  void setSelectedCustomBodyType(String? value) {
+    _selectedCustomBodyType = value;
+    notifyListeners();
+  }
+
+  void setSelectedCustomPaintType(String? value) {
+    _selectedCustomPaintType = value;
+    notifyListeners();
+  }
+
   void setIsAuction(bool value) {
     _isAuction = value;
     notifyListeners();
@@ -829,13 +869,13 @@ class ListingProvider extends ChangeNotifier {
       year: _year ?? DateTime.now().year,
       // MECHANICAL - Use defaults for drafts if null
       engineSize: _engineSize ?? 'TBD',
-      engineType: _engineType,
+      engineType: _engineType ?? EngineType.inline,
       cylinders: _cylinders,
       horsepower: _horsepower,
       torque: _torque,
       transmission: _transmission ?? TransmissionType.automatic,
       transmissionSpeeds: _transmissionSpeeds,
-      driveType: _driveType,
+      driveType: _driveType ?? DriveType.fwd,
       fuelType: _fuelType ?? FuelType.gasoline,
       fuelConsumption: _fuelConsumption,
       electricRange: _electricRange,
@@ -856,9 +896,9 @@ class ListingProvider extends ChangeNotifier {
       wheelbase: _wheelbase,
       // EXTERIOR - Use defaults for drafts if null
       color: _color ?? 'TBD',
-      paintType: _paintType,
+      paintType: _paintType ?? PaintType.solid,
       rimSize: _rimSize,
-      rimType: _rimType,
+      rimType: _rimType ?? RimType.alloy,
       tireCondition: _tireCondition,
       // CONDITION & HISTORY - Use defaults for drafts if null
       condition: _condition ?? CarCondition.used,
@@ -1048,13 +1088,13 @@ class ListingProvider extends ChangeNotifier {
     _year = null;
     // MECHANICAL
     _engineSize = null;
-    _engineType = EngineType.inline;
+    _engineType = null;
     _cylinders = 4;
     _horsepower = 150;
     _torque = 200;
     _transmission = null;
     _transmissionSpeeds = 6;
-    _driveType = DriveType.fwd;
+    _driveType = null;
     _fuelType = null;
     _fuelConsumption = 7.5;
     _electricRange = null;
@@ -1075,9 +1115,9 @@ class ListingProvider extends ChangeNotifier {
     _wheelbase = 2700;
     // EXTERIOR
     _color = null;
-    _paintType = PaintType.solid;
+    _paintType = null;
     _rimSize = 16;
-    _rimType = RimType.alloy;
+    _rimType = null;
     _tireCondition = TireCondition.good;
     // CONDITION & HISTORY
     _condition = null;
@@ -1126,6 +1166,10 @@ class ListingProvider extends ChangeNotifier {
     _customBodyTypes = [];
     _customPaintTypes = [];
     _customRimTypes = [];
+    _selectedCustomTransmission = null;
+    _selectedCustomFuelType = null;
+    _selectedCustomBodyType = null;
+    _selectedCustomPaintType = null;
     _lastCompletedStep = 0;
     _currentStep = 1;
     notifyListeners();
