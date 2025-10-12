@@ -312,31 +312,40 @@ class _CreateListingStep2MechanicalState
             const SizedBox(height: 16),
 
             // Engine Type
-            DropdownButtonFormField<EngineType>(
-              initialValue: provider.engineType,
+            DropdownButtonFormField<EngineType?>(
+              value: provider.engineType,
               decoration: const InputDecoration(
                 labelText: 'Engine Type *',
                 border: OutlineInputBorder(),
+                hintText: 'Select engine type',
               ),
-              items: EngineType.values.map((type) {
-                return DropdownMenuItem(
-                  value: type,
-                  child: Text(type.displayName),
-                );
-              }).toList(),
+              items: [
+                const DropdownMenuItem<EngineType?>(
+                  value: null,
+                  child: Text('Select engine type', style: TextStyle(color: Colors.grey)),
+                ),
+                ...EngineType.values.map((type) {
+                  return DropdownMenuItem<EngineType?>(
+                    value: type,
+                    child: Text(type.displayName),
+                  );
+                }).toList(),
+              ],
               onChanged: (value) {
-                if (value != null) provider.setEngineType(value);
+                provider.setEngineType(value);
               },
+              validator: (value) => value == null ? 'Please select engine type' : null,
             ),
             if (provider.customEngineTypes.isNotEmpty) ...[
               const SizedBox(height: 8),
               Wrap(
-                spacing: 8,
-                runSpacing: 8,
+                spacing: 4,
+                runSpacing: 4,
                 children: provider.customEngineTypes.map((type) {
                   return Chip(
-                    label: Text(type),
-                    deleteIcon: const Icon(Icons.close, size: 16),
+                    label: Text(type, style: const TextStyle(fontSize: 11)),
+                    deleteIcon: const Icon(Icons.close, size: 14),
+                    visualDensity: VisualDensity.compact,
                     onDeleted: () {
                       setState(() {
                         provider.customEngineTypes.remove(type);
@@ -346,13 +355,14 @@ class _CreateListingStep2MechanicalState
                 }).toList(),
               ),
             ],
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              onPressed: _showAddCustomEngineTypeDialog,
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add Custom Engine Type'),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 10),
+            const SizedBox(height: 4),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: _showAddCustomEngineTypeDialog,
+                icon: const Icon(Icons.add, size: 16),
+                label: const Text('Add Custom Engine Type', style: TextStyle(fontSize: 12)),
+                style: TextButton.styleFrom(padding: EdgeInsets.zero),
               ),
             ),
             const SizedBox(height: 16),
@@ -443,26 +453,43 @@ class _CreateListingStep2MechanicalState
                   );
                 }),
                 ...provider.customTransmissionTypes.map((type) {
-                  return Chip(
-                    label: Text(type),
-                    deleteIcon: const Icon(Icons.close, size: 16),
-                    onDeleted: () {
-                      setState(() {
-                        provider.customTransmissionTypes.remove(type);
-                      });
+                  final isSelected = provider.selectedCustomTransmission == type;
+                  return ChoiceChip(
+                    label: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(type),
+                        const SizedBox(width: 4),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              provider.customTransmissionTypes.remove(type);
+                              if (provider.selectedCustomTransmission == type) {
+                                provider.setSelectedCustomTransmission(null);
+                              }
+                            });
+                          },
+                          child: const Icon(Icons.cancel, size: 16),
+                        ),
+                      ],
+                    ),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      if (selected) {
+                        provider.setTransmission(null);
+                        provider.setSelectedCustomTransmission(type);
+                      }
                     },
                   );
                 }),
+                ActionChip(
+                  avatar: const Icon(Icons.add_circle_outline, size: 18),
+                  label: const Text('Add option'),
+                  onPressed: _showAddCustomTransmissionTypeDialog,
+                  backgroundColor: Colors.grey[100],
+                  side: BorderSide(color: Colors.grey[400]!, style: BorderStyle.none),
+                ),
               ],
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              onPressed: _showAddCustomTransmissionTypeDialog,
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add Custom Transmission'),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-              ),
             ),
             const SizedBox(height: 16),
 
@@ -484,21 +511,29 @@ class _CreateListingStep2MechanicalState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      DropdownButtonFormField<DriveType>(
-                        initialValue: provider.driveType,
+                      DropdownButtonFormField<DriveType?>(
+                        value: provider.driveType,
                         decoration: const InputDecoration(
                           labelText: 'Drive Type *',
                           border: OutlineInputBorder(),
+                          hintText: 'Select drive type',
                         ),
-                        items: DriveType.values.map((type) {
-                          return DropdownMenuItem(
-                            value: type,
-                            child: Text(type.displayName),
-                          );
-                        }).toList(),
+                        items: [
+                          const DropdownMenuItem<DriveType?>(
+                            value: null,
+                            child: Text('Select drive type', style: TextStyle(color: Colors.grey)),
+                          ),
+                          ...DriveType.values.map((type) {
+                            return DropdownMenuItem<DriveType?>(
+                              value: type,
+                              child: Text(type.displayName),
+                            );
+                          }).toList(),
+                        ],
                         onChanged: (value) {
-                          if (value != null) provider.setDriveType(value);
+                          provider.setDriveType(value);
                         },
+                        validator: (value) => value == null ? 'Please select drive type' : null,
                       ),
                       if (provider.customDriveTypes.isNotEmpty) ...[
                         const SizedBox(height: 8),
@@ -556,26 +591,43 @@ class _CreateListingStep2MechanicalState
                   );
                 }),
                 ...provider.customFuelTypes.map((type) {
-                  return Chip(
-                    label: Text(type),
-                    deleteIcon: const Icon(Icons.close, size: 16),
-                    onDeleted: () {
-                      setState(() {
-                        provider.customFuelTypes.remove(type);
-                      });
+                  final isSelected = provider.selectedCustomFuelType == type;
+                  return ChoiceChip(
+                    label: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(type),
+                        const SizedBox(width: 4),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              provider.customFuelTypes.remove(type);
+                              if (provider.selectedCustomFuelType == type) {
+                                provider.setSelectedCustomFuelType(null);
+                              }
+                            });
+                          },
+                          child: const Icon(Icons.cancel, size: 16),
+                        ),
+                      ],
+                    ),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      if (selected) {
+                        provider.setFuelType(null);
+                        provider.setSelectedCustomFuelType(type);
+                      }
                     },
                   );
                 }),
+                ActionChip(
+                  avatar: const Icon(Icons.add_circle_outline, size: 18),
+                  label: const Text('Add option'),
+                  onPressed: _showAddCustomFuelTypeDialog,
+                  backgroundColor: Colors.grey[100],
+                  side: BorderSide(color: Colors.grey[400]!, style: BorderStyle.none),
+                ),
               ],
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              onPressed: _showAddCustomFuelTypeDialog,
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add Custom Fuel Type'),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-              ),
             ),
 
             // Electric/Hybrid Specific Fields
