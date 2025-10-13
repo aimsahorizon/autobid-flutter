@@ -1,7 +1,7 @@
 # AutoBID - Project Structure
 
-**Last Updated:** 2025-10-12
-**Version:** 0.8.4+12
+**Last Updated:** 2025-10-13
+**Version:** 0.11.0+20
 **Phase:** Beta Development
 
 ---
@@ -215,6 +215,7 @@ lib/
 │       ├── condition_category_section.dart
 │       ├── condition_toggle.dart
 │       ├── counter_input_field.dart
+│       ├── creatable_dropdown.dart
 │       ├── custom_button.dart
 │       ├── custom_text_field.dart
 │       ├── date_picker_field.dart
@@ -342,12 +343,16 @@ P0 = Critical (blocks release) | P1 = High (fix soon) | P2 = Medium (next sprint
 ## 🎯 Current Focus
 
 **Branch:** nekolaiv/carlisting-enhancement
-**Task:** Enhanced vehicle condition attributes with custom fields
+**Task:** Completed CreatableDropdown refactoring for car listing steps 2-4
+**Completed:**
+1. Created reusable CreatableDropdown<T> widget with Material 3 styling
+2. Refactored all custom attribute dropdowns in steps 2-4
+3. Removed manual dialog patterns, reduced code by ~400 lines
+4. Added provider support for custom value selection tracking
 **Next Steps:**
-1. Complete vehicle condition enhancement
-2. Run tests and ensure lint passes
-3. Commit changes with semantic versioning
-4. Consider addressing P1 tech debt (duplicate KYC models)
+1. Test dropdown functionality and duplicate prevention
+2. Commit changes with semantic versioning
+3. Consider addressing P1 tech debt (duplicate KYC models)
 
 ---
 
