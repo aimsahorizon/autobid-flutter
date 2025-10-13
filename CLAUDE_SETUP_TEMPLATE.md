@@ -105,10 +105,13 @@ CLAUDE_WORKFLOW.md      (Reference - templates & patterns)
 4. **[AUTO] Post-Task Checklist:**
    - [ ] Update CLAUDE.md Section 0 if version/phase changed
    - [ ] Update PROJECT_STRUCTURE.md if structure/features changed
-   - [ ] Suggest version bump (format: `→ 0.11.0+20`)
-   - [ ] List commits (format: `filename | commit message`)
+   - [ ] Suggest version bump ONLY if changed this prompt
+   - [ ] List commits ONLY for files modified this prompt
 
-**CRITICAL:** Always run Post-Task Checklist before final response.
+**CRITICAL:**
+- Always run Post-Task Checklist before final response
+- Assume all previous prompt files were committed
+- Only show current prompt changes
 
 **Version Bumps (User applies manually):**
 - `feat` → Minor (+0.1.0)
