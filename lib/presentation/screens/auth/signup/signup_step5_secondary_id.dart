@@ -187,7 +187,7 @@ class _SignupStep5SecondaryIdState extends State<SignupStep5SecondaryId> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SignupStepper(currentStep: 5),
+                const SignupStepper(currentStep: 6, totalSteps: 9),
                 const SizedBox(height: 32),
                 Text(
                   'Secondary ID',
