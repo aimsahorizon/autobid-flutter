@@ -221,31 +221,17 @@ class _CreateListingStep4ExteriorState
                     label: Text(type.displayName),
                     selected: isSelected,
                     onSelected: (selected) {
-                      if (selected) provider.setPaintType(type);
+                      if (selected) {
+                        provider.setPaintType(type);
+                        provider.setSelectedCustomPaintType(null);
+                      }
                     },
                   );
                 }),
                 ...provider.customPaintTypes.map((type) {
                   final isSelected = provider.selectedCustomPaintType == type;
                   return ChoiceChip(
-                    label: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(type),
-                        const SizedBox(width: 4),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              provider.customPaintTypes.remove(type);
-                              if (provider.selectedCustomPaintType == type) {
-                                provider.setSelectedCustomPaintType(null);
-                              }
-                            });
-                          },
-                          child: const Icon(Icons.cancel, size: 16),
-                        ),
-                      ],
-                    ),
+                    label: Text(type),
                     selected: isSelected,
                     onSelected: (selected) {
                       if (selected) {
@@ -325,13 +311,7 @@ class _CreateListingStep4ExteriorState
                           children: provider.customRimTypes.map((type) {
                             return Chip(
                               label: Text(type, style: const TextStyle(fontSize: 11)),
-                              deleteIcon: const Icon(Icons.close, size: 14),
                               visualDensity: VisualDensity.compact,
-                              onDeleted: () {
-                                setState(() {
-                                  provider.customRimTypes.remove(type);
-                                });
-                              },
                             );
                           }).toList(),
                         ),
