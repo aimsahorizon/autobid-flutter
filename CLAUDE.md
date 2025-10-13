@@ -66,6 +66,17 @@
 - `feat!|BREAKING CHANGE` → Major (+1.0.0)
 - `docs|style|refactor|test|chore|ci` → No change
 
+**Git Tagging (Minor Bumps Only):**
+When minor version increments (x.Y.x), auto-create and push tag:
+```bash
+git tag "v0.11.0+20"
+git push origin v0.11.0+20
+```
+- **Trigger:** Second digit increment (0.10.x → 0.11.x)
+- **Format:** `v{major}.{minor}.{patch}+{build}`
+- **Timing:** After CLAUDE.md commit, before final response
+- **Skip:** Patch/build-only bumps
+
 **Output:** Minimal unless asked (Section 7 in CLAUDE_WORKFLOW.md)
 
 ---
