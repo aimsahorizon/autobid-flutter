@@ -51,7 +51,7 @@ class _SignupStep7ProofAddressState extends State<SignupStep7ProofAddress> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SignupStepper(currentStep: 7),
+              const SignupStepper(currentStep: 8, totalSteps: 9),
               const SizedBox(height: 32),
               Text(
                 'Proof of Address Verification',
