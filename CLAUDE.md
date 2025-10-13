@@ -50,7 +50,7 @@
    - [ ] Update CLAUDE.md Section 0 if version/phase changed
    - [ ] Update PROJECT_STRUCTURE.md if structure/features changed
    - [ ] Suggest version bump (format: `→ 0.11.0+20`)
-   - [ ] Suggest commits with file paths (format: `file.dart | feat: add feature`)
+   - [ ] List commits (format: `filename | commit message`)
 
 **CRITICAL:** Always run Post-Task Checklist before final response.
 
@@ -60,9 +60,10 @@
 - `feat!|BREAKING CHANGE` → Major (+1.0.0)
 - `docs|style|refactor|test|chore|ci` → No change
 
-**Commit Format (User runs git commands):**
+**Commit Format (User runs git):**
 - One file = one commit (atomic)
-- Single line: `[type]: [description <50 chars]`
+- Claude provides: `filename | commit message`
+- User handles git commands
 - User creates tags manually for minor versions
 
 **Flutter Analyze/Test [HYBRID]:**
