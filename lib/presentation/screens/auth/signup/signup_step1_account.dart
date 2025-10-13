@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../data/services/local/local_storage_service.dart';
 import '../../../providers/signup_provider.dart';
 import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/custom_button.dart';
@@ -45,7 +46,7 @@ class _SignupStep1AccountState extends State<SignupStep1Account>
     super.dispose();
   }
 
-  void _handleNext() {
+  Future<void> _handleNext() async {
     if (!_formKey.currentState!.validate()) return;
 
     final provider = context.read<SignupProvider>();
@@ -58,6 +59,65 @@ class _SignupStep1AccountState extends State<SignupStep1Account>
         ),
       );
       return;
+    }
+
+    // Check if account already exists
+    try {
+      final storage = await LocalStorageService.getInstance();
+      final email = _emailController.text.trim();
+      final phone = _phoneController.text.trim();
+
+      // Check email
+      final existingUser = storage.getUserByEmailOrPhone(email);
+      if (existingUser != null) {
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Account Exists'),
+            content: const Text(
+              'An account with this email or phone already exists. Check your status in Guest View.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  context.go('/guest?tab=1');
+                },
+                child: const Text('Go to Guest View'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+
+      // Check phone
+      final existingByPhone = storage.getUserByEmailOrPhone(phone);
+      if (existingByPhone != null) {
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Account Exists'),
+            content: const Text(
+              'An account with this email or phone already exists. Check your status in Guest View.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  context.go('/guest?tab=1');
+                },
+                child: const Text('Go to Guest View'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+    } catch (e) {
+      // Continue if storage check fails
     }
 
     provider.setEmail(_emailController.text.trim());
@@ -84,7 +144,7 @@ class _SignupStep1AccountState extends State<SignupStep1Account>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SignupStepper(currentStep: 1),
+                const SignupStepper(currentStep: 1, totalSteps: 9),
                 const SizedBox(height: 32),
                 Text(
                   'Account Information',
