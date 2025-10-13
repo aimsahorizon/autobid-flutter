@@ -148,31 +148,17 @@ class _CreateListingStep3DimensionsState
                     label: Text(type.displayName),
                     selected: isSelected,
                     onSelected: (selected) {
-                      if (selected) provider.setBodyType(type);
+                      if (selected) {
+                        provider.setBodyType(type);
+                        provider.setSelectedCustomBodyType(null);
+                      }
                     },
                   );
                 }),
                 ...provider.customBodyTypes.map((type) {
                   final isSelected = provider.selectedCustomBodyType == type;
                   return ChoiceChip(
-                    label: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(type),
-                        const SizedBox(width: 4),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              provider.customBodyTypes.remove(type);
-                              if (provider.selectedCustomBodyType == type) {
-                                provider.setSelectedCustomBodyType(null);
-                              }
-                            });
-                          },
-                          child: const Icon(Icons.cancel, size: 16),
-                        ),
-                      ],
-                    ),
+                    label: Text(type),
                     selected: isSelected,
                     onSelected: (selected) {
                       if (selected) {
