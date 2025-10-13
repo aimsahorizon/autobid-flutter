@@ -140,7 +140,7 @@ class _SignupStep2PersonalState extends State<SignupStep2Personal> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SignupStepper(currentStep: 2),
+                const SignupStepper(currentStep: 3, totalSteps: 9),
                 const SizedBox(height: 32),
                 Text(
                   'Personal Information',
