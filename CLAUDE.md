@@ -51,6 +51,7 @@
    - [ ] Update PROJECT_STRUCTURE.md if structure/features changed
    - [ ] Generate semantic commits (ONE FILE = ONE COMMIT, single line only)
    - [ ] Bump pubspec.yaml version (highest impact commit type)
+   - [ ] **IF minor version bumped (x.Y.x):** Auto-create & push git tag `v{version}`
    - [ ] Ask user: "Ready to commit? (Y/n)"
 
 **CRITICAL:** Always run Post-Task Checklist before final response.
@@ -66,16 +67,17 @@
 - `feat!|BREAKING CHANGE` → Major (+1.0.0)
 - `docs|style|refactor|test|chore|ci` → No change
 
-**Git Tagging (Minor Bumps Only):**
-When minor version increments (x.Y.x), auto-create and push tag:
+**Git Tagging [AUTOMATIC]:**
+**MUST auto-run when minor version increments (x.Y.x):**
 ```bash
 git tag "v0.11.0+20"
 git push origin v0.11.0+20
 ```
-- **Trigger:** Second digit increment (0.10.x → 0.11.x)
-- **Format:** `v{major}.{minor}.{patch}+{build}`
-- **Timing:** After CLAUDE.md commit, before final response
-- **Skip:** Patch/build-only bumps
+- **Trigger:** Second digit changes (0.10.x → 0.11.x)
+- **Format:** `v{major}.{minor}.{patch}+{build}` (exact version from pubspec.yaml)
+- **Timing:** After CLAUDE.md commit, before asking user
+- **Skip:** Patch-only (0.10.1 → 0.10.2) or build-only bumps
+- **Example:** `feat` commit: 0.10.1+19 → 0.11.0+20 = AUTO TAG
 
 **Output:** Minimal unless asked (Section 7 in CLAUDE_WORKFLOW.md)
 
