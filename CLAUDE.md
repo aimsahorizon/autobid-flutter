@@ -5,8 +5,8 @@
 **Project:** AutoBID - Online Reused Car Auction
 **Type:** Multi-Platform App
 **Platforms:** iOS, Android, Web
-**Phase:** Beta (v0.10.1) ← Auto-detected
-**Version:** 0.10.1+19
+**Phase:** Beta (v0.11.0) ← Auto-detected
+**Version:** 0.11.0+20
 **Updated:** 2025-10-13
 
 **Tech Stack:**
@@ -49,35 +49,26 @@
 4. **[AUTO] Post-Task Checklist:**
    - [ ] Update CLAUDE.md Section 0 if version/phase changed
    - [ ] Update PROJECT_STRUCTURE.md if structure/features changed
-   - [ ] Generate semantic commits (ONE FILE = ONE COMMIT, single line only)
-   - [ ] Bump pubspec.yaml version (highest impact commit type)
-   - [ ] **IF minor version bumped (x.Y.x):** Auto-create & push git tag `v{version}`
-   - [ ] Ask user: "Ready to commit? (Y/n)"
+   - [ ] Suggest version bump (format: `→ 0.11.0+20`)
+   - [ ] Suggest commits with file paths (format: `file.dart | feat: add feature`)
 
 **CRITICAL:** Always run Post-Task Checklist before final response.
 
-**Commit Rules:**
-- One file = one commit (atomic)
-- Single line message only (no body, no Co-Authored-By, no metadata)
-- Format: `[type]: [description <50 chars]`
-
-**Version Bumps:**
+**Version Bumps (User applies manually):**
 - `feat` → Minor (+0.1.0)
 - `fix|update|perf|build` → Patch (+0.0.1)
 - `feat!|BREAKING CHANGE` → Major (+1.0.0)
 - `docs|style|refactor|test|chore|ci` → No change
 
-**Git Tagging [AUTOMATIC]:**
-**MUST auto-run when minor version increments (x.Y.x):**
-```bash
-git tag "v0.11.0+20"
-git push origin v0.11.0+20
-```
-- **Trigger:** Second digit changes (0.10.x → 0.11.x)
-- **Format:** `v{major}.{minor}.{patch}+{build}` (exact version from pubspec.yaml)
-- **Timing:** After CLAUDE.md commit, before asking user
-- **Skip:** Patch-only (0.10.1 → 0.10.2) or build-only bumps
-- **Example:** `feat` commit: 0.10.1+19 → 0.11.0+20 = AUTO TAG
+**Commit Format (User runs git commands):**
+- One file = one commit (atomic)
+- Single line: `[type]: [description <50 chars]`
+- User creates tags manually for minor versions
+
+**Flutter Analyze/Test [HYBRID]:**
+- **Claude runs for:** Complex/risky changes (new widgets, refactors)
+- **User runs for:** Simple changes (docs, minor tweaks)
+- **Command:** `@verify` to request Claude run checks
 
 **Output:** Minimal unless asked (Section 7 in CLAUDE_WORKFLOW.md)
 
