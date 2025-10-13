@@ -46,12 +46,76 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
     );
   }
 
+  void _showAddCustomFeatureDialog(BuildContext context, ListingProvider provider) {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Custom Feature'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Enter a feature that is not listed in the standard categories.',
+              style: TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              autofocus: true,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(
+                labelText: 'Feature Name',
+                hintText: 'e.g., Custom Sound System',
+                border: OutlineInputBorder(),
+              ),
+              maxLength: 50,
+              onSubmitted: (value) {
+                if (value.trim().isNotEmpty) {
+                  provider.addCustomFeature(value.trim());
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final feature = controller.text.trim();
+              if (feature.isNotEmpty) {
+                provider.addCustomFeature(feature);
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Added custom feature: $feature'),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              }
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ListingProvider>();
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/'),
+        ),
         title: const Text('Final Details'),
         actions: [
           if (DevAutofill.isEnabled)
@@ -71,13 +135,13 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
           padding: const EdgeInsets.all(16),
           children: [
             LinearProgressIndicator(
-              value: 8 / 8,
+              value: 8 / 9,
               backgroundColor: Colors.grey[200],
             ),
             const SizedBox(height: 24),
 
             Text(
-              'Step 8 of 8',
+              'Step 8 of 9',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.grey[600],
                   ),
@@ -147,11 +211,32 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
             const SizedBox(height: 24),
 
             // FEATURES SECTION
-            Text(
-              'Features',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Features',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.green.shade200),
                   ),
+                  child: Text(
+                    '${provider.features.length} selected',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green.shade700,
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             Text(
@@ -162,99 +247,154 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
             ),
             const SizedBox(height: 12),
 
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: CarFeatures.standardFeatures.map((feature) {
-                final isSelected = provider.features.contains(feature);
-                return FilterChip(
-                  label: Text(feature),
-                  selected: isSelected,
-                  onSelected: (_) => provider.toggleFeature(feature),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 24),
+            // Categorized features with expansion tiles
+            ...CarFeatures.categories.map((category) {
+              final categoryFeatures = CarFeatures.getFeaturesForCategory(category);
+              final selectedCount = categoryFeatures
+                  .where((f) => provider.features.contains(f))
+                  .length;
 
-            // SUMMARY SECTION
-            Text(
-              'Listing Summary',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 16),
-
-            _buildSummaryCard(
-              context,
-              'Basic Info',
-              [
-                '${provider.brand} ${provider.model} ${provider.variant}',
-                'Year: ${provider.year}',
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            _buildSummaryCard(
-              context,
-              'Specifications',
-              [
-                'Engine: ${provider.engineSize} ${provider.engineType.displayName}',
-                'Transmission: ${provider.transmission?.displayName}',
-                'Fuel: ${provider.fuelType?.displayName}',
-                'Mileage: ${provider.mileage} km',
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            _buildSummaryCard(
-              context,
-              'Location & Documents',
-              [
-                '${provider.city}, ${provider.province}',
-                'Plate: ${provider.plateNumber}',
-                'Registration: ${provider.registrationStatus.displayName}',
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            _buildSummaryCard(
-              context,
-              'Photos',
-              [
-                'Total Images: ${provider.categorizedImages.values.fold<int>(0, (sum, list) => sum + list.length)}/46',
-                'Exterior: ${provider.categorizedImages['exterior']?.length ?? 0}/15',
-                'Interior: ${provider.categorizedImages['interior']?.length ?? 0}/12',
-                'Engine: ${provider.categorizedImages['engine']?.length ?? 0}/6',
-                'Details: ${provider.categorizedImages['details']?.length ?? 0}/13',
-              ],
-            ),
-            const SizedBox(height: 24),
-
-            // Warning box
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.green.shade50,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.green.shade200),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.check_circle_outline,
-                      color: Colors.green.shade700, size: 20),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Review all information carefully. Once submitted, your listing will be reviewed before going live.',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.green.shade900,
-                      ),
+              return Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                child: Theme(
+                  data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                  child: ExpansionTile(
+                    initiallyExpanded: selectedCount > 0,
+                    title: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            category,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        if (selectedCount > 0)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.green.shade50,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.green.shade200),
+                            ),
+                            child: Text(
+                              '$selectedCount/${categoryFeatures.length}',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green.shade700,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: categoryFeatures.map((feature) {
+                            final isSelected = provider.features.contains(feature);
+                            return FilterChip(
+                              label: Text(
+                                feature,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                              selected: isSelected,
+                              onSelected: (_) => provider.toggleFeature(feature),
+                              selectedColor: Colors.green.shade100,
+                              checkmarkColor: Colors.green.shade700,
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
+              );
+            }).toList(),
+
+            // CUSTOM FEATURES SECTION
+            if (provider.customFeatures.isNotEmpty)
+              Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                child: Theme(
+                  data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                  child: ExpansionTile(
+                    initiallyExpanded: true,
+                    title: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            CarFeatures.customCategory,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.blue.shade200),
+                          ),
+                          child: Text(
+                            '${provider.customFeatures.length}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue.shade700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: provider.customFeatures.map((feature) {
+                            return FilterChip(
+                              label: Text(
+                                feature,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                              selected: true,
+                              onSelected: null,
+                              onDeleted: () => provider.removeCustomFeature(feature),
+                              deleteIcon: const Icon(Icons.close, size: 16),
+                              selectedColor: Colors.blue.shade100,
+                              checkmarkColor: Colors.blue.shade700,
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+            // ADD CUSTOM FEATURE BUTTON
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: () => _showAddCustomFeatureDialog(context, provider),
+              icon: const Icon(Icons.add),
+              label: const Text('Add Custom Feature'),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12),
               ),
             ),
           ],
@@ -267,25 +407,18 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
             children: [
               Expanded(
                 child: OutlinedButton(
-                  onPressed: () {
-                    // TODO: Save as draft
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Listing saved as draft'),
-                      ),
-                    );
-                  },
-                  child: const Text('Save as Draft'),
+                  onPressed: () => context.push('/listing/create/step7'),
+                  child: const Text('Back'),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 16),
               Expanded(
                 flex: 2,
                 child: CustomButton(
-                  text: 'Submit Listing',
-                  onPressed: () async {
+                  text: 'Next',
+                  onPressed: () {
                     if (provider.validateStep8()) {
-                      await _submitListing(context, provider);
+                      context.push('/listing/create/step9');
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -299,192 +432,6 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _submitListing(BuildContext context, ListingProvider provider) async {
-    // Show loading dialog
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(
-        child: Card(
-          child: Padding(
-            padding: EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text('Submitting your listing...'),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-
-    try {
-      // Create the listing with pendingReview status
-      final listing = await provider.createListing(
-        'mock-user-id', // TODO: Get from auth
-        'Mock User', // TODO: Get from auth
-        isDraft: false,
-      );
-
-      if (!context.mounted) return;
-
-      // Close loading dialog
-      Navigator.pop(context);
-
-      // Show success dialog
-      await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => AlertDialog(
-          icon: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.orange.shade50,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.pending_actions,
-              size: 48,
-              color: Colors.orange.shade700,
-            ),
-          ),
-          title: const Text('Listing Submitted!'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Your ${listing.brand} ${listing.model} has been submitted for review.',
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.blue.shade200),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.info_outline,
-                            size: 16, color: Colors.blue.shade700),
-                        const SizedBox(width: 8),
-                        Text(
-                          'What\'s Next?',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue.shade900,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '• Admin review: 24-48 hours\n'
-                      '• You\'ll be notified when approved\n'
-                      '• View status in "Pending" tab',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.blue.shade900,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                // Navigate to home and show pending tab
-                context.go('/');
-              },
-              child: const Text('View My Listings'),
-            ),
-            FilledButton(
-              onPressed: () {
-                Navigator.pop(context);
-                // Reset provider and navigate to create new listing
-                provider.reset();
-                context.go('/listing/create/step1');
-              },
-              child: const Text('Create Another'),
-            ),
-          ],
-        ),
-      );
-
-      if (!context.mounted) return;
-
-      // Navigate to home (My Listings tab)
-      context.go('/');
-    } catch (e) {
-      if (!context.mounted) return;
-
-      // Close loading dialog
-      Navigator.pop(context);
-
-      // Show error dialog
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          icon: const Icon(Icons.error_outline, size: 48, color: Colors.red),
-          title: const Text('Submission Failed'),
-          content: Text('An error occurred: $e'),
-          actions: [
-            FilledButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Try Again'),
-            ),
-          ],
-        ),
-      );
-    }
-  }
-
-  Widget _buildSummaryCard(
-      BuildContext context, String title, List<String> items) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            ...items.map((item) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Row(
-                    children: [
-                      Icon(Icons.check, size: 16, color: Colors.green.shade700),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          item,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ),
-                    ],
-                  ),
-                )),
-          ],
         ),
       ),
     );

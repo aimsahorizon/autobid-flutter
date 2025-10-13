@@ -16,13 +16,13 @@ class ListingProvider extends ChangeNotifier {
 
   // MECHANICAL
   String? _engineSize;
-  EngineType _engineType = EngineType.inline;
+  EngineType? _engineType;
   int _cylinders = 4;
   int _horsepower = 150;
   int _torque = 200;
   TransmissionType? _transmission;
   int _transmissionSpeeds = 6;
-  DriveType _driveType = DriveType.fwd;
+  DriveType? _driveType;
   FuelType? _fuelType;
   double _fuelConsumption = 7.5;
   int? _electricRange;
@@ -45,9 +45,9 @@ class ListingProvider extends ChangeNotifier {
 
   // EXTERIOR
   String? _color;
-  PaintType _paintType = PaintType.solid;
+  PaintType? _paintType;
   int _rimSize = 16;
-  RimType _rimType = RimType.alloy;
+  RimType? _rimType;
   TireCondition _tireCondition = TireCondition.good;
 
   // CONDITION & HISTORY
@@ -56,9 +56,25 @@ class ListingProvider extends ChangeNotifier {
   int _numberOfOwners = 1;
   bool _hasAccidentHistory = false;
   bool _floodDamage = false;
+  bool _fireDamage = false;
+  bool _frameDamage = false;
+  bool _isRepainted = false;
+  bool _hasModifications = false;
+  bool _originalParts = true;
+  bool _commercialUse = false;
+  bool _smokerVehicle = false;
   bool _serviceHistoryComplete = false;
   bool _warrantyRemaining = false;
   DateTime? _registrationExpiry;
+
+  // CUSTOM CONDITION ATTRIBUTES
+  // Stores user-added attributes not in predefined list
+  // Key: attribute ID (camelCase), Value: toggle state
+  Map<String, bool> _customConditionAttributes = {};
+
+  // CUSTOM CONDITION ATTRIBUTES LIST
+  // Stores metadata about custom attributes (label, description, category)
+  List<Map<String, dynamic>> _customConditionAttributesList = [];
 
   // LOCATION & AVAILABILITY
   String? _city;
@@ -86,6 +102,30 @@ class ListingProvider extends ChangeNotifier {
   List<String> _images = [];
   Map<String, List<String>> _categorizedImages = {};
   List<String> _features = [];
+
+  // CUSTOM FEATURES
+  // Stores user-added features not in predefined list
+  List<String> _customFeatures = [];
+
+  // CUSTOM ENUM VALUES
+  // Stores user-added custom values for enum types
+  List<String> _customEngineTypes = [];
+  List<String> _customTransmissionTypes = [];
+  List<String> _customDriveTypes = [];
+  List<String> _customFuelTypes = [];
+  List<String> _customBodyTypes = [];
+  List<String> _customPaintTypes = [];
+  List<String> _customRimTypes = [];
+
+  // SELECTED CUSTOM VALUES
+  // Tracks which custom values are currently selected
+  String? _selectedCustomEngineType;
+  String? _selectedCustomTransmission;
+  String? _selectedCustomDriveType;
+  String? _selectedCustomFuelType;
+  String? _selectedCustomBodyType;
+  String? _selectedCustomPaintType;
+  String? _selectedCustomRimType;
 
   // Auction settings
   bool _isAuction = false;
@@ -115,13 +155,13 @@ class ListingProvider extends ChangeNotifier {
 
   // MECHANICAL
   String? get engineSize => _engineSize;
-  EngineType get engineType => _engineType;
+  EngineType? get engineType => _engineType;
   int get cylinders => _cylinders;
   int get horsepower => _horsepower;
   int get torque => _torque;
   TransmissionType? get transmission => _transmission;
   int get transmissionSpeeds => _transmissionSpeeds;
-  DriveType get driveType => _driveType;
+  DriveType? get driveType => _driveType;
   FuelType? get fuelType => _fuelType;
   double get fuelConsumption => _fuelConsumption;
   int? get electricRange => _electricRange;
@@ -144,9 +184,9 @@ class ListingProvider extends ChangeNotifier {
 
   // EXTERIOR
   String? get color => _color;
-  PaintType get paintType => _paintType;
+  PaintType? get paintType => _paintType;
   int get rimSize => _rimSize;
-  RimType get rimType => _rimType;
+  RimType? get rimType => _rimType;
   TireCondition get tireCondition => _tireCondition;
 
   // CONDITION & HISTORY
@@ -155,9 +195,18 @@ class ListingProvider extends ChangeNotifier {
   int get numberOfOwners => _numberOfOwners;
   bool get hasAccidentHistory => _hasAccidentHistory;
   bool get floodDamage => _floodDamage;
+  bool get fireDamage => _fireDamage;
+  bool get frameDamage => _frameDamage;
+  bool get isRepainted => _isRepainted;
+  bool get hasModifications => _hasModifications;
+  bool get originalParts => _originalParts;
+  bool get commercialUse => _commercialUse;
+  bool get smokerVehicle => _smokerVehicle;
   bool get serviceHistoryComplete => _serviceHistoryComplete;
   bool get warrantyRemaining => _warrantyRemaining;
   DateTime? get registrationExpiry => _registrationExpiry;
+  Map<String, bool> get customConditionAttributes => _customConditionAttributes;
+  List<Map<String, dynamic>> get customConditionAttributesList => _customConditionAttributesList;
 
   // LOCATION & AVAILABILITY
   String? get city => _city;
@@ -185,6 +234,21 @@ class ListingProvider extends ChangeNotifier {
   List<String> get images => _images;
   Map<String, List<String>> get categorizedImages => _categorizedImages;
   List<String> get features => _features;
+  List<String> get customFeatures => _customFeatures;
+  List<String> get customEngineTypes => _customEngineTypes;
+  List<String> get customTransmissionTypes => _customTransmissionTypes;
+  List<String> get customDriveTypes => _customDriveTypes;
+  List<String> get customFuelTypes => _customFuelTypes;
+  List<String> get customBodyTypes => _customBodyTypes;
+  List<String> get customPaintTypes => _customPaintTypes;
+  List<String> get customRimTypes => _customRimTypes;
+  String? get selectedCustomEngineType => _selectedCustomEngineType;
+  String? get selectedCustomTransmission => _selectedCustomTransmission;
+  String? get selectedCustomDriveType => _selectedCustomDriveType;
+  String? get selectedCustomFuelType => _selectedCustomFuelType;
+  String? get selectedCustomBodyType => _selectedCustomBodyType;
+  String? get selectedCustomPaintType => _selectedCustomPaintType;
+  String? get selectedCustomRimType => _selectedCustomRimType;
 
   bool get isAuction => _isAuction;
   double? get auctionStartingPrice => _auctionStartingPrice;
@@ -255,9 +319,11 @@ class ListingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setEngineType(EngineType value) {
-    _engineType = value;
-    notifyListeners();
+  void setEngineType(EngineType? value) {
+    if (value != null) {
+      _engineType = value;
+      notifyListeners();
+    }
   }
 
   void setCylinders(int value) {
@@ -280,9 +346,11 @@ class ListingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setDriveType(DriveType value) {
-    _driveType = value;
-    notifyListeners();
+  void setDriveType(DriveType? value) {
+    if (value != null) {
+      _driveType = value;
+      notifyListeners();
+    }
   }
 
   void setFuelConsumption(double value) {
@@ -360,9 +428,11 @@ class ListingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setPaintType(PaintType value) {
-    _paintType = value;
-    notifyListeners();
+  void setPaintType(PaintType? value) {
+    if (value != null) {
+      _paintType = value;
+      notifyListeners();
+    }
   }
 
   void setRimSize(int value) {
@@ -370,9 +440,11 @@ class ListingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setRimType(RimType value) {
-    _rimType = value;
-    notifyListeners();
+  void setRimType(RimType? value) {
+    if (value != null) {
+      _rimType = value;
+      notifyListeners();
+    }
   }
 
   void setTireCondition(TireCondition value) {
@@ -470,6 +542,74 @@ class ListingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setFireDamage(bool value) {
+    _fireDamage = value;
+    notifyListeners();
+  }
+
+  void setFrameDamage(bool value) {
+    _frameDamage = value;
+    notifyListeners();
+  }
+
+  void setIsRepainted(bool value) {
+    _isRepainted = value;
+    notifyListeners();
+  }
+
+  void setHasModifications(bool value) {
+    _hasModifications = value;
+    notifyListeners();
+  }
+
+  void setOriginalParts(bool value) {
+    _originalParts = value;
+    notifyListeners();
+  }
+
+  void setCommercialUse(bool value) {
+    _commercialUse = value;
+    notifyListeners();
+  }
+
+  void setSmokerVehicle(bool value) {
+    _smokerVehicle = value;
+    notifyListeners();
+  }
+
+  void setCustomConditionAttribute(String id, bool value) {
+    _customConditionAttributes[id] = value;
+    notifyListeners();
+  }
+
+  void addCustomConditionAttribute({
+    required String id,
+    required String label,
+    required String description,
+    required String category,
+  }) {
+    // Check if attribute already exists
+    final exists = _customConditionAttributesList.any((attr) => attr['id'] == id);
+    if (!exists) {
+      _customConditionAttributesList.add({
+        'id': id,
+        'label': label,
+        'description': description,
+        'category': category,
+        'addedAt': DateTime.now().toIso8601String(),
+      });
+      // Initialize with false value
+      _customConditionAttributes[id] = false;
+      notifyListeners();
+    }
+  }
+
+  void removeCustomConditionAttribute(String id) {
+    _customConditionAttributesList.removeWhere((attr) => attr['id'] == id);
+    _customConditionAttributes.remove(id);
+    notifyListeners();
+  }
+
   void setCondition(CarCondition? value) {
     _condition = value;
     notifyListeners();
@@ -553,6 +693,106 @@ class ListingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void addCustomFeature(String feature) {
+    if (!_customFeatures.contains(feature)) {
+      _customFeatures.add(feature);
+      // Also add to regular features list
+      _features.add(feature);
+      notifyListeners();
+    }
+  }
+
+  void removeCustomFeature(String feature) {
+    _customFeatures.remove(feature);
+    _features.remove(feature);
+    notifyListeners();
+  }
+
+  void addCustomEngineType(String type) {
+    if (!_customEngineTypes.contains(type)) {
+      _customEngineTypes.add(type);
+      notifyListeners();
+    }
+  }
+
+  void addCustomTransmissionType(String type) {
+    if (!_customTransmissionTypes.contains(type)) {
+      _customTransmissionTypes.add(type);
+      notifyListeners();
+    }
+  }
+
+  void addCustomDriveType(String type) {
+    if (!_customDriveTypes.contains(type)) {
+      _customDriveTypes.add(type);
+      notifyListeners();
+    }
+  }
+
+  void addCustomFuelType(String type) {
+    if (!_customFuelTypes.contains(type)) {
+      _customFuelTypes.add(type);
+      notifyListeners();
+    }
+  }
+
+  void addCustomBodyType(String type) {
+    if (!_customBodyTypes.contains(type)) {
+      _customBodyTypes.add(type);
+      notifyListeners();
+    }
+  }
+
+  void addCustomPaintType(String type) {
+    if (!_customPaintTypes.contains(type)) {
+      _customPaintTypes.add(type);
+      notifyListeners();
+    }
+  }
+
+  void addCustomRimType(String type) {
+    if (!_customRimTypes.contains(type)) {
+      _customRimTypes.add(type);
+      notifyListeners();
+    }
+  }
+
+  // Setters for selected custom values
+  void setSelectedCustomEngineType(String? value) {
+    _selectedCustomEngineType = value;
+    notifyListeners();
+  }
+
+  void setSelectedCustomTransmission(String? value) {
+    _selectedCustomTransmission = value;
+    notifyListeners();
+  }
+
+  void setSelectedCustomDriveType(String? value) {
+    _selectedCustomDriveType = value;
+    notifyListeners();
+  }
+
+  void setSelectedCustomFuelType(String? value) {
+    _selectedCustomFuelType = value;
+    notifyListeners();
+  }
+
+  void setSelectedCustomBodyType(String? value) {
+    _selectedCustomBodyType = value;
+    notifyListeners();
+  }
+
+  void setSelectedCustomPaintType(String? value) {
+    _selectedCustomPaintType = value;
+    notifyListeners();
+  }
+
+  void setSelectedCustomRimType(String? value) {
+    _selectedCustomRimType = value;
+    notifyListeners();
+  }
+
   void setIsAuction(bool value) {
     _isAuction = value;
     notifyListeners();
@@ -584,20 +824,29 @@ class ListingProvider extends ChangeNotifier {
 
   bool validateStep2() {
     // Mechanical Specifications
+    final hasEngineType = _engineType != null || _selectedCustomEngineType != null;
+    final hasTransmission = _transmission != null || _selectedCustomTransmission != null;
+    final hasDriveType = _driveType != null || _selectedCustomDriveType != null;
+    final hasFuelType = _fuelType != null || _selectedCustomFuelType != null;
+
     return _engineSize != null &&
         _engineSize!.isNotEmpty &&
-        _transmission != null &&
-        _fuelType != null;
+        hasEngineType &&
+        hasTransmission &&
+        hasDriveType &&
+        hasFuelType;
   }
 
   bool validateStep3() {
     // Dimensions & Capacity
-    return _bodyType != null;
+    return _bodyType != null || _selectedCustomBodyType != null;
   }
 
   bool validateStep4() {
     // Exterior Details
-    return _color != null && _color!.isNotEmpty;
+    final hasPaintType = _paintType != null || _selectedCustomPaintType != null;
+    final hasRimType = _rimType != null || _selectedCustomRimType != null;
+    return _color != null && _color!.isNotEmpty && hasPaintType && hasRimType;
   }
 
   bool validateStep5() {
@@ -650,13 +899,13 @@ class ListingProvider extends ChangeNotifier {
       year: _year ?? DateTime.now().year,
       // MECHANICAL - Use defaults for drafts if null
       engineSize: _engineSize ?? 'TBD',
-      engineType: _engineType,
+      engineType: _engineType ?? EngineType.inline,
       cylinders: _cylinders,
       horsepower: _horsepower,
       torque: _torque,
       transmission: _transmission ?? TransmissionType.automatic,
       transmissionSpeeds: _transmissionSpeeds,
-      driveType: _driveType,
+      driveType: _driveType ?? DriveType.fwd,
       fuelType: _fuelType ?? FuelType.gasoline,
       fuelConsumption: _fuelConsumption,
       electricRange: _electricRange,
@@ -677,9 +926,9 @@ class ListingProvider extends ChangeNotifier {
       wheelbase: _wheelbase,
       // EXTERIOR - Use defaults for drafts if null
       color: _color ?? 'TBD',
-      paintType: _paintType,
+      paintType: _paintType ?? PaintType.solid,
       rimSize: _rimSize,
-      rimType: _rimType,
+      rimType: _rimType ?? RimType.alloy,
       tireCondition: _tireCondition,
       // CONDITION & HISTORY - Use defaults for drafts if null
       condition: _condition ?? CarCondition.used,
@@ -687,6 +936,13 @@ class ListingProvider extends ChangeNotifier {
       numberOfOwners: _numberOfOwners,
       hasAccidentHistory: _hasAccidentHistory,
       floodDamage: _floodDamage,
+      fireDamage: _fireDamage,
+      frameDamage: _frameDamage,
+      isRepainted: _isRepainted,
+      hasModifications: _hasModifications,
+      originalParts: _originalParts,
+      commercialUse: _commercialUse,
+      smokerVehicle: _smokerVehicle,
       serviceHistoryComplete: _serviceHistoryComplete,
       warrantyRemaining: _warrantyRemaining,
       registrationExpiry: _registrationExpiry,
@@ -800,6 +1056,13 @@ class ListingProvider extends ChangeNotifier {
     _numberOfOwners = car.numberOfOwners;
     _hasAccidentHistory = car.hasAccidentHistory;
     _floodDamage = car.floodDamage;
+    _fireDamage = car.fireDamage;
+    _frameDamage = car.frameDamage;
+    _isRepainted = car.isRepainted;
+    _hasModifications = car.hasModifications;
+    _originalParts = car.originalParts;
+    _commercialUse = car.commercialUse;
+    _smokerVehicle = car.smokerVehicle;
     _serviceHistoryComplete = car.serviceHistoryComplete;
     _warrantyRemaining = car.warrantyRemaining;
     _registrationExpiry = car.registrationExpiry;
@@ -855,13 +1118,13 @@ class ListingProvider extends ChangeNotifier {
     _year = null;
     // MECHANICAL
     _engineSize = null;
-    _engineType = EngineType.inline;
+    _engineType = null;
     _cylinders = 4;
     _horsepower = 150;
     _torque = 200;
     _transmission = null;
     _transmissionSpeeds = 6;
-    _driveType = DriveType.fwd;
+    _driveType = null;
     _fuelType = null;
     _fuelConsumption = 7.5;
     _electricRange = null;
@@ -882,9 +1145,9 @@ class ListingProvider extends ChangeNotifier {
     _wheelbase = 2700;
     // EXTERIOR
     _color = null;
-    _paintType = PaintType.solid;
+    _paintType = null;
     _rimSize = 16;
-    _rimType = RimType.alloy;
+    _rimType = null;
     _tireCondition = TireCondition.good;
     // CONDITION & HISTORY
     _condition = null;
@@ -892,9 +1155,18 @@ class ListingProvider extends ChangeNotifier {
     _numberOfOwners = 1;
     _hasAccidentHistory = false;
     _floodDamage = false;
+    _fireDamage = false;
+    _frameDamage = false;
+    _isRepainted = false;
+    _hasModifications = false;
+    _originalParts = true;
+    _commercialUse = false;
+    _smokerVehicle = false;
     _serviceHistoryComplete = false;
     _warrantyRemaining = false;
     _registrationExpiry = null;
+    _customConditionAttributes = {};
+    _customConditionAttributesList = [];
     // LOCATION & AVAILABILITY
     _city = null;
     _province = null;
@@ -916,6 +1188,21 @@ class ListingProvider extends ChangeNotifier {
     _images = [];
     _categorizedImages = {};
     _features = [];
+    _customFeatures = [];
+    _customEngineTypes = [];
+    _customTransmissionTypes = [];
+    _customDriveTypes = [];
+    _customFuelTypes = [];
+    _customBodyTypes = [];
+    _customPaintTypes = [];
+    _customRimTypes = [];
+    _selectedCustomEngineType = null;
+    _selectedCustomTransmission = null;
+    _selectedCustomDriveType = null;
+    _selectedCustomFuelType = null;
+    _selectedCustomBodyType = null;
+    _selectedCustomPaintType = null;
+    _selectedCustomRimType = null;
     _lastCompletedStep = 0;
     _currentStep = 1;
     notifyListeners();

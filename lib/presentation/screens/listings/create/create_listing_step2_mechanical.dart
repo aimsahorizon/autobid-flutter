@@ -11,6 +11,7 @@ import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/number_input_field.dart';
 import '../../../widgets/counter_input_field.dart';
 import '../../../widgets/save_draft_button.dart';
+import '../../../widgets/creatable_dropdown.dart';
 
 class CreateListingStep2Mechanical extends StatefulWidget {
   const CreateListingStep2Mechanical({super.key});
@@ -60,6 +61,10 @@ class _CreateListingStep2MechanicalState
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/'),
+        ),
         title: const Text('Mechanical Specifications'),
         actions: [
           if (DevAutofill.isEnabled)
@@ -79,13 +84,13 @@ class _CreateListingStep2MechanicalState
           padding: const EdgeInsets.all(16),
           children: [
             LinearProgressIndicator(
-              value: 2 / 8,
+              value: 2 / 9,
               backgroundColor: Colors.grey[200],
             ),
             const SizedBox(height: 24),
 
             Text(
-              'Step 2 of 8',
+              'Step 2 of 9',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.grey[600],
                   ),
@@ -120,21 +125,18 @@ class _CreateListingStep2MechanicalState
             const SizedBox(height: 16),
 
             // Engine Type
-            DropdownButtonFormField<EngineType>(
-              initialValue: provider.engineType,
-              decoration: const InputDecoration(
-                labelText: 'Engine Type *',
-                border: OutlineInputBorder(),
-              ),
-              items: EngineType.values.map((type) {
-                return DropdownMenuItem(
-                  value: type,
-                  child: Text(type.displayName),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) provider.setEngineType(value);
-              },
+            CreatableDropdown<EngineType>(
+              labelText: 'Engine Type *',
+              hintText: 'Select or type to add',
+              selectedValue: provider.engineType,
+              selectedCustomValue: null,
+              enumValues: EngineType.values,
+              customValues: provider.customEngineTypes,
+              getDisplayName: (type) => type.displayName,
+              onEnumSelected: provider.setEngineType,
+              onCustomSelected: (_) {},
+              onAddCustomValue: provider.addCustomEngineType,
+              validator: (value) => value == null ? 'Please select engine type' : null,
             ),
             const SizedBox(height: 16),
 
@@ -204,24 +206,18 @@ class _CreateListingStep2MechanicalState
             const SizedBox(height: 16),
 
             // Transmission Type
-            Text(
-              'Transmission *',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: TransmissionType.values.map((type) {
-                final isSelected = provider.transmission == type;
-                return ChoiceChip(
-                  label: Text(type.displayName),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    if (selected) provider.setTransmission(type);
-                  },
-                );
-              }).toList(),
+            CreatableDropdown<TransmissionType>(
+              labelText: 'Transmission *',
+              hintText: 'Select or type to add',
+              selectedValue: provider.transmission,
+              selectedCustomValue: provider.selectedCustomTransmission,
+              enumValues: TransmissionType.values,
+              customValues: provider.customTransmissionTypes,
+              getDisplayName: (type) => type.displayName,
+              onEnumSelected: provider.setTransmission,
+              onCustomSelected: provider.setSelectedCustomTransmission,
+              onAddCustomValue: provider.addCustomTransmissionType,
+              validator: (value) => value == null ? 'Please select transmission' : null,
             ),
             const SizedBox(height: 16),
 
@@ -240,21 +236,18 @@ class _CreateListingStep2MechanicalState
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: DropdownButtonFormField<DriveType>(
-                    initialValue: provider.driveType,
-                    decoration: const InputDecoration(
-                      labelText: 'Drive Type *',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: DriveType.values.map((type) {
-                      return DropdownMenuItem(
-                        value: type,
-                        child: Text(type.displayName),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) provider.setDriveType(value);
-                    },
+                  child: CreatableDropdown<DriveType>(
+                    labelText: 'Drive Type *',
+                    hintText: 'Select or type to add',
+                    selectedValue: provider.driveType,
+                    selectedCustomValue: provider.selectedCustomDriveType,
+                    enumValues: DriveType.values,
+                    customValues: provider.customDriveTypes,
+                    getDisplayName: (type) => type.displayName,
+                    onEnumSelected: provider.setDriveType,
+                    onCustomSelected: provider.setSelectedCustomDriveType,
+                    onAddCustomValue: provider.addCustomDriveType,
+                    validator: (value) => value == null ? 'Please select drive type' : null,
                   ),
                 ),
               ],
@@ -262,26 +255,18 @@ class _CreateListingStep2MechanicalState
             const SizedBox(height: 24),
 
             // FUEL TYPE SECTION
-            Text(
-              'Fuel Type *',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: FuelType.values.map((type) {
-                final isSelected = provider.fuelType == type;
-                return ChoiceChip(
-                  label: Text(type.displayName),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    if (selected) provider.setFuelType(type);
-                  },
-                );
-              }).toList(),
+            CreatableDropdown<FuelType>(
+              labelText: 'Fuel Type *',
+              hintText: 'Select or type to add',
+              selectedValue: provider.fuelType,
+              selectedCustomValue: provider.selectedCustomFuelType,
+              enumValues: FuelType.values,
+              customValues: provider.customFuelTypes,
+              getDisplayName: (type) => type.displayName,
+              onEnumSelected: provider.setFuelType,
+              onCustomSelected: provider.setSelectedCustomFuelType,
+              onAddCustomValue: provider.addCustomFuelType,
+              validator: (value) => value == null ? 'Please select fuel type' : null,
             ),
 
             // Electric/Hybrid Specific Fields
@@ -366,14 +351,28 @@ class _CreateListingStep2MechanicalState
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: CustomButton(
-            text: 'Next',
-            onPressed: () {
-              if (_formKey.currentState!.validate() &&
-                  provider.validateStep2()) {
-                context.push('/listing/create/step3');
-              }
-            },
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => context.push('/listing/create/step1'),
+                  child: const Text('Back'),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                flex: 2,
+                child: CustomButton(
+                  text: 'Next',
+                  onPressed: () {
+                    if (_formKey.currentState!.validate() &&
+                        provider.validateStep2()) {
+                      context.push('/listing/create/step3');
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),

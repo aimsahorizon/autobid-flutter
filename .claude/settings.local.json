@@ -25,7 +25,11 @@
       "Bash(do echo \"=== $file ===\")",
       "Bash(done)",
       "Bash(timeout 120 flutter analyze --no-pub)",
-      "Bash(flutter test:*)"
+      "Bash(flutter test:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git merge:*)",
+      "Bash(git branch:*)"
     ],
     "deny": [],
     "ask": []

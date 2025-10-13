@@ -194,17 +194,8 @@ class _MyListingsTabState extends State<MyListingsTab>
             onEdit: () {
               final provider = context.read<ListingProvider>();
               provider.loadListingForEdit(listing);
-
-              // For draft listings, navigate to the exact step where it was saved
-              if (listing.status == ListingStatus.draft) {
-                final savedStep = provider.lastCompletedStep > 0
-                    ? provider.lastCompletedStep
-                    : 1;
-                context.push('/listing/create/step$savedStep');
-              } else {
-                // For other statuses, start from step 1
-                context.push('/listing/create/step1');
-              }
+              // Always start from step 1, preserving all filled information
+              context.push('/listing/create/step1');
             },
             onDelete: () => _showDeleteDialog(listing),
           );
@@ -226,17 +217,8 @@ class _MyListingsTabState extends State<MyListingsTab>
             onEdit: () {
               final provider = context.read<ListingProvider>();
               provider.loadListingForEdit(listing);
-
-              // For draft listings, navigate to the exact step where it was saved
-              if (listing.status == ListingStatus.draft) {
-                final savedStep = provider.lastCompletedStep > 0
-                    ? provider.lastCompletedStep
-                    : 1;
-                context.push('/listing/create/step$savedStep');
-              } else {
-                // For other statuses, start from step 1
-                context.push('/listing/create/step1');
-              }
+              // Always start from step 1, preserving all filled information
+              context.push('/listing/create/step1');
             },
             onDelete: () => _showDeleteDialog(listing),
           ),

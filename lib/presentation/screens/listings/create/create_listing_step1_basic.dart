@@ -86,13 +86,13 @@ class _CreateListingStep1BasicState extends State<CreateListingStep1Basic> {
           children: [
             // Progress indicator
             LinearProgressIndicator(
-              value: 1 / 6,
+              value: 1 / 9,
               backgroundColor: Colors.grey[200],
             ),
             const SizedBox(height: 24),
 
             Text(
-              'Step 1 of 6',
+              'Step 1 of 9',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.grey[600],
                   ),

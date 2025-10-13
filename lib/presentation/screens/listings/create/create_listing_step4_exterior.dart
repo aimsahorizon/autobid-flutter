@@ -10,6 +10,7 @@ import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/counter_input_field.dart';
 import '../../../widgets/save_draft_button.dart';
+import '../../../widgets/creatable_dropdown.dart';
 
 class CreateListingStep4Exterior extends StatefulWidget {
   const CreateListingStep4Exterior({super.key});
@@ -48,6 +49,10 @@ class _CreateListingStep4ExteriorState
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/'),
+        ),
         title: const Text('Exterior Details'),
         actions: [
           if (DevAutofill.isEnabled)
@@ -67,13 +72,13 @@ class _CreateListingStep4ExteriorState
           padding: const EdgeInsets.all(16),
           children: [
             LinearProgressIndicator(
-              value: 4 / 8,
+              value: 4 / 9,
               backgroundColor: Colors.grey[200],
             ),
             const SizedBox(height: 24),
 
             Text(
-              'Step 4 of 8',
+              'Step 4 of 9',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.grey[600],
                   ),
@@ -108,24 +113,18 @@ class _CreateListingStep4ExteriorState
             const SizedBox(height: 16),
 
             // Paint Type
-            Text(
-              'Paint Type *',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: PaintType.values.map((type) {
-                final isSelected = provider.paintType == type;
-                return ChoiceChip(
-                  label: Text(type.displayName),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    if (selected) provider.setPaintType(type);
-                  },
-                );
-              }).toList(),
+            CreatableDropdown<PaintType>(
+              labelText: 'Paint Type *',
+              hintText: 'Select or type to add',
+              selectedValue: provider.paintType,
+              selectedCustomValue: provider.selectedCustomPaintType,
+              enumValues: PaintType.values,
+              customValues: provider.customPaintTypes,
+              getDisplayName: (type) => type.displayName,
+              onEnumSelected: provider.setPaintType,
+              onCustomSelected: provider.setSelectedCustomPaintType,
+              onAddCustomValue: provider.addCustomPaintType,
+              validator: (value) => value == null ? 'Please select paint type' : null,
             ),
             const SizedBox(height: 24),
 
@@ -153,21 +152,18 @@ class _CreateListingStep4ExteriorState
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: DropdownButtonFormField<RimType>(
-                    initialValue: provider.rimType,
-                    decoration: const InputDecoration(
-                      labelText: 'Rim Type *',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: RimType.values.map((type) {
-                      return DropdownMenuItem(
-                        value: type,
-                        child: Text(type.displayName),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) provider.setRimType(value);
-                    },
+                  child: CreatableDropdown<RimType>(
+                    labelText: 'Rim Type *',
+                    hintText: 'Select or type to add',
+                    selectedValue: provider.rimType,
+                    selectedCustomValue: provider.selectedCustomRimType,
+                    enumValues: RimType.values,
+                    customValues: provider.customRimTypes,
+                    getDisplayName: (type) => type.displayName,
+                    onEnumSelected: provider.setRimType,
+                    onCustomSelected: provider.setSelectedCustomRimType,
+                    onAddCustomValue: provider.addCustomRimType,
+                    validator: (value) => value == null ? 'Please select rim type' : null,
                   ),
                 ),
               ],
@@ -181,21 +177,20 @@ class _CreateListingStep4ExteriorState
             ),
             const SizedBox(height: 8),
 
-            RadioGroup<TireCondition>(
-              groupValue: provider.tireCondition,
-              onChanged: (value) {
-                if (value != null) provider.setTireCondition(value);
-              },
-              child: Column(
-                children: TireCondition.values.map((condition) {
-                  final isSelected = provider.tireCondition == condition;
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    color: isSelected
-                        ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
-                        : null,
-                    child: RadioListTile<TireCondition>(
-                      value: condition,
+            Column(
+              children: TireCondition.values.map((condition) {
+                final isSelected = provider.tireCondition == condition;
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  color: isSelected
+                      ? Theme.of(context).primaryColor.withOpacity(0.1)
+                      : null,
+                  child: RadioListTile<TireCondition>(
+                    value: condition,
+                    groupValue: provider.tireCondition,
+                    onChanged: (value) {
+                      if (value != null) provider.setTireCondition(value);
+                    },
                     title: Text(
                       condition.displayName,
                       style: const TextStyle(fontWeight: FontWeight.w600),
@@ -207,7 +202,6 @@ class _CreateListingStep4ExteriorState
                   ),
                 );
               }).toList(),
-              ),
             ),
 
             const SizedBox(height: 24),
@@ -244,14 +238,28 @@ class _CreateListingStep4ExteriorState
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: CustomButton(
-            text: 'Next',
-            onPressed: () {
-              if (_formKey.currentState!.validate() &&
-                  provider.validateStep4()) {
-                context.push('/listing/create/step5');
-              }
-            },
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => context.push('/listing/create/step3'),
+                  child: const Text('Back'),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                flex: 2,
+                child: CustomButton(
+                  text: 'Next',
+                  onPressed: () {
+                    if (_formKey.currentState!.validate() &&
+                        provider.validateStep4()) {
+                      context.push('/listing/create/step5');
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),

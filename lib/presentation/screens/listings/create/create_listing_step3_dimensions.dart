@@ -10,6 +10,7 @@ import '../../../widgets/custom_button.dart';
 import '../../../widgets/number_input_field.dart';
 import '../../../widgets/counter_input_field.dart';
 import '../../../widgets/save_draft_button.dart';
+import '../../../widgets/creatable_dropdown.dart';
 
 class CreateListingStep3Dimensions extends StatefulWidget {
   const CreateListingStep3Dimensions({super.key});
@@ -39,6 +40,10 @@ class _CreateListingStep3DimensionsState
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/'),
+        ),
         title: const Text('Dimensions & Capacity'),
         actions: [
           if (DevAutofill.isEnabled)
@@ -58,13 +63,13 @@ class _CreateListingStep3DimensionsState
           padding: const EdgeInsets.all(16),
           children: [
             LinearProgressIndicator(
-              value: 3 / 8,
+              value: 3 / 9,
               backgroundColor: Colors.grey[200],
             ),
             const SizedBox(height: 24),
 
             Text(
-              'Step 3 of 8',
+              'Step 3 of 9',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.grey[600],
                   ),
@@ -80,26 +85,18 @@ class _CreateListingStep3DimensionsState
             const SizedBox(height: 24),
 
             // BODY TYPE SECTION
-            Text(
-              'Body Type *',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: BodyType.values.map((type) {
-                final isSelected = provider.bodyType == type;
-                return ChoiceChip(
-                  label: Text(type.displayName),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    if (selected) provider.setBodyType(type);
-                  },
-                );
-              }).toList(),
+            CreatableDropdown<BodyType>(
+              labelText: 'Body Type *',
+              hintText: 'Select or type to add',
+              selectedValue: provider.bodyType,
+              selectedCustomValue: provider.selectedCustomBodyType,
+              enumValues: BodyType.values,
+              customValues: provider.customBodyTypes,
+              getDisplayName: (type) => type.displayName,
+              onEnumSelected: provider.setBodyType,
+              onCustomSelected: provider.setSelectedCustomBodyType,
+              onAddCustomValue: provider.addCustomBodyType,
+              validator: (value) => value == null ? 'Please select body type' : null,
             ),
             const SizedBox(height: 24),
 
@@ -324,14 +321,28 @@ class _CreateListingStep3DimensionsState
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: CustomButton(
-            text: 'Next',
-            onPressed: () {
-              if (_formKey.currentState!.validate() &&
-                  provider.validateStep3()) {
-                context.push('/listing/create/step4');
-              }
-            },
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => context.push('/listing/create/step2'),
+                  child: const Text('Back'),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                flex: 2,
+                child: CustomButton(
+                  text: 'Next',
+                  onPressed: () {
+                    if (_formKey.currentState!.validate() &&
+                        provider.validateStep3()) {
+                      context.push('/listing/create/step4');
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),
