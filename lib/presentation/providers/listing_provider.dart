@@ -824,20 +824,29 @@ class ListingProvider extends ChangeNotifier {
 
   bool validateStep2() {
     // Mechanical Specifications
+    final hasEngineType = _engineType != null || _selectedCustomEngineType != null;
+    final hasTransmission = _transmission != null || _selectedCustomTransmission != null;
+    final hasDriveType = _driveType != null || _selectedCustomDriveType != null;
+    final hasFuelType = _fuelType != null || _selectedCustomFuelType != null;
+
     return _engineSize != null &&
         _engineSize!.isNotEmpty &&
-        _transmission != null &&
-        _fuelType != null;
+        hasEngineType &&
+        hasTransmission &&
+        hasDriveType &&
+        hasFuelType;
   }
 
   bool validateStep3() {
     // Dimensions & Capacity
-    return _bodyType != null;
+    return _bodyType != null || _selectedCustomBodyType != null;
   }
 
   bool validateStep4() {
     // Exterior Details
-    return _color != null && _color!.isNotEmpty;
+    final hasPaintType = _paintType != null || _selectedCustomPaintType != null;
+    final hasRimType = _rimType != null || _selectedCustomRimType != null;
+    return _color != null && _color!.isNotEmpty && hasPaintType && hasRimType;
   }
 
   bool validateStep5() {
