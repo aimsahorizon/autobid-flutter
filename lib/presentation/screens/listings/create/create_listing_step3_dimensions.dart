@@ -10,6 +10,7 @@ import '../../../widgets/custom_button.dart';
 import '../../../widgets/number_input_field.dart';
 import '../../../widgets/counter_input_field.dart';
 import '../../../widgets/save_draft_button.dart';
+import '../../../widgets/creatable_dropdown.dart';
 
 class CreateListingStep3Dimensions extends StatefulWidget {
   const CreateListingStep3Dimensions({super.key});
@@ -31,53 +32,6 @@ class _CreateListingStep3DimensionsState
 
   void _autofillForm() {
     Step3AutofillHelper.autofill(context);
-  }
-
-  void _showAddCustomBodyTypeDialog() {
-    final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Custom Body Type'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Enter a custom body type not in the standard list.'),
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              autofocus: true,
-              textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(
-                labelText: 'Body Type',
-                hintText: 'e.g., Roadster, Limousine',
-                border: OutlineInputBorder(),
-              ),
-              maxLength: 30,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final type = controller.text.trim();
-              if (type.isNotEmpty) {
-                context.read<ListingProvider>().addCustomBodyType(type);
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Added custom body type: $type')),
-                );
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -131,51 +85,18 @@ class _CreateListingStep3DimensionsState
             const SizedBox(height: 24),
 
             // BODY TYPE SECTION
-            Text(
-              'Body Type *',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                ...BodyType.values.map((type) {
-                  final isSelected = provider.bodyType == type;
-                  return ChoiceChip(
-                    label: Text(type.displayName),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      if (selected) {
-                        provider.setBodyType(type);
-                        provider.setSelectedCustomBodyType(null);
-                      }
-                    },
-                  );
-                }),
-                ...provider.customBodyTypes.map((type) {
-                  final isSelected = provider.selectedCustomBodyType == type;
-                  return ChoiceChip(
-                    label: Text(type),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      if (selected) {
-                        provider.setBodyType(null);
-                        provider.setSelectedCustomBodyType(type);
-                      }
-                    },
-                  );
-                }),
-                ActionChip(
-                  avatar: const Icon(Icons.add_circle_outline, size: 18),
-                  label: const Text('Add option'),
-                  onPressed: _showAddCustomBodyTypeDialog,
-                  backgroundColor: Colors.grey[100],
-                  side: BorderSide(color: Colors.grey[400]!, style: BorderStyle.none),
-                ),
-              ],
+            CreatableDropdown<BodyType>(
+              labelText: 'Body Type *',
+              hintText: 'Select or type to add',
+              selectedValue: provider.bodyType,
+              selectedCustomValue: provider.selectedCustomBodyType,
+              enumValues: BodyType.values,
+              customValues: provider.customBodyTypes,
+              getDisplayName: (type) => type.displayName,
+              onEnumSelected: provider.setBodyType,
+              onCustomSelected: provider.setSelectedCustomBodyType,
+              onAddCustomValue: provider.addCustomBodyType,
+              validator: (value) => value == null ? 'Please select body type' : null,
             ),
             const SizedBox(height: 24),
 
