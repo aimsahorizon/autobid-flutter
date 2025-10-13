@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/color_constants.dart';
+import '../../../../data/models/user_model.dart';
+import '../../../../data/services/local/local_storage_service.dart';
 import '../../../providers/signup_provider.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/signup_stepper.dart';
@@ -18,7 +20,7 @@ class _SignupStep8ReviewState extends State<SignupStep8Review> {
   bool _isSubmitting = false;
 
   void _handleBack() {
-    context.go('/signup/step7');
+    context.go('/signup/step8');
   }
 
   Future<void> _handleSubmit() async {
@@ -27,11 +29,42 @@ class _SignupStep8ReviewState extends State<SignupStep8Review> {
     });
 
     try {
+      final provider = context.read<SignupProvider>();
+
+      // Create user model
+      final user = UserModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        email: provider.email,
+        fullName: provider.fullName,
+        firstName: provider.firstName,
+        middleName: provider.middleName,
+        lastName: provider.lastName,
+        dateOfBirth: provider.dateOfBirth,
+        gender: provider.gender,
+        phoneNumber: provider.phoneNumber,
+        password: provider.password,
+        street: provider.street,
+        barangay: provider.barangay,
+        city: provider.city,
+        province: provider.province,
+        zipCode: provider.zipCode,
+        nationality: provider.nationality,
+        termsAccepted: provider.termsAccepted,
+        privacyAccepted: provider.privacyAccepted,
+        kycStatus: 'pending',
+        accountType: 'individual',
+        createdAt: DateTime.now(),
+        accountStatus: AccountStatus.pending,
+      );
+
+      // Save to local storage
+      final storage = await LocalStorageService.getInstance();
+      await storage.saveUser(user);
+
       // Simulate registration submission
       await Future.delayed(const Duration(seconds: 2));
 
-      // In a real app, you would call your backend API here
-      // For now, we'll just navigate to success screen
+      // Navigate to success screen
       if (mounted) {
         context.go('/signup/success');
       }
@@ -75,7 +108,7 @@ class _SignupStep8ReviewState extends State<SignupStep8Review> {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SignupStepper(currentStep: 8),
+                        const SignupStepper(currentStep: 9, totalSteps: 9),
                         const SizedBox(height: 32),
                         Text(
                           'Review Your Information',
