@@ -11,6 +11,7 @@ import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/number_input_field.dart';
 import '../../../widgets/counter_input_field.dart';
 import '../../../widgets/save_draft_button.dart';
+import '../../../widgets/creatable_dropdown.dart';
 
 class CreateListingStep2Mechanical extends StatefulWidget {
   const CreateListingStep2Mechanical({super.key});
@@ -51,194 +52,6 @@ class _CreateListingStep2MechanicalState
       context,
       _engineSizeController,
       _chargingTimeController,
-    );
-  }
-
-  void _showAddCustomEngineTypeDialog() {
-    final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Custom Engine Type'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Enter a custom engine type not in the standard list.'),
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              autofocus: true,
-              textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(
-                labelText: 'Engine Type',
-                hintText: 'e.g., W-Type, Radial',
-                border: OutlineInputBorder(),
-              ),
-              maxLength: 30,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final type = controller.text.trim();
-              if (type.isNotEmpty) {
-                context.read<ListingProvider>().addCustomEngineType(type);
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Added custom engine type: $type')),
-                );
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showAddCustomTransmissionTypeDialog() {
-    final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Custom Transmission'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Enter a custom transmission type.'),
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              autofocus: true,
-              textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(
-                labelText: 'Transmission Type',
-                hintText: 'e.g., Sequential, Automated Manual',
-                border: OutlineInputBorder(),
-              ),
-              maxLength: 30,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final type = controller.text.trim();
-              if (type.isNotEmpty) {
-                context.read<ListingProvider>().addCustomTransmissionType(type);
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Added custom transmission: $type')),
-                );
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showAddCustomDriveTypeDialog() {
-    final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Custom Drive Type'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Enter a custom drive type.'),
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              autofocus: true,
-              textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(
-                labelText: 'Drive Type',
-                hintText: 'e.g., Part-time 4WD',
-                border: OutlineInputBorder(),
-              ),
-              maxLength: 30,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final type = controller.text.trim();
-              if (type.isNotEmpty) {
-                context.read<ListingProvider>().addCustomDriveType(type);
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Added custom drive type: $type')),
-                );
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showAddCustomFuelTypeDialog() {
-    final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Custom Fuel Type'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Enter a custom fuel type.'),
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              autofocus: true,
-              textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(
-                labelText: 'Fuel Type',
-                hintText: 'e.g., Ethanol, Biodiesel',
-                border: OutlineInputBorder(),
-              ),
-              maxLength: 30,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final type = controller.text.trim();
-              if (type.isNotEmpty) {
-                context.read<ListingProvider>().addCustomFuelType(type);
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Added custom fuel type: $type')),
-                );
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -312,52 +125,18 @@ class _CreateListingStep2MechanicalState
             const SizedBox(height: 16),
 
             // Engine Type
-            DropdownButtonFormField<EngineType?>(
-              value: provider.engineType,
-              decoration: const InputDecoration(
-                labelText: 'Engine Type *',
-                border: OutlineInputBorder(),
-                hintText: 'Select engine type',
-              ),
-              items: [
-                const DropdownMenuItem<EngineType?>(
-                  value: null,
-                  child: Text('Select engine type', style: TextStyle(color: Colors.grey)),
-                ),
-                ...EngineType.values.map((type) {
-                  return DropdownMenuItem<EngineType?>(
-                    value: type,
-                    child: Text(type.displayName),
-                  );
-                }).toList(),
-              ],
-              onChanged: (value) {
-                provider.setEngineType(value);
-              },
+            CreatableDropdown<EngineType>(
+              labelText: 'Engine Type *',
+              hintText: 'Select or type to add',
+              selectedValue: provider.engineType,
+              selectedCustomValue: null,
+              enumValues: EngineType.values,
+              customValues: provider.customEngineTypes,
+              getDisplayName: (type) => type.displayName,
+              onEnumSelected: provider.setEngineType,
+              onCustomSelected: (_) {},
+              onAddCustomValue: provider.addCustomEngineType,
               validator: (value) => value == null ? 'Please select engine type' : null,
-            ),
-            if (provider.customEngineTypes.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 4,
-                runSpacing: 4,
-                children: provider.customEngineTypes.map((type) {
-                  return Chip(
-                    label: Text(type, style: const TextStyle(fontSize: 11)),
-                    visualDensity: VisualDensity.compact,
-                  );
-                }).toList(),
-              ),
-            ],
-            const SizedBox(height: 4),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton.icon(
-                onPressed: _showAddCustomEngineTypeDialog,
-                icon: const Icon(Icons.add, size: 16),
-                label: const Text('Add Custom Engine Type', style: TextStyle(fontSize: 12)),
-                style: TextButton.styleFrom(padding: EdgeInsets.zero),
-              ),
             ),
             const SizedBox(height: 16),
 
@@ -427,49 +206,18 @@ class _CreateListingStep2MechanicalState
             const SizedBox(height: 16),
 
             // Transmission Type
-            Text(
-              'Transmission *',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                ...TransmissionType.values.map((type) {
-                  final isSelected = provider.transmission == type;
-                  return ChoiceChip(
-                    label: Text(type.displayName),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      if (selected) {
-                        provider.setTransmission(type);
-                        provider.setSelectedCustomTransmission(null);
-                      }
-                    },
-                  );
-                }),
-                ...provider.customTransmissionTypes.map((type) {
-                  final isSelected = provider.selectedCustomTransmission == type;
-                  return ChoiceChip(
-                    label: Text(type),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      if (selected) {
-                        provider.setTransmission(null);
-                        provider.setSelectedCustomTransmission(type);
-                      }
-                    },
-                  );
-                }),
-                ActionChip(
-                  avatar: const Icon(Icons.add_circle_outline, size: 18),
-                  label: const Text('Add option'),
-                  onPressed: _showAddCustomTransmissionTypeDialog,
-                  backgroundColor: Colors.grey[100],
-                  side: BorderSide(color: Colors.grey[400]!, style: BorderStyle.none),
-                ),
-              ],
+            CreatableDropdown<TransmissionType>(
+              labelText: 'Transmission *',
+              hintText: 'Select or type to add',
+              selectedValue: provider.transmission,
+              selectedCustomValue: provider.selectedCustomTransmission,
+              enumValues: TransmissionType.values,
+              customValues: provider.customTransmissionTypes,
+              getDisplayName: (type) => type.displayName,
+              onEnumSelected: provider.setTransmission,
+              onCustomSelected: provider.setSelectedCustomTransmission,
+              onAddCustomValue: provider.addCustomTransmissionType,
+              validator: (value) => value == null ? 'Please select transmission' : null,
             ),
             const SizedBox(height: 16),
 
@@ -488,54 +236,18 @@ class _CreateListingStep2MechanicalState
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      DropdownButtonFormField<DriveType?>(
-                        value: provider.driveType,
-                        decoration: const InputDecoration(
-                          labelText: 'Drive Type *',
-                          border: OutlineInputBorder(),
-                          hintText: 'Select drive type',
-                        ),
-                        items: [
-                          const DropdownMenuItem<DriveType?>(
-                            value: null,
-                            child: Text('Select drive type', style: TextStyle(color: Colors.grey)),
-                          ),
-                          ...DriveType.values.map((type) {
-                            return DropdownMenuItem<DriveType?>(
-                              value: type,
-                              child: Text(type.displayName),
-                            );
-                          }).toList(),
-                        ],
-                        onChanged: (value) {
-                          provider.setDriveType(value);
-                        },
-                        validator: (value) => value == null ? 'Please select drive type' : null,
-                      ),
-                      if (provider.customDriveTypes.isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 4,
-                          runSpacing: 4,
-                          children: provider.customDriveTypes.map((type) {
-                            return Chip(
-                              label: Text(type, style: const TextStyle(fontSize: 11)),
-                              visualDensity: VisualDensity.compact,
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                      const SizedBox(height: 4),
-                      TextButton.icon(
-                        onPressed: _showAddCustomDriveTypeDialog,
-                        icon: const Icon(Icons.add, size: 16),
-                        label: const Text('Add Custom', style: TextStyle(fontSize: 12)),
-                        style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                      ),
-                    ],
+                  child: CreatableDropdown<DriveType>(
+                    labelText: 'Drive Type *',
+                    hintText: 'Select or type to add',
+                    selectedValue: provider.driveType,
+                    selectedCustomValue: provider.selectedCustomDriveType,
+                    enumValues: DriveType.values,
+                    customValues: provider.customDriveTypes,
+                    getDisplayName: (type) => type.displayName,
+                    onEnumSelected: provider.setDriveType,
+                    onCustomSelected: provider.setSelectedCustomDriveType,
+                    onAddCustomValue: provider.addCustomDriveType,
+                    validator: (value) => value == null ? 'Please select drive type' : null,
                   ),
                 ),
               ],
@@ -543,51 +255,18 @@ class _CreateListingStep2MechanicalState
             const SizedBox(height: 24),
 
             // FUEL TYPE SECTION
-            Text(
-              'Fuel Type *',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                ...FuelType.values.map((type) {
-                  final isSelected = provider.fuelType == type;
-                  return ChoiceChip(
-                    label: Text(type.displayName),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      if (selected) {
-                        provider.setFuelType(type);
-                        provider.setSelectedCustomFuelType(null);
-                      }
-                    },
-                  );
-                }),
-                ...provider.customFuelTypes.map((type) {
-                  final isSelected = provider.selectedCustomFuelType == type;
-                  return ChoiceChip(
-                    label: Text(type),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      if (selected) {
-                        provider.setFuelType(null);
-                        provider.setSelectedCustomFuelType(type);
-                      }
-                    },
-                  );
-                }),
-                ActionChip(
-                  avatar: const Icon(Icons.add_circle_outline, size: 18),
-                  label: const Text('Add option'),
-                  onPressed: _showAddCustomFuelTypeDialog,
-                  backgroundColor: Colors.grey[100],
-                  side: BorderSide(color: Colors.grey[400]!, style: BorderStyle.none),
-                ),
-              ],
+            CreatableDropdown<FuelType>(
+              labelText: 'Fuel Type *',
+              hintText: 'Select or type to add',
+              selectedValue: provider.fuelType,
+              selectedCustomValue: provider.selectedCustomFuelType,
+              enumValues: FuelType.values,
+              customValues: provider.customFuelTypes,
+              getDisplayName: (type) => type.displayName,
+              onEnumSelected: provider.setFuelType,
+              onCustomSelected: provider.setSelectedCustomFuelType,
+              onAddCustomValue: provider.addCustomFuelType,
+              validator: (value) => value == null ? 'Please select fuel type' : null,
             ),
 
             // Electric/Hybrid Specific Fields
