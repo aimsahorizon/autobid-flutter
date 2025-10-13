@@ -229,7 +229,6 @@ class _CreatableDropdownState<T> extends State<CreatableDropdown<T>> {
               hintText: widget.hintText,
               border: const OutlineInputBorder(),
               suffixIcon: Icon(_isExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down),
-              errorText: widget.validator?.call(_currentDisplayValue.isEmpty ? null : _currentDisplayValue),
             ),
             child: Text(
               _currentDisplayValue.isEmpty ? widget.hintText : _currentDisplayValue,
