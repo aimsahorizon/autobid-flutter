@@ -5,8 +5,8 @@
 **Project:** AutoBID - Online Reused Car Auction
 **Type:** Multi-Platform App
 **Platforms:** iOS, Android, Web
-**Phase:** Beta (v0.10.0) ← Auto-detected
-**Version:** 0.10.0+18
+**Phase:** Beta (v0.10.1) ← Auto-detected
+**Version:** 0.10.1+19
 **Updated:** 2025-10-13
 
 **Tech Stack:**
