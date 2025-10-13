@@ -95,7 +95,7 @@ class _SignupStep3AddressState extends State<SignupStep3Address> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SignupStepper(currentStep: 3),
+                const SignupStepper(currentStep: 4, totalSteps: 9),
                 const SizedBox(height: 32),
                 Text(
                   'Address Information',
