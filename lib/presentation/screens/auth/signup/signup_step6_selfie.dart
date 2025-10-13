@@ -154,7 +154,7 @@ class _SignupStep6SelfieState extends State<SignupStep6Selfie> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SignupStepper(currentStep: 6),
+              const SignupStepper(currentStep: 7, totalSteps: 9),
               const SizedBox(height: 32),
               Text(
                 'Take a Selfie',
