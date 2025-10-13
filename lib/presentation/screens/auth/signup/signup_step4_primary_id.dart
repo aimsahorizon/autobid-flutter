@@ -196,7 +196,7 @@ class _SignupStep4PrimaryIdState extends State<SignupStep4PrimaryId> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SignupStepper(currentStep: 4),
+                const SignupStepper(currentStep: 5, totalSteps: 9),
                 const SizedBox(height: 32),
                 Text(
                   'National ID',
