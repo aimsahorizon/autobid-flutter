@@ -10,6 +10,7 @@ import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/counter_input_field.dart';
 import '../../../widgets/save_draft_button.dart';
+import '../../../widgets/creatable_dropdown.dart';
 
 class CreateListingStep4Exterior extends StatefulWidget {
   const CreateListingStep4Exterior({super.key});
@@ -40,100 +41,6 @@ class _CreateListingStep4ExteriorState
 
   void _autofillForm() {
     Step4AutofillHelper.autofill(context, _colorController);
-  }
-
-  void _showAddCustomPaintTypeDialog() {
-    final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Custom Paint Type'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Enter a custom paint type.'),
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              autofocus: true,
-              textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(
-                labelText: 'Paint Type',
-                hintText: 'e.g., Satin, Gloss',
-                border: OutlineInputBorder(),
-              ),
-              maxLength: 30,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final type = controller.text.trim();
-              if (type.isNotEmpty) {
-                context.read<ListingProvider>().addCustomPaintType(type);
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Added custom paint type: $type')),
-                );
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showAddCustomRimTypeDialog() {
-    final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Custom Rim Type'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Enter a custom rim type.'),
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              autofocus: true,
-              textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(
-                labelText: 'Rim Type',
-                hintText: 'e.g., Carbon Fiber, Chrome',
-                border: OutlineInputBorder(),
-              ),
-              maxLength: 30,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final type = controller.text.trim();
-              if (type.isNotEmpty) {
-                context.read<ListingProvider>().addCustomRimType(type);
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Added custom rim type: $type')),
-                );
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -206,49 +113,18 @@ class _CreateListingStep4ExteriorState
             const SizedBox(height: 16),
 
             // Paint Type
-            Text(
-              'Paint Type *',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                ...PaintType.values.map((type) {
-                  final isSelected = provider.paintType == type;
-                  return ChoiceChip(
-                    label: Text(type.displayName),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      if (selected) {
-                        provider.setPaintType(type);
-                        provider.setSelectedCustomPaintType(null);
-                      }
-                    },
-                  );
-                }),
-                ...provider.customPaintTypes.map((type) {
-                  final isSelected = provider.selectedCustomPaintType == type;
-                  return ChoiceChip(
-                    label: Text(type),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      if (selected) {
-                        provider.setPaintType(null);
-                        provider.setSelectedCustomPaintType(type);
-                      }
-                    },
-                  );
-                }),
-                ActionChip(
-                  avatar: const Icon(Icons.add_circle_outline, size: 18),
-                  label: const Text('Add option'),
-                  onPressed: _showAddCustomPaintTypeDialog,
-                  backgroundColor: Colors.grey[100],
-                  side: BorderSide(color: Colors.grey[400]!, style: BorderStyle.none),
-                ),
-              ],
+            CreatableDropdown<PaintType>(
+              labelText: 'Paint Type *',
+              hintText: 'Select or type to add',
+              selectedValue: provider.paintType,
+              selectedCustomValue: provider.selectedCustomPaintType,
+              enumValues: PaintType.values,
+              customValues: provider.customPaintTypes,
+              getDisplayName: (type) => type.displayName,
+              onEnumSelected: provider.setPaintType,
+              onCustomSelected: provider.setSelectedCustomPaintType,
+              onAddCustomValue: provider.addCustomPaintType,
+              validator: (value) => value == null ? 'Please select paint type' : null,
             ),
             const SizedBox(height: 24),
 
@@ -276,54 +152,18 @@ class _CreateListingStep4ExteriorState
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      DropdownButtonFormField<RimType?>(
-                        value: provider.rimType,
-                        decoration: const InputDecoration(
-                          labelText: 'Rim Type *',
-                          border: OutlineInputBorder(),
-                          hintText: 'Select rim type',
-                        ),
-                        items: [
-                          const DropdownMenuItem<RimType?>(
-                            value: null,
-                            child: Text('Select rim type', style: TextStyle(color: Colors.grey)),
-                          ),
-                          ...RimType.values.map((type) {
-                            return DropdownMenuItem<RimType?>(
-                              value: type,
-                              child: Text(type.displayName),
-                            );
-                          }).toList(),
-                        ],
-                        onChanged: (value) {
-                          provider.setRimType(value);
-                        },
-                        validator: (value) => value == null ? 'Please select rim type' : null,
-                      ),
-                      if (provider.customRimTypes.isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 4,
-                          runSpacing: 4,
-                          children: provider.customRimTypes.map((type) {
-                            return Chip(
-                              label: Text(type, style: const TextStyle(fontSize: 11)),
-                              visualDensity: VisualDensity.compact,
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                      const SizedBox(height: 4),
-                      TextButton.icon(
-                        onPressed: _showAddCustomRimTypeDialog,
-                        icon: const Icon(Icons.add, size: 16),
-                        label: const Text('Add Custom', style: TextStyle(fontSize: 12)),
-                        style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                      ),
-                    ],
+                  child: CreatableDropdown<RimType>(
+                    labelText: 'Rim Type *',
+                    hintText: 'Select or type to add',
+                    selectedValue: provider.rimType,
+                    selectedCustomValue: provider.selectedCustomRimType,
+                    enumValues: RimType.values,
+                    customValues: provider.customRimTypes,
+                    getDisplayName: (type) => type.displayName,
+                    onEnumSelected: provider.setRimType,
+                    onCustomSelected: provider.setSelectedCustomRimType,
+                    onAddCustomValue: provider.addCustomRimType,
+                    validator: (value) => value == null ? 'Please select rim type' : null,
                   ),
                 ),
               ],
@@ -337,21 +177,20 @@ class _CreateListingStep4ExteriorState
             ),
             const SizedBox(height: 8),
 
-            RadioGroup<TireCondition>(
-              groupValue: provider.tireCondition,
-              onChanged: (value) {
-                if (value != null) provider.setTireCondition(value);
-              },
-              child: Column(
-                children: TireCondition.values.map((condition) {
-                  final isSelected = provider.tireCondition == condition;
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    color: isSelected
-                        ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
-                        : null,
-                    child: RadioListTile<TireCondition>(
-                      value: condition,
+            Column(
+              children: TireCondition.values.map((condition) {
+                final isSelected = provider.tireCondition == condition;
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  color: isSelected
+                      ? Theme.of(context).primaryColor.withOpacity(0.1)
+                      : null,
+                  child: RadioListTile<TireCondition>(
+                    value: condition,
+                    groupValue: provider.tireCondition,
+                    onChanged: (value) {
+                      if (value != null) provider.setTireCondition(value);
+                    },
                     title: Text(
                       condition.displayName,
                       style: const TextStyle(fontWeight: FontWeight.w600),
@@ -363,7 +202,6 @@ class _CreateListingStep4ExteriorState
                   ),
                 );
               }).toList(),
-              ),
             ),
 
             const SizedBox(height: 24),
