@@ -344,13 +344,7 @@ class _CreateListingStep2MechanicalState
                 children: provider.customEngineTypes.map((type) {
                   return Chip(
                     label: Text(type, style: const TextStyle(fontSize: 11)),
-                    deleteIcon: const Icon(Icons.close, size: 14),
                     visualDensity: VisualDensity.compact,
-                    onDeleted: () {
-                      setState(() {
-                        provider.customEngineTypes.remove(type);
-                      });
-                    },
                   );
                 }).toList(),
               ),
@@ -448,31 +442,17 @@ class _CreateListingStep2MechanicalState
                     label: Text(type.displayName),
                     selected: isSelected,
                     onSelected: (selected) {
-                      if (selected) provider.setTransmission(type);
+                      if (selected) {
+                        provider.setTransmission(type);
+                        provider.setSelectedCustomTransmission(null);
+                      }
                     },
                   );
                 }),
                 ...provider.customTransmissionTypes.map((type) {
                   final isSelected = provider.selectedCustomTransmission == type;
                   return ChoiceChip(
-                    label: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(type),
-                        const SizedBox(width: 4),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              provider.customTransmissionTypes.remove(type);
-                              if (provider.selectedCustomTransmission == type) {
-                                provider.setSelectedCustomTransmission(null);
-                              }
-                            });
-                          },
-                          child: const Icon(Icons.cancel, size: 16),
-                        ),
-                      ],
-                    ),
+                    label: Text(type),
                     selected: isSelected,
                     onSelected: (selected) {
                       if (selected) {
@@ -543,13 +523,7 @@ class _CreateListingStep2MechanicalState
                           children: provider.customDriveTypes.map((type) {
                             return Chip(
                               label: Text(type, style: const TextStyle(fontSize: 11)),
-                              deleteIcon: const Icon(Icons.close, size: 14),
                               visualDensity: VisualDensity.compact,
-                              onDeleted: () {
-                                setState(() {
-                                  provider.customDriveTypes.remove(type);
-                                });
-                              },
                             );
                           }).toList(),
                         ),
@@ -586,31 +560,17 @@ class _CreateListingStep2MechanicalState
                     label: Text(type.displayName),
                     selected: isSelected,
                     onSelected: (selected) {
-                      if (selected) provider.setFuelType(type);
+                      if (selected) {
+                        provider.setFuelType(type);
+                        provider.setSelectedCustomFuelType(null);
+                      }
                     },
                   );
                 }),
                 ...provider.customFuelTypes.map((type) {
                   final isSelected = provider.selectedCustomFuelType == type;
                   return ChoiceChip(
-                    label: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(type),
-                        const SizedBox(width: 4),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              provider.customFuelTypes.remove(type);
-                              if (provider.selectedCustomFuelType == type) {
-                                provider.setSelectedCustomFuelType(null);
-                              }
-                            });
-                          },
-                          child: const Icon(Icons.cancel, size: 16),
-                        ),
-                      ],
-                    ),
+                    label: Text(type),
                     selected: isSelected,
                     onSelected: (selected) {
                       if (selected) {
