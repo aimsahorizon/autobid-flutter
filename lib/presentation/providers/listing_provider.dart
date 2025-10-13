@@ -119,10 +119,13 @@ class ListingProvider extends ChangeNotifier {
 
   // SELECTED CUSTOM VALUES
   // Tracks which custom values are currently selected
+  String? _selectedCustomEngineType;
   String? _selectedCustomTransmission;
+  String? _selectedCustomDriveType;
   String? _selectedCustomFuelType;
   String? _selectedCustomBodyType;
   String? _selectedCustomPaintType;
+  String? _selectedCustomRimType;
 
   // Auction settings
   bool _isAuction = false;
@@ -239,10 +242,13 @@ class ListingProvider extends ChangeNotifier {
   List<String> get customBodyTypes => _customBodyTypes;
   List<String> get customPaintTypes => _customPaintTypes;
   List<String> get customRimTypes => _customRimTypes;
+  String? get selectedCustomEngineType => _selectedCustomEngineType;
   String? get selectedCustomTransmission => _selectedCustomTransmission;
+  String? get selectedCustomDriveType => _selectedCustomDriveType;
   String? get selectedCustomFuelType => _selectedCustomFuelType;
   String? get selectedCustomBodyType => _selectedCustomBodyType;
   String? get selectedCustomPaintType => _selectedCustomPaintType;
+  String? get selectedCustomRimType => _selectedCustomRimType;
 
   bool get isAuction => _isAuction;
   double? get auctionStartingPrice => _auctionStartingPrice;
@@ -752,8 +758,18 @@ class ListingProvider extends ChangeNotifier {
   }
 
   // Setters for selected custom values
+  void setSelectedCustomEngineType(String? value) {
+    _selectedCustomEngineType = value;
+    notifyListeners();
+  }
+
   void setSelectedCustomTransmission(String? value) {
     _selectedCustomTransmission = value;
+    notifyListeners();
+  }
+
+  void setSelectedCustomDriveType(String? value) {
+    _selectedCustomDriveType = value;
     notifyListeners();
   }
 
@@ -769,6 +785,11 @@ class ListingProvider extends ChangeNotifier {
 
   void setSelectedCustomPaintType(String? value) {
     _selectedCustomPaintType = value;
+    notifyListeners();
+  }
+
+  void setSelectedCustomRimType(String? value) {
+    _selectedCustomRimType = value;
     notifyListeners();
   }
 
@@ -1166,10 +1187,13 @@ class ListingProvider extends ChangeNotifier {
     _customBodyTypes = [];
     _customPaintTypes = [];
     _customRimTypes = [];
+    _selectedCustomEngineType = null;
     _selectedCustomTransmission = null;
+    _selectedCustomDriveType = null;
     _selectedCustomFuelType = null;
     _selectedCustomBodyType = null;
     _selectedCustomPaintType = null;
+    _selectedCustomRimType = null;
     _lastCompletedStep = 0;
     _currentStep = 1;
     notifyListeners();
