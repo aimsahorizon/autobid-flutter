@@ -105,17 +105,27 @@ CLAUDE_WORKFLOW.md      (Reference - templates & patterns)
 4. **[AUTO] Post-Task Checklist:**
    - [ ] Update CLAUDE.md Section 0 if version/phase changed
    - [ ] Update PROJECT_STRUCTURE.md if structure/features changed
-   - [ ] Generate semantic commits for all changes
-   - [ ] Bump version file (package.json/pubspec.yaml/Cargo.toml/setup.py)
-   - [ ] Ask user: "Ready to commit? (Y/n)"
+   - [ ] Suggest version bump (format: `→ 0.11.0+20`)
+   - [ ] Suggest commits with file paths (format: `file.ext | feat: add feature`)
 
 **CRITICAL:** Always run Post-Task Checklist before final response.
 
-**Version Bumps:**
+**Version Bumps (User applies manually):**
 - `feat` → Minor (+0.1.0)
 - `fix|update|perf|build` → Patch (+0.0.1)
 - `feat!|BREAKING CHANGE` → Major (+1.0.0)
 - `docs|style|refactor|test|chore|ci` → No change
+
+**Commit Format (User runs git commands):**
+- One file = one commit (atomic)
+- Single line: `[type]: [description <50 chars]`
+- User creates tags manually for minor versions
+
+**Testing [HYBRID - Customize for your stack]:**
+- **Claude runs for:** Complex/risky changes (new features, refactors)
+- **User runs for:** Simple changes (docs, minor tweaks)
+- **Command:** `@verify` to request Claude run checks
+- **Examples:** `flutter analyze`, `npm test`, `pytest`, `cargo test`
 
 **Output:** Minimal unless asked (Section 7 in CLAUDE_WORKFLOW.md)
 
