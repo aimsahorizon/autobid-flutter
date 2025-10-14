@@ -1,4 +1,4 @@
-# CLAUDE.md - Adaptive Engineering Standards v3.1 (Optimized)
+# CLAUDE.md - Adaptive Engineering Standards v3.2 (Automated Freezed)
 
 ## 0. Project Context [Auto-Updated]
 
@@ -7,7 +7,7 @@
 **Platforms:** iOS, Android, Web
 **Phase:** Beta (v0.11.0) ← Auto-detected
 **Version:** 0.11.0+20
-**Updated:** 2025-10-13
+**Updated:** 2025-10-14
 
 **Tech Stack:**
 - Primary: Flutter 3.9.2 (Dart ^3.9.2)
@@ -46,7 +46,16 @@
 1. Check PROJECT_STRUCTURE.md first
 2. Apply current phase standards (Section 1)
 3. Complete user's tasks
-4. **[AUTO] Post-Task Checklist:**
+4. **[AUTO] If Freezed models modified:**
+   - [ ] Run `dart run build_runner build --delete-conflicting-outputs`
+   - [ ] Verify `.freezed.dart` and `.g.dart` files updated
+   - [ ] Check for compilation errors
+5. **[AUTO - CRITICAL] Error Resolution:**
+   - [ ] Run `flutter analyze` to detect errors
+   - [ ] Fix ALL RED errors (blocking)
+   - [ ] Verify 0 RED errors remain
+   - [ ] NEVER mark task complete with RED errors present
+6. **[AUTO] Post-Task Checklist:**
    - [ ] Update CLAUDE.md Section 0 if version/phase changed
    - [ ] Update PROJECT_STRUCTURE.md if structure/features changed
    - [ ] Suggest version bump ONLY if changed this prompt
@@ -69,6 +78,22 @@
 - User handles git commands
 - User creates tags manually for minor versions
 
+**Error Resolution [AUTO - CRITICAL]:**
+- **ALWAYS resolve ALL RED errors** before completing ANY task
+- **RED = Blocking errors** (compilation failures, undefined references)
+- **YELLOW = Warnings** (resolve if time permits, not blocking)
+- **BLUE = Info** (ignore unless specifically requested)
+- **Command:** `flutter analyze` to detect errors
+- **Must achieve:** 0 RED errors, minimize YELLOW warnings
+- **Never stop** until all RED errors are resolved
+
+**Freezed Code Generation [AUTO]:**
+- **ALWAYS auto-run** after modifying ANY `@freezed` model file
+- **Command:** `dart run build_runner build --delete-conflicting-outputs`
+- **Verify:** Check `.freezed.dart` and `.g.dart` files exist and have no errors
+- **On failure:** Use fallback script (fix_freezed.bat) or manual fix
+- **Skip if:** Only modifying non-model files or generated files themselves
+
 **Flutter Analyze/Test [HYBRID]:**
 - **Claude runs for:** Complex/risky changes (new widgets, refactors)
 - **User runs for:** Simple changes (docs, minor tweaks)
@@ -84,6 +109,8 @@
 
 | Trigger | Read File | Section |
 |---------|-----------|---------|
+| **RED errors detected** | **N/A - Auto-resolve ALL** | **Section 2 (Core)** |
+| **Modified @freezed model file** | **N/A - Auto-run build_runner** | **Section 2 (Core)** |
 | Version changes phase | CLAUDE_PHASES.md | New phase section |
 | Need phase graduation criteria | CLAUDE_PHASES.md | Section 9 |
 | Platform requirements unclear | CLAUDE_PHASES.md | Section 1.5 |
@@ -95,6 +122,8 @@
 | User types `@verify|@profile|@deps|@export|@next|@commit` | CLAUDE_WORKFLOW.md | Section 5 |
 | Need response template | CLAUDE_WORKFLOW.md | Section 2 |
 | Error recovery needed | CLAUDE_WORKFLOW.md | Section 12 |
+| Freezed regeneration workflow | CLAUDE_WORKFLOW.md | Section 13 |
+| Error resolution protocol | CLAUDE_WORKFLOW.md | Section 14 |
 
 **MANDATORY:** If trigger matched → Read file → Process → Respond
 
@@ -151,4 +180,4 @@
 - **CLAUDE_WORKFLOW.md** - Templates, commits, patterns, quick commands
 - **PROJECT_STRUCTURE.md** - Folder tree, features, tech debt, dependencies
 
-**Schema:** v3.1 (Optimized)
+**Schema:** v3.2 (Automated Freezed)
