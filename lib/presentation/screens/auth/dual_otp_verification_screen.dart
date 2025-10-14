@@ -5,13 +5,13 @@ import '../../../core/constants/color_constants.dart';
 import '../../widgets/custom_button.dart';
 
 /// Dual OTP Verification Screen for Registration
-/// Verifies both email and phone OTPs simultaneously
+/// Verifies email OTP first, then phone OTP sequentially
 class DualOtpVerificationScreen extends StatefulWidget {
   final String email;
   final String phoneNumber;
   final String title;
   final Function(String emailOtp, String phoneOtp) onVerify;
-  final Future<bool> Function()? onResend;
+  final Future<bool> Function({bool isEmail})? onResend;
   final String? debugOtps; // Format: "emailOtp/phoneOtp"
   final int otpLength;
   final int countdownSeconds;
@@ -33,8 +33,14 @@ class DualOtpVerificationScreen extends StatefulWidget {
       _DualOtpVerificationScreenState();
 }
 
+enum OtpStep { email, phone }
+
 class _DualOtpVerificationScreenState
     extends State<DualOtpVerificationScreen> {
+  // Current step
+  OtpStep _currentStep = OtpStep.email;
+  String? _verifiedEmailOtp;
+
   // Email OTP controllers
   final List<TextEditingController> _emailControllers = [];
   final List<FocusNode> _emailFocusNodes = [];
@@ -110,26 +116,60 @@ class _DualOtpVerificationScreenState
       _isLoading = true;
     });
 
-    // Get OTPs from controllers
-    final emailOtp = _emailControllers.map((c) => c.text).join();
-    final phoneOtp = _phoneControllers.map((c) => c.text).join();
-
-    // Validate OTP lengths
-    if (emailOtp.length != widget.otpLength ||
-        phoneOtp.length != widget.otpLength) {
-      setState(() {
-        _errorMessage = 'Please enter all ${widget.otpLength} digits for both codes';
-        _isLoading = false;
-      });
-      return;
-    }
-
-    // Call verification callback
     try {
-      await widget.onVerify(emailOtp, phoneOtp);
+      if (_currentStep == OtpStep.email) {
+        // Verify email OTP
+        final emailOtp = _emailControllers.map((c) => c.text).join();
+
+        if (emailOtp.length != widget.otpLength) {
+          setState(() {
+            _errorMessage = 'Please enter all ${widget.otpLength} digits';
+            _isLoading = false;
+          });
+          return;
+        }
+
+        // Store email OTP and move to phone step
+        _verifiedEmailOtp = emailOtp;
+
+        setState(() {
+          _currentStep = OtpStep.phone;
+          _resendCount = 0;
+          _isLoading = false;
+        });
+
+        // Restart timer for phone OTP
+        _startTimer();
+
+        // Focus on first phone field
+        _phoneFocusNodes.first.requestFocus();
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Email verified! Now verify your phone number.'),
+              backgroundColor: ColorConstants.primaryGreen,
+            ),
+          );
+        }
+      } else {
+        // Verify phone OTP
+        final phoneOtp = _phoneControllers.map((c) => c.text).join();
+
+        if (phoneOtp.length != widget.otpLength) {
+          setState(() {
+            _errorMessage = 'Please enter all ${widget.otpLength} digits';
+            _isLoading = false;
+          });
+          return;
+        }
+
+        // Call verification callback with both OTPs
+        await widget.onVerify(_verifiedEmailOtp!, phoneOtp);
+      }
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString();
+        _errorMessage = e.toString().replaceAll('Exception: ', '');
       });
     } finally {
       if (mounted) {
@@ -150,28 +190,29 @@ class _DualOtpVerificationScreenState
 
     try {
       if (widget.onResend != null) {
-        final success = await widget.onResend!();
+        final isEmail = _currentStep == OtpStep.email;
+        final success = await widget.onResend!(isEmail: isEmail);
         if (success) {
           _resendCount++;
-          _clearAllOtps();
+          _clearCurrentOtp();
           _startTimer();
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('OTPs resent successfully'),
+                content: Text('OTP resent to ${isEmail ? 'email' : 'phone'}'),
                 backgroundColor: ColorConstants.primaryGreen,
               ),
             );
           }
         } else {
           setState(() {
-            _errorMessage = 'Failed to resend OTPs. Please try again.';
+            _errorMessage = 'Failed to resend OTP. Please try again.';
           });
         }
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'Error resending OTPs: $e';
+        _errorMessage = 'Error resending OTP: $e';
       });
     } finally {
       if (mounted) {
@@ -182,14 +223,18 @@ class _DualOtpVerificationScreenState
     }
   }
 
-  void _clearAllOtps() {
-    for (var controller in _emailControllers) {
-      controller.clear();
+  void _clearCurrentOtp() {
+    if (_currentStep == OtpStep.email) {
+      for (var controller in _emailControllers) {
+        controller.clear();
+      }
+      _emailFocusNodes.first.requestFocus();
+    } else {
+      for (var controller in _phoneControllers) {
+        controller.clear();
+      }
+      _phoneFocusNodes.first.requestFocus();
     }
-    for (var controller in _phoneControllers) {
-      controller.clear();
-    }
-    _emailFocusNodes.first.requestFocus();
   }
 
   void _onOtpDigitChanged(
@@ -277,9 +322,28 @@ class _DualOtpVerificationScreenState
 
               // Subtitle
               Text(
-                'We\'ve sent verification codes to your email and phone',
+                _currentStep == OtpStep.email
+                    ? 'We\'ve sent a verification code to your email'
+                    : 'Now, verify your phone number with the code we just sent',
                 style: Theme.of(context).textTheme.bodyMedium,
                 textAlign: TextAlign.center,
+              ),
+
+              // Progress indicator
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildStepIndicator(1, _currentStep == OtpStep.email, true),
+                  Container(
+                    width: 40,
+                    height: 2,
+                    color: _currentStep == OtpStep.phone
+                        ? ColorConstants.primaryGreen
+                        : Colors.grey.shade300,
+                  ),
+                  _buildStepIndicator(2, _currentStep == OtpStep.phone, false),
+                ],
               ),
 
               // Debug OTPs
@@ -330,25 +394,23 @@ class _DualOtpVerificationScreenState
 
               const SizedBox(height: 40),
 
-              // Email OTP Section
-              _buildOtpSection(
-                'Email Verification',
-                _maskIdentifier(widget.email),
-                _emailControllers,
-                _emailFocusNodes,
-                Icons.email_outlined,
-              ),
-
-              const SizedBox(height: 30),
-
-              // Phone OTP Section
-              _buildOtpSection(
-                'Phone Verification',
-                _maskIdentifier(widget.phoneNumber),
-                _phoneControllers,
-                _phoneFocusNodes,
-                Icons.phone_outlined,
-              ),
+              // Show only current step OTP Section
+              if (_currentStep == OtpStep.email)
+                _buildOtpSection(
+                  'Email Verification',
+                  _maskIdentifier(widget.email),
+                  _emailControllers,
+                  _emailFocusNodes,
+                  Icons.email_outlined,
+                )
+              else
+                _buildOtpSection(
+                  'Phone Verification',
+                  _maskIdentifier(widget.phoneNumber),
+                  _phoneControllers,
+                  _phoneFocusNodes,
+                  Icons.phone_outlined,
+                ),
 
               const SizedBox(height: 20),
 
@@ -385,7 +447,9 @@ class _DualOtpVerificationScreenState
 
               // Verify Button
               CustomButton(
-                text: 'Verify & Continue',
+                text: _currentStep == OtpStep.email
+                    ? 'Verify Email'
+                    : 'Verify & Complete',
                 onPressed: _isLoading ? null : _handleVerify,
                 isLoading: _isLoading,
               ),
@@ -524,6 +588,31 @@ class _DualOtpVerificationScreenState
           controllers,
           focusNodes,
         ),
+      ),
+    );
+  }
+
+  Widget _buildStepIndicator(int step, bool isActive, bool isCompleted) {
+    return Container(
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        color: isActive || isCompleted
+            ? ColorConstants.primaryGreen
+            : Colors.grey.shade300,
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: isCompleted && !isActive
+            ? Icon(Icons.check, color: Colors.white, size: 18)
+            : Text(
+                step.toString(),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
       ),
     );
   }
