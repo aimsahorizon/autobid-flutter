@@ -9,6 +9,7 @@ import '../../../providers/signup_provider.dart';
 import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/signup_stepper.dart';
+import 'signup_step_mixin.dart';
 
 class SignupStep3Address extends StatefulWidget {
   const SignupStep3Address({super.key});
@@ -17,7 +18,7 @@ class SignupStep3Address extends StatefulWidget {
   State<SignupStep3Address> createState() => _SignupStep3AddressState();
 }
 
-class _SignupStep3AddressState extends State<SignupStep3Address> {
+class _SignupStep3AddressState extends State<SignupStep3Address> with SignupStepMixin {
   final _formKey = GlobalKey<FormState>();
   final _streetController = TextEditingController();
   final _barangayController = TextEditingController();
@@ -82,43 +83,7 @@ class _SignupStep3AddressState extends State<SignupStep3Address> {
       appBar: AppBar(
         title: const Text('Address'),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () async {
-            final shouldProceed = await showDialog<bool>(
-              context: context,
-              builder: (context) => AlertDialog(
-                icon: Icon(
-                  Icons.warning_amber_rounded,
-                  color: Colors.orange,
-                  size: 48,
-                ),
-                title: Text('Discard Changes?'),
-                content: Text(
-                  'Your changes would be lost if you go back. Are you sure you want to continue?',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: Text('Cancel'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: ColorConstants.error,
-                      foregroundColor: Colors.white,
-                    ),
-                    child: Text('Discard'),
-                  ),
-                ],
-              ),
-            );
-
-            if (shouldProceed == true && mounted) {
-              _handleBack();
-            }
-          },
-        ),
+        leading: buildBackButtonWithWarning(),
       ),
       body: SafeArea(
         child: SingleChildScrollView(

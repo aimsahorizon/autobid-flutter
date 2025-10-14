@@ -7,6 +7,7 @@ import '../../../../core/constants/color_constants.dart';
 import '../../../providers/signup_provider.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/signup_stepper.dart';
+import 'signup_step_mixin.dart';
 
 class SignupStep6Selfie extends StatefulWidget {
   const SignupStep6Selfie({super.key});
@@ -15,7 +16,7 @@ class SignupStep6Selfie extends StatefulWidget {
   State<SignupStep6Selfie> createState() => _SignupStep6SelfieState();
 }
 
-class _SignupStep6SelfieState extends State<SignupStep6Selfie> {
+class _SignupStep6SelfieState extends State<SignupStep6Selfie> with SignupStepMixin {
   final _picker = ImagePicker();
 
   Future<void> _pickImage() async {
@@ -143,43 +144,7 @@ class _SignupStep6SelfieState extends State<SignupStep6Selfie> {
       appBar: AppBar(
         title: const Text('Selfie Verification'),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () async {
-            final shouldProceed = await showDialog<bool>(
-              context: context,
-              builder: (context) => AlertDialog(
-                icon: Icon(
-                  Icons.warning_amber_rounded,
-                  color: Colors.orange,
-                  size: 48,
-                ),
-                title: Text('Discard Changes?'),
-                content: Text(
-                  'Your changes would be lost if you go back. Are you sure you want to continue?',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: Text('Cancel'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: ColorConstants.error,
-                      foregroundColor: Colors.white,
-                    ),
-                    child: Text('Discard'),
-                  ),
-                ],
-              ),
-            );
-
-            if (shouldProceed == true && mounted) {
-              _handleBack();
-            }
-          },
-        ),
+        leading: buildBackButtonWithWarning(),
       ),
       body: SafeArea(
         child: SingleChildScrollView(

@@ -1,6 +1,8 @@
+import 'package:autobid/core/constants/color_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+// import '../../../../core/constants/color_constants.dart';
 import '../../../providers/signup_provider.dart';
 
 mixin SignupStepMixin<T extends StatefulWidget> on State<T> {
@@ -24,6 +26,44 @@ mixin SignupStepMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
+  Future<void> handleBackWithWarning() async {
+    final shouldProceed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: Icon(
+          Icons.warning_amber_rounded,
+          color: Colors.orange,
+          size: 48,
+        ),
+        title: Text('Discard Changes?'),
+        content: Text(
+          'Your changes would be lost if you go back. Are you sure you want to continue?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorConstants.error,
+              foregroundColor: Colors.white,
+            ),
+            child: Text('Discard'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldProceed == true) {
+      if (!mounted) return;
+      context.go('/login');
+    }
+  }
+
   Widget buildBackButton() {
     final provider = context.watch<SignupProvider>();
     return IconButton(
@@ -36,6 +76,13 @@ mixin SignupStepMixin<T extends StatefulWidget> on State<T> {
           Navigator.of(context).pop();
         }
       },
+    );
+  }
+
+  Widget buildBackButtonWithWarning() {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: handleBackWithWarning,
     );
   }
 

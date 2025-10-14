@@ -9,6 +9,7 @@ import '../../../providers/signup_provider.dart';
 import '../../../widgets/image_upload_card.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/signup_stepper.dart';
+import 'signup_step_mixin.dart';
 
 class SignupStep7ProofAddress extends StatefulWidget {
   const SignupStep7ProofAddress({super.key});
@@ -18,7 +19,7 @@ class SignupStep7ProofAddress extends StatefulWidget {
       _SignupStep7ProofAddressState();
 }
 
-class _SignupStep7ProofAddressState extends State<SignupStep7ProofAddress> {
+class _SignupStep7ProofAddressState extends State<SignupStep7ProofAddress> with SignupStepMixin {
   ProofOfAddressType? _selectedType;
   Uint8List? _documentImage;
 
@@ -40,43 +41,7 @@ class _SignupStep7ProofAddressState extends State<SignupStep7ProofAddress> {
       appBar: AppBar(
         title: const Text('Proof of Address'),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () async {
-            final shouldProceed = await showDialog<bool>(
-              context: context,
-              builder: (context) => AlertDialog(
-                icon: Icon(
-                  Icons.warning_amber_rounded,
-                  color: Colors.orange,
-                  size: 48,
-                ),
-                title: Text('Discard Changes?'),
-                content: Text(
-                  'Your changes would be lost if you go back. Are you sure you want to continue?',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: Text('Cancel'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: ColorConstants.error,
-                      foregroundColor: Colors.white,
-                    ),
-                    child: Text('Discard'),
-                  ),
-                ],
-              ),
-            );
-
-            if (shouldProceed == true && mounted) {
-              context.go('/signup/step7');
-            }
-          },
-        ),
+        leading: buildBackButtonWithWarning(),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
