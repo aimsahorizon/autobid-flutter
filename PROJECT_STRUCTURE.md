@@ -1,7 +1,7 @@
 # AutoBID - Project Structure
 
 **Last Updated:** 2025-10-14
-**Version:** 0.11.0+20
+**Version:** 0.12.0+21
 **Phase:** Beta Development
 
 ---
