@@ -18,11 +18,80 @@ class MockAuthService {
   static const int maxOtpAttempts = 3;
   static const int lockDurationMinutes = 30;
 
+  // Constructor - loads test users for development
+  MockAuthService() {
+    _loadTestUsers();
+  }
+
   Stream<UserModel?> get authStateChanges => _authStateController.stream;
 
   UserModel? getCurrentUser() => _currentUser;
 
   MockOtpService get otpService => _otpService;
+
+  /// Loads pre-configured test users for development/testing
+  void _loadTestUsers() {
+    final now = DateTime.now();
+
+    _users.addAll([
+      // Test User 1: Verified user (full access)
+      UserModel(
+        id: 'test-user-1',
+        email: 'test@autobid.com',
+        phoneNumber: '+639171234567',
+        fullName: 'Test User (Verified)',
+        password: 'Test123',
+        accountType: 'individual',
+        createdAt: now.subtract(const Duration(days: 30)),
+        verifiedBadge: true,
+        accountStatus: AccountStatus.verified,
+        kycStatus: 'approved',
+      ),
+
+      // Test User 2: Pending KYC review
+      UserModel(
+        id: 'test-user-2',
+        email: 'pending@autobid.com',
+        phoneNumber: '+639171234568',
+        fullName: 'Pending User',
+        password: 'Test123',
+        accountType: 'individual',
+        createdAt: now.subtract(const Duration(days: 5)),
+        verifiedBadge: false,
+        accountStatus: AccountStatus.pending,
+        kycStatus: 'pending',
+      ),
+
+      // Test User 3: Rejected KYC
+      UserModel(
+        id: 'test-user-3',
+        email: 'rejected@autobid.com',
+        phoneNumber: '+639171234569',
+        fullName: 'Rejected User',
+        password: 'Test123',
+        accountType: 'individual',
+        createdAt: now.subtract(const Duration(days: 10)),
+        verifiedBadge: false,
+        accountStatus: AccountStatus.rejected,
+        kycStatus: 'rejected',
+        rejectionReason: 'ID document not clear. Please re-upload.',
+      ),
+
+      // Test User 4: For testing password flows
+      UserModel(
+        id: 'test-user-4',
+        email: 'demo@autobid.com',
+        phoneNumber: '+639171234570',
+        fullName: 'Demo User',
+        password: 'Demo123',
+        accountType: 'individual',
+        createdAt: now.subtract(const Duration(days: 15)),
+        verifiedBadge: true,
+        accountStatus: AccountStatus.verified,
+        kycStatus: 'approved',
+      ),
+    ]);
+  }
 
   Future<AuthResult> signInWithEmail(String email, String password) async {
     try {
@@ -37,25 +106,30 @@ class MockAuthService {
         );
       }
 
-      if (password.length < 6) {
+      // Find user by email or phone
+      final user = _findUserByIdentifier(email);
+      if (user == null) {
         return AuthResult(
           success: false,
-          errorMessage: 'Invalid credentials',
+          errorMessage: 'Invalid email or password',
         );
       }
 
-      // Create mock user
-      final user = UserModel(
-        id: _uuid.v4(),
-        email: email,
-        fullName: 'Test User',
-        phoneNumber: '+1234567890',
-        kycStatus: 'pending',
-        accountType: 'individual',
-        createdAt: DateTime.now(),
-        verifiedBadge: false,
-      );
+      // Check password
+      if (user.password != password) {
+        return AuthResult(
+          success: false,
+          errorMessage: 'Invalid email or password',
+        );
+      }
 
+      // Check if account is locked
+      final lockCheck = _checkAccountLock(user);
+      if (!lockCheck.success) {
+        return lockCheck;
+      }
+
+      // Success
       _currentUser = user;
       _authStateController.add(user);
 
