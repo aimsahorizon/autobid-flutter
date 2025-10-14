@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../presentation/screens/splash/splash_screen.dart';
+import '../../presentation/screens/auth/entry_screen.dart';
 import '../../presentation/screens/auth/login_screen.dart';
+import '../../presentation/screens/auth/forgot_password_screen.dart';
 import '../../presentation/screens/auth/signup_screen.dart';
 import '../../presentation/screens/auth/signup/signup_step1_account.dart';
 import '../../presentation/screens/auth/signup/signup_step2_otp.dart';
@@ -46,6 +48,7 @@ import '../../presentation/screens/review/submit_review_screen.dart';
 import '../../presentation/screens/review/seller_reviews_screen.dart';
 import '../../presentation/screens/notifications/notifications_screen.dart';
 import '../../presentation/screens/guest/guest_view_screen.dart';
+import '../../presentation/screens/admin/admin_debug_panel.dart';
 import '../../presentation/providers/auth_provider.dart';
 import '../constants/string_constants.dart';
 
@@ -82,9 +85,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(
+        path: '/entry',
+        name: 'entry',
+        builder: (context, state) => const EntryScreen(),
+      ),
+      GoRoute(
         path: StringConstants.loginRoute,
         name: 'login',
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/forgot-password',
+        name: 'forgot-password',
+        builder: (context, state) => const ForgotPasswordScreen(),
       ),
       GoRoute(
         path: StringConstants.signupRoute,
@@ -323,6 +336,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final initialTab = tabParam != null ? (int.tryParse(tabParam) ?? 0) : 0;
           return GuestViewScreen(initialTab: initialTab);
         },
+      ),
+      GoRoute(
+        path: '/admin-debug',
+        name: 'admin-debug',
+        builder: (context, state) => const AdminDebugPanel(),
       ),
       // Listings Routes (9 Steps)
       GoRoute(
