@@ -68,6 +68,7 @@ _UserModel _$UserModelFromJson(Map<String, dynamic> json) => _UserModel(
       : DateTime.parse(json['dateOfBirth'] as String),
   gender: json['gender'] as String?,
   phoneNumber: json['phoneNumber'] as String?,
+  password: json['password'] as String?,
   street: json['street'] as String?,
   barangay: json['barangay'] as String?,
   city: json['city'] as String?,
@@ -77,6 +78,7 @@ _UserModel _$UserModelFromJson(Map<String, dynamic> json) => _UserModel(
   termsAccepted: json['termsAccepted'] as bool? ?? false,
   privacyAccepted: json['privacyAccepted'] as bool? ?? false,
   kycStatus: json['kycStatus'] as String? ?? 'pending',
+  rejectionReason: json['rejectionReason'] as String?,
   accountType: json['accountType'] as String? ?? 'individual',
   createdAt: DateTime.parse(json['createdAt'] as String),
   verifiedBadge: json['verifiedBadge'] as bool? ?? false,
@@ -107,6 +109,16 @@ _UserModel _$UserModelFromJson(Map<String, dynamic> json) => _UserModel(
         json['backgroundCheckStatus'],
       ) ??
       BackgroundCheckStatus.none,
+  accountStatus:
+      $enumDecodeNullable(
+        _$AccountStatusEnumMap,
+        json['accountStatus'],
+      ) ??
+      AccountStatus.guest,
+  otpFailureCount: (json['otpFailureCount'] as num?)?.toInt() ?? 0,
+  lastOtpAttempt: json['lastOtpAttempt'] == null
+      ? null
+      : DateTime.parse(json['lastOtpAttempt'] as String),
 );
 
 Map<String, dynamic> _$UserModelToJson(
@@ -121,6 +133,7 @@ Map<String, dynamic> _$UserModelToJson(
   'dateOfBirth': instance.dateOfBirth?.toIso8601String(),
   'gender': instance.gender,
   'phoneNumber': instance.phoneNumber,
+  'password': instance.password,
   'street': instance.street,
   'barangay': instance.barangay,
   'city': instance.city,
@@ -130,6 +143,7 @@ Map<String, dynamic> _$UserModelToJson(
   'termsAccepted': instance.termsAccepted,
   'privacyAccepted': instance.privacyAccepted,
   'kycStatus': instance.kycStatus,
+  'rejectionReason': instance.rejectionReason,
   'accountType': instance.accountType,
   'createdAt': instance.createdAt.toIso8601String(),
   'verifiedBadge': instance.verifiedBadge,
@@ -141,6 +155,9 @@ Map<String, dynamic> _$UserModelToJson(
   'nbiClearance': instance.nbiClearance,
   'backgroundCheckStatus':
       _$BackgroundCheckStatusEnumMap[instance.backgroundCheckStatus]!,
+  'accountStatus': _$AccountStatusEnumMap[instance.accountStatus]!,
+  'otpFailureCount': instance.otpFailureCount,
+  'lastOtpAttempt': instance.lastOtpAttempt?.toIso8601String(),
 };
 
 const _$VerificationLevelEnumMap = {
@@ -156,4 +173,12 @@ const _$BackgroundCheckStatusEnumMap = {
   BackgroundCheckStatus.pending: 'pending',
   BackgroundCheckStatus.cleared: 'cleared',
   BackgroundCheckStatus.rejected: 'rejected',
+};
+
+const _$AccountStatusEnumMap = {
+  AccountStatus.guest: 'guest',
+  AccountStatus.pending: 'pending',
+  AccountStatus.rejected: 'rejected',
+  AccountStatus.verified: 'verified',
+  AccountStatus.locked: 'locked',
 };
