@@ -19,11 +19,14 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _identifierController = TextEditingController(); // Email or phone
+  final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
   bool _isLoading = false;
 
   @override
   void dispose() {
     _identifierController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -42,6 +45,71 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       return 'Enter a valid email or phone number';
     }
     return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Password is required';
+    }
+    if (value.length < 6) {
+      return 'Password must be at least 6 characters';
+    }
+    return null;
+  }
+
+  Future<void> _handlePasswordLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final authService = ref.read(authServiceProvider);
+      final result = await authService.signInWithEmail(
+        _identifierController.text.trim(),
+        _passwordController.text,
+      );
+
+      if (!mounted) return;
+
+      if (result.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Login successful!'),
+            backgroundColor: ColorConstants.primaryGreen,
+          ),
+        );
+        // Router will handle navigation
+      } else {
+        // Check for account locked
+        if (result.accountLocked) {
+          _showAccountLockedDialog(result.errorMessage);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result.errorMessage ?? 'Invalid credentials'),
+              backgroundColor: ColorConstants.error,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: ColorConstants.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   Future<void> _handleRequestOtp() async {
@@ -213,7 +281,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Enter your email or phone to receive OTP',
+                  'Login with password or receive OTP',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 40),
@@ -224,6 +292,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: const Icon(Icons.person_outline),
                   validator: _validateIdentifier,
+                  textInputAction: TextInputAction.next,
+                  enabled: !_isLoading,
+                ),
+                const SizedBox(height: 16),
+                CustomTextField(
+                  controller: _passwordController,
+                  label: 'Password',
+                  hint: 'Enter your password',
+                  obscureText: _obscurePassword,
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
+                  validator: _validatePassword,
                   textInputAction: TextInputAction.done,
                   enabled: !_isLoading,
                 ),
@@ -244,9 +333,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 24),
                 CustomButton(
-                  text: 'Send OTP',
+                  text: 'Login with Password',
+                  onPressed: _handlePasswordLogin,
+                  isLoading: _isLoading,
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(child: Divider()),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'OR',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.grey,
+                            ),
+                      ),
+                    ),
+                    Expanded(child: Divider()),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                CustomButton(
+                  text: 'Login with OTP',
                   onPressed: _handleRequestOtp,
                   isLoading: _isLoading,
+                  isOutlined: true,
                 ),
                 const SizedBox(height: 32),
                 Row(
