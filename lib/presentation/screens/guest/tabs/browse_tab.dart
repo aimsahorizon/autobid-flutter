@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/color_constants.dart';
+import '../../../../data/models/car_model.dart';
 import '../../../providers/browse_provider.dart';
 
 class BrowseTab extends StatefulWidget {
@@ -16,7 +17,7 @@ class _BrowseTabState extends State<BrowseTab> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<BrowseProvider>().fetchCars();
+      context.read<BrowseProvider>().loadAllCars();
     });
   }
 
@@ -28,7 +29,7 @@ class _BrowseTabState extends State<BrowseTab> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final cars = provider.cars.take(6).toList(); // Limit to 6 cars for guests
+        final cars = provider.filteredCars.take(6).toList(); // Limit to 6 cars for guests
 
         return CustomScrollView(
           slivers: [
@@ -83,14 +84,19 @@ class _BrowseTabState extends State<BrowseTab> {
                               child: Stack(
                                 fit: StackFit.expand,
                                 children: [
-                                  Image.network(
-                                    car.photos.first,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Container(
-                                      color: Colors.grey[300],
-                                      child: const Icon(Icons.directions_car, size: 48),
-                                    ),
-                                  ),
+                                  car.images.isNotEmpty
+                                      ? Image.network(
+                                          car.images.first,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (_, __, ___) => Container(
+                                            color: Colors.grey[300],
+                                            child: const Icon(Icons.directions_car, size: 48),
+                                          ),
+                                        )
+                                      : Container(
+                                          color: Colors.grey[300],
+                                          child: const Icon(Icons.directions_car, size: 48),
+                                        ),
                                   Positioned(
                                     top: 8,
                                     right: 8,
@@ -104,7 +110,7 @@ class _BrowseTabState extends State<BrowseTab> {
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Text(
-                                        car.status,
+                                        _formatStatus(car.status),
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 12,
@@ -132,11 +138,19 @@ class _BrowseTabState extends State<BrowseTab> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    '₱${car.price.toStringAsFixed(0)}',
+                                    '${car.mileage.toStringAsFixed(0)} km',
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'View Auction',
                                     style: TextStyle(
                                       color: ColorConstants.primaryGreen,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
                                     ),
                                   ),
                                 ],
@@ -155,5 +169,20 @@ class _BrowseTabState extends State<BrowseTab> {
         );
       },
     );
+  }
+
+  String _formatStatus(ListingStatus status) {
+    switch (status) {
+      case ListingStatus.draft:
+        return 'Draft';
+      case ListingStatus.pendingReview:
+        return 'Pending';
+      case ListingStatus.active:
+        return 'Active';
+      case ListingStatus.sold:
+        return 'Sold';
+      case ListingStatus.cancelled:
+        return 'Cancelled';
+    }
   }
 }
