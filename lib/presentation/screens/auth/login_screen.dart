@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/string_constants.dart';
@@ -66,109 +67,102 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     try {
       final authService = ref.read(authServiceProvider);
-      final result = await authService.signInWithEmail(
+
+      // Step 1: Validate password (but don't login yet)
+      final passwordResult = await authService.signInWithEmail(
         _identifierController.text.trim(),
         _passwordController.text,
       );
 
       if (!mounted) return;
 
-      if (result.success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Login successful!'),
-            backgroundColor: ColorConstants.primaryGreen,
-          ),
-        );
-        // Router will handle navigation
-      } else {
+      if (!passwordResult.success) {
         // Check for account locked
-        if (result.accountLocked) {
-          _showAccountLockedDialog(result.errorMessage);
+        if (passwordResult.accountLocked) {
+          _showAccountLockedDialog(passwordResult.errorMessage);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(result.errorMessage ?? 'Invalid credentials'),
+              content: Text(passwordResult.errorMessage ?? 'Invalid credentials'),
               backgroundColor: ColorConstants.error,
             ),
           );
         }
+        return;
       }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: ColorConstants.error,
-          ),
-        );
+
+      // Password is valid, now require OTP verification
+      final user = passwordResult.user;
+      if (user == null) {
+        throw Exception('User data not available');
       }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
 
-  Future<void> _handleRequestOtp() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final authService = ref.read(authServiceProvider);
-      final result = await authService.requestLoginOtp(
-        _identifierController.text.trim(),
-      );
+      // Logout temporarily since we need OTP verification first
+      await authService.signOut();
 
       if (!mounted) return;
 
-      if (result.success) {
-        // Navigate to OTP verification screen
-        final verified = await Navigator.of(context).push<bool>(
-          MaterialPageRoute(
-            builder: (context) => OtpVerificationScreen(
-              identifier: _identifierController.text.trim(),
-              title: 'Verify Your Identity',
-              subtitle: 'Enter the 6-digit code sent to',
-              debugOtp: result.debugOtp,
-              onVerify: (otp) async {
-                final verifyResult = await authService.verifyLoginOtp(
-                  _identifierController.text.trim(),
-                  otp,
-                );
+      // Step 2: Request and verify EMAIL OTP
+      final emailOtpResult = await authService.requestLoginOtp(user.email);
 
-                if (verifyResult.success) {
-                  if (mounted) {
-                    Navigator.of(context).pop(true);
-                  }
-                } else {
-                  // Show account locked dialog if needed
-                  if (verifyResult.accountLocked) {
-                    if (mounted) {
-                      _showAccountLockedDialog(verifyResult.errorMessage);
-                      Navigator.of(context).pop(false);
-                    }
-                  }
-                  throw Exception(verifyResult.errorMessage);
-                }
-              },
-              onResend: () async {
-                final resendResult = await authService.requestLoginOtp(
-                  _identifierController.text.trim(),
-                );
-                return resendResult.success;
-              },
-            ),
+      if (!mounted) return;
+
+      if (!emailOtpResult.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(emailOtpResult.errorMessage ?? 'Failed to send email OTP'),
+            backgroundColor: ColorConstants.error,
           ),
         );
+        return;
+      }
 
-        if (verified == true && mounted) {
-          // Successfully logged in - router will handle navigation
+      final emailVerified = await Navigator.of(context).push<bool>(
+        MaterialPageRoute(
+          builder: (context) => OtpVerificationScreen(
+            identifier: user.email,
+            title: 'Verify Email',
+            subtitle: 'Enter the 6-digit code sent to your email',
+            debugOtp: emailOtpResult.debugOtp,
+            onVerify: (otp) async {
+              final verifyResult = await authService.verifyLoginOtp(
+                user.email,
+                otp,
+              );
+
+              if (verifyResult.success) {
+                if (mounted) {
+                  Navigator.of(context).pop(true);
+                }
+              } else {
+                if (verifyResult.accountLocked) {
+                  if (mounted) {
+                    _showAccountLockedDialog(verifyResult.errorMessage);
+                    Navigator.of(context).pop(false);
+                  }
+                }
+                throw Exception(verifyResult.errorMessage);
+              }
+            },
+            onResend: () async {
+              final resendResult = await authService.requestLoginOtp(user.email);
+              return resendResult.success;
+            },
+          ),
+        ),
+      );
+
+      if (emailVerified != true || !mounted) return;
+
+      // Step 3: Request and verify PHONE OTP
+      if (user.phoneNumber == null || user.phoneNumber!.isEmpty) {
+        // No phone number, complete login
+        await authService.signInWithEmail(
+          _identifierController.text.trim(),
+          _passwordController.text,
+        );
+
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Login successful!'),
@@ -176,18 +170,73 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ),
           );
         }
-      } else {
-        // Check for account locked
-        if (result.accountLocked) {
-          _showAccountLockedDialog(result.errorMessage);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(result.errorMessage ?? 'Failed to send OTP'),
-              backgroundColor: ColorConstants.error,
-            ),
-          );
-        }
+        return;
+      }
+
+      final phoneOtpResult = await authService.requestLoginOtp(user.phoneNumber!);
+
+      if (!mounted) return;
+
+      if (!phoneOtpResult.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(phoneOtpResult.errorMessage ?? 'Failed to send phone OTP'),
+            backgroundColor: ColorConstants.error,
+          ),
+        );
+        return;
+      }
+
+      final phoneVerified = await Navigator.of(context).push<bool>(
+        MaterialPageRoute(
+          builder: (context) => OtpVerificationScreen(
+            identifier: user.phoneNumber!,
+            title: 'Verify Phone Number',
+            subtitle: 'Enter the 6-digit code sent to your phone',
+            debugOtp: phoneOtpResult.debugOtp,
+            onVerify: (otp) async {
+              final verifyResult = await authService.verifyLoginOtp(
+                user.phoneNumber!,
+                otp,
+              );
+
+              if (verifyResult.success) {
+                if (mounted) {
+                  Navigator.of(context).pop(true);
+                }
+              } else {
+                if (verifyResult.accountLocked) {
+                  if (mounted) {
+                    _showAccountLockedDialog(verifyResult.errorMessage);
+                    Navigator.of(context).pop(false);
+                  }
+                }
+                throw Exception(verifyResult.errorMessage);
+              }
+            },
+            onResend: () async {
+              final resendResult = await authService.requestLoginOtp(user.phoneNumber!);
+              return resendResult.success;
+            },
+          ),
+        ),
+      );
+
+      if (phoneVerified != true || !mounted) return;
+
+      // Step 4: Both OTPs verified, complete login
+      await authService.signInWithEmail(
+        _identifierController.text.trim(),
+        _passwordController.text,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Login successful!'),
+            backgroundColor: ColorConstants.primaryGreen,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -238,26 +287,86 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  Future<void> _handleGoogleSignIn() async {
-    await ref.read(loginStateProvider.notifier).signInWithGoogle();
-
-    if (mounted) {
-      final loginState = ref.read(loginStateProvider);
-      loginState.when(
-        data: (_) {
-          // Success - navigation handled by router
-        },
-        loading: () {},
-        error: (error, _) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(error.toString()),
-              backgroundColor: ColorConstants.error,
-            ),
-          );
-        },
-      );
-    }
+  Widget _buildCredentialRow(String email, String password) {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      email,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: email));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Email copied'),
+                          duration: Duration(seconds: 1),
+                          backgroundColor: ColorConstants.primaryGreen,
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.copy,
+                        size: 14,
+                        color: Colors.amber.shade700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 2),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      password,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: password));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Password copied'),
+                          duration: Duration(seconds: 1),
+                          backgroundColor: ColorConstants.primaryGreen,
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.copy,
+                        size: 14,
+                        color: Colors.amber.shade700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -281,10 +390,47 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Login with password or receive OTP',
+                  'Enter credentials and verify with OTP',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 24),
+                // Test Credentials Card
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.amber.shade200),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.info_outline, color: Colors.amber.shade700, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Test Credentials',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.amber.shade900,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      _buildCredentialRow('test@autobid.com', 'Test123'),
+                      const SizedBox(height: 8),
+                      _buildCredentialRow('pending@autobid.com', 'Test123'),
+                      const SizedBox(height: 8),
+                      _buildCredentialRow('rejected@autobid.com', 'Test123'),
+                      const SizedBox(height: 8),
+                      _buildCredentialRow('demo@autobid.com', 'Demo123'),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
                 CustomTextField(
                   controller: _identifierController,
                   label: 'Email or Phone Number',
@@ -333,32 +479,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 24),
                 CustomButton(
-                  text: 'Login with Password',
+                  text: 'Login',
                   onPressed: _handlePasswordLogin,
                   isLoading: _isLoading,
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(child: Divider()),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        'OR',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Colors.grey,
-                            ),
-                      ),
-                    ),
-                    Expanded(child: Divider()),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                CustomButton(
-                  text: 'Login with OTP',
-                  onPressed: _handleRequestOtp,
-                  isLoading: _isLoading,
-                  isOutlined: true,
                 ),
                 const SizedBox(height: 32),
                 Row(
