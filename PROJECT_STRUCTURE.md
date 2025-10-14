@@ -1,6 +1,6 @@
 # AutoBID - Project Structure
 
-**Last Updated:** 2025-10-14
+**Last Updated:** 2025-10-15
 **Version:** 0.12.0+21
 **Phase:** Beta Development
 
@@ -74,6 +74,8 @@ lib/
 │   ├── repositories/
 │   │   └── auth_repository.dart
 │   └── services/
+│       ├── local/
+│       │   └── local_storage_service.dart
 │       ├── mock/
 │       │   ├── mock_auction_service.dart
 │       │   ├── mock_auth_service.dart
@@ -85,10 +87,12 @@ lib/
 │       │   └── mock_review_service.dart
 │       └── mock_vehicle_conditions_service.dart
 ├── domain/
+│   ├── entities/
 │   ├── repositories/
 │   │   └── auction_repository.dart
-│   └── services/
-│       └── pricing_calculator.dart
+│   ├── services/
+│   │   └── pricing_calculator.dart
+│   └── use_cases/
 ├── presentation/
 │   ├── providers/
 │   │   ├── auction_provider.dart
@@ -264,8 +268,9 @@ lib/
 
 | Feature | Status | Version | Branch | Notes |
 |---------|--------|---------|--------|-------|
-| Authentication | ✅ Complete | 0.2.0 | main | Login/Signup |
-| OTP-Based Auth | 🔄 In Progress | 0.12.0 | nekolaiv/enhance-auth | Login/Register/ForgotPW with OTP, Account lock |
+| Authentication (Basic) | ✅ Complete | 0.2.0 | main | Login/Signup |
+| OTP-Based Auth | 🔄 In Progress | 0.12.0 | nekolaiv/enhance-auth | OTP login/register/reset, Guest mode |
+| Signup Flow Enhancement | 🔄 In Progress | 0.12.0 | nekolaiv/enhance-auth | Back navigation, autofill, warnings |
 | KYC System | ✅ Complete | 0.2.1 | main | 8-step verification |
 | Car Listings | ✅ Complete | 0.3.0 | main | CRUD operations |
 | Browse & Search | ✅ Complete | 0.4.1 | main | 60+ filters |
@@ -348,35 +353,31 @@ P0 = Critical (blocks release) | P1 = High (fix soon) | P2 = Medium (next sprint
 
 ## 📈 Project Statistics
 
-- **Total Dart Files:** 235+ (including generated)
-- **Total Models:** 19 (with Freezed generation)
-- **Total Screens:** 68+
+- **Total Dart Files:** 240+ (including generated)
+- **Total Models:** 18 (with Freezed generation)
+- **Total Screens:** 70+
 - **Total Providers:** 12
-- **Total Mock Services:** 8
-- **Lines of Code:** ~16,500+ (estimate)
+- **Total Services:** 9 mock + 1 local = 10 total
+- **Lines of Code:** ~17,000+ (estimate)
 
 ---
 
 ## 🎯 Current Focus
 
 **Branch:** nekolaiv/enhance-auth
-**Task:** Implemented OTP-based authentication system (frontend-only)
-**Completed:**
-1. Created MockOtpService with 80% delivery simulation, expiry, retry limits
-2. Enhanced MockAuthService with OTP flows (login, register, password reset)
-3. Built reusable OTP verification screens (single & dual OTP)
-4. Refactored Login screen for OTP-based authentication
-5. Implemented Forgot Password flow (OTP → reset)
-6. Created Entry/Welcome screen with Login/Signup/Guest options
-7. Added Admin Debug Panel for KYC testing (approve/reject/unlock)
-8. Updated router with new auth routes
-9. Updated PROJECT_STRUCTURE.md with new architecture
-**Next Steps:**
-1. Run `flutter analyze` to check for compilation errors
-2. Test all authentication flows (login, register, forgot password, guest)
-3. Integrate signup flow with new OTP verification
-4. Test admin panel KYC approval/rejection
-5. Commit changes with semantic versioning (feat: OTP auth → v0.12.0)
+**Task:** OTP-based authentication system + Signup flow enhancements
+**Status:** In progress - Testing & refinement
+**Recent Work:**
+1. ✅ OTP authentication system (login, register, forgot password)
+2. ✅ Admin Debug Panel for KYC testing
+3. ✅ Entry/Welcome screen with guest mode
+4. 🔄 Signup flow refinements (back navigation, warnings)
+5. 🔄 Enhanced signup steps with autofill and validation
+**Pending:**
+1. Final testing of all auth flows
+2. Integration testing with signup → KYC flow
+3. Documentation updates
+4. Code review and cleanup
 
 ---
 

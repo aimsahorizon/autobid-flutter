@@ -5,9 +5,9 @@
 **Project:** AutoBID - Online Reused Car Auction
 **Type:** Multi-Platform App
 **Platforms:** iOS, Android, Web
-**Phase:** Beta (v0.11.0) ← Auto-detected
-**Version:** 0.11.0+20
-**Updated:** 2025-10-14
+**Phase:** Beta (v0.12.0) ← Auto-detected
+**Version:** 0.12.0+21
+**Updated:** 2025-10-15
 
 **Tech Stack:**
 - Primary: Flutter 3.9.2 (Dart ^3.9.2)
@@ -143,8 +143,8 @@
 - `@commit` - Generate commits
 - `@export` - PR summary
 
-**Current Focus:** Custom attribute system for listing enums and features
-**Branch:** nekolaiv/carlisting-enhancement
+**Current Focus:** OTP-based authentication + Signup flow enhancements
+**Branch:** nekolaiv/enhance-auth
 
 ---
 
