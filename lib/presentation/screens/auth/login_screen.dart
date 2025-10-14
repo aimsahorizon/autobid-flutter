@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/string_constants.dart';
 import '../../../core/constants/color_constants.dart';
+import '../../../data/services/mock/mock_auth_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/custom_button.dart';
+import 'otp_verification_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -16,65 +18,156 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _obscurePassword = true;
+  final _identifierController = TextEditingController(); // Email or phone
+  bool _isLoading = false;
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
+    _identifierController.dispose();
     super.dispose();
   }
 
-  String? _validateEmail(String? value) {
+  String? _validateIdentifier(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Email is required';
+      return 'Email or phone number is required';
     }
+
+    // Check if it's email or phone
     final emailRegex = RegExp(
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
     );
-    if (!emailRegex.hasMatch(value)) {
-      return 'Enter a valid email';
+    final phoneRegex = RegExp(r'^\+?[0-9]{10,15}$');
+
+    if (!emailRegex.hasMatch(value) && !phoneRegex.hasMatch(value)) {
+      return 'Enter a valid email or phone number';
     }
     return null;
   }
 
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Password is required';
-    }
-    if (value.length < 6) {
-      return 'Password must be at least 6 characters';
-    }
-    return null;
-  }
-
-  Future<void> _handleLogin() async {
+  Future<void> _handleRequestOtp() async {
     if (!_formKey.currentState!.validate()) return;
 
-    await ref.read(loginStateProvider.notifier).signInWithEmail(
-          _emailController.text.trim(),
-          _passwordController.text,
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final authService = ref.read(authServiceProvider);
+      final result = await authService.requestLoginOtp(
+        _identifierController.text.trim(),
+      );
+
+      if (!mounted) return;
+
+      if (result.success) {
+        // Navigate to OTP verification screen
+        final verified = await Navigator.of(context).push<bool>(
+          MaterialPageRoute(
+            builder: (context) => OtpVerificationScreen(
+              identifier: _identifierController.text.trim(),
+              title: 'Verify Your Identity',
+              subtitle: 'Enter the 6-digit code sent to',
+              debugOtp: result.debugOtp,
+              onVerify: (otp) async {
+                final verifyResult = await authService.verifyLoginOtp(
+                  _identifierController.text.trim(),
+                  otp,
+                );
+
+                if (verifyResult.success) {
+                  if (mounted) {
+                    Navigator.of(context).pop(true);
+                  }
+                } else {
+                  // Show account locked dialog if needed
+                  if (verifyResult.accountLocked) {
+                    if (mounted) {
+                      _showAccountLockedDialog(verifyResult.errorMessage);
+                      Navigator.of(context).pop(false);
+                    }
+                  }
+                  throw Exception(verifyResult.errorMessage);
+                }
+              },
+              onResend: () async {
+                final resendResult = await authService.requestLoginOtp(
+                  _identifierController.text.trim(),
+                );
+                return resendResult.success;
+              },
+            ),
+          ),
         );
 
-    if (mounted) {
-      final loginState = ref.read(loginStateProvider);
-      loginState.when(
-        data: (_) {
-          // Success - navigation handled by router
-        },
-        loading: () {},
-        error: (error, _) {
+        if (verified == true && mounted) {
+          // Successfully logged in - router will handle navigation
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(error.toString()),
+              content: Text('Login successful!'),
+              backgroundColor: ColorConstants.primaryGreen,
+            ),
+          );
+        }
+      } else {
+        // Check for account locked
+        if (result.accountLocked) {
+          _showAccountLockedDialog(result.errorMessage);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result.errorMessage ?? 'Failed to send OTP'),
               backgroundColor: ColorConstants.error,
             ),
           );
-        },
-      );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: ColorConstants.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
+  }
+
+  void _showAccountLockedDialog(String? message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        icon: Icon(
+          Icons.lock,
+          color: ColorConstants.error,
+          size: 48,
+        ),
+        title: Text('Account Locked'),
+        content: Text(
+          message ?? 'Your account has been locked due to too many failed attempts.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              // TODO: Navigate to support/contact page
+            },
+            child: Text('Contact Support'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _handleGoogleSignIn() async {
@@ -101,9 +194,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final loginState = ref.watch(loginStateProvider);
-    final isLoading = loginState.isLoading;
-
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -123,50 +213,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Sign in to continue',
+                  'Enter your email or phone to receive OTP',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 40),
                 CustomTextField(
-                  controller: _emailController,
-                  label: StringConstants.email,
-                  hint: 'Enter your email',
+                  controller: _identifierController,
+                  label: 'Email or Phone Number',
+                  hint: 'Enter your email or phone',
                   keyboardType: TextInputType.emailAddress,
-                  prefixIcon: const Icon(Icons.email_outlined),
-                  validator: _validateEmail,
-                  textInputAction: TextInputAction.next,
-                  enabled: !isLoading,
-                ),
-                const SizedBox(height: 20),
-                CustomTextField(
-                  controller: _passwordController,
-                  label: StringConstants.password,
-                  hint: 'Enter your password',
-                  obscureText: _obscurePassword,
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
-                  ),
-                  validator: _validatePassword,
+                  prefixIcon: const Icon(Icons.person_outline),
+                  validator: _validateIdentifier,
                   textInputAction: TextInputAction.done,
-                  enabled: !isLoading,
+                  enabled: !_isLoading,
                 ),
                 const SizedBox(height: 12),
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: isLoading ? null : () {
-                      // TODO: Implement forgot password
-                    },
+                    onPressed: _isLoading
+                        ? null
+                        : () => context.push('/forgot-password'),
                     child: Text(
                       StringConstants.forgotPassword,
                       style: TextStyle(
@@ -177,39 +244,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 24),
                 CustomButton(
-                  text: StringConstants.login,
-                  onPressed: _handleLogin,
-                  isLoading: isLoading,
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    const Expanded(child: Divider()),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        'OR',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ),
-                    const Expanded(child: Divider()),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                CustomButton(
-                  text: StringConstants.signInWithGoogle,
-                  onPressed: _handleGoogleSignIn,
-                  isLoading: isLoading,
-                  isOutlined: true,
-                  icon: Image.network(
-                    'https://www.google.com/favicon.ico',
-                    width: 20,
-                    height: 20,
-                    errorBuilder: (context, error, stackTrace) => const Icon(
-                      Icons.g_mobiledata,
-                      size: 24,
-                    ),
-                  ),
+                  text: 'Send OTP',
+                  onPressed: _handleRequestOtp,
+                  isLoading: _isLoading,
                 ),
                 const SizedBox(height: 32),
                 Row(
@@ -220,7 +257,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     TextButton(
-                      onPressed: isLoading
+                      onPressed: _isLoading
                           ? null
                           : () => context.go('/signup/step1'),
                       child: Text(
@@ -232,6 +269,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 20),
+                Center(
+                  child: TextButton(
+                    onPressed: _isLoading
+                        ? null
+                        : () => context.go('/guest'),
+                    child: Text(
+                      'Continue as Guest',
+                      style: TextStyle(
+                        color: ColorConstants.primaryGreen,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
