@@ -394,43 +394,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 24),
-                // Test Credentials Card
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.amber.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.amber.shade200),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.info_outline, color: Colors.amber.shade700, size: 20),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Test Credentials',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.amber.shade900,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      _buildCredentialRow('test@autobid.com', 'Test123'),
-                      const SizedBox(height: 8),
-                      _buildCredentialRow('pending@autobid.com', 'Test123'),
-                      const SizedBox(height: 8),
-                      _buildCredentialRow('rejected@autobid.com', 'Test123'),
-                      const SizedBox(height: 8),
-                      _buildCredentialRow('demo@autobid.com', 'Demo123'),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
                 CustomTextField(
                   controller: _identifierController,
                   label: 'Email or Phone Number',
@@ -518,6 +481,47 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // Test Credentials Card
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.amber.shade200),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            color: Colors.amber.shade700,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Test Credentials',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.amber.shade900,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      _buildCredentialRow('test@autobid.com', 'Test123'),
+                      const SizedBox(height: 8),
+                      _buildCredentialRow('pending@autobid.com', 'Test123'),
+                      const SizedBox(height: 8),
+                      _buildCredentialRow('rejected@autobid.com', 'Test123'),
+                      const SizedBox(height: 8),
+                      _buildCredentialRow('demo@autobid.com', 'Demo123'),
+                    ],
                   ),
                 ),
               ],
