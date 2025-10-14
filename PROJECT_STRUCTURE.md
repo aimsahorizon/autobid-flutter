@@ -1,6 +1,6 @@
 # AutoBID - Project Structure
 
-**Last Updated:** 2025-10-13
+**Last Updated:** 2025-10-14
 **Version:** 0.11.0+20
 **Phase:** Beta Development
 
@@ -80,6 +80,7 @@ lib/
 │       │   ├── mock_car_service.dart
 │       │   ├── mock_kyc_service.dart
 │       │   ├── mock_notification_service.dart
+│       │   ├── mock_otp_service.dart
 │       │   ├── mock_payment_service.dart
 │       │   └── mock_review_service.dart
 │       └── mock_vehicle_conditions_service.dart
@@ -117,12 +118,20 @@ lib/
 │   │   │       ├── countdown_timer.dart
 │   │   │       ├── current_bid_card.dart
 │   │   │       └── fullscreen_image_viewer.dart
+│   │   ├── admin/
+│   │   │   └── admin_debug_panel.dart
 │   │   ├── auth/
+│   │   │   ├── dual_otp_verification_screen.dart
+│   │   │   ├── entry_screen.dart
+│   │   │   ├── forgot_password_screen.dart
 │   │   │   ├── login_screen.dart
+│   │   │   ├── otp_verification_screen.dart
+│   │   │   ├── reset_password_screen.dart
 │   │   │   ├── signup_screen.dart
 │   │   │   └── signup/
 │   │   │       ├── signup_step_mixin.dart
 │   │   │       ├── signup_step1_account.dart
+│   │   │       ├── signup_step2_otp.dart
 │   │   │       ├── signup_step2_personal.dart
 │   │   │       ├── signup_step3_address.dart
 │   │   │       ├── signup_step4_primary_id.dart
@@ -137,6 +146,13 @@ lib/
 │   │   │   ├── car_detail_screen.dart
 │   │   │   ├── filter_bottom_sheet.dart
 │   │   │   └── search_screen.dart
+│   │   ├── guest/
+│   │   │   ├── guest_view_screen.dart
+│   │   │   ├── tabs/
+│   │   │   │   ├── account_tab.dart
+│   │   │   │   └── browse_tab.dart
+│   │   │   └── widgets/
+│   │   │       └── account_status_card.dart
 │   │   ├── home/
 │   │   │   ├── home_screen.dart
 │   │   │   ├── tabs/
@@ -249,6 +265,7 @@ lib/
 | Feature | Status | Version | Branch | Notes |
 |---------|--------|---------|--------|-------|
 | Authentication | ✅ Complete | 0.2.0 | main | Login/Signup |
+| OTP-Based Auth | 🔄 In Progress | 0.12.0 | nekolaiv/enhance-auth | Login/Register/ForgotPW with OTP, Account lock |
 | KYC System | ✅ Complete | 0.2.1 | main | 8-step verification |
 | Car Listings | ✅ Complete | 0.3.0 | main | CRUD operations |
 | Browse & Search | ✅ Complete | 0.4.1 | main | 60+ filters |
@@ -331,28 +348,35 @@ P0 = Critical (blocks release) | P1 = High (fix soon) | P2 = Medium (next sprint
 
 ## 📈 Project Statistics
 
-- **Total Dart Files:** 227 (including generated)
+- **Total Dart Files:** 235+ (including generated)
 - **Total Models:** 19 (with Freezed generation)
-- **Total Screens:** 60+
+- **Total Screens:** 68+
 - **Total Providers:** 12
-- **Total Mock Services:** 7
-- **Lines of Code:** ~15,000+ (estimate)
+- **Total Mock Services:** 8
+- **Lines of Code:** ~16,500+ (estimate)
 
 ---
 
 ## 🎯 Current Focus
 
-**Branch:** nekolaiv/carlisting-enhancement
-**Task:** Completed CreatableDropdown refactoring for car listing steps 2-4
+**Branch:** nekolaiv/enhance-auth
+**Task:** Implemented OTP-based authentication system (frontend-only)
 **Completed:**
-1. Created reusable CreatableDropdown<T> widget with Material 3 styling
-2. Refactored all custom attribute dropdowns in steps 2-4
-3. Removed manual dialog patterns, reduced code by ~400 lines
-4. Added provider support for custom value selection tracking
+1. Created MockOtpService with 80% delivery simulation, expiry, retry limits
+2. Enhanced MockAuthService with OTP flows (login, register, password reset)
+3. Built reusable OTP verification screens (single & dual OTP)
+4. Refactored Login screen for OTP-based authentication
+5. Implemented Forgot Password flow (OTP → reset)
+6. Created Entry/Welcome screen with Login/Signup/Guest options
+7. Added Admin Debug Panel for KYC testing (approve/reject/unlock)
+8. Updated router with new auth routes
+9. Updated PROJECT_STRUCTURE.md with new architecture
 **Next Steps:**
-1. Test dropdown functionality and duplicate prevention
-2. Commit changes with semantic versioning
-3. Consider addressing P1 tech debt (duplicate KYC models)
+1. Run `flutter analyze` to check for compilation errors
+2. Test all authentication flows (login, register, forgot password, guest)
+3. Integrate signup flow with new OTP verification
+4. Test admin panel KYC approval/rejection
+5. Commit changes with semantic versioning (feat: OTP auth → v0.12.0)
 
 ---
 
