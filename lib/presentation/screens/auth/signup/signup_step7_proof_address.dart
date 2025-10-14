@@ -42,7 +42,40 @@ class _SignupStep7ProofAddressState extends State<SignupStep7ProofAddress> {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/signup/step7'),
+          onPressed: () async {
+            final shouldProceed = await showDialog<bool>(
+              context: context,
+              builder: (context) => AlertDialog(
+                icon: Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.orange,
+                  size: 48,
+                ),
+                title: Text('Discard Changes?'),
+                content: Text(
+                  'Your changes would be lost if you go back. Are you sure you want to continue?',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: Text('Cancel'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: ColorConstants.error,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: Text('Discard'),
+                  ),
+                ],
+              ),
+            );
+
+            if (shouldProceed == true && mounted) {
+              context.go('/signup/step7');
+            }
+          },
         ),
       ),
       body: SafeArea(
@@ -210,12 +243,27 @@ class _SignupStep7ProofAddressState extends State<SignupStep7ProofAddress> {
               ),
               const SizedBox(height: 32),
 
-              // Next button
-              CustomButton(
-                text: 'Next',
-                onPressed: (_selectedType != null && _documentImage != null)
-                    ? () => context.go('/signup/step9')
-                    : null,
+              // Navigation buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomButton(
+                      text: 'Back',
+                      onPressed: () => context.go('/signup/step7'),
+                      isOutlined: true,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    flex: 2,
+                    child: CustomButton(
+                      text: 'Next',
+                      onPressed: (_selectedType != null && _documentImage != null)
+                          ? () => context.go('/signup/step9')
+                          : null,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
