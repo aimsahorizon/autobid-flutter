@@ -253,7 +253,7 @@ class _AccountTabState extends State<AccountTab> {
                 label: 'Email or Phone',
                 hint: 'Enter your email or phone',
                 prefixIcon: const Icon(Icons.person_outline),
-                validator: Validators.validateRequired,
+                validator: (value) => Validators.validateRequired(value, 'Email or Phone'),
                 textInputAction: TextInputAction.next,
                 enabled: !_isLoading,
               ),
