@@ -161,11 +161,11 @@ class _SignupStep5SecondaryIdState extends State<SignupStep5SecondaryId> {
 
     provider.setSecondaryIdNumber(_idNumberController.text.trim());
 
-    context.go('/signup/step6');
+    context.go('/signup/step7');
   }
 
   void _handleBack() {
-    context.go('/signup/step4');
+    context.go('/signup/step5');
   }
 
   @override

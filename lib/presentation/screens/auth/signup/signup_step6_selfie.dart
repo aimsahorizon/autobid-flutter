@@ -130,11 +130,11 @@ class _SignupStep6SelfieState extends State<SignupStep6Selfie> {
       return;
     }
 
-    context.go('/signup/step7');
+    context.go('/signup/step8');
   }
 
   void _handleBack() {
-    context.go('/signup/step5');
+    context.go('/signup/step6');
   }
 
   @override

@@ -69,11 +69,11 @@ class _SignupStep3AddressState extends State<SignupStep3Address> {
     provider.setBarangay(_barangayController.text.trim());
     provider.setZipCode(_zipCodeController.text.trim());
 
-    context.go('/signup/step4');
+    context.go('/signup/step5');
   }
 
   void _handleBack() {
-    context.go('/signup/step2');
+    context.go('/signup/step3');
   }
 
   @override

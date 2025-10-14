@@ -42,7 +42,7 @@ class _SignupStep7ProofAddressState extends State<SignupStep7ProofAddress> {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/signup/step6'),
+          onPressed: () => context.go('/signup/step7'),
         ),
       ),
       body: SafeArea(
@@ -214,7 +214,7 @@ class _SignupStep7ProofAddressState extends State<SignupStep7ProofAddress> {
               CustomButton(
                 text: 'Next',
                 onPressed: (_selectedType != null && _documentImage != null)
-                    ? () => context.go('/signup/step8')
+                    ? () => context.go('/signup/step9')
                     : null,
               ),
             ],
@@ -226,7 +226,7 @@ class _SignupStep7ProofAddressState extends State<SignupStep7ProofAddress> {
 
   void _handleNext() {
     if (_selectedType == null || _documentImage == null) return;
-    context.go('/signup/step8');
+    context.go('/signup/step9');
   }
 
   String _buildAddressString(SignupProvider provider) {

@@ -114,11 +114,11 @@ class _SignupStep2PersonalState extends State<SignupStep2Personal> {
     provider.setMiddleName(_middleNameController.text.trim());
     provider.setLastName(_lastNameController.text.trim());
 
-    context.go('/signup/step3');
+    context.go('/signup/step4');
   }
 
   void _handleBack() {
-    context.go('/signup/step1');
+    context.go('/signup/step2');
   }
 
   @override

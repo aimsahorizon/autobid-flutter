@@ -170,11 +170,11 @@ class _SignupStep4PrimaryIdState extends State<SignupStep4PrimaryId> {
 
     provider.setNationalIdNumber(_idNumberController.text.trim());
 
-    context.go('/signup/step5');
+    context.go('/signup/step6');
   }
 
   void _handleBack() {
-    context.go('/signup/step3');
+    context.go('/signup/step4');
   }
 
   @override

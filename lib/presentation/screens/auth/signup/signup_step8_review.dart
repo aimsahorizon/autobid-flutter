@@ -147,7 +147,7 @@ class _SignupStep8ReviewState extends State<SignupStep8Review> {
                           title: 'Personal Information',
                           onEdit: () {
                             provider.setIsEditingFromReview(true);
-                            context.go('/signup/step2');
+                            context.go('/signup/step3');
                           },
                           children: [
                             _buildInfoRow('Full Name', provider.fullName),
@@ -167,7 +167,7 @@ class _SignupStep8ReviewState extends State<SignupStep8Review> {
                           title: 'Address',
                           onEdit: () {
                             provider.setIsEditingFromReview(true);
-                            context.go('/signup/step3');
+                            context.go('/signup/step4');
                           },
                           children: [
                             _buildInfoRow('Full Address', provider.fullAddress),
@@ -180,7 +180,7 @@ class _SignupStep8ReviewState extends State<SignupStep8Review> {
                           title: 'National ID',
                           onEdit: () {
                             provider.setIsEditingFromReview(true);
-                            context.go('/signup/step4');
+                            context.go('/signup/step5');
                           },
                           children: [
                             _buildInfoRow('ID Number', provider.nationalIdNumber),
@@ -248,7 +248,7 @@ class _SignupStep8ReviewState extends State<SignupStep8Review> {
                           title: 'Secondary ID',
                           onEdit: () {
                             provider.setIsEditingFromReview(true);
-                            context.go('/signup/step5');
+                            context.go('/signup/step6');
                           },
                           children: [
                             _buildInfoRow('ID Type', provider.secondaryIdType),
@@ -272,7 +272,7 @@ class _SignupStep8ReviewState extends State<SignupStep8Review> {
                           title: 'Selfie Verification',
                           onEdit: () {
                             provider.setIsEditingFromReview(true);
-                            context.go('/signup/step6');
+                            context.go('/signup/step7');
                           },
                           children: [
                             if (provider.selfieImage != null)
@@ -293,7 +293,7 @@ class _SignupStep8ReviewState extends State<SignupStep8Review> {
                           title: 'Proof of Address',
                           onEdit: () {
                             provider.setIsEditingFromReview(true);
-                            context.go('/signup/step7');
+                            context.go('/signup/step8');
                           },
                           children: [
                             if (provider.proofOfAddressType != null)
