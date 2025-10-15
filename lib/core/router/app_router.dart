@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -52,12 +53,35 @@ import '../../presentation/screens/admin/admin_debug_panel.dart';
 import '../../presentation/providers/auth_provider.dart';
 import '../constants/string_constants.dart';
 
+/// Helper class to refresh GoRouter when auth state changes
+class GoRouterRefreshStream extends ChangeNotifier {
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    notifyListeners();
+    _subscription = stream.asBroadcastStream().listen(
+          (_) => notifyListeners(),
+        );
+  }
+
+  late final StreamSubscription<dynamic> _subscription;
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}
+
 final appRouterProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authStateChangesProvider);
+  final authService = ref.watch(authServiceProvider);
 
   return GoRouter(
     initialLocation: StringConstants.splashRoute,
+    refreshListenable: GoRouterRefreshStream(
+      authService.authStateChanges,
+    ),
     redirect: (context, state) {
+      // Get current auth state without watching (to avoid rebuilding router)
+      final authState = ref.read(authStateChangesProvider);
       final isAuthenticated = authState.value != null;
       final isOnSplash = state.uri.path == StringConstants.splashRoute;
       final isOnAuth = state.uri.path == StringConstants.loginRoute ||
