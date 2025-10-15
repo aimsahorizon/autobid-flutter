@@ -21,6 +21,11 @@
 **Current Focus:** OTP-based authentication + Signup flow enhancements
 **Branch:** nekolaiv/enhance-auth
 
+**Quick Commands:**
+- `@generate-freeze` - Run build_runner (Workflow #4)
+- `@analyze` - Run flutter analyze (Workflow #5)
+- `@sync-docs` - Update project docs (Workflow #6)
+
 ---
 
 ## 1. Current Phase Standards: Beta (v0.5.x-v0.9.x)
@@ -107,10 +112,21 @@
 - **Skip if:** Only modifying non-annotated files or generated files themselves
 - **CRITICAL:** Provider parameter changes (like `keepAlive: true`) REQUIRE regeneration
 
-**Flutter Analyze/Test [HYBRID]:**
-- **Claude runs for:** Complex/risky changes (new widgets, refactors)
-- **User runs for:** Simple changes (docs, minor tweaks)
-- **Command:** `@verify` to request Claude run checks
+**Hybrid Commands [USER FALLBACK]:**
+
+If Claude fails to auto-execute workflows, use these commands:
+
+- **`@generate-freeze`** → Manually trigger Workflow #4 (Code Generation)
+  - Runs: `dart run build_runner build --delete-conflicting-outputs`
+  - Use when: Freezed/Riverpod/JSON models modified but not regenerated
+
+- **`@analyze`** → Manually trigger Workflow #5 (Error Resolution)
+  - Runs: `flutter analyze`
+  - Use when: Need to check for RED errors before completing task
+
+- **`@sync-docs`** → Manually trigger Workflow #6 (Post-Task Checklist)
+  - Updates: CLAUDE.md Section 0, PROJECT_STRUCTURE.md
+  - Use when: Version/phase/structure changed but docs not updated
 
 **Output:** Minimal unless asked (Section 7 in CLAUDE_WORKFLOW.md)
 
