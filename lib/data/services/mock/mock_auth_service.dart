@@ -21,6 +21,8 @@ class MockAuthService {
   // Constructor - loads test users for development
   MockAuthService() {
     _loadTestUsers();
+    // Emit initial null state to ensure stream is active and has a value
+    _authStateController.add(null);
   }
 
   Stream<UserModel?> get authStateChanges => _authStateController.stream;
