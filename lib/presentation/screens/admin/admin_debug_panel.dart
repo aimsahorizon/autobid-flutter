@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/color_constants.dart';
 import '../../../data/models/user_model.dart';
 import '../../providers/auth_provider.dart';
-import '../../widgets/custom_button.dart';
 
 /// Admin Debug Panel for testing KYC approval/rejection flow
 /// This is a debug-only feature for prototype testing
