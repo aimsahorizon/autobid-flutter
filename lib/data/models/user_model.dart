@@ -41,6 +41,19 @@ enum BackgroundCheckStatus {
   rejected,
 }
 
+enum AccountStatus {
+  @JsonValue('guest')
+  guest,
+  @JsonValue('pending')
+  pending,
+  @JsonValue('rejected')
+  rejected,
+  @JsonValue('verified')
+  verified,
+  @JsonValue('locked')
+  locked,
+}
+
 @freezed
 abstract class ProofOfAddress with _$ProofOfAddress {
   const factory ProofOfAddress({
@@ -89,6 +102,7 @@ abstract class UserModel with _$UserModel {
     DateTime? dateOfBirth,
     String? gender,
     String? phoneNumber,
+    String? password,
     String? street,
     String? barangay,
     String? city,
@@ -98,6 +112,7 @@ abstract class UserModel with _$UserModel {
     @Default(false) bool termsAccepted,
     @Default(false) bool privacyAccepted,
     @Default('pending') String kycStatus,
+    String? rejectionReason,
     @Default('individual') String accountType,
     required DateTime createdAt,
     @Default(false) bool verifiedBadge,
@@ -108,6 +123,9 @@ abstract class UserModel with _$UserModel {
     String? tin,
     NbiClearance? nbiClearance,
     @Default(BackgroundCheckStatus.none) BackgroundCheckStatus backgroundCheckStatus,
+    @Default(AccountStatus.guest) AccountStatus accountStatus,
+    @Default(0) int otpFailureCount,
+    DateTime? lastOtpAttempt,
   }) = _UserModel;
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>

@@ -1,7 +1,7 @@
 # AutoBID - Project Structure
 
-**Last Updated:** 2025-10-13
-**Version:** 0.11.0+20
+**Last Updated:** 2025-10-15
+**Version:** 0.12.0+21
 **Phase:** Beta Development
 
 ---
@@ -74,20 +74,25 @@ lib/
 │   ├── repositories/
 │   │   └── auth_repository.dart
 │   └── services/
+│       ├── local/
+│       │   └── local_storage_service.dart
 │       ├── mock/
 │       │   ├── mock_auction_service.dart
 │       │   ├── mock_auth_service.dart
 │       │   ├── mock_car_service.dart
 │       │   ├── mock_kyc_service.dart
 │       │   ├── mock_notification_service.dart
+│       │   ├── mock_otp_service.dart
 │       │   ├── mock_payment_service.dart
 │       │   └── mock_review_service.dart
 │       └── mock_vehicle_conditions_service.dart
 ├── domain/
+│   ├── entities/
 │   ├── repositories/
 │   │   └── auction_repository.dart
-│   └── services/
-│       └── pricing_calculator.dart
+│   ├── services/
+│   │   └── pricing_calculator.dart
+│   └── use_cases/
 ├── presentation/
 │   ├── providers/
 │   │   ├── auction_provider.dart
@@ -117,12 +122,20 @@ lib/
 │   │   │       ├── countdown_timer.dart
 │   │   │       ├── current_bid_card.dart
 │   │   │       └── fullscreen_image_viewer.dart
+│   │   ├── admin/
+│   │   │   └── admin_debug_panel.dart
 │   │   ├── auth/
+│   │   │   ├── dual_otp_verification_screen.dart
+│   │   │   ├── entry_screen.dart
+│   │   │   ├── forgot_password_screen.dart
 │   │   │   ├── login_screen.dart
+│   │   │   ├── otp_verification_screen.dart
+│   │   │   ├── reset_password_screen.dart
 │   │   │   ├── signup_screen.dart
 │   │   │   └── signup/
 │   │   │       ├── signup_step_mixin.dart
 │   │   │       ├── signup_step1_account.dart
+│   │   │       ├── signup_step2_otp.dart
 │   │   │       ├── signup_step2_personal.dart
 │   │   │       ├── signup_step3_address.dart
 │   │   │       ├── signup_step4_primary_id.dart
@@ -137,6 +150,13 @@ lib/
 │   │   │   ├── car_detail_screen.dart
 │   │   │   ├── filter_bottom_sheet.dart
 │   │   │   └── search_screen.dart
+│   │   ├── guest/
+│   │   │   ├── guest_view_screen.dart
+│   │   │   ├── tabs/
+│   │   │   │   ├── account_tab.dart
+│   │   │   │   └── browse_tab.dart
+│   │   │   └── widgets/
+│   │   │       └── account_status_card.dart
 │   │   ├── home/
 │   │   │   ├── home_screen.dart
 │   │   │   ├── tabs/
@@ -248,7 +268,9 @@ lib/
 
 | Feature | Status | Version | Branch | Notes |
 |---------|--------|---------|--------|-------|
-| Authentication | ✅ Complete | 0.2.0 | main | Login/Signup |
+| Authentication (Basic) | ✅ Complete | 0.2.0 | main | Login/Signup |
+| OTP-Based Auth | 🔄 In Progress | 0.12.0 | nekolaiv/enhance-auth | OTP login/register/reset, Guest mode |
+| Signup Flow Enhancement | 🔄 In Progress | 0.12.0 | nekolaiv/enhance-auth | Back navigation, autofill, warnings |
 | KYC System | ✅ Complete | 0.2.1 | main | 8-step verification |
 | Car Listings | ✅ Complete | 0.3.0 | main | CRUD operations |
 | Browse & Search | ✅ Complete | 0.4.1 | main | 60+ filters |
@@ -331,28 +353,31 @@ P0 = Critical (blocks release) | P1 = High (fix soon) | P2 = Medium (next sprint
 
 ## 📈 Project Statistics
 
-- **Total Dart Files:** 227 (including generated)
-- **Total Models:** 19 (with Freezed generation)
-- **Total Screens:** 60+
+- **Total Dart Files:** 240+ (including generated)
+- **Total Models:** 18 (with Freezed generation)
+- **Total Screens:** 70+
 - **Total Providers:** 12
-- **Total Mock Services:** 7
-- **Lines of Code:** ~15,000+ (estimate)
+- **Total Services:** 9 mock + 1 local = 10 total
+- **Lines of Code:** ~17,000+ (estimate)
 
 ---
 
 ## 🎯 Current Focus
 
-**Branch:** nekolaiv/carlisting-enhancement
-**Task:** Completed CreatableDropdown refactoring for car listing steps 2-4
-**Completed:**
-1. Created reusable CreatableDropdown<T> widget with Material 3 styling
-2. Refactored all custom attribute dropdowns in steps 2-4
-3. Removed manual dialog patterns, reduced code by ~400 lines
-4. Added provider support for custom value selection tracking
-**Next Steps:**
-1. Test dropdown functionality and duplicate prevention
-2. Commit changes with semantic versioning
-3. Consider addressing P1 tech debt (duplicate KYC models)
+**Branch:** nekolaiv/enhance-auth
+**Task:** OTP-based authentication system + Signup flow enhancements
+**Status:** In progress - Testing & refinement
+**Recent Work:**
+1. ✅ OTP authentication system (login, register, forgot password)
+2. ✅ Admin Debug Panel for KYC testing
+3. ✅ Entry/Welcome screen with guest mode
+4. 🔄 Signup flow refinements (back navigation, warnings)
+5. 🔄 Enhanced signup steps with autofill and validation
+**Pending:**
+1. Final testing of all auth flows
+2. Integration testing with signup → KYC flow
+3. Documentation updates
+4. Code review and cleanup
 
 ---
 

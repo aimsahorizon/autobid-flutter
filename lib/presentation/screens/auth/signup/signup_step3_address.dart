@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/color_constants.dart';
-import '../../../../core/constants/ph_cities.dart';
-import '../../../../core/constants/ph_provinces.dart';
+import '../../../../core/constants/ph_locations.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../providers/signup_provider.dart';
 import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/signup_stepper.dart';
+import 'signup_step_mixin.dart';
 
 class SignupStep3Address extends StatefulWidget {
   const SignupStep3Address({super.key});
@@ -17,10 +17,9 @@ class SignupStep3Address extends StatefulWidget {
   State<SignupStep3Address> createState() => _SignupStep3AddressState();
 }
 
-class _SignupStep3AddressState extends State<SignupStep3Address> {
+class _SignupStep3AddressState extends State<SignupStep3Address> with SignupStepMixin {
   final _formKey = GlobalKey<FormState>();
   final _streetController = TextEditingController();
-  final _barangayController = TextEditingController();
   final _zipCodeController = TextEditingController();
 
   @override
@@ -28,14 +27,12 @@ class _SignupStep3AddressState extends State<SignupStep3Address> {
     super.initState();
     final provider = context.read<SignupProvider>();
     _streetController.text = provider.street;
-    _barangayController.text = provider.barangay;
     _zipCodeController.text = provider.zipCode;
   }
 
   @override
   void dispose() {
     _streetController.dispose();
-    _barangayController.dispose();
     _zipCodeController.dispose();
     super.dispose();
   }
@@ -45,10 +42,10 @@ class _SignupStep3AddressState extends State<SignupStep3Address> {
 
     final provider = context.read<SignupProvider>();
 
-    if (provider.city.isEmpty) {
+    if (provider.region.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please select a city'),
+          content: Text('Please select a region'),
           backgroundColor: ColorConstants.error,
         ),
       );
@@ -65,15 +62,34 @@ class _SignupStep3AddressState extends State<SignupStep3Address> {
       return;
     }
 
+    if (provider.city.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a city'),
+          backgroundColor: ColorConstants.error,
+        ),
+      );
+      return;
+    }
+
+    if (provider.barangay.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select or enter a barangay'),
+          backgroundColor: ColorConstants.error,
+        ),
+      );
+      return;
+    }
+
     provider.setStreet(_streetController.text.trim());
-    provider.setBarangay(_barangayController.text.trim());
     provider.setZipCode(_zipCodeController.text.trim());
 
-    context.go('/signup/step4');
+    context.go('/signup/step5');
   }
 
   void _handleBack() {
-    context.go('/signup/step2');
+    context.go('/signup/step3');
   }
 
   @override
@@ -82,10 +98,7 @@ class _SignupStep3AddressState extends State<SignupStep3Address> {
       appBar: AppBar(
         title: const Text('Address'),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: _handleBack,
-        ),
+        leading: buildBackButtonWithWarning(),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -95,7 +108,7 @@ class _SignupStep3AddressState extends State<SignupStep3Address> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SignupStepper(currentStep: 3),
+                const SignupStepper(currentStep: 4, totalSteps: 9),
                 const SizedBox(height: 32),
                 Text(
                   'Address Information',
@@ -112,6 +125,240 @@ class _SignupStep3AddressState extends State<SignupStep3Address> {
                       ),
                 ),
                 const SizedBox(height: 24),
+
+                // Region Dropdown
+                Consumer<SignupProvider>(
+                  builder: (context, provider, child) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Region',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: DropdownButtonFormField<String>(
+                            value: provider.region.isEmpty ? null : provider.region,
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 16,
+                              ),
+                              border: InputBorder.none,
+                              prefixIcon: Icon(Icons.public_outlined),
+                              hintText: 'Select region',
+                            ),
+                            items: PhilippineLocations.regions.map((region) {
+                              return DropdownMenuItem(
+                                value: region,
+                                child: Text(region),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              if (value != null) {
+                                provider.setRegion(value);
+                              }
+                            },
+                            isExpanded: true,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+
+                // Province Dropdown (filtered by region)
+                Consumer<SignupProvider>(
+                  builder: (context, provider, child) {
+                    final provinces = provider.region.isEmpty
+                        ? <String>[]
+                        : PhilippineLocations.getProvincesForRegion(provider.region);
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Province',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: DropdownButtonFormField<String>(
+                            value: provider.province.isEmpty ? null : provider.province,
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 16,
+                              ),
+                              border: InputBorder.none,
+                              prefixIcon: Icon(Icons.map_outlined),
+                              hintText: 'Select province',
+                            ),
+                            items: provinces.map((province) {
+                              return DropdownMenuItem(
+                                value: province,
+                                child: Text(province),
+                              );
+                            }).toList(),
+                            onChanged: provider.region.isEmpty
+                                ? null
+                                : (value) {
+                                    if (value != null) {
+                                      provider.setProvince(value);
+                                    }
+                                  },
+                            isExpanded: true,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+
+                // City Dropdown (filtered by province)
+                Consumer<SignupProvider>(
+                  builder: (context, provider, child) {
+                    final cities = provider.province.isEmpty
+                        ? <String>[]
+                        : PhilippineLocations.getCitiesForProvince(provider.province);
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'City / Municipality',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: DropdownButtonFormField<String>(
+                            value: provider.city.isEmpty ? null : provider.city,
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 16,
+                              ),
+                              border: InputBorder.none,
+                              prefixIcon: Icon(Icons.location_city_outlined),
+                              hintText: 'Select city / municipality',
+                            ),
+                            items: cities.map((city) {
+                              return DropdownMenuItem(
+                                value: city,
+                                child: Text(city),
+                              );
+                            }).toList(),
+                            onChanged: provider.province.isEmpty
+                                ? null
+                                : (value) {
+                                    if (value != null) {
+                                      provider.setCity(value);
+                                    }
+                                  },
+                            isExpanded: true,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+
+                // Barangay - Dropdown if available, otherwise text field
+                Consumer<SignupProvider>(
+                  builder: (context, provider, child) {
+                    final barangays = provider.city.isEmpty
+                        ? <String>[]
+                        : PhilippineLocations.getBarangaysForCity(provider.city);
+
+                    if (barangays.isEmpty) {
+                      // No barangays available, show text field
+                      return CustomTextField(
+                        controller: TextEditingController(text: provider.barangay)
+                          ..selection = TextSelection.fromPosition(
+                            TextPosition(offset: provider.barangay.length),
+                          ),
+                        label: 'Barangay',
+                        hint: 'Enter barangay',
+                        prefixIcon: const Icon(Icons.location_on_outlined),
+                        validator: (value) =>
+                            Validators.validateRequired(value, 'Barangay'),
+                        textInputAction: TextInputAction.next,
+                        onChanged: (value) => provider.setBarangay(value),
+                      );
+                    }
+
+                    // Barangays available, show dropdown
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Barangay',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: DropdownButtonFormField<String>(
+                            value: provider.barangay.isEmpty ? null : provider.barangay,
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 16,
+                              ),
+                              border: InputBorder.none,
+                              prefixIcon: Icon(Icons.location_on_outlined),
+                              hintText: 'Select barangay',
+                            ),
+                            items: barangays.map((barangay) {
+                              return DropdownMenuItem(
+                                value: barangay,
+                                child: Text(barangay),
+                              );
+                            }).toList(),
+                            onChanged: provider.city.isEmpty
+                                ? null
+                                : (value) {
+                                    if (value != null) {
+                                      provider.setBarangay(value);
+                                    }
+                                  },
+                            isExpanded: true,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+
+                // Street Address
                 CustomTextField(
                   controller: _streetController,
                   label: 'Street Address',
@@ -122,114 +369,8 @@ class _SignupStep3AddressState extends State<SignupStep3Address> {
                   textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 20),
-                CustomTextField(
-                  controller: _barangayController,
-                  label: 'Barangay',
-                  hint: 'Enter barangay',
-                  prefixIcon: const Icon(Icons.location_city_outlined),
-                  validator: (value) =>
-                      Validators.validateRequired(value, 'Barangay'),
-                  textInputAction: TextInputAction.next,
-                ),
-                const SizedBox(height: 20),
-                Consumer<SignupProvider>(
-                  builder: (context, provider, child) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'City',
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey[300]!),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: DropdownButtonFormField<String>(
-                            initialValue: provider.city.isEmpty ? null : provider.city,
-                            decoration: const InputDecoration(
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 16,
-                              ),
-                              border: InputBorder.none,
-                              prefixIcon: Icon(Icons.location_on_outlined),
-                              hintText: 'Select city',
-                            ),
-                            items: PhilippineCities.cities.map((city) {
-                              return DropdownMenuItem(
-                                value: city,
-                                child: Text(city),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              if (value != null) {
-                                provider.setCity(value);
-                              }
-                            },
-                            isExpanded: true,
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-                const SizedBox(height: 20),
-                Consumer<SignupProvider>(
-                  builder: (context, provider, child) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Province',
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey[300]!),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: DropdownButtonFormField<String>(
-                            initialValue: provider.province.isEmpty
-                                ? null
-                                : provider.province,
-                            decoration: const InputDecoration(
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 16,
-                              ),
-                              border: InputBorder.none,
-                              prefixIcon: Icon(Icons.map_outlined),
-                              hintText: 'Select province',
-                            ),
-                            items: PhilippineProvinces.provinces.map((province) {
-                              return DropdownMenuItem(
-                                value: province,
-                                child: Text(province),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              if (value != null) {
-                                provider.setProvince(value);
-                              }
-                            },
-                            isExpanded: true,
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-                const SizedBox(height: 20),
+
+                // Zip Code
                 CustomTextField(
                   controller: _zipCodeController,
                   label: 'ZIP Code',
@@ -240,9 +381,24 @@ class _SignupStep3AddressState extends State<SignupStep3Address> {
                   textInputAction: TextInputAction.done,
                 ),
                 const SizedBox(height: 32),
-                CustomButton(
-                  text: 'Next',
-                  onPressed: _handleNext,
+                Row(
+                  children: [
+                    Expanded(
+                      child: CustomButton(
+                        text: 'Back',
+                        onPressed: _handleBack,
+                        isOutlined: true,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      flex: 2,
+                      child: CustomButton(
+                        text: 'Next',
+                        onPressed: _handleNext,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

@@ -9,6 +9,7 @@ import '../../../providers/signup_provider.dart';
 import '../../../widgets/image_upload_card.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/signup_stepper.dart';
+import 'signup_step_mixin.dart';
 
 class SignupStep7ProofAddress extends StatefulWidget {
   const SignupStep7ProofAddress({super.key});
@@ -18,7 +19,7 @@ class SignupStep7ProofAddress extends StatefulWidget {
       _SignupStep7ProofAddressState();
 }
 
-class _SignupStep7ProofAddressState extends State<SignupStep7ProofAddress> {
+class _SignupStep7ProofAddressState extends State<SignupStep7ProofAddress> with SignupStepMixin {
   ProofOfAddressType? _selectedType;
   Uint8List? _documentImage;
 
@@ -40,10 +41,7 @@ class _SignupStep7ProofAddressState extends State<SignupStep7ProofAddress> {
       appBar: AppBar(
         title: const Text('Proof of Address'),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/signup/step6'),
-        ),
+        leading: buildBackButtonWithWarning(),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -51,7 +49,7 @@ class _SignupStep7ProofAddressState extends State<SignupStep7ProofAddress> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SignupStepper(currentStep: 7),
+              const SignupStepper(currentStep: 8, totalSteps: 9),
               const SizedBox(height: 32),
               Text(
                 'Proof of Address Verification',
@@ -210,12 +208,27 @@ class _SignupStep7ProofAddressState extends State<SignupStep7ProofAddress> {
               ),
               const SizedBox(height: 32),
 
-              // Next button
-              CustomButton(
-                text: 'Next',
-                onPressed: (_selectedType != null && _documentImage != null)
-                    ? () => context.go('/signup/step8')
-                    : null,
+              // Navigation buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomButton(
+                      text: 'Back',
+                      onPressed: () => context.go('/signup/step7'),
+                      isOutlined: true,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    flex: 2,
+                    child: CustomButton(
+                      text: 'Next',
+                      onPressed: (_selectedType != null && _documentImage != null)
+                          ? () => context.go('/signup/step9')
+                          : null,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -226,7 +239,7 @@ class _SignupStep7ProofAddressState extends State<SignupStep7ProofAddress> {
 
   void _handleNext() {
     if (_selectedType == null || _documentImage == null) return;
-    context.go('/signup/step8');
+    context.go('/signup/step9');
   }
 
   String _buildAddressString(SignupProvider provider) {

@@ -8,6 +8,7 @@ import '../../../providers/signup_provider.dart';
 import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/signup_stepper.dart';
+import 'signup_step_mixin.dart';
 
 class SignupStep2Personal extends StatefulWidget {
   const SignupStep2Personal({super.key});
@@ -16,7 +17,7 @@ class SignupStep2Personal extends StatefulWidget {
   State<SignupStep2Personal> createState() => _SignupStep2PersonalState();
 }
 
-class _SignupStep2PersonalState extends State<SignupStep2Personal> {
+class _SignupStep2PersonalState extends State<SignupStep2Personal> with SignupStepMixin {
   final _formKey = GlobalKey<FormState>();
   final _firstNameController = TextEditingController();
   final _middleNameController = TextEditingController();
@@ -114,11 +115,11 @@ class _SignupStep2PersonalState extends State<SignupStep2Personal> {
     provider.setMiddleName(_middleNameController.text.trim());
     provider.setLastName(_lastNameController.text.trim());
 
-    context.go('/signup/step3');
+    context.go('/signup/step4');
   }
 
   void _handleBack() {
-    context.go('/signup/step1');
+    context.go('/signup/step2');
   }
 
   @override
@@ -127,10 +128,7 @@ class _SignupStep2PersonalState extends State<SignupStep2Personal> {
       appBar: AppBar(
         title: const Text('Personal Information'),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: _handleBack,
-        ),
+        leading: buildBackButtonWithWarning(),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -140,7 +138,7 @@ class _SignupStep2PersonalState extends State<SignupStep2Personal> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SignupStepper(currentStep: 2),
+                const SignupStepper(currentStep: 3, totalSteps: 9),
                 const SizedBox(height: 32),
                 Text(
                   'Personal Information',
@@ -264,9 +262,24 @@ class _SignupStep2PersonalState extends State<SignupStep2Personal> {
                   },
                 ),
                 const SizedBox(height: 32),
-                CustomButton(
-                  text: 'Next',
-                  onPressed: _handleNext,
+                Row(
+                  children: [
+                    Expanded(
+                      child: CustomButton(
+                        text: 'Back',
+                        onPressed: _handleBack,
+                        isOutlined: true,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      flex: 2,
+                      child: CustomButton(
+                        text: 'Next',
+                        onPressed: _handleNext,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

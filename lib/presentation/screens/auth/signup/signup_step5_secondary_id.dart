@@ -10,6 +10,7 @@ import '../../../providers/signup_provider.dart';
 import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/signup_stepper.dart';
+import 'signup_step_mixin.dart';
 
 class SignupStep5SecondaryId extends StatefulWidget {
   const SignupStep5SecondaryId({super.key});
@@ -18,7 +19,7 @@ class SignupStep5SecondaryId extends StatefulWidget {
   State<SignupStep5SecondaryId> createState() => _SignupStep5SecondaryIdState();
 }
 
-class _SignupStep5SecondaryIdState extends State<SignupStep5SecondaryId> {
+class _SignupStep5SecondaryIdState extends State<SignupStep5SecondaryId> with SignupStepMixin {
   final _formKey = GlobalKey<FormState>();
   final _idNumberController = TextEditingController();
   final _picker = ImagePicker();
@@ -161,11 +162,11 @@ class _SignupStep5SecondaryIdState extends State<SignupStep5SecondaryId> {
 
     provider.setSecondaryIdNumber(_idNumberController.text.trim());
 
-    context.go('/signup/step6');
+    context.go('/signup/step7');
   }
 
   void _handleBack() {
-    context.go('/signup/step4');
+    context.go('/signup/step5');
   }
 
   @override
@@ -174,10 +175,7 @@ class _SignupStep5SecondaryIdState extends State<SignupStep5SecondaryId> {
       appBar: AppBar(
         title: const Text('Secondary ID'),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: _handleBack,
-        ),
+        leading: buildBackButtonWithWarning(),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -187,7 +185,7 @@ class _SignupStep5SecondaryIdState extends State<SignupStep5SecondaryId> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SignupStepper(currentStep: 5),
+                const SignupStepper(currentStep: 6, totalSteps: 9),
                 const SizedBox(height: 32),
                 Text(
                   'Secondary ID',
@@ -314,9 +312,24 @@ class _SignupStep5SecondaryIdState extends State<SignupStep5SecondaryId> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                CustomButton(
-                  text: 'Next',
-                  onPressed: _handleNext,
+                Row(
+                  children: [
+                    Expanded(
+                      child: CustomButton(
+                        text: 'Back',
+                        onPressed: _handleBack,
+                        isOutlined: true,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      flex: 2,
+                      child: CustomButton(
+                        text: 'Next',
+                        onPressed: _handleNext,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

@@ -108,12 +108,22 @@ class SignupSuccessScreen extends StatelessWidget {
               ),
               const SizedBox(height: 40),
               CustomButton(
-                text: 'Continue to Login',
+                text: 'Browse as Guest',
                 onPressed: () {
                   // Reset signup provider
                   context.read<SignupProvider>().reset();
-                  context.go('/login');
+                  context.go('/guest?tab=0');
                 },
+              ),
+              const SizedBox(height: 16),
+              CustomButton(
+                text: 'Check Application Status',
+                onPressed: () {
+                  // Reset signup provider
+                  context.read<SignupProvider>().reset();
+                  context.go('/guest?tab=1');
+                },
+                isOutlined: true,
               ),
             ],
           ),

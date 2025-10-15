@@ -9,6 +9,7 @@ import '../../../providers/signup_provider.dart';
 import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/signup_stepper.dart';
+import 'signup_step_mixin.dart';
 
 class SignupStep4PrimaryId extends StatefulWidget {
   const SignupStep4PrimaryId({super.key});
@@ -17,7 +18,7 @@ class SignupStep4PrimaryId extends StatefulWidget {
   State<SignupStep4PrimaryId> createState() => _SignupStep4PrimaryIdState();
 }
 
-class _SignupStep4PrimaryIdState extends State<SignupStep4PrimaryId> {
+class _SignupStep4PrimaryIdState extends State<SignupStep4PrimaryId> with SignupStepMixin {
   final _formKey = GlobalKey<FormState>();
   final _idNumberController = TextEditingController();
   final _picker = ImagePicker();
@@ -170,11 +171,11 @@ class _SignupStep4PrimaryIdState extends State<SignupStep4PrimaryId> {
 
     provider.setNationalIdNumber(_idNumberController.text.trim());
 
-    context.go('/signup/step5');
+    context.go('/signup/step6');
   }
 
   void _handleBack() {
-    context.go('/signup/step3');
+    context.go('/signup/step4');
   }
 
   @override
@@ -183,10 +184,7 @@ class _SignupStep4PrimaryIdState extends State<SignupStep4PrimaryId> {
       appBar: AppBar(
         title: const Text('Primary ID'),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: _handleBack,
-        ),
+        leading: buildBackButtonWithWarning(),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -196,7 +194,7 @@ class _SignupStep4PrimaryIdState extends State<SignupStep4PrimaryId> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SignupStepper(currentStep: 4),
+                const SignupStepper(currentStep: 5, totalSteps: 9),
                 const SizedBox(height: 32),
                 Text(
                   'National ID',
@@ -290,9 +288,24 @@ class _SignupStep4PrimaryIdState extends State<SignupStep4PrimaryId> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                CustomButton(
-                  text: 'Next',
-                  onPressed: _handleNext,
+                Row(
+                  children: [
+                    Expanded(
+                      child: CustomButton(
+                        text: 'Back',
+                        onPressed: _handleBack,
+                        isOutlined: true,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      flex: 2,
+                      child: CustomButton(
+                        text: 'Next',
+                        onPressed: _handleNext,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

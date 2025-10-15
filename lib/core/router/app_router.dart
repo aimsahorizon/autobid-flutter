@@ -1,10 +1,14 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../presentation/screens/splash/splash_screen.dart';
+import '../../presentation/screens/auth/entry_screen.dart';
 import '../../presentation/screens/auth/login_screen.dart';
+import '../../presentation/screens/auth/forgot_password_screen.dart';
 import '../../presentation/screens/auth/signup_screen.dart';
 import '../../presentation/screens/auth/signup/signup_step1_account.dart';
+import '../../presentation/screens/auth/signup/signup_step2_otp.dart';
 import '../../presentation/screens/auth/signup/signup_step2_personal.dart';
 import '../../presentation/screens/auth/signup/signup_step3_address.dart';
 import '../../presentation/screens/auth/signup/signup_step4_primary_id.dart';
@@ -44,15 +48,40 @@ import '../../presentation/screens/transaction/request_refund_screen.dart';
 import '../../presentation/screens/review/submit_review_screen.dart';
 import '../../presentation/screens/review/seller_reviews_screen.dart';
 import '../../presentation/screens/notifications/notifications_screen.dart';
+import '../../presentation/screens/guest/guest_view_screen.dart';
+import '../../presentation/screens/admin/admin_debug_panel.dart';
 import '../../presentation/providers/auth_provider.dart';
 import '../constants/string_constants.dart';
 
+/// Helper class to refresh GoRouter when auth state changes
+class GoRouterRefreshStream extends ChangeNotifier {
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    notifyListeners();
+    _subscription = stream.asBroadcastStream().listen(
+          (_) => notifyListeners(),
+        );
+  }
+
+  late final StreamSubscription<dynamic> _subscription;
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}
+
 final appRouterProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authStateChangesProvider);
+  final authService = ref.watch(authServiceProvider);
 
   return GoRouter(
     initialLocation: StringConstants.splashRoute,
+    refreshListenable: GoRouterRefreshStream(
+      authService.authStateChanges,
+    ),
     redirect: (context, state) {
+      // Get current auth state without watching (to avoid rebuilding router)
+      final authState = ref.read(authStateChangesProvider);
       final isAuthenticated = authState.value != null;
       final isOnSplash = state.uri.path == StringConstants.splashRoute;
       final isOnAuth = state.uri.path == StringConstants.loginRoute ||
@@ -80,9 +109,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(
+        path: '/entry',
+        name: 'entry',
+        builder: (context, state) => const EntryScreen(),
+      ),
+      GoRoute(
         path: StringConstants.loginRoute,
         name: 'login',
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/forgot-password',
+        name: 'forgot-password',
+        builder: (context, state) => const ForgotPasswordScreen(),
       ),
       GoRoute(
         path: StringConstants.signupRoute,
@@ -97,36 +136,41 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/signup/step2',
         name: 'signup-step2',
-        builder: (context, state) => const SignupStep2Personal(),
+        builder: (context, state) => const SignupStep2Otp(),
       ),
       GoRoute(
         path: '/signup/step3',
-        name: 'signup-step3',
-        builder: (context, state) => const SignupStep3Address(),
+        name: 'signup-step3-personal',
+        builder: (context, state) => const SignupStep2Personal(),
       ),
       GoRoute(
         path: '/signup/step4',
-        name: 'signup-step4',
-        builder: (context, state) => const SignupStep4PrimaryId(),
+        name: 'signup-step4-address',
+        builder: (context, state) => const SignupStep3Address(),
       ),
       GoRoute(
         path: '/signup/step5',
-        name: 'signup-step5',
-        builder: (context, state) => const SignupStep5SecondaryId(),
+        name: 'signup-step5-primary',
+        builder: (context, state) => const SignupStep4PrimaryId(),
       ),
       GoRoute(
         path: '/signup/step6',
-        name: 'signup-step6',
-        builder: (context, state) => const SignupStep6Selfie(),
+        name: 'signup-step6-secondary',
+        builder: (context, state) => const SignupStep5SecondaryId(),
       ),
       GoRoute(
         path: '/signup/step7',
-        name: 'signup-step7',
-        builder: (context, state) => const SignupStep7ProofAddress(),
+        name: 'signup-step7-selfie',
+        builder: (context, state) => const SignupStep6Selfie(),
       ),
       GoRoute(
         path: '/signup/step8',
-        name: 'signup-step8',
+        name: 'signup-step8-proof',
+        builder: (context, state) => const SignupStep7ProofAddress(),
+      ),
+      GoRoute(
+        path: '/signup/step9',
+        name: 'signup-step9-review',
         builder: (context, state) => const SignupStep8Review(),
       ),
       GoRoute(
@@ -307,6 +351,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/notifications',
         name: 'notifications',
         builder: (context, state) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: '/guest',
+        name: 'guest',
+        builder: (context, state) {
+          final tabParam = state.uri.queryParameters['tab'];
+          final initialTab = tabParam != null ? (int.tryParse(tabParam) ?? 0) : 0;
+          return GuestViewScreen(initialTab: initialTab);
+        },
+      ),
+      GoRoute(
+        path: '/admin-debug',
+        name: 'admin-debug',
+        builder: (context, state) => const AdminDebugPanel(),
       ),
       // Listings Routes (9 Steps)
       GoRoute(

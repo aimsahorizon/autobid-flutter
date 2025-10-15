@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/string_constants.dart';
@@ -6,6 +7,7 @@ import '../../../core/constants/color_constants.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/custom_button.dart';
+import 'otp_verification_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -16,26 +18,28 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _identifierController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  String? _validateEmail(String? value) {
+  String? _validateIdentifier(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Email is required';
+      return 'Email or phone number is required';
     }
-    final emailRegex = RegExp(
-      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-    );
-    if (!emailRegex.hasMatch(value)) {
-      return 'Enter a valid email';
+
+    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    final phoneRegex = RegExp(r'^\+?[0-9]{10,15}$');
+
+    if (!emailRegex.hasMatch(value) && !phoneRegex.hasMatch(value)) {
+      return 'Enter a valid email or phone number';
     }
     return null;
   }
@@ -50,60 +54,266 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return null;
   }
 
-  Future<void> _handleLogin() async {
+  Future<void> _handlePasswordLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
-    await ref.read(loginStateProvider.notifier).signInWithEmail(
-          _emailController.text.trim(),
-          _passwordController.text,
+    setState(() => _isLoading = true);
+
+    try {
+      final authService = ref.read(authServiceProvider);
+      final identifier = _identifierController.text.trim();
+      final password = _passwordController.text;
+
+      // Step 1: Validate credentials
+      final passwordResult = await authService.signInWithEmail(identifier, password);
+
+      if (!mounted) return;
+
+      if (!passwordResult.success) {
+        if (passwordResult.accountLocked) {
+          _showAccountLockedDialog(passwordResult.errorMessage);
+        } else {
+          _showError(passwordResult.errorMessage ?? 'Invalid credentials');
+        }
+        return;
+      }
+
+      final user = passwordResult.user;
+      if (user == null) {
+        _showError('User data not available');
+        return;
+      }
+
+      // Sign out temporarily - OTP verification required
+      await authService.signOut();
+      if (!mounted) return;
+
+      // Step 2: Verify Email OTP
+      final emailVerified = await _verifyOtp(
+        authService: authService,
+        identifier: user.email,
+        title: 'Verify Email',
+        subtitle: 'Enter the 6-digit code sent to ${user.email}',
+      );
+
+      if (!emailVerified || !mounted) return;
+
+      // Step 3: Verify Phone OTP (if exists)
+      if (user.phoneNumber != null && user.phoneNumber!.isNotEmpty) {
+        final phoneVerified = await _verifyOtp(
+          authService: authService,
+          identifier: user.phoneNumber!,
+          title: 'Verify Phone',
+          subtitle: 'Enter the 6-digit code sent to ${user.phoneNumber}',
         );
 
-    if (mounted) {
-      final loginState = ref.read(loginStateProvider);
-      loginState.when(
-        data: (_) {
-          // Success - navigation handled by router
-        },
-        loading: () {},
-        error: (error, _) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(error.toString()),
-              backgroundColor: ColorConstants.error,
-            ),
-          );
-        },
-      );
+        if (!phoneVerified || !mounted) return;
+      }
+
+      // Step 4: Complete login
+      final loginResult = await authService.signInWithEmail(identifier, password);
+
+      if (!mounted) return;
+
+      if (loginResult.success) {
+        _showSuccess('Login successful!');
+        // Small delay for user to see success message
+        await Future.delayed(const Duration(milliseconds: 500));
+        if (mounted) {
+          context.go('/home');
+        }
+      } else {
+        _showError(loginResult.errorMessage ?? 'Login failed');
+      }
+    } catch (e) {
+      if (mounted) {
+        _showError('Error: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
-  Future<void> _handleGoogleSignIn() async {
-    await ref.read(loginStateProvider.notifier).signInWithGoogle();
+  Future<bool> _verifyOtp({
+    required dynamic authService,
+    required String identifier,
+    required String title,
+    required String subtitle,
+  }) async {
+    // Request OTP
+    final otpResult = await authService.requestLoginOtp(identifier);
 
-    if (mounted) {
-      final loginState = ref.read(loginStateProvider);
-      loginState.when(
-        data: (_) {
-          // Success - navigation handled by router
-        },
-        loading: () {},
-        error: (error, _) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(error.toString()),
-              backgroundColor: ColorConstants.error,
-            ),
-          );
-        },
-      );
+    if (!mounted) return false;
+
+    if (!otpResult.success) {
+      _showError(otpResult.errorMessage ?? 'Failed to send OTP');
+      return false;
     }
+
+    // Navigate to OTP verification screen
+    bool verified = false;
+
+    if (!mounted) return false;
+
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => OtpVerificationScreen(
+          identifier: identifier,
+          title: title,
+          subtitle: subtitle,
+          debugOtp: otpResult.debugOtp,
+          onVerify: (otp) async {
+            final verifyResult = await authService.otpService.verifyOtp(
+              identifier: identifier,
+              otp: otp,
+            );
+
+            if (!verifyResult.success) {
+              throw Exception(verifyResult.errorMessage ?? 'Invalid OTP');
+            }
+
+            // Mark as verified and pop
+            verified = true;
+            if (context.mounted) {
+              Navigator.of(context).pop();
+            }
+          },
+          onResend: () async {
+            final resendResult = await authService.requestLoginOtp(identifier);
+            return resendResult.success;
+          },
+        ),
+      ),
+    );
+
+    return verified;
+  }
+
+  void _showError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: ColorConstants.error,
+      ),
+    );
+  }
+
+  void _showSuccess(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: ColorConstants.primaryGreen,
+        duration: const Duration(seconds: 1),
+      ),
+    );
+  }
+
+  void _showAccountLockedDialog(String? message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        icon: const Icon(
+          Icons.lock,
+          color: ColorConstants.error,
+          size: 48,
+        ),
+        title: const Text('Account Locked'),
+        content: Text(
+          message ?? 'Your account has been locked due to too many failed attempts.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Contact Support'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCredentialRow(String email, String password) {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      email,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: email));
+                      _showSuccess('Email copied');
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.copy,
+                        size: 14,
+                        color: Colors.amber.shade700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 2),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      password,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: password));
+                      _showSuccess('Password copied');
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.copy,
+                        size: 14,
+                        color: Colors.amber.shade700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final loginState = ref.watch(loginStateProvider);
-    final isLoading = loginState.isLoading;
-
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -123,93 +333,55 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Sign in to continue',
+                  'Enter credentials and verify with OTP',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 24),
                 CustomTextField(
-                  controller: _emailController,
-                  label: StringConstants.email,
-                  hint: 'Enter your email',
+                  controller: _identifierController,
+                  label: 'Email or Phone Number',
+                  hint: 'Enter your email or phone',
                   keyboardType: TextInputType.emailAddress,
-                  prefixIcon: const Icon(Icons.email_outlined),
-                  validator: _validateEmail,
+                  prefixIcon: const Icon(Icons.person_outline),
+                  validator: _validateIdentifier,
                   textInputAction: TextInputAction.next,
-                  enabled: !isLoading,
+                  enabled: !_isLoading,
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 CustomTextField(
                   controller: _passwordController,
-                  label: StringConstants.password,
+                  label: 'Password',
                   hint: 'Enter your password',
                   obscureText: _obscurePassword,
                   prefixIcon: const Icon(Icons.lock_outline),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _obscurePassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
+                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
                     ),
                     onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
+                      setState(() => _obscurePassword = !_obscurePassword);
                     },
                   ),
                   validator: _validatePassword,
                   textInputAction: TextInputAction.done,
-                  enabled: !isLoading,
+                  enabled: !_isLoading,
                 ),
                 const SizedBox(height: 12),
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: isLoading ? null : () {
-                      // TODO: Implement forgot password
-                    },
-                    child: Text(
+                    onPressed: _isLoading ? null : () => context.push('/forgot-password'),
+                    child: const Text(
                       StringConstants.forgotPassword,
-                      style: TextStyle(
-                        color: ColorConstants.primaryGreen,
-                      ),
+                      style: TextStyle(color: ColorConstants.primaryGreen),
                     ),
                   ),
                 ),
                 const SizedBox(height: 24),
                 CustomButton(
-                  text: StringConstants.login,
-                  onPressed: _handleLogin,
-                  isLoading: isLoading,
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    const Expanded(child: Divider()),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        'OR',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ),
-                    const Expanded(child: Divider()),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                CustomButton(
-                  text: StringConstants.signInWithGoogle,
-                  onPressed: _handleGoogleSignIn,
-                  isLoading: isLoading,
-                  isOutlined: true,
-                  icon: Image.network(
-                    'https://www.google.com/favicon.ico',
-                    width: 20,
-                    height: 20,
-                    errorBuilder: (context, error, stackTrace) => const Icon(
-                      Icons.g_mobiledata,
-                      size: 24,
-                    ),
-                  ),
+                  text: 'Login',
+                  onPressed: _handlePasswordLogin,
+                  isLoading: _isLoading,
                 ),
                 const SizedBox(height: 32),
                 Row(
@@ -220,10 +392,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     TextButton(
-                      onPressed: isLoading
-                          ? null
-                          : () => context.go('/signup/step1'),
-                      child: Text(
+                      onPressed: _isLoading ? null : () => context.go('/signup/step1'),
+                      child: const Text(
                         StringConstants.signup,
                         style: TextStyle(
                           color: ColorConstants.primaryGreen,
@@ -232,6 +402,59 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 20),
+                Center(
+                  child: TextButton(
+                    onPressed: _isLoading ? null : () => context.go('/guest'),
+                    child: const Text(
+                      'Continue as Guest',
+                      style: TextStyle(
+                        color: ColorConstants.primaryGreen,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.amber.shade200),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            color: Colors.amber.shade700,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Test Credentials',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.amber.shade900,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      _buildCredentialRow('test@autobid.com', 'Test123'),
+                      const SizedBox(height: 8),
+                      _buildCredentialRow('pending@autobid.com', 'Test123'),
+                      const SizedBox(height: 8),
+                      _buildCredentialRow('rejected@autobid.com', 'Test123'),
+                      const SizedBox(height: 8),
+                      _buildCredentialRow('demo@autobid.com', 'Demo123'),
+                    ],
+                  ),
                 ),
               ],
             ),

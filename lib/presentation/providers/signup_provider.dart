@@ -19,10 +19,11 @@ class SignupProvider with ChangeNotifier {
   String _gender = '';
 
   // Step 3: Address Information
-  String _street = '';
-  String _barangay = '';
-  String _city = '';
+  String _region = '';
   String _province = '';
+  String _city = '';
+  String _barangay = '';
+  String _street = '';
   String _zipCode = '';
   String _nationality = 'Filipino';
 
@@ -64,10 +65,11 @@ class SignupProvider with ChangeNotifier {
   String get gender => _gender;
 
   // Getters for Step 3
-  String get street => _street;
-  String get barangay => _barangay;
-  String get city => _city;
+  String get region => _region;
   String get province => _province;
+  String get city => _city;
+  String get barangay => _barangay;
+  String get street => _street;
   String get zipCode => _zipCode;
   String get nationality => _nationality;
 
@@ -151,8 +153,27 @@ class SignupProvider with ChangeNotifier {
   }
 
   // Setters for Step 3
-  void setStreet(String value) {
-    _street = value;
+  void setRegion(String value) {
+    _region = value;
+    // Clear dependent fields when region changes
+    _province = '';
+    _city = '';
+    _barangay = '';
+    notifyListeners();
+  }
+
+  void setProvince(String value) {
+    _province = value;
+    // Clear dependent fields when province changes
+    _city = '';
+    _barangay = '';
+    notifyListeners();
+  }
+
+  void setCity(String value) {
+    _city = value;
+    // Clear barangay when city changes
+    _barangay = '';
     notifyListeners();
   }
 
@@ -161,13 +182,8 @@ class SignupProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void setCity(String value) {
-    _city = value;
-    notifyListeners();
-  }
-
-  void setProvince(String value) {
-    _province = value;
+  void setStreet(String value) {
+    _street = value;
     notifyListeners();
   }
 
@@ -256,7 +272,7 @@ class SignupProvider with ChangeNotifier {
 
   // Get address
   String get fullAddress {
-    final parts = [_street, _barangay, _city, _province, _zipCode]
+    final parts = [_street, _barangay, _city, _province, _region, _zipCode]
         .where((part) => part.isNotEmpty)
         .toList();
     return parts.join(', ');
@@ -280,10 +296,11 @@ class SignupProvider with ChangeNotifier {
   }
 
   bool isStep3Complete() {
-    return _street.isNotEmpty &&
-        _barangay.isNotEmpty &&
-        _city.isNotEmpty &&
+    return _region.isNotEmpty &&
         _province.isNotEmpty &&
+        _city.isNotEmpty &&
+        _barangay.isNotEmpty &&
+        _street.isNotEmpty &&
         _zipCode.isNotEmpty;
   }
 
@@ -320,10 +337,11 @@ class SignupProvider with ChangeNotifier {
     _lastName = '';
     _dateOfBirth = null;
     _gender = '';
-    _street = '';
-    _barangay = '';
-    _city = '';
+    _region = '';
     _province = '';
+    _city = '';
+    _barangay = '';
+    _street = '';
     _zipCode = '';
     _nationality = 'Filipino';
     _primaryIdFront = null;

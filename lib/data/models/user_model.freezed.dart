@@ -822,7 +822,7 @@ as int,
 /// @nodoc
 mixin _$UserModel {
 
- String get id; String get email; String get fullName; String? get firstName; String? get middleName; String? get lastName; DateTime? get dateOfBirth; String? get gender; String? get phoneNumber; String? get street; String? get barangay; String? get city; String? get province; String? get zipCode; String? get nationality; bool get termsAccepted; bool get privacyAccepted; String get kycStatus; String get accountType; DateTime get createdAt; bool get verifiedBadge; KycModel? get kycData; VerificationLevel get verificationLevel; VerificationLimits? get verificationLimits; ProofOfAddress? get proofOfAddress; String? get tin; NbiClearance? get nbiClearance; BackgroundCheckStatus get backgroundCheckStatus;
+ String get id; String get email; String get fullName; String? get firstName; String? get middleName; String? get lastName; DateTime? get dateOfBirth; String? get gender; String? get phoneNumber; String? get password; String? get street; String? get barangay; String? get city; String? get province; String? get zipCode; String? get nationality; bool get termsAccepted; bool get privacyAccepted; String get kycStatus; String? get rejectionReason; String get accountType; DateTime get createdAt; bool get verifiedBadge; KycModel? get kycData; VerificationLevel get verificationLevel; VerificationLimits? get verificationLimits; ProofOfAddress? get proofOfAddress; String? get tin; NbiClearance? get nbiClearance; BackgroundCheckStatus get backgroundCheckStatus; AccountStatus get accountStatus; int get otpFailureCount; DateTime? get lastOtpAttempt;
 /// Create a copy of UserModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -835,16 +835,16 @@ $UserModelCopyWith<UserModel> get copyWith => _$UserModelCopyWithImpl<UserModel>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserModel&&(identical(other.id, id) || other.id == id)&&(identical(other.email, email) || other.email == email)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.middleName, middleName) || other.middleName == middleName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.street, street) || other.street == street)&&(identical(other.barangay, barangay) || other.barangay == barangay)&&(identical(other.city, city) || other.city == city)&&(identical(other.province, province) || other.province == province)&&(identical(other.zipCode, zipCode) || other.zipCode == zipCode)&&(identical(other.nationality, nationality) || other.nationality == nationality)&&(identical(other.termsAccepted, termsAccepted) || other.termsAccepted == termsAccepted)&&(identical(other.privacyAccepted, privacyAccepted) || other.privacyAccepted == privacyAccepted)&&(identical(other.kycStatus, kycStatus) || other.kycStatus == kycStatus)&&(identical(other.accountType, accountType) || other.accountType == accountType)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.verifiedBadge, verifiedBadge) || other.verifiedBadge == verifiedBadge)&&(identical(other.kycData, kycData) || other.kycData == kycData)&&(identical(other.verificationLevel, verificationLevel) || other.verificationLevel == verificationLevel)&&(identical(other.verificationLimits, verificationLimits) || other.verificationLimits == verificationLimits)&&(identical(other.proofOfAddress, proofOfAddress) || other.proofOfAddress == proofOfAddress)&&(identical(other.tin, tin) || other.tin == tin)&&(identical(other.nbiClearance, nbiClearance) || other.nbiClearance == nbiClearance)&&(identical(other.backgroundCheckStatus, backgroundCheckStatus) || other.backgroundCheckStatus == backgroundCheckStatus));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserModel&&(identical(other.id, id) || other.id == id)&&(identical(other.email, email) || other.email == email)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.middleName, middleName) || other.middleName == middleName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.password, password) || other.password == password)&&(identical(other.street, street) || other.street == street)&&(identical(other.barangay, barangay) || other.barangay == barangay)&&(identical(other.city, city) || other.city == city)&&(identical(other.province, province) || other.province == province)&&(identical(other.zipCode, zipCode) || other.zipCode == zipCode)&&(identical(other.nationality, nationality) || other.nationality == nationality)&&(identical(other.termsAccepted, termsAccepted) || other.termsAccepted == termsAccepted)&&(identical(other.privacyAccepted, privacyAccepted) || other.privacyAccepted == privacyAccepted)&&(identical(other.kycStatus, kycStatus) || other.kycStatus == kycStatus)&&(identical(other.rejectionReason, rejectionReason) || other.rejectionReason == rejectionReason)&&(identical(other.accountType, accountType) || other.accountType == accountType)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.verifiedBadge, verifiedBadge) || other.verifiedBadge == verifiedBadge)&&(identical(other.kycData, kycData) || other.kycData == kycData)&&(identical(other.verificationLevel, verificationLevel) || other.verificationLevel == verificationLevel)&&(identical(other.verificationLimits, verificationLimits) || other.verificationLimits == verificationLimits)&&(identical(other.proofOfAddress, proofOfAddress) || other.proofOfAddress == proofOfAddress)&&(identical(other.tin, tin) || other.tin == tin)&&(identical(other.nbiClearance, nbiClearance) || other.nbiClearance == nbiClearance)&&(identical(other.backgroundCheckStatus, backgroundCheckStatus) || other.backgroundCheckStatus == backgroundCheckStatus)&&(identical(other.accountStatus, accountStatus) || other.accountStatus == accountStatus)&&(identical(other.otpFailureCount, otpFailureCount) || other.otpFailureCount == otpFailureCount)&&(identical(other.lastOtpAttempt, lastOtpAttempt) || other.lastOtpAttempt == lastOtpAttempt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,email,fullName,firstName,middleName,lastName,dateOfBirth,gender,phoneNumber,street,barangay,city,province,zipCode,nationality,termsAccepted,privacyAccepted,kycStatus,accountType,createdAt,verifiedBadge,kycData,verificationLevel,verificationLimits,proofOfAddress,tin,nbiClearance,backgroundCheckStatus]);
+int get hashCode => Object.hashAll([runtimeType,id,email,fullName,firstName,middleName,lastName,dateOfBirth,gender,phoneNumber,password,street,barangay,city,province,zipCode,nationality,termsAccepted,privacyAccepted,kycStatus,rejectionReason,accountType,createdAt,verifiedBadge,kycData,verificationLevel,verificationLimits,proofOfAddress,tin,nbiClearance,backgroundCheckStatus,accountStatus,otpFailureCount,lastOtpAttempt]);
 
 @override
 String toString() {
-  return 'UserModel(id: $id, email: $email, fullName: $fullName, firstName: $firstName, middleName: $middleName, lastName: $lastName, dateOfBirth: $dateOfBirth, gender: $gender, phoneNumber: $phoneNumber, street: $street, barangay: $barangay, city: $city, province: $province, zipCode: $zipCode, nationality: $nationality, termsAccepted: $termsAccepted, privacyAccepted: $privacyAccepted, kycStatus: $kycStatus, accountType: $accountType, createdAt: $createdAt, verifiedBadge: $verifiedBadge, kycData: $kycData, verificationLevel: $verificationLevel, verificationLimits: $verificationLimits, proofOfAddress: $proofOfAddress, tin: $tin, nbiClearance: $nbiClearance, backgroundCheckStatus: $backgroundCheckStatus)';
+  return 'UserModel(id: $id, email: $email, fullName: $fullName, firstName: $firstName, middleName: $middleName, lastName: $lastName, dateOfBirth: $dateOfBirth, gender: $gender, phoneNumber: $phoneNumber, password: $password, street: $street, barangay: $barangay, city: $city, province: $province, zipCode: $zipCode, nationality: $nationality, termsAccepted: $termsAccepted, privacyAccepted: $privacyAccepted, kycStatus: $kycStatus, rejectionReason: $rejectionReason, accountType: $accountType, createdAt: $createdAt, verifiedBadge: $verifiedBadge, kycData: $kycData, verificationLevel: $verificationLevel, verificationLimits: $verificationLimits, proofOfAddress: $proofOfAddress, tin: $tin, nbiClearance: $nbiClearance, backgroundCheckStatus: $backgroundCheckStatus, accountStatus: $accountStatus, otpFailureCount: $otpFailureCount, lastOtpAttempt: $lastOtpAttempt)';
 }
 
 
@@ -855,7 +855,7 @@ abstract mixin class $UserModelCopyWith<$Res>  {
   factory $UserModelCopyWith(UserModel value, $Res Function(UserModel) _then) = _$UserModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String email, String fullName, String? firstName, String? middleName, String? lastName, DateTime? dateOfBirth, String? gender, String? phoneNumber, String? street, String? barangay, String? city, String? province, String? zipCode, String? nationality, bool termsAccepted, bool privacyAccepted, String kycStatus, String accountType, DateTime createdAt, bool verifiedBadge, KycModel? kycData, VerificationLevel verificationLevel, VerificationLimits? verificationLimits, ProofOfAddress? proofOfAddress, String? tin, NbiClearance? nbiClearance, BackgroundCheckStatus backgroundCheckStatus
+ String id, String email, String fullName, String? firstName, String? middleName, String? lastName, DateTime? dateOfBirth, String? gender, String? phoneNumber, String? password, String? street, String? barangay, String? city, String? province, String? zipCode, String? nationality, bool termsAccepted, bool privacyAccepted, String kycStatus, String? rejectionReason, String accountType, DateTime createdAt, bool verifiedBadge, KycModel? kycData, VerificationLevel verificationLevel, VerificationLimits? verificationLimits, ProofOfAddress? proofOfAddress, String? tin, NbiClearance? nbiClearance, BackgroundCheckStatus backgroundCheckStatus, AccountStatus accountStatus, int otpFailureCount, DateTime? lastOtpAttempt
 });
 
 
@@ -872,7 +872,7 @@ class _$UserModelCopyWithImpl<$Res>
 
 /// Create a copy of UserModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? email = null,Object? fullName = null,Object? firstName = freezed,Object? middleName = freezed,Object? lastName = freezed,Object? dateOfBirth = freezed,Object? gender = freezed,Object? phoneNumber = freezed,Object? street = freezed,Object? barangay = freezed,Object? city = freezed,Object? province = freezed,Object? zipCode = freezed,Object? nationality = freezed,Object? termsAccepted = null,Object? privacyAccepted = null,Object? kycStatus = null,Object? accountType = null,Object? createdAt = null,Object? verifiedBadge = null,Object? kycData = freezed,Object? verificationLevel = null,Object? verificationLimits = freezed,Object? proofOfAddress = freezed,Object? tin = freezed,Object? nbiClearance = freezed,Object? backgroundCheckStatus = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? email = null,Object? fullName = null,Object? firstName = freezed,Object? middleName = freezed,Object? lastName = freezed,Object? dateOfBirth = freezed,Object? gender = freezed,Object? phoneNumber = freezed,Object? password = freezed,Object? street = freezed,Object? barangay = freezed,Object? city = freezed,Object? province = freezed,Object? zipCode = freezed,Object? nationality = freezed,Object? termsAccepted = null,Object? privacyAccepted = null,Object? kycStatus = null,Object? rejectionReason = freezed,Object? accountType = null,Object? createdAt = null,Object? verifiedBadge = null,Object? kycData = freezed,Object? verificationLevel = null,Object? verificationLimits = freezed,Object? proofOfAddress = freezed,Object? tin = freezed,Object? nbiClearance = freezed,Object? backgroundCheckStatus = null,Object? accountStatus = null,Object? otpFailureCount = null,Object? lastOtpAttempt = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
@@ -883,6 +883,7 @@ as String?,lastName: freezed == lastName ? _self.lastName : lastName // ignore: 
 as String?,dateOfBirth: freezed == dateOfBirth ? _self.dateOfBirth : dateOfBirth // ignore: cast_nullable_to_non_nullable
 as DateTime?,gender: freezed == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
 as String?,phoneNumber: freezed == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
+as String?,password: freezed == password ? _self.password : password // ignore: cast_nullable_to_non_nullable
 as String?,street: freezed == street ? _self.street : street // ignore: cast_nullable_to_non_nullable
 as String?,barangay: freezed == barangay ? _self.barangay : barangay // ignore: cast_nullable_to_non_nullable
 as String?,city: freezed == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
@@ -892,7 +893,8 @@ as String?,nationality: freezed == nationality ? _self.nationality : nationality
 as String?,termsAccepted: null == termsAccepted ? _self.termsAccepted : termsAccepted // ignore: cast_nullable_to_non_nullable
 as bool,privacyAccepted: null == privacyAccepted ? _self.privacyAccepted : privacyAccepted // ignore: cast_nullable_to_non_nullable
 as bool,kycStatus: null == kycStatus ? _self.kycStatus : kycStatus // ignore: cast_nullable_to_non_nullable
-as String,accountType: null == accountType ? _self.accountType : accountType // ignore: cast_nullable_to_non_nullable
+as String,rejectionReason: freezed == rejectionReason ? _self.rejectionReason : rejectionReason // ignore: cast_nullable_to_non_nullable
+as String?,accountType: null == accountType ? _self.accountType : accountType // ignore: cast_nullable_to_non_nullable
 as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,verifiedBadge: null == verifiedBadge ? _self.verifiedBadge : verifiedBadge // ignore: cast_nullable_to_non_nullable
 as bool,kycData: freezed == kycData ? _self.kycData : kycData // ignore: cast_nullable_to_non_nullable
@@ -902,7 +904,10 @@ as VerificationLimits?,proofOfAddress: freezed == proofOfAddress ? _self.proofOf
 as ProofOfAddress?,tin: freezed == tin ? _self.tin : tin // ignore: cast_nullable_to_non_nullable
 as String?,nbiClearance: freezed == nbiClearance ? _self.nbiClearance : nbiClearance // ignore: cast_nullable_to_non_nullable
 as NbiClearance?,backgroundCheckStatus: null == backgroundCheckStatus ? _self.backgroundCheckStatus : backgroundCheckStatus // ignore: cast_nullable_to_non_nullable
-as BackgroundCheckStatus,
+as BackgroundCheckStatus,accountStatus: null == accountStatus ? _self.accountStatus : accountStatus // ignore: cast_nullable_to_non_nullable
+as AccountStatus,otpFailureCount: null == otpFailureCount ? _self.otpFailureCount : otpFailureCount // ignore: cast_nullable_to_non_nullable
+as int,lastOtpAttempt: freezed == lastOtpAttempt ? _self.lastOtpAttempt : lastOtpAttempt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 /// Create a copy of UserModel
@@ -1035,10 +1040,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String email,  String fullName,  String? firstName,  String? middleName,  String? lastName,  DateTime? dateOfBirth,  String? gender,  String? phoneNumber,  String? street,  String? barangay,  String? city,  String? province,  String? zipCode,  String? nationality,  bool termsAccepted,  bool privacyAccepted,  String kycStatus,  String accountType,  DateTime createdAt,  bool verifiedBadge,  KycModel? kycData,  VerificationLevel verificationLevel,  VerificationLimits? verificationLimits,  ProofOfAddress? proofOfAddress,  String? tin,  NbiClearance? nbiClearance,  BackgroundCheckStatus backgroundCheckStatus)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String email,  String fullName,  String? firstName,  String? middleName,  String? lastName,  DateTime? dateOfBirth,  String? gender,  String? phoneNumber,  String? password,  String? street,  String? barangay,  String? city,  String? province,  String? zipCode,  String? nationality,  bool termsAccepted,  bool privacyAccepted,  String kycStatus,  String? rejectionReason,  String accountType,  DateTime createdAt,  bool verifiedBadge,  KycModel? kycData,  VerificationLevel verificationLevel,  VerificationLimits? verificationLimits,  ProofOfAddress? proofOfAddress,  String? tin,  NbiClearance? nbiClearance,  BackgroundCheckStatus backgroundCheckStatus,  AccountStatus accountStatus,  int otpFailureCount,  DateTime? lastOtpAttempt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UserModel() when $default != null:
-return $default(_that.id,_that.email,_that.fullName,_that.firstName,_that.middleName,_that.lastName,_that.dateOfBirth,_that.gender,_that.phoneNumber,_that.street,_that.barangay,_that.city,_that.province,_that.zipCode,_that.nationality,_that.termsAccepted,_that.privacyAccepted,_that.kycStatus,_that.accountType,_that.createdAt,_that.verifiedBadge,_that.kycData,_that.verificationLevel,_that.verificationLimits,_that.proofOfAddress,_that.tin,_that.nbiClearance,_that.backgroundCheckStatus);case _:
+return $default(_that.id,_that.email,_that.fullName,_that.firstName,_that.middleName,_that.lastName,_that.dateOfBirth,_that.gender,_that.phoneNumber,_that.password,_that.street,_that.barangay,_that.city,_that.province,_that.zipCode,_that.nationality,_that.termsAccepted,_that.privacyAccepted,_that.kycStatus,_that.rejectionReason,_that.accountType,_that.createdAt,_that.verifiedBadge,_that.kycData,_that.verificationLevel,_that.verificationLimits,_that.proofOfAddress,_that.tin,_that.nbiClearance,_that.backgroundCheckStatus,_that.accountStatus,_that.otpFailureCount,_that.lastOtpAttempt);case _:
   return orElse();
 
 }
@@ -1056,10 +1061,10 @@ return $default(_that.id,_that.email,_that.fullName,_that.firstName,_that.middle
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String email,  String fullName,  String? firstName,  String? middleName,  String? lastName,  DateTime? dateOfBirth,  String? gender,  String? phoneNumber,  String? street,  String? barangay,  String? city,  String? province,  String? zipCode,  String? nationality,  bool termsAccepted,  bool privacyAccepted,  String kycStatus,  String accountType,  DateTime createdAt,  bool verifiedBadge,  KycModel? kycData,  VerificationLevel verificationLevel,  VerificationLimits? verificationLimits,  ProofOfAddress? proofOfAddress,  String? tin,  NbiClearance? nbiClearance,  BackgroundCheckStatus backgroundCheckStatus)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String email,  String fullName,  String? firstName,  String? middleName,  String? lastName,  DateTime? dateOfBirth,  String? gender,  String? phoneNumber,  String? password,  String? street,  String? barangay,  String? city,  String? province,  String? zipCode,  String? nationality,  bool termsAccepted,  bool privacyAccepted,  String kycStatus,  String? rejectionReason,  String accountType,  DateTime createdAt,  bool verifiedBadge,  KycModel? kycData,  VerificationLevel verificationLevel,  VerificationLimits? verificationLimits,  ProofOfAddress? proofOfAddress,  String? tin,  NbiClearance? nbiClearance,  BackgroundCheckStatus backgroundCheckStatus,  AccountStatus accountStatus,  int otpFailureCount,  DateTime? lastOtpAttempt)  $default,) {final _that = this;
 switch (_that) {
 case _UserModel():
-return $default(_that.id,_that.email,_that.fullName,_that.firstName,_that.middleName,_that.lastName,_that.dateOfBirth,_that.gender,_that.phoneNumber,_that.street,_that.barangay,_that.city,_that.province,_that.zipCode,_that.nationality,_that.termsAccepted,_that.privacyAccepted,_that.kycStatus,_that.accountType,_that.createdAt,_that.verifiedBadge,_that.kycData,_that.verificationLevel,_that.verificationLimits,_that.proofOfAddress,_that.tin,_that.nbiClearance,_that.backgroundCheckStatus);case _:
+return $default(_that.id,_that.email,_that.fullName,_that.firstName,_that.middleName,_that.lastName,_that.dateOfBirth,_that.gender,_that.phoneNumber,_that.password,_that.street,_that.barangay,_that.city,_that.province,_that.zipCode,_that.nationality,_that.termsAccepted,_that.privacyAccepted,_that.kycStatus,_that.rejectionReason,_that.accountType,_that.createdAt,_that.verifiedBadge,_that.kycData,_that.verificationLevel,_that.verificationLimits,_that.proofOfAddress,_that.tin,_that.nbiClearance,_that.backgroundCheckStatus,_that.accountStatus,_that.otpFailureCount,_that.lastOtpAttempt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1076,10 +1081,10 @@ return $default(_that.id,_that.email,_that.fullName,_that.firstName,_that.middle
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String email,  String fullName,  String? firstName,  String? middleName,  String? lastName,  DateTime? dateOfBirth,  String? gender,  String? phoneNumber,  String? street,  String? barangay,  String? city,  String? province,  String? zipCode,  String? nationality,  bool termsAccepted,  bool privacyAccepted,  String kycStatus,  String accountType,  DateTime createdAt,  bool verifiedBadge,  KycModel? kycData,  VerificationLevel verificationLevel,  VerificationLimits? verificationLimits,  ProofOfAddress? proofOfAddress,  String? tin,  NbiClearance? nbiClearance,  BackgroundCheckStatus backgroundCheckStatus)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String email,  String fullName,  String? firstName,  String? middleName,  String? lastName,  DateTime? dateOfBirth,  String? gender,  String? phoneNumber,  String? password,  String? street,  String? barangay,  String? city,  String? province,  String? zipCode,  String? nationality,  bool termsAccepted,  bool privacyAccepted,  String kycStatus,  String? rejectionReason,  String accountType,  DateTime createdAt,  bool verifiedBadge,  KycModel? kycData,  VerificationLevel verificationLevel,  VerificationLimits? verificationLimits,  ProofOfAddress? proofOfAddress,  String? tin,  NbiClearance? nbiClearance,  BackgroundCheckStatus backgroundCheckStatus,  AccountStatus accountStatus,  int otpFailureCount,  DateTime? lastOtpAttempt)?  $default,) {final _that = this;
 switch (_that) {
 case _UserModel() when $default != null:
-return $default(_that.id,_that.email,_that.fullName,_that.firstName,_that.middleName,_that.lastName,_that.dateOfBirth,_that.gender,_that.phoneNumber,_that.street,_that.barangay,_that.city,_that.province,_that.zipCode,_that.nationality,_that.termsAccepted,_that.privacyAccepted,_that.kycStatus,_that.accountType,_that.createdAt,_that.verifiedBadge,_that.kycData,_that.verificationLevel,_that.verificationLimits,_that.proofOfAddress,_that.tin,_that.nbiClearance,_that.backgroundCheckStatus);case _:
+return $default(_that.id,_that.email,_that.fullName,_that.firstName,_that.middleName,_that.lastName,_that.dateOfBirth,_that.gender,_that.phoneNumber,_that.password,_that.street,_that.barangay,_that.city,_that.province,_that.zipCode,_that.nationality,_that.termsAccepted,_that.privacyAccepted,_that.kycStatus,_that.rejectionReason,_that.accountType,_that.createdAt,_that.verifiedBadge,_that.kycData,_that.verificationLevel,_that.verificationLimits,_that.proofOfAddress,_that.tin,_that.nbiClearance,_that.backgroundCheckStatus,_that.accountStatus,_that.otpFailureCount,_that.lastOtpAttempt);case _:
   return null;
 
 }
@@ -1091,7 +1096,7 @@ return $default(_that.id,_that.email,_that.fullName,_that.firstName,_that.middle
 @JsonSerializable()
 
 class _UserModel implements UserModel {
-  const _UserModel({required this.id, required this.email, required this.fullName, this.firstName, this.middleName, this.lastName, this.dateOfBirth, this.gender, this.phoneNumber, this.street, this.barangay, this.city, this.province, this.zipCode, this.nationality, this.termsAccepted = false, this.privacyAccepted = false, this.kycStatus = 'pending', this.accountType = 'individual', required this.createdAt, this.verifiedBadge = false, this.kycData, this.verificationLevel = VerificationLevel.unverified, this.verificationLimits, this.proofOfAddress, this.tin, this.nbiClearance, this.backgroundCheckStatus = BackgroundCheckStatus.none});
+  const _UserModel({required this.id, required this.email, required this.fullName, this.firstName, this.middleName, this.lastName, this.dateOfBirth, this.gender, this.phoneNumber, this.password, this.street, this.barangay, this.city, this.province, this.zipCode, this.nationality, this.termsAccepted = false, this.privacyAccepted = false, this.kycStatus = 'pending', this.rejectionReason, this.accountType = 'individual', required this.createdAt, this.verifiedBadge = false, this.kycData, this.verificationLevel = VerificationLevel.unverified, this.verificationLimits, this.proofOfAddress, this.tin, this.nbiClearance, this.backgroundCheckStatus = BackgroundCheckStatus.none, this.accountStatus = AccountStatus.guest, this.otpFailureCount = 0, this.lastOtpAttempt});
   factory _UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);
 
 @override final  String id;
@@ -1103,6 +1108,7 @@ class _UserModel implements UserModel {
 @override final  DateTime? dateOfBirth;
 @override final  String? gender;
 @override final  String? phoneNumber;
+@override final  String? password;
 @override final  String? street;
 @override final  String? barangay;
 @override final  String? city;
@@ -1112,6 +1118,7 @@ class _UserModel implements UserModel {
 @override@JsonKey() final  bool termsAccepted;
 @override@JsonKey() final  bool privacyAccepted;
 @override@JsonKey() final  String kycStatus;
+@override final  String? rejectionReason;
 @override@JsonKey() final  String accountType;
 @override final  DateTime createdAt;
 @override@JsonKey() final  bool verifiedBadge;
@@ -1122,6 +1129,9 @@ class _UserModel implements UserModel {
 @override final  String? tin;
 @override final  NbiClearance? nbiClearance;
 @override@JsonKey() final  BackgroundCheckStatus backgroundCheckStatus;
+@override@JsonKey() final  AccountStatus accountStatus;
+@override@JsonKey() final  int otpFailureCount;
+@override final  DateTime? lastOtpAttempt;
 
 /// Create a copy of UserModel
 /// with the given fields replaced by the non-null parameter values.
@@ -1136,16 +1146,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserModel&&(identical(other.id, id) || other.id == id)&&(identical(other.email, email) || other.email == email)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.middleName, middleName) || other.middleName == middleName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.street, street) || other.street == street)&&(identical(other.barangay, barangay) || other.barangay == barangay)&&(identical(other.city, city) || other.city == city)&&(identical(other.province, province) || other.province == province)&&(identical(other.zipCode, zipCode) || other.zipCode == zipCode)&&(identical(other.nationality, nationality) || other.nationality == nationality)&&(identical(other.termsAccepted, termsAccepted) || other.termsAccepted == termsAccepted)&&(identical(other.privacyAccepted, privacyAccepted) || other.privacyAccepted == privacyAccepted)&&(identical(other.kycStatus, kycStatus) || other.kycStatus == kycStatus)&&(identical(other.accountType, accountType) || other.accountType == accountType)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.verifiedBadge, verifiedBadge) || other.verifiedBadge == verifiedBadge)&&(identical(other.kycData, kycData) || other.kycData == kycData)&&(identical(other.verificationLevel, verificationLevel) || other.verificationLevel == verificationLevel)&&(identical(other.verificationLimits, verificationLimits) || other.verificationLimits == verificationLimits)&&(identical(other.proofOfAddress, proofOfAddress) || other.proofOfAddress == proofOfAddress)&&(identical(other.tin, tin) || other.tin == tin)&&(identical(other.nbiClearance, nbiClearance) || other.nbiClearance == nbiClearance)&&(identical(other.backgroundCheckStatus, backgroundCheckStatus) || other.backgroundCheckStatus == backgroundCheckStatus));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserModel&&(identical(other.id, id) || other.id == id)&&(identical(other.email, email) || other.email == email)&&(identical(other.fullName, fullName) || other.fullName == fullName)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.middleName, middleName) || other.middleName == middleName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.password, password) || other.password == password)&&(identical(other.street, street) || other.street == street)&&(identical(other.barangay, barangay) || other.barangay == barangay)&&(identical(other.city, city) || other.city == city)&&(identical(other.province, province) || other.province == province)&&(identical(other.zipCode, zipCode) || other.zipCode == zipCode)&&(identical(other.nationality, nationality) || other.nationality == nationality)&&(identical(other.termsAccepted, termsAccepted) || other.termsAccepted == termsAccepted)&&(identical(other.privacyAccepted, privacyAccepted) || other.privacyAccepted == privacyAccepted)&&(identical(other.kycStatus, kycStatus) || other.kycStatus == kycStatus)&&(identical(other.rejectionReason, rejectionReason) || other.rejectionReason == rejectionReason)&&(identical(other.accountType, accountType) || other.accountType == accountType)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.verifiedBadge, verifiedBadge) || other.verifiedBadge == verifiedBadge)&&(identical(other.kycData, kycData) || other.kycData == kycData)&&(identical(other.verificationLevel, verificationLevel) || other.verificationLevel == verificationLevel)&&(identical(other.verificationLimits, verificationLimits) || other.verificationLimits == verificationLimits)&&(identical(other.proofOfAddress, proofOfAddress) || other.proofOfAddress == proofOfAddress)&&(identical(other.tin, tin) || other.tin == tin)&&(identical(other.nbiClearance, nbiClearance) || other.nbiClearance == nbiClearance)&&(identical(other.backgroundCheckStatus, backgroundCheckStatus) || other.backgroundCheckStatus == backgroundCheckStatus)&&(identical(other.accountStatus, accountStatus) || other.accountStatus == accountStatus)&&(identical(other.otpFailureCount, otpFailureCount) || other.otpFailureCount == otpFailureCount)&&(identical(other.lastOtpAttempt, lastOtpAttempt) || other.lastOtpAttempt == lastOtpAttempt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,id,email,fullName,firstName,middleName,lastName,dateOfBirth,gender,phoneNumber,street,barangay,city,province,zipCode,nationality,termsAccepted,privacyAccepted,kycStatus,accountType,createdAt,verifiedBadge,kycData,verificationLevel,verificationLimits,proofOfAddress,tin,nbiClearance,backgroundCheckStatus]);
+int get hashCode => Object.hashAll([runtimeType,id,email,fullName,firstName,middleName,lastName,dateOfBirth,gender,phoneNumber,password,street,barangay,city,province,zipCode,nationality,termsAccepted,privacyAccepted,kycStatus,rejectionReason,accountType,createdAt,verifiedBadge,kycData,verificationLevel,verificationLimits,proofOfAddress,tin,nbiClearance,backgroundCheckStatus,accountStatus,otpFailureCount,lastOtpAttempt]);
 
 @override
 String toString() {
-  return 'UserModel(id: $id, email: $email, fullName: $fullName, firstName: $firstName, middleName: $middleName, lastName: $lastName, dateOfBirth: $dateOfBirth, gender: $gender, phoneNumber: $phoneNumber, street: $street, barangay: $barangay, city: $city, province: $province, zipCode: $zipCode, nationality: $nationality, termsAccepted: $termsAccepted, privacyAccepted: $privacyAccepted, kycStatus: $kycStatus, accountType: $accountType, createdAt: $createdAt, verifiedBadge: $verifiedBadge, kycData: $kycData, verificationLevel: $verificationLevel, verificationLimits: $verificationLimits, proofOfAddress: $proofOfAddress, tin: $tin, nbiClearance: $nbiClearance, backgroundCheckStatus: $backgroundCheckStatus)';
+  return 'UserModel(id: $id, email: $email, fullName: $fullName, firstName: $firstName, middleName: $middleName, lastName: $lastName, dateOfBirth: $dateOfBirth, gender: $gender, phoneNumber: $phoneNumber, password: $password, street: $street, barangay: $barangay, city: $city, province: $province, zipCode: $zipCode, nationality: $nationality, termsAccepted: $termsAccepted, privacyAccepted: $privacyAccepted, kycStatus: $kycStatus, rejectionReason: $rejectionReason, accountType: $accountType, createdAt: $createdAt, verifiedBadge: $verifiedBadge, kycData: $kycData, verificationLevel: $verificationLevel, verificationLimits: $verificationLimits, proofOfAddress: $proofOfAddress, tin: $tin, nbiClearance: $nbiClearance, backgroundCheckStatus: $backgroundCheckStatus, accountStatus: $accountStatus, otpFailureCount: $otpFailureCount, lastOtpAttempt: $lastOtpAttempt)';
 }
 
 
@@ -1156,7 +1166,7 @@ abstract mixin class _$UserModelCopyWith<$Res> implements $UserModelCopyWith<$Re
   factory _$UserModelCopyWith(_UserModel value, $Res Function(_UserModel) _then) = __$UserModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String email, String fullName, String? firstName, String? middleName, String? lastName, DateTime? dateOfBirth, String? gender, String? phoneNumber, String? street, String? barangay, String? city, String? province, String? zipCode, String? nationality, bool termsAccepted, bool privacyAccepted, String kycStatus, String accountType, DateTime createdAt, bool verifiedBadge, KycModel? kycData, VerificationLevel verificationLevel, VerificationLimits? verificationLimits, ProofOfAddress? proofOfAddress, String? tin, NbiClearance? nbiClearance, BackgroundCheckStatus backgroundCheckStatus
+ String id, String email, String fullName, String? firstName, String? middleName, String? lastName, DateTime? dateOfBirth, String? gender, String? phoneNumber, String? password, String? street, String? barangay, String? city, String? province, String? zipCode, String? nationality, bool termsAccepted, bool privacyAccepted, String kycStatus, String? rejectionReason, String accountType, DateTime createdAt, bool verifiedBadge, KycModel? kycData, VerificationLevel verificationLevel, VerificationLimits? verificationLimits, ProofOfAddress? proofOfAddress, String? tin, NbiClearance? nbiClearance, BackgroundCheckStatus backgroundCheckStatus, AccountStatus accountStatus, int otpFailureCount, DateTime? lastOtpAttempt
 });
 
 
@@ -1173,7 +1183,7 @@ class __$UserModelCopyWithImpl<$Res>
 
 /// Create a copy of UserModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? email = null,Object? fullName = null,Object? firstName = freezed,Object? middleName = freezed,Object? lastName = freezed,Object? dateOfBirth = freezed,Object? gender = freezed,Object? phoneNumber = freezed,Object? street = freezed,Object? barangay = freezed,Object? city = freezed,Object? province = freezed,Object? zipCode = freezed,Object? nationality = freezed,Object? termsAccepted = null,Object? privacyAccepted = null,Object? kycStatus = null,Object? accountType = null,Object? createdAt = null,Object? verifiedBadge = null,Object? kycData = freezed,Object? verificationLevel = null,Object? verificationLimits = freezed,Object? proofOfAddress = freezed,Object? tin = freezed,Object? nbiClearance = freezed,Object? backgroundCheckStatus = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? email = null,Object? fullName = null,Object? firstName = freezed,Object? middleName = freezed,Object? lastName = freezed,Object? dateOfBirth = freezed,Object? gender = freezed,Object? phoneNumber = freezed,Object? password = freezed,Object? street = freezed,Object? barangay = freezed,Object? city = freezed,Object? province = freezed,Object? zipCode = freezed,Object? nationality = freezed,Object? termsAccepted = null,Object? privacyAccepted = null,Object? kycStatus = null,Object? rejectionReason = freezed,Object? accountType = null,Object? createdAt = null,Object? verifiedBadge = null,Object? kycData = freezed,Object? verificationLevel = null,Object? verificationLimits = freezed,Object? proofOfAddress = freezed,Object? tin = freezed,Object? nbiClearance = freezed,Object? backgroundCheckStatus = null,Object? accountStatus = null,Object? otpFailureCount = null,Object? lastOtpAttempt = freezed,}) {
   return _then(_UserModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
@@ -1184,6 +1194,7 @@ as String?,lastName: freezed == lastName ? _self.lastName : lastName // ignore: 
 as String?,dateOfBirth: freezed == dateOfBirth ? _self.dateOfBirth : dateOfBirth // ignore: cast_nullable_to_non_nullable
 as DateTime?,gender: freezed == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
 as String?,phoneNumber: freezed == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
+as String?,password: freezed == password ? _self.password : password // ignore: cast_nullable_to_non_nullable
 as String?,street: freezed == street ? _self.street : street // ignore: cast_nullable_to_non_nullable
 as String?,barangay: freezed == barangay ? _self.barangay : barangay // ignore: cast_nullable_to_non_nullable
 as String?,city: freezed == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
@@ -1193,7 +1204,8 @@ as String?,nationality: freezed == nationality ? _self.nationality : nationality
 as String?,termsAccepted: null == termsAccepted ? _self.termsAccepted : termsAccepted // ignore: cast_nullable_to_non_nullable
 as bool,privacyAccepted: null == privacyAccepted ? _self.privacyAccepted : privacyAccepted // ignore: cast_nullable_to_non_nullable
 as bool,kycStatus: null == kycStatus ? _self.kycStatus : kycStatus // ignore: cast_nullable_to_non_nullable
-as String,accountType: null == accountType ? _self.accountType : accountType // ignore: cast_nullable_to_non_nullable
+as String,rejectionReason: freezed == rejectionReason ? _self.rejectionReason : rejectionReason // ignore: cast_nullable_to_non_nullable
+as String?,accountType: null == accountType ? _self.accountType : accountType // ignore: cast_nullable_to_non_nullable
 as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,verifiedBadge: null == verifiedBadge ? _self.verifiedBadge : verifiedBadge // ignore: cast_nullable_to_non_nullable
 as bool,kycData: freezed == kycData ? _self.kycData : kycData // ignore: cast_nullable_to_non_nullable
@@ -1203,7 +1215,10 @@ as VerificationLimits?,proofOfAddress: freezed == proofOfAddress ? _self.proofOf
 as ProofOfAddress?,tin: freezed == tin ? _self.tin : tin // ignore: cast_nullable_to_non_nullable
 as String?,nbiClearance: freezed == nbiClearance ? _self.nbiClearance : nbiClearance // ignore: cast_nullable_to_non_nullable
 as NbiClearance?,backgroundCheckStatus: null == backgroundCheckStatus ? _self.backgroundCheckStatus : backgroundCheckStatus // ignore: cast_nullable_to_non_nullable
-as BackgroundCheckStatus,
+as BackgroundCheckStatus,accountStatus: null == accountStatus ? _self.accountStatus : accountStatus // ignore: cast_nullable_to_non_nullable
+as AccountStatus,otpFailureCount: null == otpFailureCount ? _self.otpFailureCount : otpFailureCount // ignore: cast_nullable_to_non_nullable
+as int,lastOtpAttempt: freezed == lastOtpAttempt ? _self.lastOtpAttempt : lastOtpAttempt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 

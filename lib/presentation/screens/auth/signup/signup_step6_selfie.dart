@@ -7,6 +7,7 @@ import '../../../../core/constants/color_constants.dart';
 import '../../../providers/signup_provider.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/signup_stepper.dart';
+import 'signup_step_mixin.dart';
 
 class SignupStep6Selfie extends StatefulWidget {
   const SignupStep6Selfie({super.key});
@@ -15,7 +16,7 @@ class SignupStep6Selfie extends StatefulWidget {
   State<SignupStep6Selfie> createState() => _SignupStep6SelfieState();
 }
 
-class _SignupStep6SelfieState extends State<SignupStep6Selfie> {
+class _SignupStep6SelfieState extends State<SignupStep6Selfie> with SignupStepMixin {
   final _picker = ImagePicker();
 
   Future<void> _pickImage() async {
@@ -130,11 +131,11 @@ class _SignupStep6SelfieState extends State<SignupStep6Selfie> {
       return;
     }
 
-    context.go('/signup/step7');
+    context.go('/signup/step8');
   }
 
   void _handleBack() {
-    context.go('/signup/step5');
+    context.go('/signup/step6');
   }
 
   @override
@@ -143,10 +144,7 @@ class _SignupStep6SelfieState extends State<SignupStep6Selfie> {
       appBar: AppBar(
         title: const Text('Selfie Verification'),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: _handleBack,
-        ),
+        leading: buildBackButtonWithWarning(),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -154,7 +152,7 @@ class _SignupStep6SelfieState extends State<SignupStep6Selfie> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SignupStepper(currentStep: 6),
+              const SignupStepper(currentStep: 7, totalSteps: 9),
               const SizedBox(height: 32),
               Text(
                 'Take a Selfie',
@@ -217,9 +215,24 @@ class _SignupStep6SelfieState extends State<SignupStep6Selfie> {
                 },
               ),
               const SizedBox(height: 32),
-              CustomButton(
-                text: 'Next',
-                onPressed: _handleNext,
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomButton(
+                      text: 'Back',
+                      onPressed: _handleBack,
+                      isOutlined: true,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    flex: 2,
+                    child: CustomButton(
+                      text: 'Next',
+                      onPressed: _handleNext,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

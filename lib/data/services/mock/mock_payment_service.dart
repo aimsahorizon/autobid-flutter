@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 import '../../models/dispute_model.dart';
 import '../../models/transaction_model.dart';
 import '../../models/transaction_timeline.dart';
@@ -11,7 +10,6 @@ class MockPaymentService {
   MockPaymentService._internal();
 
   final List<Transaction> _transactions = [];
-  final Random _random = Random();
 
   Future<void> initialize() async {
     if (_transactions.isEmpty) {

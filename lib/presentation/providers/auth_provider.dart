@@ -6,20 +6,22 @@ import '../../data/services/mock/mock_auth_service.dart';
 part 'auth_provider.g.dart';
 
 // Auth Service Provider
-@riverpod
+@Riverpod(keepAlive: true)
 MockAuthService authService(Ref ref) {
-  return MockAuthService();
+  final service = MockAuthService();
+  // Emit initial state (null) to ensure stream is active
+  return service;
 }
 
 // Auth Repository Provider
-@riverpod
+@Riverpod(keepAlive: true)
 AuthRepository authRepository(Ref ref) {
   final authService = ref.watch(authServiceProvider);
   return AuthRepositoryImpl(authService);
 }
 
 // Auth State Stream Provider
-@riverpod
+@Riverpod(keepAlive: true)
 Stream<UserModel?> authStateChanges(Ref ref) {
   final repository = ref.watch(authRepositoryProvider);
   return repository.authStateChanges;
