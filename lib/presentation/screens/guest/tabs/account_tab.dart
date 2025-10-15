@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../../data/services/local/local_storage_service.dart';
+import '../../../../data/services/mock/mock_auth_service.dart';
 import '../../../../data/models/user_model.dart';
 import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/custom_button.dart';
@@ -19,212 +19,203 @@ class _AccountTabState extends State<AccountTab> {
   final _formKey = GlobalKey<FormState>();
   final _emailOrPhoneController = TextEditingController();
   final _passwordController = TextEditingController();
-  final List<TextEditingController> _otpControllers =
-      List.generate(6, (_) => TextEditingController());
-  final List<FocusNode> _otpFocusNodes = List.generate(6, (_) => FocusNode());
+  final _authService = MockAuthService();
 
   bool _obscurePassword = true;
   bool _isLoading = false;
-  bool _showOtpField = false;
   UserModel? _currentUser;
+  String? _errorMessage;
 
   @override
   void dispose() {
     _emailOrPhoneController.dispose();
     _passwordController.dispose();
-    for (var controller in _otpControllers) {
-      controller.dispose();
-    }
-    for (var node in _otpFocusNodes) {
-      node.dispose();
-    }
+    _authService.dispose();
     super.dispose();
   }
 
-  Future<void> _handleLogin() async {
+  Future<void> _handleCheckStatus() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
 
     try {
-      final storage = await LocalStorageService.getInstance();
       final emailOrPhone = _emailOrPhoneController.text.trim();
       final password = _passwordController.text;
 
-      // Verify credentials
-      final isValid = storage.verifyCredentials(emailOrPhone, password);
+      // Sign in with email and password using MockAuthService
+      final result = await _authService.signInWithEmail(emailOrPhone, password);
 
-      if (!isValid) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Invalid credentials'),
-            backgroundColor: ColorConstants.error,
-          ),
-        );
-        setState(() => _isLoading = false);
-        return;
-      }
-
-      // Get user
-      final user = storage.getUserByEmailOrPhone(emailOrPhone);
-      if (user == null) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('User not found'),
-            backgroundColor: ColorConstants.error,
-          ),
-        );
-        setState(() => _isLoading = false);
-        return;
-      }
-
-      // Check if account is locked
-      if (user.accountStatus == AccountStatus.locked) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Account locked. Please contact support.'),
-            backgroundColor: ColorConstants.error,
-          ),
-        );
-        setState(() => _isLoading = false);
-        return;
-      }
-
-      // Check if verified
-      if (user.accountStatus == AccountStatus.verified) {
-        // Navigate to home
-        if (!mounted) return;
-        context.go('/home');
-        return;
-      }
-
-      // Show OTP field for pending/rejected users
-      setState(() {
-        _showOtpField = true;
-        _currentUser = user;
-        _isLoading = false;
-      });
-    } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('An error occurred'),
-          backgroundColor: ColorConstants.error,
-        ),
-      );
-      setState(() => _isLoading = false);
-    }
-  }
 
-  Future<void> _handleVerifyOtp() async {
-    final otp = _otpControllers.map((c) => c.text).join();
+      if (result.success && result.user != null) {
+        // Check if account is verified (should redirect to home)
+        if (result.user!.accountStatus == AccountStatus.verified) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Account verified! Redirecting to home...'),
+              backgroundColor: ColorConstants.success,
+            ),
+          );
+          // Sign out and redirect to login for full auth flow
+          await _authService.signOut();
+          context.go('/login');
+          return;
+        }
 
-    if (otp.length != 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter complete OTP'),
-          backgroundColor: ColorConstants.error,
-        ),
-      );
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
-    // Mock OTP verification (accept any 6 digits for demo)
-    await Future.delayed(const Duration(seconds: 1));
-
-    try {
-      final storage = await LocalStorageService.getInstance();
-
-      if (otp.length == 6) {
-        // OTP verified, show status
+        // Show account status for pending/rejected/locked accounts
         setState(() {
-          _showOtpField = false;
+          _currentUser = result.user;
           _isLoading = false;
         });
       } else {
-        // Invalid OTP, increment failure count
-        await storage.updateOtpFailureCount(
-          _currentUser!.email,
-          _currentUser!.otpFailureCount + 1,
+        setState(() {
+          _errorMessage = result.errorMessage ?? 'Invalid credentials';
+          _isLoading = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_errorMessage!),
+            backgroundColor: ColorConstants.error,
+          ),
         );
-
-        final updatedUser = storage.getUserByEmailOrPhone(_currentUser!.email);
-        setState(() => _currentUser = updatedUser);
-
-        if (updatedUser!.otpFailureCount >= 3) {
-          if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Account locked due to too many failed attempts'),
-              backgroundColor: ColorConstants.error,
-            ),
-          );
-        } else {
-          if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Invalid OTP. Try again.'),
-              backgroundColor: ColorConstants.error,
-            ),
-          );
-        }
-        setState(() => _isLoading = false);
       }
     } catch (e) {
       if (!mounted) return;
+      setState(() {
+        _errorMessage = 'An error occurred. Please try again.';
+        _isLoading = false;
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('An error occurred'),
+        SnackBar(
+          content: Text(_errorMessage!),
           backgroundColor: ColorConstants.error,
         ),
       );
-      setState(() => _isLoading = false);
     }
   }
 
-  Widget _buildOtpField(int index) {
-    return SizedBox(
-      width: 45,
-      height: 55,
-      child: TextField(
-        controller: _otpControllers[index],
-        focusNode: _otpFocusNodes[index],
-        textAlign: TextAlign.center,
-        keyboardType: TextInputType.number,
-        maxLength: 1,
-        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        decoration: InputDecoration(
-          counterText: '',
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
+  Widget _buildTestCredentialsInfo() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.blue[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blue[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.info_outline, color: Colors.blue[700], size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Test Accounts',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue[900],
+                  fontSize: 14,
+                ),
+              ),
+            ],
           ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: ColorConstants.primaryGreen, width: 2),
+          const SizedBox(height: 12),
+          Text(
+            'Use any of these test accounts to check status:',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.blue[800],
+            ),
           ),
-        ),
-        onChanged: (value) {
-          if (value.isNotEmpty && index < 5) {
-            _otpFocusNodes[index + 1].requestFocus();
-          } else if (value.isEmpty && index > 0) {
-            _otpFocusNodes[index - 1].requestFocus();
-          }
-        },
+          const SizedBox(height: 8),
+          _buildTestCredRow('Verified', 'test@autobid.com', 'Test123'),
+          _buildTestCredRow('Pending', 'pending@autobid.com', 'Test123'),
+          _buildTestCredRow('Rejected', 'rejected@autobid.com', 'Test123'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTestCredRow(String status, String email, String password) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: Colors.blue[100],
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              status,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue[900],
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              '$email / $password',
+              style: TextStyle(
+                fontSize: 11,
+                color: Colors.blue[900],
+                fontFamily: 'monospace',
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_currentUser != null && !_showOtpField) {
-      return AccountStatusCard(user: _currentUser!);
+    // Show account status if user has checked
+    if (_currentUser != null) {
+      return Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            color: ColorConstants.primaryGreen.withOpacity(0.1),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () {
+                    setState(() {
+                      _currentUser = null;
+                      _emailOrPhoneController.clear();
+                      _passwordController.clear();
+                      _errorMessage = null;
+                    });
+                  },
+                ),
+                const Text(
+                  'Back to Login',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: AccountStatusCard(user: _currentUser!),
+          ),
+        ],
+      );
     }
 
+    // Show login form to check status
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Form(
@@ -233,7 +224,7 @@ class _AccountTabState extends State<AccountTab> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Check Application Status',
+              'Check Account Status',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: ColorConstants.primaryGreen,
@@ -241,86 +232,53 @@ class _AccountTabState extends State<AccountTab> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Login to view your registration status',
+              'Login to view your application status',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.grey[600],
                   ),
             ),
             const SizedBox(height: 24),
-            if (!_showOtpField) ...[
-              CustomTextField(
-                controller: _emailOrPhoneController,
-                label: 'Email or Phone',
-                hint: 'Enter your email or phone',
-                prefixIcon: const Icon(Icons.person_outline),
-                validator: (value) => Validators.validateRequired(value, 'Email or Phone'),
-                textInputAction: TextInputAction.next,
-                enabled: !_isLoading,
-              ),
-              const SizedBox(height: 20),
-              CustomTextField(
-                controller: _passwordController,
-                label: 'Password',
-                hint: 'Enter your password',
-                obscureText: _obscurePassword,
-                prefixIcon: const Icon(Icons.lock_outline),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscurePassword
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined,
-                  ),
-                  onPressed: () {
-                    setState(() => _obscurePassword = !_obscurePassword);
-                  },
+
+            // Test credentials info
+            _buildTestCredentialsInfo(),
+
+            CustomTextField(
+              controller: _emailOrPhoneController,
+              label: 'Email or Phone',
+              hint: 'Enter your email or phone',
+              prefixIcon: const Icon(Icons.person_outline),
+              validator: (value) => Validators.validateRequired(value, 'Email or Phone'),
+              textInputAction: TextInputAction.next,
+              enabled: !_isLoading,
+            ),
+            const SizedBox(height: 20),
+            CustomTextField(
+              controller: _passwordController,
+              label: 'Password',
+              hint: 'Enter your password',
+              obscureText: _obscurePassword,
+              prefixIcon: const Icon(Icons.lock_outline),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _obscurePassword
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
                 ),
-                validator: Validators.validatePassword,
-                textInputAction: TextInputAction.done,
-                enabled: !_isLoading,
-              ),
-              const SizedBox(height: 24),
-              CustomButton(
-                text: 'Login',
-                onPressed: _handleLogin,
-                isLoading: _isLoading,
-              ),
-            ] else ...[
-              Text(
-                'Enter OTP',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Enter the 6-digit code sent to ${_currentUser?.email}',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: List.generate(6, (index) => _buildOtpField(index)),
-              ),
-              const SizedBox(height: 24),
-              CustomButton(
-                text: 'Verify OTP',
-                onPressed: _handleVerifyOtp,
-                isLoading: _isLoading,
-              ),
-              const SizedBox(height: 16),
-              TextButton(
                 onPressed: () {
-                  setState(() {
-                    _showOtpField = false;
-                    _currentUser = null;
-                    for (var controller in _otpControllers) {
-                      controller.clear();
-                    }
-                  });
+                  setState(() => _obscurePassword = !_obscurePassword);
                 },
-                child: const Text('Back to Login'),
               ),
-            ],
+              validator: Validators.validatePassword,
+              textInputAction: TextInputAction.done,
+              enabled: !_isLoading,
+              onFieldSubmitted: (_) => _handleCheckStatus(),
+            ),
+            const SizedBox(height: 24),
+            CustomButton(
+              text: 'Check Account Status',
+              onPressed: _handleCheckStatus,
+              isLoading: _isLoading,
+            ),
             const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -340,6 +298,19 @@ class _AccountTabState extends State<AccountTab> {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 12),
+            Center(
+              child: TextButton(
+                onPressed: () => context.go('/login'),
+                child: Text(
+                  'Go to Full Login',
+                  style: TextStyle(
+                    color: ColorConstants.primaryGreen,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
