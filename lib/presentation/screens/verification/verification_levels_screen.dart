@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/constants/verification_levels.dart';
 import '../../../data/models/user_model.dart';
 
@@ -8,7 +7,6 @@ class VerificationLevelsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     // TODO: Get from user provider
     const currentLevel = VerificationLevel.level1;
 
