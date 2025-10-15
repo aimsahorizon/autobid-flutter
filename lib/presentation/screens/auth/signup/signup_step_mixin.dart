@@ -37,7 +37,7 @@ mixin SignupStepMixin<T extends StatefulWidget> on State<T> {
         ),
         title: Text('Discard Changes?'),
         content: Text(
-          'Your changes would be lost if you go back. Are you sure you want to continue?',
+          'All your signup progress will be lost if you go back. Are you sure you want to continue?',
         ),
         actions: [
           TextButton(
@@ -60,6 +60,9 @@ mixin SignupStepMixin<T extends StatefulWidget> on State<T> {
 
     if (shouldProceed == true) {
       if (!mounted) return;
+      // Clear all signup inputs
+      final provider = context.read<SignupProvider>();
+      provider.reset();
       context.go('/login');
     }
   }
