@@ -70,6 +70,8 @@ CLAUDE_WORKFLOW.md      (Reference - templates & patterns)
 - CI/CD: [Pipeline or "Manual"] (e.g., GitHub Actions, GitLab CI, Manual)
 
 **Build Targets:** [Development, Staging, Production]
+**Current Focus:** [REMOVE: Claude will update this]
+**Branch:** [REMOVE: Claude will update this]
 
 ---
 
@@ -132,47 +134,6 @@ CLAUDE_WORKFLOW.md      (Reference - templates & patterns)
 - **Examples:** `flutter analyze`, `npm test`, `pytest`, `cargo test`
 
 **Output:** Minimal unless asked (Section 7 in CLAUDE_WORKFLOW.md)
-
----
-
-## 3. Auto-Read Triggers [CRITICAL]
-
-**ALWAYS read referenced file BEFORE responding when triggered:**
-
-| Trigger | Read File | Section |
-|---------|-----------|---------|
-| Version changes phase | CLAUDE_PHASES.md | New phase section |
-| Need phase graduation criteria | CLAUDE_PHASES.md | Section 9 |
-| Platform requirements unclear | CLAUDE_PHASES.md | Section 1.5 |
-| Commit/PR work needed | CLAUDE_WORKFLOW.md | Sections 2-3 |
-| Code pattern examples needed | CLAUDE_WORKFLOW.md | Section 6 |
-| Performance checklist | CLAUDE_WORKFLOW.md | Section 8 |
-| Release commands | CLAUDE_PHASES.md | Section 9 |
-| User types `@context` | CLAUDE_WORKFLOW.md | Project Notes |
-| User types `@verify|@profile|@deps|@export|@next|@commit` | CLAUDE_WORKFLOW.md | Section 5 |
-| Need response template | CLAUDE_WORKFLOW.md | Section 2 |
-| Error recovery needed | CLAUDE_WORKFLOW.md | Section 12 |
-
-**MANDATORY:** If trigger matched → Read file → Process → Respond
-
----
-
-## 4. Quick Reference
-
-**Shortcuts:**
-- `+feat` = New feature (minor)
-- `+fix` = Bug fix (patch)
-- `+break` = Breaking change (major)
-- `!perf|!sec` = Critical priority
-
-**Commands:**
-- `@verify` - Run tests + lint
-- `@context` - Show current state
-- `@commit` - Generate commits
-- `@export` - PR summary
-
-**Current Focus:** [REMOVE: Claude will update this]
-**Branch:** [REMOVE: Claude will update this]
 
 ---
 
