@@ -18,7 +18,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _identifierController = TextEditingController(); // Email or phone
+  final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
@@ -35,10 +35,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       return 'Email or phone number is required';
     }
 
-    // Check if it's email or phone
-    final emailRegex = RegExp(
-      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-    );
+    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
     final phoneRegex = RegExp(r'^\+?[0-9]{10,15}$');
 
     if (!emailRegex.hasMatch(value) && !phoneRegex.hasMatch(value)) {
@@ -60,189 +57,159 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _handlePasswordLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
       final authService = ref.read(authServiceProvider);
+      final identifier = _identifierController.text.trim();
+      final password = _passwordController.text;
 
-      // Step 1: Validate password (but don't login yet)
-      final passwordResult = await authService.signInWithEmail(
-        _identifierController.text.trim(),
-        _passwordController.text,
-      );
+      // Step 1: Validate credentials
+      final passwordResult = await authService.signInWithEmail(identifier, password);
 
       if (!mounted) return;
 
       if (!passwordResult.success) {
-        // Check for account locked
         if (passwordResult.accountLocked) {
           _showAccountLockedDialog(passwordResult.errorMessage);
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(passwordResult.errorMessage ?? 'Invalid credentials'),
-              backgroundColor: ColorConstants.error,
-            ),
-          );
+          _showError(passwordResult.errorMessage ?? 'Invalid credentials');
         }
         return;
       }
 
-      // Password is valid, now require OTP verification
       final user = passwordResult.user;
       if (user == null) {
-        throw Exception('User data not available');
-      }
-
-      // Logout temporarily since we need OTP verification first
-      await authService.signOut();
-
-      if (!mounted) return;
-
-      // Step 2: Request and verify EMAIL OTP (without logging in yet)
-      final emailOtpResult = await authService.requestLoginOtp(user.email);
-
-      if (!mounted) return;
-
-      if (!emailOtpResult.success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(emailOtpResult.errorMessage ?? 'Failed to send email OTP'),
-            backgroundColor: ColorConstants.error,
-          ),
-        );
+        _showError('User data not available');
         return;
       }
 
-      final emailVerified = await Navigator.of(context).push<bool>(
-        MaterialPageRoute(
-          builder: (context) => OtpVerificationScreen(
-            identifier: user.email,
-            title: 'Verify Email',
-            subtitle: 'Enter the 6-digit code sent to your email',
-            debugOtp: emailOtpResult.debugOtp,
-            onVerify: (otp) async {
-              // Verify OTP without setting auth state
-              final verifyResult = await authService.otpService.verifyOtp(
-                identifier: user.email,
-                otp: otp,
-              );
+      // Sign out temporarily - OTP verification required
+      await authService.signOut();
+      if (!mounted) return;
 
-              if (verifyResult.success) {
-                if (mounted) {
-                  Navigator.of(context).pop(true);
-                }
-              } else {
-                throw Exception(verifyResult.errorMessage ?? 'Invalid OTP');
-              }
-            },
-            onResend: () async {
-              final resendResult = await authService.requestLoginOtp(user.email);
-              return resendResult.success;
-            },
-          ),
-        ),
+      // Step 2: Verify Email OTP
+      final emailVerified = await _verifyOtp(
+        authService: authService,
+        identifier: user.email,
+        title: 'Verify Email',
+        subtitle: 'Enter the 6-digit code sent to ${user.email}',
       );
 
-      if (emailVerified != true || !mounted) return;
+      if (!emailVerified || !mounted) return;
 
-      // Step 3: Request and verify PHONE OTP (if user has phone number)
+      // Step 3: Verify Phone OTP (if exists)
       if (user.phoneNumber != null && user.phoneNumber!.isNotEmpty) {
-        final phoneOtpResult = await authService.requestLoginOtp(user.phoneNumber!);
-
-        if (!mounted) return;
-
-        if (!phoneOtpResult.success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(phoneOtpResult.errorMessage ?? 'Failed to send phone OTP'),
-              backgroundColor: ColorConstants.error,
-            ),
-          );
-          return;
-        }
-
-        final phoneVerified = await Navigator.of(context).push<bool>(
-          MaterialPageRoute(
-            builder: (context) => OtpVerificationScreen(
-              identifier: user.phoneNumber!,
-              title: 'Verify Phone Number',
-              subtitle: 'Enter the 6-digit code sent to your phone',
-              debugOtp: phoneOtpResult.debugOtp,
-              onVerify: (otp) async {
-                // Verify OTP without setting auth state
-                final verifyResult = await authService.otpService.verifyOtp(
-                  identifier: user.phoneNumber!,
-                  otp: otp,
-                );
-
-                if (verifyResult.success) {
-                  if (mounted) {
-                    Navigator.of(context).pop(true);
-                  }
-                } else {
-                  throw Exception(verifyResult.errorMessage ?? 'Invalid OTP');
-                }
-              },
-              onResend: () async {
-                final resendResult = await authService.requestLoginOtp(user.phoneNumber!);
-                return resendResult.success;
-              },
-            ),
-          ),
+        final phoneVerified = await _verifyOtp(
+          authService: authService,
+          identifier: user.phoneNumber!,
+          title: 'Verify Phone',
+          subtitle: 'Enter the 6-digit code sent to ${user.phoneNumber}',
         );
 
-        if (phoneVerified != true || !mounted) return;
+        if (!phoneVerified || !mounted) return;
       }
 
-      // Step 4: Both OTPs verified (or no phone), complete login and set auth state
-      final loginResult = await authService.signInWithEmail(
-        _identifierController.text.trim(),
-        _passwordController.text,
-      );
+      // Step 4: Complete login
+      final loginResult = await authService.signInWithEmail(identifier, password);
 
       if (!mounted) return;
 
       if (loginResult.success) {
-        // Success - show message and navigate to home
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Login successful!'),
-            backgroundColor: ColorConstants.primaryGreen,
-            duration: Duration(seconds: 1),
-          ),
-        );
-
-        // Navigate to home screen
+        _showSuccess('Login successful!');
+        // Small delay for user to see success message
+        await Future.delayed(const Duration(milliseconds: 500));
         if (mounted) {
           context.go('/home');
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(loginResult.errorMessage ?? 'Login failed'),
-            backgroundColor: ColorConstants.error,
-          ),
-        );
+        _showError(loginResult.errorMessage ?? 'Login failed');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: ColorConstants.error,
-          ),
-        );
+        _showError('Error: $e');
       }
     } finally {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        setState(() => _isLoading = false);
       }
     }
+  }
+
+  Future<bool> _verifyOtp({
+    required dynamic authService,
+    required String identifier,
+    required String title,
+    required String subtitle,
+  }) async {
+    // Request OTP
+    final otpResult = await authService.requestLoginOtp(identifier);
+
+    if (!mounted) return false;
+
+    if (!otpResult.success) {
+      _showError(otpResult.errorMessage ?? 'Failed to send OTP');
+      return false;
+    }
+
+    // Navigate to OTP verification screen
+    bool verified = false;
+
+    if (!mounted) return false;
+
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => OtpVerificationScreen(
+          identifier: identifier,
+          title: title,
+          subtitle: subtitle,
+          debugOtp: otpResult.debugOtp,
+          onVerify: (otp) async {
+            final verifyResult = await authService.otpService.verifyOtp(
+              identifier: identifier,
+              otp: otp,
+            );
+
+            if (!verifyResult.success) {
+              throw Exception(verifyResult.errorMessage ?? 'Invalid OTP');
+            }
+
+            // Mark as verified and pop
+            verified = true;
+            if (context.mounted) {
+              Navigator.of(context).pop();
+            }
+          },
+          onResend: () async {
+            final resendResult = await authService.requestLoginOtp(identifier);
+            return resendResult.success;
+          },
+        ),
+      ),
+    );
+
+    return verified;
+  }
+
+  void _showError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: ColorConstants.error,
+      ),
+    );
+  }
+
+  void _showSuccess(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: ColorConstants.primaryGreen,
+        duration: const Duration(seconds: 1),
+      ),
+    );
   }
 
   void _showAccountLockedDialog(String? message) {
@@ -250,12 +217,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        icon: Icon(
+        icon: const Icon(
           Icons.lock,
           color: ColorConstants.error,
           size: 48,
         ),
-        title: Text('Account Locked'),
+        title: const Text('Account Locked'),
         content: Text(
           message ?? 'Your account has been locked due to too many failed attempts.',
         ),
@@ -263,13 +230,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              // TODO: Navigate to support/contact page
             },
-            child: Text('Contact Support'),
+            child: const Text('Contact Support'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text('OK'),
+            child: const Text('OK'),
           ),
         ],
       ),
@@ -298,13 +264,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   InkWell(
                     onTap: () {
                       Clipboard.setData(ClipboardData(text: email));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Email copied'),
-                          duration: Duration(seconds: 1),
-                          backgroundColor: ColorConstants.primaryGreen,
-                        ),
-                      );
+                      _showSuccess('Email copied');
                     },
                     child: Padding(
                       padding: const EdgeInsets.all(4),
@@ -332,13 +292,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   InkWell(
                     onTap: () {
                       Clipboard.setData(ClipboardData(text: password));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Password copied'),
-                          duration: Duration(seconds: 1),
-                          backgroundColor: ColorConstants.primaryGreen,
-                        ),
-                      );
+                      _showSuccess('Password copied');
                     },
                     child: Padding(
                       padding: const EdgeInsets.all(4),
@@ -405,9 +359,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       _obscurePassword ? Icons.visibility_off : Icons.visibility,
                     ),
                     onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
+                      setState(() => _obscurePassword = !_obscurePassword);
                     },
                   ),
                   validator: _validatePassword,
@@ -418,14 +370,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: _isLoading
-                        ? null
-                        : () => context.push('/forgot-password'),
-                    child: Text(
+                    onPressed: _isLoading ? null : () => context.push('/forgot-password'),
+                    child: const Text(
                       StringConstants.forgotPassword,
-                      style: TextStyle(
-                        color: ColorConstants.primaryGreen,
-                      ),
+                      style: TextStyle(color: ColorConstants.primaryGreen),
                     ),
                   ),
                 ),
@@ -444,10 +392,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     TextButton(
-                      onPressed: _isLoading
-                          ? null
-                          : () => context.go('/signup/step1'),
-                      child: Text(
+                      onPressed: _isLoading ? null : () => context.go('/signup/step1'),
+                      child: const Text(
                         StringConstants.signup,
                         style: TextStyle(
                           color: ColorConstants.primaryGreen,
@@ -460,10 +406,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 20),
                 Center(
                   child: TextButton(
-                    onPressed: _isLoading
-                        ? null
-                        : () => context.go('/guest'),
-                    child: Text(
+                    onPressed: _isLoading ? null : () => context.go('/guest'),
+                    child: const Text(
                       'Continue as Guest',
                       style: TextStyle(
                         color: ColorConstants.primaryGreen,
@@ -473,7 +417,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                // Test Credentials Card
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
