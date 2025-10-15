@@ -110,10 +110,7 @@ _UserModel _$UserModelFromJson(Map<String, dynamic> json) => _UserModel(
       ) ??
       BackgroundCheckStatus.none,
   accountStatus:
-      $enumDecodeNullable(
-        _$AccountStatusEnumMap,
-        json['accountStatus'],
-      ) ??
+      $enumDecodeNullable(_$AccountStatusEnumMap, json['accountStatus']) ??
       AccountStatus.guest,
   otpFailureCount: (json['otpFailureCount'] as num?)?.toInt() ?? 0,
   lastOtpAttempt: json['lastOtpAttempt'] == null

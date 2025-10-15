@@ -22,7 +22,7 @@ final class AuthServiceProvider
         argument: null,
         retry: null,
         name: r'authServiceProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -49,7 +49,7 @@ final class AuthServiceProvider
   }
 }
 
-String _$authServiceHash() => r'9230154c7e361cbaecf0e7f1fd2a8c2cd4d99622';
+String _$authServiceHash() => r'a4daddf31ebc651af7c1bb5504fd2ef329216bba';
 
 @ProviderFor(authRepository)
 const authRepositoryProvider = AuthRepositoryProvider._();
@@ -63,7 +63,7 @@ final class AuthRepositoryProvider
         argument: null,
         retry: null,
         name: r'authRepositoryProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -90,7 +90,7 @@ final class AuthRepositoryProvider
   }
 }
 
-String _$authRepositoryHash() => r'2ddbd21fa582d3cf0edafdd2aab7eb3826ded6d9';
+String _$authRepositoryHash() => r'2d13a8db065f5f387c990c28224d0e75fae1764c';
 
 @ProviderFor(authStateChanges)
 const authStateChangesProvider = AuthStateChangesProvider._();
@@ -109,7 +109,7 @@ final class AuthStateChangesProvider
         argument: null,
         retry: null,
         name: r'authStateChangesProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -128,7 +128,7 @@ final class AuthStateChangesProvider
   }
 }
 
-String _$authStateChangesHash() => r'3996523c29a93f7dbb74dc8622c588913032a87c';
+String _$authStateChangesHash() => r'a27f8768fd5f73ca4a772f2f4dcc599d7c769b75';
 
 @ProviderFor(currentUser)
 const currentUserProvider = CurrentUserProvider._();
