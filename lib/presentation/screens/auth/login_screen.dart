@@ -101,7 +101,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
       if (!mounted) return;
 
-      // Step 2: Request and verify EMAIL OTP
+      // Step 2: Request and verify EMAIL OTP (without logging in yet)
       final emailOtpResult = await authService.requestLoginOtp(user.email);
 
       if (!mounted) return;
@@ -124,9 +124,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             subtitle: 'Enter the 6-digit code sent to your email',
             debugOtp: emailOtpResult.debugOtp,
             onVerify: (otp) async {
-              final verifyResult = await authService.verifyLoginOtp(
-                user.email,
-                otp,
+              // Verify OTP without setting auth state
+              final verifyResult = await authService.otpService.verifyOtp(
+                identifier: user.email,
+                otp: otp,
               );
 
               if (verifyResult.success) {
@@ -134,13 +135,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   Navigator.of(context).pop(true);
                 }
               } else {
-                if (verifyResult.accountLocked) {
-                  if (mounted) {
-                    _showAccountLockedDialog(verifyResult.errorMessage);
-                    Navigator.of(context).pop(false);
-                  }
-                }
-                throw Exception(verifyResult.errorMessage);
+                throw Exception(verifyResult.errorMessage ?? 'Invalid OTP');
               }
             },
             onResend: () async {
@@ -153,87 +148,76 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
       if (emailVerified != true || !mounted) return;
 
-      // Step 3: Request and verify PHONE OTP
-      if (user.phoneNumber == null || user.phoneNumber!.isEmpty) {
-        // No phone number, complete login
-        await authService.signInWithEmail(
-          _identifierController.text.trim(),
-          _passwordController.text,
-        );
+      // Step 3: Request and verify PHONE OTP (if user has phone number)
+      if (user.phoneNumber != null && user.phoneNumber!.isNotEmpty) {
+        final phoneOtpResult = await authService.requestLoginOtp(user.phoneNumber!);
 
-        if (mounted) {
+        if (!mounted) return;
+
+        if (!phoneOtpResult.success) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Login successful!'),
-              backgroundColor: ColorConstants.primaryGreen,
+              content: Text(phoneOtpResult.errorMessage ?? 'Failed to send phone OTP'),
+              backgroundColor: ColorConstants.error,
             ),
           );
+          return;
         }
-        return;
-      }
 
-      final phoneOtpResult = await authService.requestLoginOtp(user.phoneNumber!);
+        final phoneVerified = await Navigator.of(context).push<bool>(
+          MaterialPageRoute(
+            builder: (context) => OtpVerificationScreen(
+              identifier: user.phoneNumber!,
+              title: 'Verify Phone Number',
+              subtitle: 'Enter the 6-digit code sent to your phone',
+              debugOtp: phoneOtpResult.debugOtp,
+              onVerify: (otp) async {
+                // Verify OTP without setting auth state
+                final verifyResult = await authService.otpService.verifyOtp(
+                  identifier: user.phoneNumber!,
+                  otp: otp,
+                );
 
-      if (!mounted) return;
-
-      if (!phoneOtpResult.success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(phoneOtpResult.errorMessage ?? 'Failed to send phone OTP'),
-            backgroundColor: ColorConstants.error,
+                if (verifyResult.success) {
+                  if (mounted) {
+                    Navigator.of(context).pop(true);
+                  }
+                } else {
+                  throw Exception(verifyResult.errorMessage ?? 'Invalid OTP');
+                }
+              },
+              onResend: () async {
+                final resendResult = await authService.requestLoginOtp(user.phoneNumber!);
+                return resendResult.success;
+              },
+            ),
           ),
         );
-        return;
+
+        if (phoneVerified != true || !mounted) return;
       }
 
-      final phoneVerified = await Navigator.of(context).push<bool>(
-        MaterialPageRoute(
-          builder: (context) => OtpVerificationScreen(
-            identifier: user.phoneNumber!,
-            title: 'Verify Phone Number',
-            subtitle: 'Enter the 6-digit code sent to your phone',
-            debugOtp: phoneOtpResult.debugOtp,
-            onVerify: (otp) async {
-              final verifyResult = await authService.verifyLoginOtp(
-                user.phoneNumber!,
-                otp,
-              );
-
-              if (verifyResult.success) {
-                if (mounted) {
-                  Navigator.of(context).pop(true);
-                }
-              } else {
-                if (verifyResult.accountLocked) {
-                  if (mounted) {
-                    _showAccountLockedDialog(verifyResult.errorMessage);
-                    Navigator.of(context).pop(false);
-                  }
-                }
-                throw Exception(verifyResult.errorMessage);
-              }
-            },
-            onResend: () async {
-              final resendResult = await authService.requestLoginOtp(user.phoneNumber!);
-              return resendResult.success;
-            },
-          ),
-        ),
-      );
-
-      if (phoneVerified != true || !mounted) return;
-
-      // Step 4: Both OTPs verified, complete login
-      await authService.signInWithEmail(
+      // Step 4: Both OTPs verified (or no phone), complete login and set auth state
+      final loginResult = await authService.signInWithEmail(
         _identifierController.text.trim(),
         _passwordController.text,
       );
 
-      if (mounted) {
+      if (!mounted) return;
+
+      if (loginResult.success) {
+        // Success - router will auto-navigate to home via authState redirect
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Login successful!'),
             backgroundColor: ColorConstants.primaryGreen,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(loginResult.errorMessage ?? 'Login failed'),
+            backgroundColor: ColorConstants.error,
           ),
         );
       }
