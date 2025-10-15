@@ -1,4 +1,4 @@
-# CLAUDE.md - Adaptive Engineering Standards v3.2 (Automated Freezed)
+# CLAUDE.md - Adaptive Engineering Standards v3.3 (Automated Code Generation)
 
 ## 0. Project Context [Auto-Updated]
 
@@ -44,14 +44,19 @@
 
 **Phase Detection:** `v0.0→Proto | 0.1-4→Alpha | 0.5-9→Beta | 1.0→MVP | 1-2→Growth | 3+→Maturity`
 
-**Workflow:**
+**Workflow (CRITICAL - TO FOLLOW EVERY USER REQUEST):**
 1. Check PROJECT_STRUCTURE.md first
 2. Apply current phase standards (Section 1)
 3. Complete user's tasks
-4. **[AUTO] If Freezed models modified:**
+4. **[AUTO] If Code Generation Required:**
    - [ ] Run `dart run build_runner build --delete-conflicting-outputs`
-   - [ ] Verify `.freezed.dart` and `.g.dart` files updated
+   - [ ] Verify generated files updated (`.freezed.dart`, `.g.dart`)
    - [ ] Check for compilation errors
+   - **Triggers:**
+     - ANY file with `@freezed` annotation modified
+     - ANY file with `@riverpod` or `@Riverpod()` annotation modified
+     - ANY Riverpod provider with changed parameters (keepAlive, dependencies, etc.)
+     - ANY JSON serializable model with `@JsonSerializable()` modified
 5. **[AUTO - CRITICAL] Error Resolution:**
    - [ ] Run `flutter analyze` to detect errors
    - [ ] Fix ALL RED errors (blocking)
@@ -89,12 +94,18 @@
 - **Must achieve:** 0 RED errors, minimize YELLOW warnings
 - **Never stop** until all RED errors are resolved
 
-**Freezed Code Generation [AUTO]:**
-- **ALWAYS auto-run** after modifying ANY `@freezed` model file
+**Code Generation [AUTO - CRITICAL]:**
+- **ALWAYS auto-run** after modifying files with code generation annotations
 - **Command:** `dart run build_runner build --delete-conflicting-outputs`
-- **Verify:** Check `.freezed.dart` and `.g.dart` files exist and have no errors
-- **On failure:** Use fallback script (fix_freezed.bat) or manual fix
-- **Skip if:** Only modifying non-model files or generated files themselves
+- **Triggers (any of these require build_runner):**
+  - `@freezed` - Freezed immutable models
+  - `@riverpod` or `@Riverpod()` - Riverpod providers
+  - `@JsonSerializable()` - JSON serialization
+  - `part 'filename.g.dart'` directive added/modified
+- **Verify:** Check generated files (`.freezed.dart`, `.g.dart`) exist and have no errors
+- **On failure:** Use fallback script (regenerate_freezed.bat) or manual fix
+- **Skip if:** Only modifying non-annotated files or generated files themselves
+- **CRITICAL:** Provider parameter changes (like `keepAlive: true`) REQUIRE regeneration
 
 **Flutter Analyze/Test [HYBRID]:**
 - **Claude runs for:** Complex/risky changes (new widgets, refactors)
@@ -108,9 +119,10 @@
 ## 5. Project-Specific Notes [Auto-Updated]
 
 **Patterns:**
-- Freezed models with abstract class
+- Freezed models with abstract class + code generation
+- Riverpod providers with `@riverpod` annotation + code generation
 - Mock services (instant-2s delays)
-- Multi-step flows: 8-step KYC, 6-step listing, 7-step auction
+- Multi-step flows: 8-step KYC, 6-step listing, 7-step signup, 7-step auction
 - Philippine data: locations, payments, IDs
 - Material Design 3, green theme (#4CAF50)
 - Grid/List view toggles, color-coded timers
@@ -137,4 +149,4 @@
 - **CLAUDE_WORKFLOW.md** - Templates, commits, patterns, quick commands
 - **PROJECT_STRUCTURE.md** - Folder tree, features, tech debt, dependencies
 
-**Schema:** v3.2 (Automated Freezed)
+**Schema:** v3.3 (Automated Code Generation - Freezed + Riverpod + JSON)
