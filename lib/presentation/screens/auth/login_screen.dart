@@ -206,13 +206,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (!mounted) return;
 
       if (loginResult.success) {
-        // Success - router will auto-navigate to home via authState redirect
+        // Success - show message and navigate to home
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Login successful!'),
             backgroundColor: ColorConstants.primaryGreen,
+            duration: Duration(seconds: 1),
           ),
         );
+
+        // Navigate to home screen
+        if (mounted) {
+          context.go('/home');
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
