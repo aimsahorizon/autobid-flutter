@@ -28,14 +28,12 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
   final _scrollController = ScrollController();
   final _deliveryLocationController = TextEditingController();
   final _notesController = TextEditingController();
-  final _picker = ImagePicker();
 
   bool _isInitialized = false;
   bool _vehicleDetailsConfirmed = false;
   DateTime? _selectedDeliveryDate;
   bool _termsAgreed = false;
   final List<String> _uploadedDocuments = [];
-  bool _showReview = false;
 
   @override
   void initState() {
@@ -172,6 +170,7 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
 
                 return Column(
                   children: [
+                    _buildTransactionAgreementBanner(),
                     _buildHeader(preTransaction.finalBidAmount),
                     Expanded(
                       child: _buildMessageList(preTransaction.messages),
@@ -181,16 +180,52 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
                 );
               },
             ),
-      floatingActionButton: Consumer<PreTransactionProvider>(
-        builder: (context, provider, child) {
-          return FloatingActionButton.extended(
-            onPressed: () => _showConfirmationBottomSheet(provider),
-            icon: const Icon(Icons.description),
-            label: const Text('Transaction Details'),
-            backgroundColor: ColorConstants.primaryGreen,
-            foregroundColor: Colors.white,
-          );
-        },
+    );
+  }
+
+  Widget _buildTransactionAgreementBanner() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: ColorConstants.primaryGreen.withOpacity(0.1),
+        border: Border(
+          bottom: BorderSide(color: ColorConstants.primaryGreen.withOpacity(0.3)),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.assignment,
+            color: ColorConstants.primaryGreen,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Ready to confirm? Fill out transaction details',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[800],
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => _navigateToConfirmationForm(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorConstants.primaryGreen,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: const Text(
+              'Open Form',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -391,336 +426,45 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
     );
   }
 
-  void _showConfirmationBottomSheet(PreTransactionProvider provider) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.9,
-        maxChildSize: 0.95,
-        minChildSize: 0.5,
-        expand: false,
-        builder: (context, scrollController) {
-          return _showReview
-              ? _buildReviewSheet(scrollController, provider)
-              : _buildConfirmationFormSheet(scrollController);
-        },
-      ),
-    );
-  }
-
-  Widget _buildConfirmationFormSheet(ScrollController scrollController) {
-    return SingleChildScrollView(
-      controller: scrollController,
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-        left: 16,
-        right: 16,
-        top: 16,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Handle
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          const Text(
-            'Transaction Details',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 24),
-
-          // Vehicle Confirmation
-          CheckboxListTile(
-            value: _vehicleDetailsConfirmed,
-            onChanged: (value) {
-              setState(() {
-                _vehicleDetailsConfirmed = value ?? false;
-              });
-            },
-            title: const Text('I confirm the vehicle details as discussed'),
-            subtitle: const Text(
-              'I have reviewed the vehicle condition and specs',
-              style: TextStyle(fontSize: 12),
-            ),
-            controlAffinity: ListTileControlAffinity.leading,
-          ),
-          const SizedBox(height: 16),
-
-          // Delivery Date
-          ListTile(
-            leading: const Icon(Icons.calendar_today),
-            title: const Text('Delivery Date'),
-            subtitle: Text(
-              _selectedDeliveryDate != null
-                  ? DateFormat('MMMM dd, yyyy').format(_selectedDeliveryDate!)
-                  : 'Select delivery date',
-            ),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: _selectDeliveryDate,
-            tileColor: Colors.grey[50],
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Delivery Location
-          TextFormField(
-            controller: _deliveryLocationController,
-            decoration: const InputDecoration(
-              labelText: 'Delivery Location',
-              hintText: 'Enter complete address',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.location_on),
-            ),
-            maxLines: 2,
-          ),
-          const SizedBox(height: 16),
-
-          // Upload Documents
-          OutlinedButton.icon(
-            onPressed: _pickDocument,
-            icon: const Icon(Icons.upload_file),
-            label: const Text('Upload ID / Proof of Address (Optional)'),
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 48),
-            ),
-          ),
-          if (_uploadedDocuments.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            ...(_uploadedDocuments.map((doc) {
-              final index = _uploadedDocuments.indexOf(doc);
-              return ListTile(
-                leading: const Icon(Icons.insert_drive_file, color: ColorConstants.primaryGreen),
-                title: Text('Document ${index + 1}'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () {
-                    setState(() {
-                      _uploadedDocuments.removeAt(index);
-                    });
-                  },
-                ),
-                tileColor: Colors.grey[50],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              );
-            }).toList()),
-          ],
-          const SizedBox(height: 16),
-
-          // Notes
-          TextFormField(
-            controller: _notesController,
-            decoration: const InputDecoration(
-              labelText: 'Additional Notes (Optional)',
-              hintText: 'Any special instructions...',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.note),
-            ),
-            maxLines: 3,
-          ),
-          const SizedBox(height: 16),
-
-          // Terms
-          CheckboxListTile(
-            value: _termsAgreed,
-            onChanged: (value) {
-              setState(() {
-                _termsAgreed = value ?? false;
-              });
-            },
-            controlAffinity: ListTileControlAffinity.leading,
-            title: const Text(
-              'I agree to the platform terms and conditions',
-              style: TextStyle(fontSize: 14),
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Review Button
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton(
-              onPressed: _canProceedToReview() ? () {
-                setState(() {
-                  _showReview = true;
-                });
-                Navigator.pop(context);
-                _showConfirmationBottomSheet(context.read<PreTransactionProvider>());
-              } : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: ColorConstants.primaryGreen,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Review Details', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
+  void _navigateToConfirmationForm() async {
+    await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => _TransactionDetailsFormScreen(
+          vehicleDetailsConfirmed: _vehicleDetailsConfirmed,
+          selectedDeliveryDate: _selectedDeliveryDate,
+          deliveryLocationController: _deliveryLocationController,
+          notesController: _notesController,
+          termsAgreed: _termsAgreed,
+          uploadedDocuments: _uploadedDocuments,
+          onVehicleDetailsChanged: (value) => setState(() => _vehicleDetailsConfirmed = value),
+          onDeliveryDateChanged: (date) => setState(() => _selectedDeliveryDate = date),
+          onTermsChanged: (value) => setState(() => _termsAgreed = value),
+          onDocumentAdded: (doc) => setState(() => _uploadedDocuments.add(doc)),
+          onDocumentRemoved: (index) => setState(() => _uploadedDocuments.removeAt(index)),
+          onReviewPressed: () => _navigateToReview(),
+        ),
       ),
     );
   }
 
-  Widget _buildReviewSheet(ScrollController scrollController, PreTransactionProvider provider) {
-    return SingleChildScrollView(
-      controller: scrollController,
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Handle
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          const Text(
-            'Review & Confirm',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 24),
+  void _navigateToReview() async {
+    Navigator.pop(context); // Close form screen
 
-          _buildReviewItem('Vehicle Details', _vehicleDetailsConfirmed ? 'Confirmed' : 'Not confirmed'),
-          _buildReviewItem('Delivery Date', _selectedDeliveryDate != null
-              ? DateFormat('MMMM dd, yyyy').format(_selectedDeliveryDate!)
-              : 'Not set'),
-          _buildReviewItem('Delivery Location', _deliveryLocationController.text.isEmpty
-              ? 'Not set'
-              : _deliveryLocationController.text),
-          _buildReviewItem('Documents Uploaded', '${_uploadedDocuments.length} file(s)'),
-          if (_notesController.text.isNotEmpty)
-            _buildReviewItem('Notes', _notesController.text),
-
-          const SizedBox(height: 24),
-
-          // Back and Confirm buttons
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () {
-                    setState(() {
-                      _showReview = false;
-                    });
-                    Navigator.pop(context);
-                    _showConfirmationBottomSheet(provider);
-                  },
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                  ),
-                  child: const Text('Back'),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                flex: 2,
-                child: ElevatedButton(
-                  onPressed: provider.isLoading ? null : () => _submitConfirmation(provider),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: ColorConstants.primaryGreen,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(double.infinity, 50),
-                  ),
-                  child: Text(
-                    provider.isLoading ? 'Submitting...' : 'Confirm',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+    await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => _TransactionDetailsReviewScreen(
+          vehicleDetailsConfirmed: _vehicleDetailsConfirmed,
+          selectedDeliveryDate: _selectedDeliveryDate,
+          deliveryLocation: _deliveryLocationController.text,
+          notes: _notesController.text,
+          uploadedDocuments: _uploadedDocuments,
+          onBack: () => _navigateToConfirmationForm(),
+          onConfirm: () => _submitConfirmation(context.read<PreTransactionProvider>()),
+        ),
       ),
     );
-  }
-
-  Widget _buildReviewItem(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  bool _canProceedToReview() {
-    return _vehicleDetailsConfirmed &&
-        _selectedDeliveryDate != null &&
-        _deliveryLocationController.text.isNotEmpty &&
-        _termsAgreed;
-  }
-
-  Future<void> _selectDeliveryDate() async {
-    final now = DateTime.now();
-    final firstDate = now.add(const Duration(days: 1));
-    final lastDate = now.add(const Duration(days: 60));
-
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: firstDate,
-      firstDate: firstDate,
-      lastDate: lastDate,
-    );
-
-    if (picked != null) {
-      setState(() {
-        _selectedDeliveryDate = picked;
-      });
-    }
-  }
-
-  Future<void> _pickDocument() async {
-    final image = await _picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 85,
-    );
-
-    if (image != null) {
-      setState(() {
-        _uploadedDocuments.add(image.path);
-      });
-    }
   }
 
   Future<void> _submitConfirmation(PreTransactionProvider provider) async {
@@ -740,7 +484,6 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
     if (success) {
       Navigator.pop(context);
       setState(() {
-        _showReview = false;
         _vehicleDetailsConfirmed = false;
         _selectedDeliveryDate = null;
         _deliveryLocationController.clear();
@@ -804,5 +547,345 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
           RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
           (Match m) => '${m[1]},',
         );
+  }
+}
+
+// Form Screen
+class _TransactionDetailsFormScreen extends StatefulWidget {
+  final bool vehicleDetailsConfirmed;
+  final DateTime? selectedDeliveryDate;
+  final TextEditingController deliveryLocationController;
+  final TextEditingController notesController;
+  final bool termsAgreed;
+  final List<String> uploadedDocuments;
+  final Function(bool) onVehicleDetailsChanged;
+  final Function(DateTime) onDeliveryDateChanged;
+  final Function(bool) onTermsChanged;
+  final Function(String) onDocumentAdded;
+  final Function(int) onDocumentRemoved;
+  final VoidCallback onReviewPressed;
+
+  const _TransactionDetailsFormScreen({
+    required this.vehicleDetailsConfirmed,
+    required this.selectedDeliveryDate,
+    required this.deliveryLocationController,
+    required this.notesController,
+    required this.termsAgreed,
+    required this.uploadedDocuments,
+    required this.onVehicleDetailsChanged,
+    required this.onDeliveryDateChanged,
+    required this.onTermsChanged,
+    required this.onDocumentAdded,
+    required this.onDocumentRemoved,
+    required this.onReviewPressed,
+  });
+
+  @override
+  State<_TransactionDetailsFormScreen> createState() => _TransactionDetailsFormScreenState();
+}
+
+class _TransactionDetailsFormScreenState extends State<_TransactionDetailsFormScreen> {
+  final _picker = ImagePicker();
+
+  Future<void> _selectDeliveryDate() async {
+    final now = DateTime.now();
+    final firstDate = now.add(const Duration(days: 1));
+    final lastDate = now.add(const Duration(days: 60));
+
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: widget.selectedDeliveryDate ?? firstDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
+    );
+
+    if (picked != null) {
+      widget.onDeliveryDateChanged(picked);
+    }
+  }
+
+  Future<void> _pickDocument() async {
+    final image = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
+
+    if (image != null) {
+      widget.onDocumentAdded(image.path);
+    }
+  }
+
+  bool _canProceedToReview() {
+    return widget.vehicleDetailsConfirmed &&
+        widget.selectedDeliveryDate != null &&
+        widget.deliveryLocationController.text.isNotEmpty &&
+        widget.termsAgreed;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Transaction Details'),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Fill Out Transaction Information',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Please provide the details for this transaction',
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 24),
+
+            // Vehicle Confirmation
+            CheckboxListTile(
+              value: widget.vehicleDetailsConfirmed,
+              onChanged: (value) => widget.onVehicleDetailsChanged(value ?? false),
+              title: const Text('I confirm the vehicle details as discussed'),
+              subtitle: const Text(
+                'I have reviewed the vehicle condition and specs',
+                style: TextStyle(fontSize: 12),
+              ),
+              controlAffinity: ListTileControlAffinity.leading,
+            ),
+            const SizedBox(height: 16),
+
+            // Delivery Date
+            ListTile(
+              leading: const Icon(Icons.calendar_today),
+              title: const Text('Delivery Date'),
+              subtitle: Text(
+                widget.selectedDeliveryDate != null
+                    ? DateFormat('MMMM dd, yyyy').format(widget.selectedDeliveryDate!)
+                    : 'Select delivery date',
+              ),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: _selectDeliveryDate,
+              tileColor: Colors.grey[50],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Delivery Location
+            TextFormField(
+              controller: widget.deliveryLocationController,
+              decoration: const InputDecoration(
+                labelText: 'Delivery Location',
+                hintText: 'Enter complete address',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.location_on),
+              ),
+              maxLines: 2,
+            ),
+            const SizedBox(height: 16),
+
+            // Upload Documents
+            OutlinedButton.icon(
+              onPressed: _pickDocument,
+              icon: const Icon(Icons.upload_file),
+              label: const Text('Upload ID / Proof of Address (Optional)'),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+              ),
+            ),
+            if (widget.uploadedDocuments.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              ...(widget.uploadedDocuments.map((doc) {
+                final index = widget.uploadedDocuments.indexOf(doc);
+                return ListTile(
+                  leading: const Icon(Icons.insert_drive_file, color: ColorConstants.primaryGreen),
+                  title: Text('Document ${index + 1}'),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => widget.onDocumentRemoved(index),
+                  ),
+                  tileColor: Colors.grey[50],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                );
+              }).toList()),
+            ],
+            const SizedBox(height: 16),
+
+            // Notes
+            TextFormField(
+              controller: widget.notesController,
+              decoration: const InputDecoration(
+                labelText: 'Additional Notes (Optional)',
+                hintText: 'Any special instructions...',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.note),
+              ),
+              maxLines: 3,
+            ),
+            const SizedBox(height: 16),
+
+            // Terms
+            CheckboxListTile(
+              value: widget.termsAgreed,
+              onChanged: (value) => widget.onTermsChanged(value ?? false),
+              controlAffinity: ListTileControlAffinity.leading,
+              title: const Text(
+                'I agree to the platform terms and conditions',
+                style: TextStyle(fontSize: 14),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Review Button
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: _canProceedToReview() ? widget.onReviewPressed : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: ColorConstants.primaryGreen,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text(
+                  'Review Details',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Review Screen
+class _TransactionDetailsReviewScreen extends StatelessWidget {
+  final bool vehicleDetailsConfirmed;
+  final DateTime? selectedDeliveryDate;
+  final String deliveryLocation;
+  final String notes;
+  final List<String> uploadedDocuments;
+  final VoidCallback onBack;
+  final VoidCallback onConfirm;
+
+  const _TransactionDetailsReviewScreen({
+    required this.vehicleDetailsConfirmed,
+    required this.selectedDeliveryDate,
+    required this.deliveryLocation,
+    required this.notes,
+    required this.uploadedDocuments,
+    required this.onBack,
+    required this.onConfirm,
+  });
+
+  Widget _buildReviewItem(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Review & Confirm'),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: onBack,
+        ),
+      ),
+      body: Consumer<PreTransactionProvider>(
+        builder: (context, provider, child) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Review Transaction Details',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Please review the information before confirming',
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                ),
+                const SizedBox(height: 24),
+
+                _buildReviewItem(
+                  'Vehicle Details',
+                  vehicleDetailsConfirmed ? 'Confirmed' : 'Not confirmed',
+                ),
+                _buildReviewItem(
+                  'Delivery Date',
+                  selectedDeliveryDate != null
+                      ? DateFormat('MMMM dd, yyyy').format(selectedDeliveryDate!)
+                      : 'Not set',
+                ),
+                _buildReviewItem(
+                  'Delivery Location',
+                  deliveryLocation.isEmpty ? 'Not set' : deliveryLocation,
+                ),
+                _buildReviewItem(
+                  'Documents Uploaded',
+                  '${uploadedDocuments.length} file(s)',
+                ),
+                if (notes.isNotEmpty) _buildReviewItem('Notes', notes),
+
+                const SizedBox(height: 24),
+
+                // Confirm Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: provider.isLoading ? null : onConfirm,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: ColorConstants.primaryGreen,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: Text(
+                      provider.isLoading ? 'Submitting...' : 'Confirm & Submit',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
   }
 }
