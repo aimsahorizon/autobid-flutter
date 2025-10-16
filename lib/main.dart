@@ -13,6 +13,7 @@ import 'presentation/providers/auction_provider.dart';
 import 'presentation/providers/bid_provider.dart';
 import 'presentation/providers/payment_provider.dart';
 import 'presentation/providers/transaction_provider.dart';
+import 'presentation/providers/pre_transaction_provider.dart';
 import 'data/services/mock/mock_kyc_service.dart';
 import 'data/services/mock/mock_car_service.dart';
 import 'data/services/mock/mock_payment_service.dart';
@@ -52,6 +53,9 @@ void main() async {
         ),
         provider.ChangeNotifierProvider(
           create: (_) => TransactionProvider(),
+        ),
+        provider.ChangeNotifierProvider(
+          create: (_) => PreTransactionProvider(),
         ),
       ],
       child: const ProviderScope(
