@@ -36,9 +36,11 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
   Future<void> _initializePreTransaction() async {
     final provider = context.read<PreTransactionProvider>();
 
-    // Try to load existing pre-transaction or create new one
-    await provider.loadPreTransactionByAuctionId(widget.auctionId).catchError((_) async {
-      // If not found, create new one
+    // Try to load existing pre-transaction first
+    final exists = await provider.loadPreTransactionByAuctionId(widget.auctionId);
+
+    // If not found, create new one
+    if (!exists) {
       await provider.createPreTransaction(
         auctionId: widget.auctionId,
         carId: 'CAR001', // Mock car ID
@@ -49,22 +51,24 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
         sellerName: 'Pedro Santos',
         finalBidAmount: widget.winningBid,
       );
-    });
+    }
 
-    setState(() {
-      _isInitialized = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isInitialized = true;
+      });
 
-    // Scroll to bottom when messages load
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
-    });
+      // Scroll to bottom when messages load
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
   }
 
   @override
@@ -118,8 +122,40 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
               builder: (context, provider, child) {
                 final preTransaction = provider.currentPreTransaction;
 
+                // Show error only if there's an actual error (not just loading)
+                if (preTransaction == null && provider.error != null) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Failed to load discussion',
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          provider.error ?? '',
+                          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            provider.clearError();
+                            _initializePreTransaction();
+                          },
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
                 if (preTransaction == null) {
-                  return const Center(child: Text('Failed to load discussion'));
+                  return const Center(child: CircularProgressIndicator());
                 }
 
                 return Column(
