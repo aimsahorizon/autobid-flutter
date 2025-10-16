@@ -566,7 +566,7 @@ class _AuctionResultCard extends StatelessWidget {
   }
 
   Widget _buildActionButtons(BuildContext context, String carTitle) {
-    // No transaction - show pay now button
+    // No transaction - show start pre-transaction button
     if (transaction == null) {
       return SizedBox(
         width: double.infinity,
@@ -574,12 +574,12 @@ class _AuctionResultCard extends StatelessWidget {
         child: ElevatedButton.icon(
           onPressed: () async {
             await context.push(
-              '/payment/${auction.id}?carTitle=${Uri.encodeComponent(carTitle)}&winningBid=${auction.currentBid}',
+              '/preTransaction/${auction.id}?carTitle=${Uri.encodeComponent(carTitle)}&winningBid=${auction.currentBid}',
             );
             onRefresh?.call();
           },
-          icon: const Icon(Icons.payment),
-          label: const Text('Pay Now', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          icon: const Icon(Icons.chat),
+          label: const Text('Start Discussion', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           style: ElevatedButton.styleFrom(
             backgroundColor: ColorConstants.primaryGreen,
             foregroundColor: Colors.white,
@@ -591,7 +591,7 @@ class _AuctionResultCard extends StatelessWidget {
       );
     }
 
-    // Payment pending - show pay now + view auction
+    // Payment pending - show continue pre-transaction + view auction
     if (transaction!.escrowStatus == EscrowStatus.pending) {
       return SizedBox(
         height: 50,
@@ -602,12 +602,12 @@ class _AuctionResultCard extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: () async {
                   await context.push(
-                    '/payment/${auction.id}?carTitle=${Uri.encodeComponent(carTitle)}&winningBid=${auction.currentBid}',
+                    '/preTransaction/${auction.id}?carTitle=${Uri.encodeComponent(carTitle)}&winningBid=${auction.currentBid}',
                   );
                   onRefresh?.call();
                 },
-                icon: const Icon(Icons.payment, size: 18),
-                label: const Text('Pay Now', style: TextStyle(fontSize: 15)),
+                icon: const Icon(Icons.chat, size: 18),
+                label: const Text('Continue', style: TextStyle(fontSize: 15)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: ColorConstants.primaryGreen,
                   foregroundColor: Colors.white,
