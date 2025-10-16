@@ -18,6 +18,10 @@ enum PreTransactionStatus {
   pendingMutualConfirmation,
   @JsonValue('confirmed')
   confirmed,
+  @JsonValue('pending_admin_review')
+  pendingAdminReview,
+  @JsonValue('admin_approved')
+  adminApproved,
   @JsonValue('ready_for_payment')
   readyForPayment,
   @JsonValue('cancelled')
@@ -45,6 +49,9 @@ abstract class PreTransaction with _$PreTransaction {
     DateTime? buyerConfirmedAt,
     DateTime? sellerConfirmedAt,
     DateTime? mutualConfirmationAt,
+    DateTime? adminReviewStartedAt,
+    DateTime? adminReviewCompletedAt,
+    String? adminReviewNotes,
     DateTime? readyForPaymentAt,
     String? cancellationReason,
     DateTime? cancelledAt,
