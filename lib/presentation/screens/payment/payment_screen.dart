@@ -186,34 +186,33 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 PaymentSummary(amount: widget.winningBid),
                 const SizedBox(height: 24),
 
-                // Quick Pay with Card (New Mock Stripe-like UI)
+                // Card Payment Only
                 _buildQuickPayCard(),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
-                // Divider with "OR"
-                _buildOrDivider(),
-                const SizedBox(height: 24),
-
-                // Traditional Payment Methods
-                _buildPaymentMethodSection(provider),
-                if (provider.selectedPaymentMethod != null &&
-                    provider.selectedPaymentMethod!.type ==
-                        PaymentMethodType.bankTransfer) ...[
-                  const SizedBox(height: 24),
-                  _buildBankDetails(),
-                  const SizedBox(height: 24),
-                  _buildUploadProofSection(provider),
-                ],
-                const SizedBox(height: 24),
-                _buildReferenceField(),
-                const SizedBox(height: 24),
-                _buildTermsCheckbox(),
-                const SizedBox(height: 24),
-                CustomButton(
-                  text: provider.isLoading
-                      ? 'Processing...'
-                      : 'Submit Payment',
-                  onPressed: provider.isLoading ? null : _submitPayment,
+                // Info about card payment
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.info_outline, color: Colors.blue[700]),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'For security and buyer protection, all payments must be made via card. Your payment will be held in escrow until delivery confirmation.',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.blue[900],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
