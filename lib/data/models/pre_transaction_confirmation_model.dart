@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'transaction_model.dart';
 
 part 'pre_transaction_confirmation_model.freezed.dart';
 part 'pre_transaction_confirmation_model.g.dart';
@@ -11,7 +10,6 @@ abstract class PreTransactionConfirmation with _$PreTransactionConfirmation {
     required String userId,
     required String userName,
     required bool vehicleDetailsConfirmed,
-    PaymentMethodType? preferredPaymentMethod,
     String? deliveryDate,
     String? deliveryLocation,
     @Default([]) List<String> uploadedDocuments,
