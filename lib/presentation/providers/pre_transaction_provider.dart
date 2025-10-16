@@ -56,7 +56,7 @@ class PreTransactionProvider with ChangeNotifier {
     required double finalBidAmount,
   }) async {
     _isLoading = true;
-    _error = null;
+    _error = null; // Clear any previous errors
     notifyListeners();
 
     try {
@@ -72,6 +72,7 @@ class PreTransactionProvider with ChangeNotifier {
       );
 
       _currentPreTransaction = preTransaction;
+      _error = null; // Ensure error is cleared on success
       return preTransaction;
     } catch (e) {
       _error = e.toString();
@@ -100,7 +101,8 @@ class PreTransactionProvider with ChangeNotifier {
   }
 
   /// Load pre-transaction by auction ID
-  Future<void> loadPreTransactionByAuctionId(String auctionId) async {
+  /// Returns true if found, false if not found (no error state set)
+  Future<bool> loadPreTransactionByAuctionId(String auctionId) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -108,8 +110,11 @@ class PreTransactionProvider with ChangeNotifier {
     try {
       await Future.delayed(const Duration(milliseconds: 300));
       _currentPreTransaction = _service.getPreTransactionByAuctionId(auctionId);
+      return true;
     } catch (e) {
-      _error = e.toString();
+      // Don't set error for "not found" - this is expected on first load
+      _currentPreTransaction = null;
+      return false;
     } finally {
       _isLoading = false;
       notifyListeners();
