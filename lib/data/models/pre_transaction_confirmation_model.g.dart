@@ -13,10 +13,6 @@ _PreTransactionConfirmation _$PreTransactionConfirmationFromJson(
   userId: json['userId'] as String,
   userName: json['userName'] as String,
   vehicleDetailsConfirmed: json['vehicleDetailsConfirmed'] as bool,
-  preferredPaymentMethod: $enumDecodeNullable(
-    _$PaymentMethodTypeEnumMap,
-    json['preferredPaymentMethod'],
-  ),
   deliveryDate: json['deliveryDate'] as String?,
   deliveryLocation: json['deliveryLocation'] as String?,
   uploadedDocuments:
@@ -36,20 +32,10 @@ Map<String, dynamic> _$PreTransactionConfirmationToJson(
   'userId': instance.userId,
   'userName': instance.userName,
   'vehicleDetailsConfirmed': instance.vehicleDetailsConfirmed,
-  'preferredPaymentMethod':
-      _$PaymentMethodTypeEnumMap[instance.preferredPaymentMethod],
   'deliveryDate': instance.deliveryDate,
   'deliveryLocation': instance.deliveryLocation,
   'uploadedDocuments': instance.uploadedDocuments,
   'termsAgreed': instance.termsAgreed,
   'confirmedAt': instance.confirmedAt.toIso8601String(),
   'notes': instance.notes,
-};
-
-const _$PaymentMethodTypeEnumMap = {
-  PaymentMethodType.gcash: 'gcash',
-  PaymentMethodType.paymaya: 'paymaya',
-  PaymentMethodType.bankTransfer: 'bank_transfer',
-  PaymentMethodType.cash: 'cash',
-  PaymentMethodType.card: 'card',
 };

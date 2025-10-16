@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$PreTransactionConfirmation {
 
- String get id; String get userId; String get userName; bool get vehicleDetailsConfirmed; PaymentMethodType? get preferredPaymentMethod; String? get deliveryDate; String? get deliveryLocation; List<String> get uploadedDocuments; bool get termsAgreed; DateTime get confirmedAt; String? get notes;
+ String get id; String get userId; String get userName; bool get vehicleDetailsConfirmed; String? get deliveryDate; String? get deliveryLocation; List<String> get uploadedDocuments; bool get termsAgreed; DateTime get confirmedAt; String? get notes;
 /// Create a copy of PreTransactionConfirmation
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $PreTransactionConfirmationCopyWith<PreTransactionConfirmation> get copyWith => 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PreTransactionConfirmation&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.userName, userName) || other.userName == userName)&&(identical(other.vehicleDetailsConfirmed, vehicleDetailsConfirmed) || other.vehicleDetailsConfirmed == vehicleDetailsConfirmed)&&(identical(other.preferredPaymentMethod, preferredPaymentMethod) || other.preferredPaymentMethod == preferredPaymentMethod)&&(identical(other.deliveryDate, deliveryDate) || other.deliveryDate == deliveryDate)&&(identical(other.deliveryLocation, deliveryLocation) || other.deliveryLocation == deliveryLocation)&&const DeepCollectionEquality().equals(other.uploadedDocuments, uploadedDocuments)&&(identical(other.termsAgreed, termsAgreed) || other.termsAgreed == termsAgreed)&&(identical(other.confirmedAt, confirmedAt) || other.confirmedAt == confirmedAt)&&(identical(other.notes, notes) || other.notes == notes));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PreTransactionConfirmation&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.userName, userName) || other.userName == userName)&&(identical(other.vehicleDetailsConfirmed, vehicleDetailsConfirmed) || other.vehicleDetailsConfirmed == vehicleDetailsConfirmed)&&(identical(other.deliveryDate, deliveryDate) || other.deliveryDate == deliveryDate)&&(identical(other.deliveryLocation, deliveryLocation) || other.deliveryLocation == deliveryLocation)&&const DeepCollectionEquality().equals(other.uploadedDocuments, uploadedDocuments)&&(identical(other.termsAgreed, termsAgreed) || other.termsAgreed == termsAgreed)&&(identical(other.confirmedAt, confirmedAt) || other.confirmedAt == confirmedAt)&&(identical(other.notes, notes) || other.notes == notes));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,userName,vehicleDetailsConfirmed,preferredPaymentMethod,deliveryDate,deliveryLocation,const DeepCollectionEquality().hash(uploadedDocuments),termsAgreed,confirmedAt,notes);
+int get hashCode => Object.hash(runtimeType,id,userId,userName,vehicleDetailsConfirmed,deliveryDate,deliveryLocation,const DeepCollectionEquality().hash(uploadedDocuments),termsAgreed,confirmedAt,notes);
 
 @override
 String toString() {
-  return 'PreTransactionConfirmation(id: $id, userId: $userId, userName: $userName, vehicleDetailsConfirmed: $vehicleDetailsConfirmed, preferredPaymentMethod: $preferredPaymentMethod, deliveryDate: $deliveryDate, deliveryLocation: $deliveryLocation, uploadedDocuments: $uploadedDocuments, termsAgreed: $termsAgreed, confirmedAt: $confirmedAt, notes: $notes)';
+  return 'PreTransactionConfirmation(id: $id, userId: $userId, userName: $userName, vehicleDetailsConfirmed: $vehicleDetailsConfirmed, deliveryDate: $deliveryDate, deliveryLocation: $deliveryLocation, uploadedDocuments: $uploadedDocuments, termsAgreed: $termsAgreed, confirmedAt: $confirmedAt, notes: $notes)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $PreTransactionConfirmationCopyWith<$Res>  {
   factory $PreTransactionConfirmationCopyWith(PreTransactionConfirmation value, $Res Function(PreTransactionConfirmation) _then) = _$PreTransactionConfirmationCopyWithImpl;
 @useResult
 $Res call({
- String id, String userId, String userName, bool vehicleDetailsConfirmed, PaymentMethodType? preferredPaymentMethod, String? deliveryDate, String? deliveryLocation, List<String> uploadedDocuments, bool termsAgreed, DateTime confirmedAt, String? notes
+ String id, String userId, String userName, bool vehicleDetailsConfirmed, String? deliveryDate, String? deliveryLocation, List<String> uploadedDocuments, bool termsAgreed, DateTime confirmedAt, String? notes
 });
 
 
@@ -65,14 +65,13 @@ class _$PreTransactionConfirmationCopyWithImpl<$Res>
 
 /// Create a copy of PreTransactionConfirmation
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? userName = null,Object? vehicleDetailsConfirmed = null,Object? preferredPaymentMethod = freezed,Object? deliveryDate = freezed,Object? deliveryLocation = freezed,Object? uploadedDocuments = null,Object? termsAgreed = null,Object? confirmedAt = null,Object? notes = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? userName = null,Object? vehicleDetailsConfirmed = null,Object? deliveryDate = freezed,Object? deliveryLocation = freezed,Object? uploadedDocuments = null,Object? termsAgreed = null,Object? confirmedAt = null,Object? notes = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,userName: null == userName ? _self.userName : userName // ignore: cast_nullable_to_non_nullable
 as String,vehicleDetailsConfirmed: null == vehicleDetailsConfirmed ? _self.vehicleDetailsConfirmed : vehicleDetailsConfirmed // ignore: cast_nullable_to_non_nullable
-as bool,preferredPaymentMethod: freezed == preferredPaymentMethod ? _self.preferredPaymentMethod : preferredPaymentMethod // ignore: cast_nullable_to_non_nullable
-as PaymentMethodType?,deliveryDate: freezed == deliveryDate ? _self.deliveryDate : deliveryDate // ignore: cast_nullable_to_non_nullable
+as bool,deliveryDate: freezed == deliveryDate ? _self.deliveryDate : deliveryDate // ignore: cast_nullable_to_non_nullable
 as String?,deliveryLocation: freezed == deliveryLocation ? _self.deliveryLocation : deliveryLocation // ignore: cast_nullable_to_non_nullable
 as String?,uploadedDocuments: null == uploadedDocuments ? _self.uploadedDocuments : uploadedDocuments // ignore: cast_nullable_to_non_nullable
 as List<String>,termsAgreed: null == termsAgreed ? _self.termsAgreed : termsAgreed // ignore: cast_nullable_to_non_nullable
@@ -163,10 +162,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String userId,  String userName,  bool vehicleDetailsConfirmed,  PaymentMethodType? preferredPaymentMethod,  String? deliveryDate,  String? deliveryLocation,  List<String> uploadedDocuments,  bool termsAgreed,  DateTime confirmedAt,  String? notes)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String userId,  String userName,  bool vehicleDetailsConfirmed,  String? deliveryDate,  String? deliveryLocation,  List<String> uploadedDocuments,  bool termsAgreed,  DateTime confirmedAt,  String? notes)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PreTransactionConfirmation() when $default != null:
-return $default(_that.id,_that.userId,_that.userName,_that.vehicleDetailsConfirmed,_that.preferredPaymentMethod,_that.deliveryDate,_that.deliveryLocation,_that.uploadedDocuments,_that.termsAgreed,_that.confirmedAt,_that.notes);case _:
+return $default(_that.id,_that.userId,_that.userName,_that.vehicleDetailsConfirmed,_that.deliveryDate,_that.deliveryLocation,_that.uploadedDocuments,_that.termsAgreed,_that.confirmedAt,_that.notes);case _:
   return orElse();
 
 }
@@ -184,10 +183,10 @@ return $default(_that.id,_that.userId,_that.userName,_that.vehicleDetailsConfirm
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String userId,  String userName,  bool vehicleDetailsConfirmed,  PaymentMethodType? preferredPaymentMethod,  String? deliveryDate,  String? deliveryLocation,  List<String> uploadedDocuments,  bool termsAgreed,  DateTime confirmedAt,  String? notes)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String userId,  String userName,  bool vehicleDetailsConfirmed,  String? deliveryDate,  String? deliveryLocation,  List<String> uploadedDocuments,  bool termsAgreed,  DateTime confirmedAt,  String? notes)  $default,) {final _that = this;
 switch (_that) {
 case _PreTransactionConfirmation():
-return $default(_that.id,_that.userId,_that.userName,_that.vehicleDetailsConfirmed,_that.preferredPaymentMethod,_that.deliveryDate,_that.deliveryLocation,_that.uploadedDocuments,_that.termsAgreed,_that.confirmedAt,_that.notes);case _:
+return $default(_that.id,_that.userId,_that.userName,_that.vehicleDetailsConfirmed,_that.deliveryDate,_that.deliveryLocation,_that.uploadedDocuments,_that.termsAgreed,_that.confirmedAt,_that.notes);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -204,10 +203,10 @@ return $default(_that.id,_that.userId,_that.userName,_that.vehicleDetailsConfirm
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String userId,  String userName,  bool vehicleDetailsConfirmed,  PaymentMethodType? preferredPaymentMethod,  String? deliveryDate,  String? deliveryLocation,  List<String> uploadedDocuments,  bool termsAgreed,  DateTime confirmedAt,  String? notes)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String userId,  String userName,  bool vehicleDetailsConfirmed,  String? deliveryDate,  String? deliveryLocation,  List<String> uploadedDocuments,  bool termsAgreed,  DateTime confirmedAt,  String? notes)?  $default,) {final _that = this;
 switch (_that) {
 case _PreTransactionConfirmation() when $default != null:
-return $default(_that.id,_that.userId,_that.userName,_that.vehicleDetailsConfirmed,_that.preferredPaymentMethod,_that.deliveryDate,_that.deliveryLocation,_that.uploadedDocuments,_that.termsAgreed,_that.confirmedAt,_that.notes);case _:
+return $default(_that.id,_that.userId,_that.userName,_that.vehicleDetailsConfirmed,_that.deliveryDate,_that.deliveryLocation,_that.uploadedDocuments,_that.termsAgreed,_that.confirmedAt,_that.notes);case _:
   return null;
 
 }
@@ -219,14 +218,13 @@ return $default(_that.id,_that.userId,_that.userName,_that.vehicleDetailsConfirm
 @JsonSerializable()
 
 class _PreTransactionConfirmation implements PreTransactionConfirmation {
-  const _PreTransactionConfirmation({required this.id, required this.userId, required this.userName, required this.vehicleDetailsConfirmed, this.preferredPaymentMethod, this.deliveryDate, this.deliveryLocation, final  List<String> uploadedDocuments = const [], required this.termsAgreed, required this.confirmedAt, this.notes}): _uploadedDocuments = uploadedDocuments;
+  const _PreTransactionConfirmation({required this.id, required this.userId, required this.userName, required this.vehicleDetailsConfirmed, this.deliveryDate, this.deliveryLocation, final  List<String> uploadedDocuments = const [], required this.termsAgreed, required this.confirmedAt, this.notes}): _uploadedDocuments = uploadedDocuments;
   factory _PreTransactionConfirmation.fromJson(Map<String, dynamic> json) => _$PreTransactionConfirmationFromJson(json);
 
 @override final  String id;
 @override final  String userId;
 @override final  String userName;
 @override final  bool vehicleDetailsConfirmed;
-@override final  PaymentMethodType? preferredPaymentMethod;
 @override final  String? deliveryDate;
 @override final  String? deliveryLocation;
  final  List<String> _uploadedDocuments;
@@ -253,16 +251,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PreTransactionConfirmation&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.userName, userName) || other.userName == userName)&&(identical(other.vehicleDetailsConfirmed, vehicleDetailsConfirmed) || other.vehicleDetailsConfirmed == vehicleDetailsConfirmed)&&(identical(other.preferredPaymentMethod, preferredPaymentMethod) || other.preferredPaymentMethod == preferredPaymentMethod)&&(identical(other.deliveryDate, deliveryDate) || other.deliveryDate == deliveryDate)&&(identical(other.deliveryLocation, deliveryLocation) || other.deliveryLocation == deliveryLocation)&&const DeepCollectionEquality().equals(other._uploadedDocuments, _uploadedDocuments)&&(identical(other.termsAgreed, termsAgreed) || other.termsAgreed == termsAgreed)&&(identical(other.confirmedAt, confirmedAt) || other.confirmedAt == confirmedAt)&&(identical(other.notes, notes) || other.notes == notes));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PreTransactionConfirmation&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.userName, userName) || other.userName == userName)&&(identical(other.vehicleDetailsConfirmed, vehicleDetailsConfirmed) || other.vehicleDetailsConfirmed == vehicleDetailsConfirmed)&&(identical(other.deliveryDate, deliveryDate) || other.deliveryDate == deliveryDate)&&(identical(other.deliveryLocation, deliveryLocation) || other.deliveryLocation == deliveryLocation)&&const DeepCollectionEquality().equals(other._uploadedDocuments, _uploadedDocuments)&&(identical(other.termsAgreed, termsAgreed) || other.termsAgreed == termsAgreed)&&(identical(other.confirmedAt, confirmedAt) || other.confirmedAt == confirmedAt)&&(identical(other.notes, notes) || other.notes == notes));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,userName,vehicleDetailsConfirmed,preferredPaymentMethod,deliveryDate,deliveryLocation,const DeepCollectionEquality().hash(_uploadedDocuments),termsAgreed,confirmedAt,notes);
+int get hashCode => Object.hash(runtimeType,id,userId,userName,vehicleDetailsConfirmed,deliveryDate,deliveryLocation,const DeepCollectionEquality().hash(_uploadedDocuments),termsAgreed,confirmedAt,notes);
 
 @override
 String toString() {
-  return 'PreTransactionConfirmation(id: $id, userId: $userId, userName: $userName, vehicleDetailsConfirmed: $vehicleDetailsConfirmed, preferredPaymentMethod: $preferredPaymentMethod, deliveryDate: $deliveryDate, deliveryLocation: $deliveryLocation, uploadedDocuments: $uploadedDocuments, termsAgreed: $termsAgreed, confirmedAt: $confirmedAt, notes: $notes)';
+  return 'PreTransactionConfirmation(id: $id, userId: $userId, userName: $userName, vehicleDetailsConfirmed: $vehicleDetailsConfirmed, deliveryDate: $deliveryDate, deliveryLocation: $deliveryLocation, uploadedDocuments: $uploadedDocuments, termsAgreed: $termsAgreed, confirmedAt: $confirmedAt, notes: $notes)';
 }
 
 
@@ -273,7 +271,7 @@ abstract mixin class _$PreTransactionConfirmationCopyWith<$Res> implements $PreT
   factory _$PreTransactionConfirmationCopyWith(_PreTransactionConfirmation value, $Res Function(_PreTransactionConfirmation) _then) = __$PreTransactionConfirmationCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String userId, String userName, bool vehicleDetailsConfirmed, PaymentMethodType? preferredPaymentMethod, String? deliveryDate, String? deliveryLocation, List<String> uploadedDocuments, bool termsAgreed, DateTime confirmedAt, String? notes
+ String id, String userId, String userName, bool vehicleDetailsConfirmed, String? deliveryDate, String? deliveryLocation, List<String> uploadedDocuments, bool termsAgreed, DateTime confirmedAt, String? notes
 });
 
 
@@ -290,14 +288,13 @@ class __$PreTransactionConfirmationCopyWithImpl<$Res>
 
 /// Create a copy of PreTransactionConfirmation
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? userName = null,Object? vehicleDetailsConfirmed = null,Object? preferredPaymentMethod = freezed,Object? deliveryDate = freezed,Object? deliveryLocation = freezed,Object? uploadedDocuments = null,Object? termsAgreed = null,Object? confirmedAt = null,Object? notes = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? userName = null,Object? vehicleDetailsConfirmed = null,Object? deliveryDate = freezed,Object? deliveryLocation = freezed,Object? uploadedDocuments = null,Object? termsAgreed = null,Object? confirmedAt = null,Object? notes = freezed,}) {
   return _then(_PreTransactionConfirmation(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,userName: null == userName ? _self.userName : userName // ignore: cast_nullable_to_non_nullable
 as String,vehicleDetailsConfirmed: null == vehicleDetailsConfirmed ? _self.vehicleDetailsConfirmed : vehicleDetailsConfirmed // ignore: cast_nullable_to_non_nullable
-as bool,preferredPaymentMethod: freezed == preferredPaymentMethod ? _self.preferredPaymentMethod : preferredPaymentMethod // ignore: cast_nullable_to_non_nullable
-as PaymentMethodType?,deliveryDate: freezed == deliveryDate ? _self.deliveryDate : deliveryDate // ignore: cast_nullable_to_non_nullable
+as bool,deliveryDate: freezed == deliveryDate ? _self.deliveryDate : deliveryDate // ignore: cast_nullable_to_non_nullable
 as String?,deliveryLocation: freezed == deliveryLocation ? _self.deliveryLocation : deliveryLocation // ignore: cast_nullable_to_non_nullable
 as String?,uploadedDocuments: null == uploadedDocuments ? _self._uploadedDocuments : uploadedDocuments // ignore: cast_nullable_to_non_nullable
 as List<String>,termsAgreed: null == termsAgreed ? _self.termsAgreed : termsAgreed // ignore: cast_nullable_to_non_nullable

@@ -49,6 +49,13 @@ _PreTransaction _$PreTransactionFromJson(Map<String, dynamic> json) =>
       mutualConfirmationAt: json['mutualConfirmationAt'] == null
           ? null
           : DateTime.parse(json['mutualConfirmationAt'] as String),
+      adminReviewStartedAt: json['adminReviewStartedAt'] == null
+          ? null
+          : DateTime.parse(json['adminReviewStartedAt'] as String),
+      adminReviewCompletedAt: json['adminReviewCompletedAt'] == null
+          ? null
+          : DateTime.parse(json['adminReviewCompletedAt'] as String),
+      adminReviewNotes: json['adminReviewNotes'] as String?,
       readyForPaymentAt: json['readyForPaymentAt'] == null
           ? null
           : DateTime.parse(json['readyForPaymentAt'] as String),
@@ -58,30 +65,34 @@ _PreTransaction _$PreTransactionFromJson(Map<String, dynamic> json) =>
           : DateTime.parse(json['cancelledAt'] as String),
     );
 
-Map<String, dynamic> _$PreTransactionToJson(_PreTransaction instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'auctionId': instance.auctionId,
-      'carId': instance.carId,
-      'carTitle': instance.carTitle,
-      'buyerId': instance.buyerId,
-      'sellerId': instance.sellerId,
-      'buyerName': instance.buyerName,
-      'sellerName': instance.sellerName,
-      'finalBidAmount': instance.finalBidAmount,
-      'status': _$PreTransactionStatusEnumMap[instance.status]!,
-      'messages': instance.messages,
-      'buyerConfirmation': instance.buyerConfirmation,
-      'sellerConfirmation': instance.sellerConfirmation,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'discussionStartedAt': instance.discussionStartedAt?.toIso8601String(),
-      'buyerConfirmedAt': instance.buyerConfirmedAt?.toIso8601String(),
-      'sellerConfirmedAt': instance.sellerConfirmedAt?.toIso8601String(),
-      'mutualConfirmationAt': instance.mutualConfirmationAt?.toIso8601String(),
-      'readyForPaymentAt': instance.readyForPaymentAt?.toIso8601String(),
-      'cancellationReason': instance.cancellationReason,
-      'cancelledAt': instance.cancelledAt?.toIso8601String(),
-    };
+Map<String, dynamic> _$PreTransactionToJson(
+  _PreTransaction instance,
+) => <String, dynamic>{
+  'id': instance.id,
+  'auctionId': instance.auctionId,
+  'carId': instance.carId,
+  'carTitle': instance.carTitle,
+  'buyerId': instance.buyerId,
+  'sellerId': instance.sellerId,
+  'buyerName': instance.buyerName,
+  'sellerName': instance.sellerName,
+  'finalBidAmount': instance.finalBidAmount,
+  'status': _$PreTransactionStatusEnumMap[instance.status]!,
+  'messages': instance.messages,
+  'buyerConfirmation': instance.buyerConfirmation,
+  'sellerConfirmation': instance.sellerConfirmation,
+  'createdAt': instance.createdAt.toIso8601String(),
+  'discussionStartedAt': instance.discussionStartedAt?.toIso8601String(),
+  'buyerConfirmedAt': instance.buyerConfirmedAt?.toIso8601String(),
+  'sellerConfirmedAt': instance.sellerConfirmedAt?.toIso8601String(),
+  'mutualConfirmationAt': instance.mutualConfirmationAt?.toIso8601String(),
+  'adminReviewStartedAt': instance.adminReviewStartedAt?.toIso8601String(),
+  'adminReviewCompletedAt': instance.adminReviewCompletedAt?.toIso8601String(),
+  'adminReviewNotes': instance.adminReviewNotes,
+  'readyForPaymentAt': instance.readyForPaymentAt?.toIso8601String(),
+  'cancellationReason': instance.cancellationReason,
+  'cancelledAt': instance.cancelledAt?.toIso8601String(),
+};
 
 const _$PreTransactionStatusEnumMap = {
   PreTransactionStatus.pendingDiscussion: 'pending_discussion',
@@ -90,6 +101,8 @@ const _$PreTransactionStatusEnumMap = {
   PreTransactionStatus.pendingSellerConfirmation: 'pending_seller_confirmation',
   PreTransactionStatus.pendingMutualConfirmation: 'pending_mutual_confirmation',
   PreTransactionStatus.confirmed: 'confirmed',
+  PreTransactionStatus.pendingAdminReview: 'pending_admin_review',
+  PreTransactionStatus.adminApproved: 'admin_approved',
   PreTransactionStatus.readyForPayment: 'ready_for_payment',
   PreTransactionStatus.cancelled: 'cancelled',
 };
