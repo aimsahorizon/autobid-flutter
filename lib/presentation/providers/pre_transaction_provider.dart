@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../../data/models/pre_transaction_model.dart';
 import '../../data/models/pre_transaction_message_model.dart';
-import '../../data/models/transaction_model.dart';
 import '../../data/services/mock/mock_pre_transaction_service.dart';
 
 class PreTransactionProvider with ChangeNotifier {
@@ -158,7 +157,6 @@ class PreTransactionProvider with ChangeNotifier {
     required String buyerId,
     required String buyerName,
     required bool vehicleDetailsConfirmed,
-    PaymentMethodType? preferredPaymentMethod,
     String? deliveryDate,
     String? deliveryLocation,
     List<String> uploadedDocuments = const [],
@@ -177,7 +175,6 @@ class PreTransactionProvider with ChangeNotifier {
         buyerId: buyerId,
         buyerName: buyerName,
         vehicleDetailsConfirmed: vehicleDetailsConfirmed,
-        preferredPaymentMethod: preferredPaymentMethod,
         deliveryDate: deliveryDate,
         deliveryLocation: deliveryLocation,
         uploadedDocuments: uploadedDocuments,
