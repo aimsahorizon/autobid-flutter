@@ -31,7 +31,8 @@ class _PreTransactionStatusScreenState extends State<PreTransactionStatusScreen>
   }
 
   Future<void> _loadPreTransaction() async {
-    await context.read<PreTransactionProvider>().loadPreTransactionByAuctionId(widget.auctionId);
+    final provider = context.read<PreTransactionProvider>();
+    await provider.loadPreTransactionByAuctionId(widget.auctionId);
   }
 
   @override
