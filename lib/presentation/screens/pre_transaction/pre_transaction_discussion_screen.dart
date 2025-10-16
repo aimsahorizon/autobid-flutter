@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../providers/pre_transaction_provider.dart';
 import '../../../data/models/pre_transaction_message_model.dart';
 import '../../../core/constants/color_constants.dart';
@@ -25,7 +26,16 @@ class PreTransactionDiscussionScreen extends StatefulWidget {
 class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussionScreen> {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
+  final _deliveryLocationController = TextEditingController();
+  final _notesController = TextEditingController();
+  final _picker = ImagePicker();
+
   bool _isInitialized = false;
+  bool _vehicleDetailsConfirmed = false;
+  DateTime? _selectedDeliveryDate;
+  bool _termsAgreed = false;
+  final List<String> _uploadedDocuments = [];
+  bool _showReview = false;
 
   @override
   void initState() {
@@ -75,6 +85,8 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
+    _deliveryLocationController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -165,11 +177,21 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
                       child: _buildMessageList(preTransaction.messages),
                     ),
                     _buildInputField(),
-                    _buildProceedButton(provider),
                   ],
                 );
               },
             ),
+      floatingActionButton: Consumer<PreTransactionProvider>(
+        builder: (context, provider, child) {
+          return FloatingActionButton.extended(
+            onPressed: () => _showConfirmationBottomSheet(provider),
+            icon: const Icon(Icons.description),
+            label: const Text('Transaction Details'),
+            backgroundColor: ColorConstants.primaryGreen,
+            foregroundColor: Colors.white,
+          );
+        },
+      ),
     );
   }
 
@@ -369,48 +391,383 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
     );
   }
 
-  Widget _buildProceedButton(PreTransactionProvider provider) {
-    final isReadyToProceed = provider.currentPreTransaction != null &&
-        provider.currentPreTransaction!.messages.length >= 2;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
+  void _showConfirmationBottomSheet(PreTransactionProvider provider) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: SizedBox(
-        width: double.infinity,
-        height: 50,
-        child: ElevatedButton.icon(
-          onPressed: isReadyToProceed
-              ? () {
-                  context.push(
-                    '/preTransactionForm/${widget.auctionId}?carTitle=${Uri.encodeComponent(widget.carTitle)}&winningBid=${widget.winningBid}',
-                  );
-                }
-              : null,
-          icon: const Icon(Icons.check_circle),
-          label: const Text(
-            'Proceed to Confirmation',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.9,
+        maxChildSize: 0.95,
+        minChildSize: 0.5,
+        expand: false,
+        builder: (context, scrollController) {
+          return _showReview
+              ? _buildReviewSheet(scrollController, provider)
+              : _buildConfirmationFormSheet(scrollController);
+        },
+      ),
+    );
+  }
+
+  Widget _buildConfirmationFormSheet(ScrollController scrollController) {
+    return SingleChildScrollView(
+      controller: scrollController,
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+        left: 16,
+        right: 16,
+        top: 16,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Handle
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
           ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: ColorConstants.primaryGreen,
-            foregroundColor: Colors.white,
+          const Text(
+            'Transaction Details',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 24),
+
+          // Vehicle Confirmation
+          CheckboxListTile(
+            value: _vehicleDetailsConfirmed,
+            onChanged: (value) {
+              setState(() {
+                _vehicleDetailsConfirmed = value ?? false;
+              });
+            },
+            title: const Text('I confirm the vehicle details as discussed'),
+            subtitle: const Text(
+              'I have reviewed the vehicle condition and specs',
+              style: TextStyle(fontSize: 12),
+            ),
+            controlAffinity: ListTileControlAffinity.leading,
+          ),
+          const SizedBox(height: 16),
+
+          // Delivery Date
+          ListTile(
+            leading: const Icon(Icons.calendar_today),
+            title: const Text('Delivery Date'),
+            subtitle: Text(
+              _selectedDeliveryDate != null
+                  ? DateFormat('MMMM dd, yyyy').format(_selectedDeliveryDate!)
+                  : 'Select delivery date',
+            ),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: _selectDeliveryDate,
+            tileColor: Colors.grey[50],
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-        ),
+          const SizedBox(height: 16),
+
+          // Delivery Location
+          TextFormField(
+            controller: _deliveryLocationController,
+            decoration: const InputDecoration(
+              labelText: 'Delivery Location',
+              hintText: 'Enter complete address',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.location_on),
+            ),
+            maxLines: 2,
+          ),
+          const SizedBox(height: 16),
+
+          // Upload Documents
+          OutlinedButton.icon(
+            onPressed: _pickDocument,
+            icon: const Icon(Icons.upload_file),
+            label: const Text('Upload ID / Proof of Address (Optional)'),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 48),
+            ),
+          ),
+          if (_uploadedDocuments.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            ...(_uploadedDocuments.map((doc) {
+              final index = _uploadedDocuments.indexOf(doc);
+              return ListTile(
+                leading: const Icon(Icons.insert_drive_file, color: ColorConstants.primaryGreen),
+                title: Text('Document ${index + 1}'),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () {
+                    setState(() {
+                      _uploadedDocuments.removeAt(index);
+                    });
+                  },
+                ),
+                tileColor: Colors.grey[50],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              );
+            }).toList()),
+          ],
+          const SizedBox(height: 16),
+
+          // Notes
+          TextFormField(
+            controller: _notesController,
+            decoration: const InputDecoration(
+              labelText: 'Additional Notes (Optional)',
+              hintText: 'Any special instructions...',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.note),
+            ),
+            maxLines: 3,
+          ),
+          const SizedBox(height: 16),
+
+          // Terms
+          CheckboxListTile(
+            value: _termsAgreed,
+            onChanged: (value) {
+              setState(() {
+                _termsAgreed = value ?? false;
+              });
+            },
+            controlAffinity: ListTileControlAffinity.leading,
+            title: const Text(
+              'I agree to the platform terms and conditions',
+              style: TextStyle(fontSize: 14),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Review Button
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton(
+              onPressed: _canProceedToReview() ? () {
+                setState(() {
+                  _showReview = true;
+                });
+                Navigator.pop(context);
+                _showConfirmationBottomSheet(context.read<PreTransactionProvider>());
+              } : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ColorConstants.primaryGreen,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Review Details', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
       ),
     );
+  }
+
+  Widget _buildReviewSheet(ScrollController scrollController, PreTransactionProvider provider) {
+    return SingleChildScrollView(
+      controller: scrollController,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Handle
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const Text(
+            'Review & Confirm',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 24),
+
+          _buildReviewItem('Vehicle Details', _vehicleDetailsConfirmed ? 'Confirmed' : 'Not confirmed'),
+          _buildReviewItem('Delivery Date', _selectedDeliveryDate != null
+              ? DateFormat('MMMM dd, yyyy').format(_selectedDeliveryDate!)
+              : 'Not set'),
+          _buildReviewItem('Delivery Location', _deliveryLocationController.text.isEmpty
+              ? 'Not set'
+              : _deliveryLocationController.text),
+          _buildReviewItem('Documents Uploaded', '${_uploadedDocuments.length} file(s)'),
+          if (_notesController.text.isNotEmpty)
+            _buildReviewItem('Notes', _notesController.text),
+
+          const SizedBox(height: 24),
+
+          // Back and Confirm buttons
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () {
+                    setState(() {
+                      _showReview = false;
+                    });
+                    Navigator.pop(context);
+                    _showConfirmationBottomSheet(provider);
+                  },
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                  child: const Text('Back'),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                flex: 2,
+                child: ElevatedButton(
+                  onPressed: provider.isLoading ? null : () => _submitConfirmation(provider),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: ColorConstants.primaryGreen,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                  child: Text(
+                    provider.isLoading ? 'Submitting...' : 'Confirm',
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReviewItem(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  bool _canProceedToReview() {
+    return _vehicleDetailsConfirmed &&
+        _selectedDeliveryDate != null &&
+        _deliveryLocationController.text.isNotEmpty &&
+        _termsAgreed;
+  }
+
+  Future<void> _selectDeliveryDate() async {
+    final now = DateTime.now();
+    final firstDate = now.add(const Duration(days: 1));
+    final lastDate = now.add(const Duration(days: 60));
+
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: firstDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedDeliveryDate = picked;
+      });
+    }
+  }
+
+  Future<void> _pickDocument() async {
+    final image = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
+
+    if (image != null) {
+      setState(() {
+        _uploadedDocuments.add(image.path);
+      });
+    }
+  }
+
+  Future<void> _submitConfirmation(PreTransactionProvider provider) async {
+    final success = await provider.submitBuyerConfirmation(
+      buyerId: 'user123',
+      buyerName: 'Juan Dela Cruz',
+      vehicleDetailsConfirmed: _vehicleDetailsConfirmed,
+      deliveryDate: DateFormat('yyyy-MM-dd').format(_selectedDeliveryDate!),
+      deliveryLocation: _deliveryLocationController.text.trim(),
+      uploadedDocuments: _uploadedDocuments,
+      termsAgreed: _termsAgreed,
+      notes: _notesController.text.trim(),
+    );
+
+    if (!mounted) return;
+
+    if (success) {
+      Navigator.pop(context);
+      setState(() {
+        _showReview = false;
+        _vehicleDetailsConfirmed = false;
+        _selectedDeliveryDate = null;
+        _deliveryLocationController.clear();
+        _notesController.clear();
+        _uploadedDocuments.clear();
+        _termsAgreed = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Confirmation submitted! Waiting for seller...'),
+          backgroundColor: ColorConstants.primaryGreen,
+        ),
+      );
+
+      // Navigate to status screen
+      context.pushReplacement(
+        '/preTransactionStatus/${widget.auctionId}?carTitle=${Uri.encodeComponent(widget.carTitle)}&winningBid=${widget.winningBid}',
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(provider.error ?? 'Failed to submit confirmation'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _showInfoDialog() {
