@@ -3,7 +3,6 @@ import 'package:uuid/uuid.dart';
 import '../../models/pre_transaction_model.dart';
 import '../../models/pre_transaction_message_model.dart';
 import '../../models/pre_transaction_confirmation_model.dart';
-import '../../models/transaction_model.dart';
 
 class MockPreTransactionService {
   final _uuid = const Uuid();
@@ -129,7 +128,6 @@ class MockPreTransactionService {
     required String buyerId,
     required String buyerName,
     required bool vehicleDetailsConfirmed,
-    PaymentMethodType? preferredPaymentMethod,
     String? deliveryDate,
     String? deliveryLocation,
     List<String> uploadedDocuments = const [],
@@ -148,7 +146,6 @@ class MockPreTransactionService {
       userId: buyerId,
       userName: buyerName,
       vehicleDetailsConfirmed: vehicleDetailsConfirmed,
-      preferredPaymentMethod: preferredPaymentMethod,
       deliveryDate: deliveryDate,
       deliveryLocation: deliveryLocation,
       uploadedDocuments: uploadedDocuments,
@@ -217,7 +214,7 @@ class MockPreTransactionService {
         sender: MessageSender.system,
         senderName: 'System',
         type: MessageType.system,
-        content: 'Both parties have confirmed! You can now proceed to payment.',
+        content: 'Both parties have confirmed! Submitting to admin for review...',
         timestamp: now,
       ),
     ];
@@ -226,7 +223,44 @@ class MockPreTransactionService {
       sellerConfirmation: confirmation,
       sellerConfirmedAt: now,
       mutualConfirmationAt: now,
+      status: PreTransactionStatus.pendingAdminReview,
+      adminReviewStartedAt: now,
+      messages: updatedMessages,
+    );
+
+    _notifyListeners();
+
+    // Simulate admin review after seller confirmation
+    _simulateAdminReview(preTransactionId);
+  }
+
+  /// Simulate admin review (for demo purposes)
+  Future<void> _simulateAdminReview(String preTransactionId) async {
+    await Future.delayed(const Duration(seconds: 8)); // Admin review takes 8 seconds
+
+    final preTransaction = _preTransactions[preTransactionId];
+    if (preTransaction == null || preTransaction.status != PreTransactionStatus.pendingAdminReview) {
+      return;
+    }
+
+    final now = DateTime.now();
+    final updatedMessages = [
+      ...preTransaction.messages,
+      PreTransactionMessage(
+        id: _uuid.v4(),
+        preTransactionId: preTransactionId,
+        sender: MessageSender.system,
+        senderName: 'System',
+        type: MessageType.system,
+        content: 'Admin review completed! Transaction approved. You can now proceed to payment.',
+        timestamp: now,
+      ),
+    ];
+
+    _preTransactions[preTransactionId] = preTransaction.copyWith(
       status: PreTransactionStatus.readyForPayment,
+      adminReviewCompletedAt: now,
+      adminReviewNotes: 'Transaction details verified and approved by admin.',
       readyForPaymentAt: now,
       messages: updatedMessages,
     );
