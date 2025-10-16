@@ -109,7 +109,6 @@ class _PreTransactionConfirmationFormScreenState
       buyerId: 'user123', // Mock buyer ID
       buyerName: 'Juan Dela Cruz',
       vehicleDetailsConfirmed: _vehicleDetailsConfirmed,
-      preferredPaymentMethod: _selectedPaymentMethod,
       deliveryDate: DateFormat('yyyy-MM-dd').format(_selectedDeliveryDate!),
       deliveryLocation: _deliveryLocationController.text.trim(),
       uploadedDocuments: _uploadedDocuments,
