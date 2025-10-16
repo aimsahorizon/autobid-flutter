@@ -137,7 +137,8 @@ class _PreTransactionStatusScreenState extends State<PreTransactionStatusScreen>
     final steps = [
       _StepInfo('Auction Ended', true, Icons.gavel),
       _StepInfo('Discussion', preTransaction.discussionStartedAt != null, Icons.chat),
-      _StepInfo('Confirmed', preTransaction.buyerConfirmedAt != null, Icons.check_circle),
+      _StepInfo('Confirmed', preTransaction.buyerConfirmedAt != null && preTransaction.sellerConfirmedAt != null, Icons.check_circle),
+      _StepInfo('Admin Review', preTransaction.adminReviewCompletedAt != null, Icons.admin_panel_settings),
       _StepInfo('Ready for Payment', preTransaction.status == PreTransactionStatus.readyForPayment, Icons.payment),
     ];
 
@@ -214,6 +215,7 @@ class _PreTransactionStatusScreenState extends State<PreTransactionStatusScreen>
 
   Widget _buildStatusCard(PreTransaction preTransaction) {
     final isWaitingForSeller = preTransaction.status == PreTransactionStatus.pendingSellerConfirmation;
+    final isAdminReview = preTransaction.status == PreTransactionStatus.pendingAdminReview;
     final isReady = preTransaction.status == PreTransactionStatus.readyForPayment;
 
     Color statusColor;
@@ -224,8 +226,13 @@ class _PreTransactionStatusScreenState extends State<PreTransactionStatusScreen>
     if (isReady) {
       statusColor = ColorConstants.primaryGreen;
       statusIcon = Icons.check_circle;
-      statusText = 'Both Parties Confirmed';
-      statusMessage = 'You can now proceed to payment';
+      statusText = 'Admin Approved';
+      statusMessage = 'Transaction approved! You can now proceed to payment';
+    } else if (isAdminReview) {
+      statusColor = Colors.orange;
+      statusIcon = Icons.admin_panel_settings;
+      statusText = 'Under Admin Review';
+      statusMessage = 'Admin is verifying transaction details... (simulated delay: 8s)';
     } else if (isWaitingForSeller) {
       statusColor = Colors.amber;
       statusIcon = Icons.hourglass_empty;
@@ -303,7 +310,6 @@ class _PreTransactionStatusScreenState extends State<PreTransactionStatusScreen>
                   ? [
                       'Delivery: ${buyerConfirmation.deliveryDate ?? 'Not specified'}',
                       'Location: ${buyerConfirmation.deliveryLocation ?? 'Not specified'}',
-                      'Payment: ${_getPaymentMethodName(buyerConfirmation.preferredPaymentMethod)}',
                     ]
                   : null,
             ),
@@ -319,6 +325,20 @@ class _PreTransactionStatusScreenState extends State<PreTransactionStatusScreen>
                     ]
                   : null,
             ),
+            if (preTransaction.adminReviewNotes != null) ...[
+              const Divider(height: 24),
+              _buildConfirmationTile(
+                title: 'Admin Review',
+                isConfirmed: preTransaction.adminReviewCompletedAt != null,
+                confirmedAt: preTransaction.adminReviewCompletedAt,
+                details: preTransaction.adminReviewCompletedAt != null
+                    ? [
+                        'Reviewed at: ${DateFormat('MMM d, yyyy h:mm a').format(preTransaction.adminReviewCompletedAt!)}',
+                        'Notes: ${preTransaction.adminReviewNotes}',
+                      ]
+                    : null,
+              ),
+            ],
           ],
         ),
       ),
@@ -406,11 +426,6 @@ class _PreTransactionStatusScreenState extends State<PreTransactionStatusScreen>
         ),
       ],
     );
-  }
-
-  String _getPaymentMethodName(dynamic paymentMethod) {
-    if (paymentMethod == null) return 'Not specified';
-    return paymentMethod.toString().split('.').last.replaceAll('_', ' ').toUpperCase();
   }
 
   String _formatCurrency(double amount) {
