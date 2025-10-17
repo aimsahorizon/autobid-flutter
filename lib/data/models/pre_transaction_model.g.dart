@@ -6,6 +6,35 @@ part of 'pre_transaction_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+_EditRequest _$EditRequestFromJson(Map<String, dynamic> json) => _EditRequest(
+  id: json['id'] as String,
+  requestedBy: json['requestedBy'] as String,
+  requestedFrom: json['requestedFrom'] as String,
+  field: json['field'] as String,
+  currentValue: json['currentValue'] as String,
+  requestedValue: json['requestedValue'] as String,
+  reason: json['reason'] as String,
+  requestedAt: DateTime.parse(json['requestedAt'] as String),
+  resolved: json['resolved'] as bool? ?? false,
+  resolvedAt: json['resolvedAt'] == null
+      ? null
+      : DateTime.parse(json['resolvedAt'] as String),
+);
+
+Map<String, dynamic> _$EditRequestToJson(_EditRequest instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'requestedBy': instance.requestedBy,
+      'requestedFrom': instance.requestedFrom,
+      'field': instance.field,
+      'currentValue': instance.currentValue,
+      'requestedValue': instance.requestedValue,
+      'reason': instance.reason,
+      'requestedAt': instance.requestedAt.toIso8601String(),
+      'resolved': instance.resolved,
+      'resolvedAt': instance.resolvedAt?.toIso8601String(),
+    };
+
 _PreTransaction _$PreTransactionFromJson(Map<String, dynamic> json) =>
     _PreTransaction(
       id: json['id'] as String,
@@ -46,6 +75,21 @@ _PreTransaction _$PreTransactionFromJson(Map<String, dynamic> json) =>
       sellerConfirmedAt: json['sellerConfirmedAt'] == null
           ? null
           : DateTime.parse(json['sellerConfirmedAt'] as String),
+      mutualReviewStartedAt: json['mutualReviewStartedAt'] == null
+          ? null
+          : DateTime.parse(json['mutualReviewStartedAt'] as String),
+      buyerMutualReviewApproved:
+          json['buyerMutualReviewApproved'] as bool? ?? false,
+      sellerMutualReviewApproved:
+          json['sellerMutualReviewApproved'] as bool? ?? false,
+      editRequests:
+          (json['editRequests'] as List<dynamic>?)
+              ?.map((e) => EditRequest.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      mutualReviewCompletedAt: json['mutualReviewCompletedAt'] == null
+          ? null
+          : DateTime.parse(json['mutualReviewCompletedAt'] as String),
       mutualConfirmationAt: json['mutualConfirmationAt'] == null
           ? null
           : DateTime.parse(json['mutualConfirmationAt'] as String),
@@ -85,6 +129,12 @@ Map<String, dynamic> _$PreTransactionToJson(
   'discussionStartedAt': instance.discussionStartedAt?.toIso8601String(),
   'buyerConfirmedAt': instance.buyerConfirmedAt?.toIso8601String(),
   'sellerConfirmedAt': instance.sellerConfirmedAt?.toIso8601String(),
+  'mutualReviewStartedAt': instance.mutualReviewStartedAt?.toIso8601String(),
+  'buyerMutualReviewApproved': instance.buyerMutualReviewApproved,
+  'sellerMutualReviewApproved': instance.sellerMutualReviewApproved,
+  'editRequests': instance.editRequests,
+  'mutualReviewCompletedAt': instance.mutualReviewCompletedAt
+      ?.toIso8601String(),
   'mutualConfirmationAt': instance.mutualConfirmationAt?.toIso8601String(),
   'adminReviewStartedAt': instance.adminReviewStartedAt?.toIso8601String(),
   'adminReviewCompletedAt': instance.adminReviewCompletedAt?.toIso8601String(),
