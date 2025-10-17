@@ -156,12 +156,7 @@ class PreTransactionProvider with ChangeNotifier {
   Future<bool> submitBuyerConfirmation({
     required String buyerId,
     required String buyerName,
-    required bool vehicleDetailsConfirmed,
-    String? deliveryDate,
-    String? deliveryLocation,
-    List<String> uploadedDocuments = const [],
-    required bool termsAgreed,
-    String? notes,
+    required Map<String, dynamic> formData,
   }) async {
     if (_currentPreTransaction == null) return false;
 
@@ -174,12 +169,38 @@ class PreTransactionProvider with ChangeNotifier {
         preTransactionId: _currentPreTransaction!.id,
         buyerId: buyerId,
         buyerName: buyerName,
-        vehicleDetailsConfirmed: vehicleDetailsConfirmed,
-        deliveryDate: deliveryDate,
-        deliveryLocation: deliveryLocation,
-        uploadedDocuments: uploadedDocuments,
-        termsAgreed: termsAgreed,
-        notes: notes,
+        formData: formData,
+      );
+
+      _currentPreTransaction = updatedPreTransaction;
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Submit seller confirmation
+  Future<bool> submitSellerConfirmation({
+    required String sellerId,
+    required String sellerName,
+    required Map<String, dynamic> formData,
+  }) async {
+    if (_currentPreTransaction == null) return false;
+
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final updatedPreTransaction = await _service.submitSellerConfirmation(
+        preTransactionId: _currentPreTransaction!.id,
+        sellerId: sellerId,
+        sellerName: sellerName,
+        formData: formData,
       );
 
       _currentPreTransaction = updatedPreTransaction;
@@ -210,6 +231,68 @@ class PreTransactionProvider with ChangeNotifier {
     }
   }
 
+  /// Request edit during combined review phase
+  Future<bool> requestEdit({
+    required String requestedBy, // 'buyer' or 'seller'
+    required String field,
+    required String currentValue,
+    required String requestedValue,
+    required String reason,
+  }) async {
+    if (_currentPreTransaction == null) return false;
+
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final updatedPreTransaction = await _service.requestEdit(
+        preTransactionId: _currentPreTransaction!.id,
+        requestedBy: requestedBy,
+        field: field,
+        currentValue: currentValue,
+        requestedValue: requestedValue,
+        reason: reason,
+      );
+
+      _currentPreTransaction = updatedPreTransaction;
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Approve mutual review (buyer or seller)
+  Future<bool> approveMutualReview({
+    required String approvedBy, // 'buyer' or 'seller'
+  }) async {
+    if (_currentPreTransaction == null) return false;
+
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final updatedPreTransaction = await _service.approveMutualReview(
+        preTransactionId: _currentPreTransaction!.id,
+        approvedBy: approvedBy,
+      );
+
+      _currentPreTransaction = updatedPreTransaction;
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   /// Cancel pre-transaction
   Future<bool> cancelPreTransaction(String reason) async {
     if (_currentPreTransaction == null) return false;
@@ -225,6 +308,35 @@ class PreTransactionProvider with ChangeNotifier {
       );
 
       await loadPreTransaction(_currentPreTransaction!.id);
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Clear confirmation to allow editing
+  Future<bool> clearConfirmation({
+    required bool clearBuyer,
+    required bool clearSeller,
+  }) async {
+    if (_currentPreTransaction == null) return false;
+
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final updatedPreTransaction = await _service.clearConfirmation(
+        preTransactionId: _currentPreTransaction!.id,
+        clearBuyer: clearBuyer,
+        clearSeller: clearSeller,
+      );
+
+      _currentPreTransaction = updatedPreTransaction;
       return true;
     } catch (e) {
       _error = e.toString();
