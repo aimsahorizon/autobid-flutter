@@ -56,6 +56,11 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
 
   // Editing state
   bool _isEditingForm = false;
+  bool _isFormDeactivated = false;
+  Timer? _editRequestTimer;
+  int _editRequestCount = 0;
+  bool _hasConfirmedOtherParty = false;
+  bool _otherPartyConfirmedMe = false;
 
   // Mock update timer for other party form
   Timer? _mockUpdateTimer;
@@ -151,6 +156,7 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
   @override
   void dispose() {
     _mockUpdateTimer?.cancel();
+    _editRequestTimer?.cancel();
     _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
     _messageController.dispose();
@@ -286,18 +292,6 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
         ? preTransaction.sellerConfirmation
         : preTransaction.buyerConfirmation;
 
-    // If already submitted and not editing, show confirmation details
-    if (!_isEditingForm && confirmation != null) {
-      return Column(
-        children: [
-          _buildFormHeader(preTransaction),
-          Expanded(
-            child: _buildSubmittedConfirmationView(confirmation),
-          ),
-        ],
-      );
-    }
-
     // Show embedded form with submit button (with initial data if editing)
     Map<String, dynamic>? initialData;
     if (_isEditingForm && confirmation != null) {
@@ -308,19 +302,25 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
       children: [
         _buildFormHeader(preTransaction),
         Expanded(
-          child: widget.isSeller
-              ? EmbeddedSellerForm(
-                  key: _sellerFormKey,
-                  finalBidAmount: widget.winningBid,
-                  onFormChanged: _onFormChanged,
-                  initialData: initialData,
-                )
-              : EmbeddedBuyerForm(
-                  key: _buyerFormKey,
-                  finalBidAmount: widget.winningBid,
-                  onFormChanged: _onFormChanged,
-                  initialData: initialData,
-                ),
+          child: AbsorbPointer(
+            absorbing: _isFormDeactivated,
+            child: Opacity(
+              opacity: _isFormDeactivated ? 0.6 : 1.0,
+              child: widget.isSeller
+                  ? EmbeddedSellerForm(
+                      key: _sellerFormKey,
+                      finalBidAmount: widget.winningBid,
+                      onFormChanged: _onFormChanged,
+                      initialData: initialData,
+                    )
+                  : EmbeddedBuyerForm(
+                      key: _buyerFormKey,
+                      finalBidAmount: widget.winningBid,
+                      onFormChanged: _onFormChanged,
+                      initialData: initialData,
+                    ),
+            ),
+          ),
         ),
         _buildFormSubmitButton(preTransaction),
       ],
@@ -548,13 +548,57 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
     );
 
     if (confirmed == true && mounted) {
+      setState(() {
+        _hasConfirmedOtherParty = true;
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('${widget.isSeller ? 'Buyer\'s' : 'Seller\'s'} confirmation accepted!'),
           backgroundColor: ColorConstants.primaryGreen,
         ),
       );
+
+      // Mock: Simulate other party confirming me after 3 seconds
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted) {
+          setState(() {
+            _otherPartyConfirmedMe = true;
+          });
+
+          // Check if both confirmations are done
+          if (_hasConfirmedOtherParty && _otherPartyConfirmedMe) {
+            _moveToAdminReview();
+          }
+        }
+      });
+
+      // Switch to Progress tab
+      _tabController.animateTo(3);
     }
+  }
+
+  void _moveToAdminReview() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Both parties confirmed! Moving to Admin Review...'),
+        backgroundColor: Colors.purple,
+        duration: Duration(seconds: 2),
+      ),
+    );
+
+    // Mock: Admin review completes after 5 seconds
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Admin review complete! Ready for payment.'),
+            backgroundColor: ColorConstants.primaryGreen,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    });
   }
 
   Future<void> _showRequestEditDialog() async {
@@ -703,6 +747,129 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
     );
   }
 
+  Future<void> _showMockEditRequestDialog() async {
+    // Only show 3 times
+    if (_editRequestCount >= 3) {
+      // After 3 edits, stay locked and user can use re-edit button
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Maximum edit requests reached. Use the Re-edit button if needed.'),
+          backgroundColor: Colors.orange,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    _editRequestCount++;
+
+    await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.edit_notifications, color: Colors.orange),
+            const SizedBox(width: 12),
+            Text('Edit Request from ${widget.isSeller ? 'Buyer' : 'Seller'} (#$_editRequestCount)'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'The ${widget.isSeller ? 'buyer' : 'seller'} has requested changes to your confirmation:',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.orange.withOpacity(0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Field: ${_getEditFieldForCount(_editRequestCount)}',
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Reason: ${_getEditReasonForCount(_editRequestCount)}',
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'You must unlock your form and make the requested changes.',
+              style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+            ),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Accept & Edit'),
+          ),
+        ],
+      ),
+    );
+
+    if (mounted) {
+      setState(() {
+        _isFormDeactivated = false; // Reactivate form
+        _isEditingForm = true; // Enable editing mode
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Form unlocked! You can now make changes. (Edit $_editRequestCount/3)'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+
+      // Switch to My Form tab
+      _tabController.animateTo(1);
+    }
+  }
+
+  String _getEditFieldForCount(int count) {
+    switch (count) {
+      case 1:
+        return 'Delivery Location';
+      case 2:
+        return 'Delivery Date';
+      case 3:
+        return 'Payment Terms';
+      default:
+        return 'General';
+    }
+  }
+
+  String _getEditReasonForCount(int count) {
+    switch (count) {
+      case 1:
+        return 'Need to change pickup location to Manila instead of Quezon City.';
+      case 2:
+        return 'Need to reschedule to next week due to shipping availability.';
+      case 3:
+        return 'Need to clarify payment timeline and installment options.';
+      default:
+        return 'General update required.';
+    }
+  }
+
+
   Widget _buildComparisonCard(
     String title,
     PreTransactionConfirmation confirmation,
@@ -788,6 +955,34 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
           height: 52,
           child: Consumer<PreTransactionProvider>(
             builder: (context, provider, child) {
+              if (_isFormDeactivated) {
+                // Show Re-edit button when form is locked
+                return OutlinedButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      _isFormDeactivated = false;
+                      _isEditingForm = true;
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Form unlocked! You can now make changes.'),
+                        backgroundColor: Colors.orange,
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.edit),
+                  label: const Text(
+                    'Re-edit Form',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    foregroundColor: Colors.orange,
+                    side: const BorderSide(color: Colors.orange, width: 2),
+                  ),
+                );
+              }
+
               final canSubmit = widget.isSeller
                   ? (_sellerFormKey.currentState?.canSubmit() ?? false)
                   : (_buyerFormKey.currentState?.canSubmit() ?? false);
@@ -838,17 +1033,24 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
 
       if (success) {
         setState(() {
-          _isEditingForm = false; // Clear editing flag
+          _isFormDeactivated = true; // Deactivate form (always lock after submit)
+          _isEditingForm = false;
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('✓ Seller confirmation submitted! Waiting for buyer...'),
+            content: Text('✓ Seller confirmation submitted!'),
             backgroundColor: ColorConstants.primaryGreen,
           ),
         );
-        // Switch to Progress tab to see the update
-        _tabController.animateTo(2);
+
+        // Schedule mock edit request from buyer after 5 seconds
+        _editRequestTimer?.cancel();
+        _editRequestTimer = Timer(const Duration(seconds: 5), () {
+          if (mounted) {
+            _showMockEditRequestDialog();
+          }
+        });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -874,17 +1076,24 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
 
     if (success) {
       setState(() {
-        _isEditingForm = false; // Clear editing flag
+        _isFormDeactivated = true; // Deactivate form
+        _isEditingForm = false;
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('✓ Buyer confirmation submitted! Waiting for seller...'),
+          content: Text('✓ Buyer confirmation submitted!'),
           backgroundColor: ColorConstants.primaryGreen,
         ),
       );
-      // Switch to Progress tab to see the update
-      _tabController.animateTo(2);
+
+      // Schedule mock edit request from seller after 5 seconds
+      _editRequestTimer?.cancel();
+      _editRequestTimer = Timer(const Duration(seconds: 5), () {
+        if (mounted) {
+          _showMockEditRequestDialog();
+        }
+      });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -896,15 +1105,24 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
   }
 
   Widget _buildProgressTab(PreTransaction preTransaction) {
+    // Determine if we should show confirmation banner
+    final otherPartyConfirmation = widget.isSeller
+        ? preTransaction.buyerConfirmation
+        : preTransaction.sellerConfirmation;
+    final showConfirmationBanner = otherPartyConfirmation != null &&
+                                    (!_hasConfirmedOtherParty || !_otherPartyConfirmedMe);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Combined review notification
-          if (preTransaction.status == PreTransactionStatus.pendingMutualConfirmation)
+          // Show confirmation banner based on mutual confirmation state
+          if (showConfirmationBanner)
+            _buildConfirmationBanner(preTransaction)
+          else if (preTransaction.status == PreTransactionStatus.pendingMutualConfirmation)
             _buildCombinedReviewBanner(preTransaction),
-          if (preTransaction.status == PreTransactionStatus.pendingMutualConfirmation)
+          if (showConfirmationBanner || preTransaction.status == PreTransactionStatus.pendingMutualConfirmation)
             const SizedBox(height: 16),
 
           PreTransactionProgressTracker(
@@ -915,6 +1133,106 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
           _buildProgressTimeline(preTransaction),
           const SizedBox(height: 24),
           _buildTransactionDetails(preTransaction),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildConfirmationBanner(PreTransaction preTransaction) {
+    final otherPartyName = widget.isSeller ? 'Buyer' : 'Seller';
+
+    // If user hasn't confirmed other party yet
+    if (!_hasConfirmedOtherParty) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: ColorConstants.primaryGreen.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: ColorConstants.primaryGreen.withOpacity(0.3)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.rate_review, color: ColorConstants.primaryGreen),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    '$otherPartyName Confirmation Ready',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: ColorConstants.primaryGreen,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'The $otherPartyName has submitted their confirmation. Please review it in the "$otherPartyName Form" tab and accept to proceed.',
+              style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => _tabController.animateTo(2), // Go to Other Party Form tab
+                icon: const Icon(Icons.visibility),
+                label: Text('Review $otherPartyName Form'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: ColorConstants.primaryGreen,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // If user confirmed but other party hasn't confirmed back
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.blue.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blue.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.hourglass_empty, color: Colors.blue),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Waiting for $otherPartyName Confirmation',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'You have accepted the $otherPartyName\'s confirmation. Waiting for them to confirm your form before proceeding to admin review.',
+            style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+          ),
+          const SizedBox(height: 12),
+          const LinearProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'This usually takes a few moments...',
+            style: TextStyle(fontSize: 12, color: Colors.grey[600], fontStyle: FontStyle.italic),
+          ),
         ],
       ),
     );
@@ -1052,74 +1370,6 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
     );
   }
 
-  Widget _buildSubmittedConfirmationView(PreTransactionConfirmation confirmation) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildConfirmationItem(
-            'Submitted By',
-            confirmation.userName,
-            Icons.person,
-          ),
-          _buildConfirmationItem(
-            'Submitted At',
-            DateFormat('MMM dd, yyyy h:mm a').format(confirmation.confirmedAt),
-            Icons.schedule,
-          ),
-          const Divider(height: 32),
-          _buildConfirmationItem(
-            'Vehicle Identity Confirmed',
-            confirmation.vehicleIdentityConfirmed ? 'Yes' : 'No',
-            Icons.check_circle,
-          ),
-          _buildConfirmationItem(
-            'Final Bid Price',
-            '₱${_formatCurrency(confirmation.finalBidPrice)}',
-            Icons.payment,
-          ),
-          if (confirmation.deliveryDate != null)
-            _buildConfirmationItem(
-              'Delivery Date',
-              confirmation.deliveryDate!,
-              Icons.calendar_today,
-            ),
-          if (confirmation.deliveryLocation != null)
-            _buildConfirmationItem(
-              'Delivery Location',
-              confirmation.deliveryLocation!,
-              Icons.location_on,
-            ),
-          if (confirmation.uploadedDocuments.isNotEmpty)
-            _buildConfirmationItem(
-              'Uploaded Documents',
-              '${confirmation.uploadedDocuments.length} file(s)',
-              Icons.attach_file,
-            ),
-          if (confirmation.notes != null && confirmation.notes!.isNotEmpty) ...[
-            const Divider(height: 32),
-            const Text(
-              'Additional Notes',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                confirmation.notes!,
-                style: const TextStyle(fontSize: 13),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
 
   Widget _buildConfirmationItem(String label, String value, IconData icon) {
     return Padding(
