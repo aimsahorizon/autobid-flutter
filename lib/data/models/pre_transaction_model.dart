@@ -28,6 +28,26 @@ enum PreTransactionStatus {
   cancelled,
 }
 
+/// Edit request model for combined review phase
+@freezed
+abstract class EditRequest with _$EditRequest {
+  const factory EditRequest({
+    required String id,
+    required String requestedBy, // 'buyer' or 'seller'
+    required String requestedFrom, // 'buyer' or 'seller'
+    required String field,
+    required String currentValue,
+    required String requestedValue,
+    required String reason,
+    required DateTime requestedAt,
+    @Default(false) bool resolved,
+    DateTime? resolvedAt,
+  }) = _EditRequest;
+
+  factory EditRequest.fromJson(Map<String, dynamic> json) =>
+      _$EditRequestFromJson(json);
+}
+
 @freezed
 abstract class PreTransaction with _$PreTransaction {
   const factory PreTransaction({
@@ -48,6 +68,14 @@ abstract class PreTransaction with _$PreTransaction {
     DateTime? discussionStartedAt,
     DateTime? buyerConfirmedAt,
     DateTime? sellerConfirmedAt,
+
+    // ===== COMBINED REVIEW PHASE =====
+    DateTime? mutualReviewStartedAt,
+    @Default(false) bool buyerMutualReviewApproved,
+    @Default(false) bool sellerMutualReviewApproved,
+    @Default([]) List<EditRequest> editRequests,
+    DateTime? mutualReviewCompletedAt,
+
     DateTime? mutualConfirmationAt,
     DateTime? adminReviewStartedAt,
     DateTime? adminReviewCompletedAt,
