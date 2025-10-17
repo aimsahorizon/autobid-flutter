@@ -280,10 +280,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final winningBid = double.tryParse(
                   state.uri.queryParameters['winningBid'] ?? '0') ??
               0;
+          final isSeller = state.uri.queryParameters['isSeller'] == 'true';
           return PreTransactionDiscussionScreen(
             auctionId: auctionId,
             carTitle: carTitle,
             winningBid: winningBid,
+            isSeller: isSeller,
           );
         },
       ),
