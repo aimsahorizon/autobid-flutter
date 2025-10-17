@@ -108,12 +108,15 @@ class _PreTransactionConfirmationFormScreenState
     final success = await provider.submitBuyerConfirmation(
       buyerId: 'user123', // Mock buyer ID
       buyerName: 'Juan Dela Cruz',
-      vehicleDetailsConfirmed: _vehicleDetailsConfirmed,
-      deliveryDate: DateFormat('yyyy-MM-dd').format(_selectedDeliveryDate!),
-      deliveryLocation: _deliveryLocationController.text.trim(),
-      uploadedDocuments: _uploadedDocuments,
-      termsAgreed: _termsAgreed,
-      notes: _notesController.text.trim(),
+      formData: {
+        'vehicleIdentityConfirmed': _vehicleDetailsConfirmed,
+        'termsAgreed': _termsAgreed,
+        'deliveryDate': DateFormat('yyyy-MM-dd').format(_selectedDeliveryDate!),
+        'deliveryLocation': _deliveryLocationController.text.trim(),
+        'uploadedDocuments': _uploadedDocuments,
+        'notes': _notesController.text.trim(),
+        'finalBidPrice': widget.winningBid,
+      },
     );
 
     if (!mounted) return;
