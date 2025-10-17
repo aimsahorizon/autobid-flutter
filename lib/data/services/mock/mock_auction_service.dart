@@ -783,6 +783,46 @@ class MockAuctionService implements AuctionRepository {
         watchers: [...auction.watchers, userId],
       );
     }
+
+    // 6. Create 2 sold auctions where current user is the SELLER (for seller-side testing)
+    for (int i = 0; i < 2; i++) {
+      CarModel? sellerCar;
+      if (_availableCars.length > 18 + i) {
+        sellerCar = _availableCars[18 + i];
+      }
+
+      final sellerAuction = Auction(
+        id: 'auction_seller_sold_$i',
+        carId: sellerCar?.id ?? 'car_seller_sold_$i',
+        sellerId: userId, // Current user is the seller
+        startingPrice: 180000.0,
+        currentBid: 220000.0 + (i * 30000),
+        reservePrice: 200000.0,
+        startTime: now.subtract(Duration(days: 6 + i)),
+        endTime: now.subtract(Duration(hours: 12 - i * 2)),
+        status: AuctionStatus.sold,
+        totalBids: 10 + i * 2,
+        topBidderId: 'buyer_demo_$i',
+        topBidderName: 'Demo Buyer ${i + 1}',
+        watchers: [],
+        createdAt: now.subtract(Duration(days: 7 + i)),
+        updatedAt: now.subtract(Duration(hours: 12 - i * 2)),
+        car: sellerCar,
+      );
+
+      _auctions.add(sellerAuction);
+
+      _bids.add(Bid(
+        id: 'bid_seller_sold_$i',
+        auctionId: sellerAuction.id,
+        bidderId: 'buyer_demo_$i',
+        bidderName: 'Demo Buyer ${i + 1}',
+        amount: sellerAuction.currentBid,
+        isAutoBid: false,
+        timestamp: sellerAuction.endTime.subtract(Duration(minutes: 3)),
+        status: BidStatus.won,
+      ));
+    }
   }
 
   void _startSimulation() {
@@ -1082,6 +1122,14 @@ class MockAuctionService implements AuctionRepository {
         .where((a) => a.watchers.contains(userId) && !userBidAuctionIds.contains(a.id))
         .toList()
       ..sort((a, b) => a.endTime.compareTo(b.endTime));
+  }
+
+  /// Get auctions where user is the seller and auction is sold (ready for pre-transaction)
+  List<Auction> getUserSellerSoldAuctions(String userId) {
+    return _auctions
+        .where((a) => a.sellerId == userId && a.status == AuctionStatus.sold)
+        .toList()
+      ..sort((a, b) => b.endTime.compareTo(a.endTime));
   }
 
   void _notifyListeners() {
