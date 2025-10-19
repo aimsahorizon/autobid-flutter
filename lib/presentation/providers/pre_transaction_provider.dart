@@ -352,6 +352,33 @@ class PreTransactionProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Update checkpoint status (for manual checkpoint progression)
+  Future<bool> updateCheckpointStatus({
+    required PreTransactionStatus newStatus,
+  }) async {
+    if (_currentPreTransaction == null) return false;
+
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final updatedPreTransaction = await _service.updateCheckpointStatus(
+        preTransactionId: _currentPreTransaction!.id,
+        newStatus: newStatus,
+      );
+
+      _currentPreTransaction = updatedPreTransaction;
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   void clearCurrentPreTransaction() {
     _currentPreTransaction = null;
     notifyListeners();
