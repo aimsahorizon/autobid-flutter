@@ -551,16 +551,17 @@ class MockPreTransactionService {
         sender: MessageSender.system,
         senderName: 'System',
         type: MessageType.system,
-        content: 'Admin review completed! Transaction approved. You can now proceed to payment.',
+        content: 'Admin review completed! Transaction approved. Seller can now begin preparing the item for shipment.',
         timestamp: now,
       ),
     ];
 
+    // Transition directly to preparing status (no payment/escrow step)
     _preTransactions[preTransactionId] = preTransaction.copyWith(
-      status: PreTransactionStatus.readyForPayment,
+      status: PreTransactionStatus.preparing,
       adminReviewCompletedAt: now,
       adminReviewNotes: 'Transaction details verified and approved by admin.',
-      readyForPaymentAt: now,
+      preparingStartedAt: now,
       messages: updatedMessages,
     );
 
@@ -896,6 +897,97 @@ class MockPreTransactionService {
         .where((pt) => pt.sellerId == sellerId)
         .toList()
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  }
+
+  /// Update checkpoint status (manual checkpoint progression)
+  Future<PreTransaction> updateCheckpointStatus({
+    required String preTransactionId,
+    required PreTransactionStatus newStatus,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 800)); // Simulate processing
+
+    final preTransaction = _preTransactions[preTransactionId];
+    if (preTransaction == null) {
+      throw Exception('PreTransaction not found');
+    }
+
+    final now = DateTime.now();
+    final updatedMessages = [
+      ...preTransaction.messages,
+      PreTransactionMessage(
+        id: _uuid.v4(),
+        preTransactionId: preTransactionId,
+        sender: MessageSender.system,
+        senderName: 'System',
+        type: MessageType.system,
+        content: _getCheckpointUpdateMessage(newStatus),
+        timestamp: now,
+      ),
+    ];
+
+    // Update transaction with new status and timestamp
+    PreTransaction updatedTransaction;
+    switch (newStatus) {
+      case PreTransactionStatus.preparing:
+        updatedTransaction = preTransaction.copyWith(
+          status: newStatus,
+          preparingStartedAt: now,
+          messages: updatedMessages,
+        );
+        break;
+      case PreTransactionStatus.shipping:
+        updatedTransaction = preTransaction.copyWith(
+          status: newStatus,
+          shippingStartedAt: now,
+          messages: updatedMessages,
+        );
+        break;
+      case PreTransactionStatus.delivered:
+        updatedTransaction = preTransaction.copyWith(
+          status: newStatus,
+          deliveredAt: now,
+          messages: updatedMessages,
+        );
+        break;
+      case PreTransactionStatus.paymentSuccess:
+        updatedTransaction = preTransaction.copyWith(
+          status: newStatus,
+          paymentSuccessAt: now,
+          messages: updatedMessages,
+        );
+        break;
+      case PreTransactionStatus.transactionComplete:
+        updatedTransaction = preTransaction.copyWith(
+          status: newStatus,
+          transactionCompletedAt: now,
+          messages: updatedMessages,
+        );
+        break;
+      default:
+        throw Exception('Invalid checkpoint status: $newStatus');
+    }
+
+    _preTransactions[preTransactionId] = updatedTransaction;
+    _notifyListeners();
+
+    return updatedTransaction;
+  }
+
+  String _getCheckpointUpdateMessage(PreTransactionStatus status) {
+    switch (status) {
+      case PreTransactionStatus.preparing:
+        return 'Seller is now preparing the item for shipment.';
+      case PreTransactionStatus.shipping:
+        return 'Item has been shipped! Tracking details will be available soon.';
+      case PreTransactionStatus.delivered:
+        return 'Item has been delivered to the buyer!';
+      case PreTransactionStatus.paymentSuccess:
+        return 'Payment received successfully! Transaction is being finalized.';
+      case PreTransactionStatus.transactionComplete:
+        return 'Transaction complete! Thank you for using AutoBID.';
+      default:
+        return 'Status updated.';
+    }
   }
 
   void dispose() {
