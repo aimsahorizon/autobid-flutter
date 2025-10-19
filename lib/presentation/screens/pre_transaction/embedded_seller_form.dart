@@ -9,12 +9,14 @@ class EmbeddedSellerForm extends StatefulWidget {
   final double finalBidAmount;
   final VoidCallback? onFormChanged;
   final Map<String, dynamic>? initialData;
+  final bool isReadOnly;
 
   const EmbeddedSellerForm({
     super.key,
     required this.finalBidAmount,
     this.onFormChanged,
     this.initialData,
+    this.isReadOnly = false,
   });
 
   @override
@@ -238,39 +240,50 @@ class EmbeddedSellerFormState extends State<EmbeddedSellerForm> with AutomaticKe
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Auto-save indicator
-          _buildAutoSaveIndicator(),
-          const SizedBox(height: 24),
+          Opacity(
+            opacity: widget.isReadOnly ? 0.6 : 1.0,
+            child: IgnorePointer(
+              ignoring: widget.isReadOnly,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Auto-save indicator
+                  _buildAutoSaveIndicator(),
+                  const SizedBox(height: 24),
 
-          // Section 1: Vehicle Details Confirmation
-          _buildSectionTitle('1. Vehicle Details Confirmation'),
-          _buildVehicleDetailsSection(),
-          const SizedBox(height: 24),
+                  // Section 1: Vehicle Details Confirmation
+                  _buildSectionTitle('1. Vehicle Details Confirmation'),
+                  _buildVehicleDetailsSection(),
+                  const SizedBox(height: 24),
 
-          // Section 2: Legal & Ownership Documentation
-          _buildSectionTitle('2. Legal & Ownership Documentation'),
-          _buildLegalOwnershipSection(),
-          const SizedBox(height: 24),
+                  // Section 2: Legal & Ownership Documentation
+                  _buildSectionTitle('2. Legal & Ownership Documentation'),
+                  _buildLegalOwnershipSection(),
+                  const SizedBox(height: 24),
 
-          // Section 3: Shipping / Delivery Information
-          _buildSectionTitle('3. Shipping / Delivery Information'),
-          _buildShippingDeliverySection(),
-          const SizedBox(height: 24),
+                  // Section 3: Shipping / Delivery Information
+                  _buildSectionTitle('3. Shipping / Delivery Information'),
+                  _buildShippingDeliverySection(),
+                  const SizedBox(height: 24),
 
-          // Section 4: Inspection Phase Participation
-          _buildSectionTitle('4. Inspection Phase Participation'),
-          _buildInspectionParticipationSection(),
-          const SizedBox(height: 24),
+                  // Section 4: Inspection Phase Participation
+                  _buildSectionTitle('4. Inspection Phase Participation'),
+                  _buildInspectionParticipationSection(),
+                  const SizedBox(height: 24),
 
-          // Section 5: Dispute & Extra Protection Acknowledgment
-          _buildSectionTitle('5. Dispute & Extra Protection Acknowledgment'),
-          _buildDisputeProtectionSection(),
-          const SizedBox(height: 24),
+                  // Section 5: Dispute & Extra Protection Acknowledgment
+                  _buildSectionTitle('5. Dispute & Extra Protection Acknowledgment'),
+                  _buildDisputeProtectionSection(),
+                  const SizedBox(height: 24),
 
-          // Section 6: Transaction Confirmation
-          _buildSectionTitle('6. Transaction Confirmation'),
-          _buildTransactionConfirmationSection(),
-          const SizedBox(height: 24),
+                  // Section 6: Transaction Confirmation
+                  _buildSectionTitle('6. Transaction Confirmation'),
+                  _buildTransactionConfirmationSection(),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
