@@ -295,7 +295,10 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () {
+              Navigator.pop(context);
+              context.go('/login');
+            },
             style: FilledButton.styleFrom(
               backgroundColor: Colors.red,
             ),
