@@ -2,15 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../data/models/car_model.dart';
-import '../../../../data/models/auction_model.dart';
 import '../../../../data/models/pre_transaction_model.dart';
-import '../../../../data/services/mock/mock_auction_service.dart';
 import '../../../../data/services/mock/mock_pre_transaction_service.dart';
 import '../../../../core/utils/listing_status_extensions.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../providers/listing_provider.dart';
 import '../../../widgets/car_card.dart';
-import 'package:intl/intl.dart';
 
 class MyListingsTab extends StatefulWidget {
   final bool isGridView;
@@ -413,8 +410,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                   color: Colors.grey[600],
                 ),
               ),
-              if (status == ListingStatus.active ||
-                  status == ListingStatus.draft) ...[
+              if (status == ListingStatus.draft) ...[
                 const SizedBox(height: 24),
                 FilledButton.icon(
                   onPressed: () {
@@ -437,6 +433,11 @@ class _MyListingsTabState extends State<MyListingsTab>
       );
     }
 
+    // Determine if actions should be shown based on status
+    final bool showEditDelete = status == ListingStatus.draft;
+    final bool showReauctionDelete = status == ListingStatus.cancelled;
+    final bool showActions = showEditDelete || showReauctionDelete;
+
     if (widget.isGridView) {
       return GridView.builder(
         padding: const EdgeInsets.all(16),
@@ -451,15 +452,19 @@ class _MyListingsTabState extends State<MyListingsTab>
           final listing = listings[index];
           return CarCard(
             car: listing,
-            onTap: () => context.push('/car/${listing.id}'),
-            showActions: true,
-            onEdit: () {
+            onTap: () => _handleListingTap(listing, status),
+            showActions: showActions,
+            onEdit: showEditDelete ? () {
               final provider = context.read<ListingProvider>();
               provider.loadListingForEdit(listing);
-              // Always start from step 1, preserving all filled information
               context.push('/listing/create/step1');
-            },
-            onDelete: () => _showDeleteDialog(listing),
+            } : null,
+            onDelete: showEditDelete || showReauctionDelete
+                ? () => _showDeleteDialog(listing)
+                : null,
+            customActionButton: showReauctionDelete
+                ? _buildReauctionButton(listing)
+                : null,
           );
         },
       );
@@ -474,19 +479,77 @@ class _MyListingsTabState extends State<MyListingsTab>
           padding: const EdgeInsets.only(bottom: 12),
           child: CarCard(
             car: listing,
-            onTap: () => context.push('/car/${listing.id}'),
-            showActions: true,
-            onEdit: () {
+            onTap: () => _handleListingTap(listing, status),
+            showActions: showActions,
+            onEdit: showEditDelete ? () {
               final provider = context.read<ListingProvider>();
               provider.loadListingForEdit(listing);
-              // Always start from step 1, preserving all filled information
               context.push('/listing/create/step1');
-            },
-            onDelete: () => _showDeleteDialog(listing),
+            } : null,
+            onDelete: showEditDelete || showReauctionDelete
+                ? () => _showDeleteDialog(listing)
+                : null,
+            customActionButton: showReauctionDelete
+                ? _buildReauctionButton(listing)
+                : null,
           ),
         );
       },
     );
+  }
+
+  void _handleListingTap(CarModel listing, ListingStatus status) {
+    // Active listings go to auction view
+    if (status == ListingStatus.active) {
+      context.push('/auction/${listing.id}');
+    } else {
+      // All other statuses go to read-only car details
+      context.push('/car/${listing.id}');
+    }
+  }
+
+  Widget _buildReauctionButton(CarModel listing) {
+    return IconButton(
+      icon: const Icon(Icons.refresh),
+      tooltip: 'Reauction',
+      onPressed: () => _showReauctionDialog(listing),
+    );
+  }
+
+  Future<void> _showReauctionDialog(CarModel car) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reauction Listing'),
+        content: Text(
+          'Do you want to reauction "${car.brand} ${car.model}"?\n\nThis will create a new active auction with the same details.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(
+              backgroundColor: ColorConstants.primaryGreen,
+            ),
+            child: const Text('Reauction'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && mounted) {
+      final provider = context.read<ListingProvider>();
+      provider.loadListingForEdit(car);
+      context.push('/listing/create/step1');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Edit details and submit to reauction')),
+        );
+      }
+    }
   }
 
   Future<void> _showDeleteDialog(CarModel car) async {
