@@ -66,6 +66,12 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
   Timer? _mockUpdateTimer;
   int _mockUpdateCount = 0;
 
+  // Mock confirmation timer (after 3 edits)
+  Timer? _confirmationDialogTimer;
+
+  // Mock checkpoint progression timer (buyer side)
+  Timer? _checkpointMockTimer;
+
   @override
   void initState() {
     super.initState();
@@ -73,6 +79,11 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
     _tabController.addListener(_onTabChanged);
     _initializePreTransaction();
     _startMockUpdateTimer();
+
+    // Start buyer-side checkpoint mock if not seller
+    if (!widget.isSeller) {
+      _startBuyerCheckpointMock();
+    }
   }
 
   void _startMockUpdateTimer() {
@@ -81,6 +92,45 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
         setState(() {
           _mockUpdateCount++;
         });
+      }
+    });
+  }
+
+  void _startBuyerCheckpointMock() {
+    // Simulate seller updating checkpoints automatically every 10 seconds
+    _checkpointMockTimer = Timer.periodic(const Duration(seconds: 10), (timer) async {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+
+      final provider = context.read<PreTransactionProvider>();
+      final preTransaction = provider.currentPreTransaction;
+
+      if (preTransaction == null) return;
+
+      // Auto-progress through checkpoints
+      PreTransactionStatus? nextStatus;
+      switch (preTransaction.status) {
+        case PreTransactionStatus.preparing:
+          nextStatus = PreTransactionStatus.shipping;
+          break;
+        case PreTransactionStatus.shipping:
+          nextStatus = PreTransactionStatus.delivered;
+          break;
+        case PreTransactionStatus.delivered:
+          nextStatus = PreTransactionStatus.paymentSuccess;
+          break;
+        case PreTransactionStatus.paymentSuccess:
+          nextStatus = PreTransactionStatus.transactionComplete;
+          timer.cancel(); // Stop after completion
+          break;
+        default:
+          break;
+      }
+
+      if (nextStatus != null) {
+        await provider.updateCheckpointStatus(newStatus: nextStatus);
       }
     });
   }
@@ -157,6 +207,8 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
   void dispose() {
     _mockUpdateTimer?.cancel();
     _editRequestTimer?.cancel();
+    _confirmationDialogTimer?.cancel();
+    _checkpointMockTimer?.cancel();
     _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
     _messageController.dispose();
@@ -302,25 +354,21 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
       children: [
         _buildFormHeader(preTransaction),
         Expanded(
-          child: AbsorbPointer(
-            absorbing: _isFormDeactivated,
-            child: Opacity(
-              opacity: _isFormDeactivated ? 0.6 : 1.0,
-              child: widget.isSeller
-                  ? EmbeddedSellerForm(
-                      key: _sellerFormKey,
-                      finalBidAmount: widget.winningBid,
-                      onFormChanged: _onFormChanged,
-                      initialData: initialData,
-                    )
-                  : EmbeddedBuyerForm(
-                      key: _buyerFormKey,
-                      finalBidAmount: widget.winningBid,
-                      onFormChanged: _onFormChanged,
-                      initialData: initialData,
-                    ),
-            ),
-          ),
+          child: widget.isSeller
+              ? EmbeddedSellerForm(
+                  key: _sellerFormKey,
+                  finalBidAmount: widget.winningBid,
+                  onFormChanged: _onFormChanged,
+                  initialData: initialData,
+                  isReadOnly: _isFormDeactivated,
+                )
+              : EmbeddedBuyerForm(
+                  key: _buyerFormKey,
+                  finalBidAmount: widget.winningBid,
+                  onFormChanged: _onFormChanged,
+                  initialData: initialData,
+                  isReadOnly: _isFormDeactivated,
+                ),
         ),
         _buildFormSubmitButton(preTransaction),
       ],
@@ -560,7 +608,7 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
       );
 
       // Mock: Simulate other party confirming me after 3 seconds
-      Future.delayed(const Duration(seconds: 3), () {
+      Future.delayed(const Duration(seconds: 3), () async {
         if (mounted) {
           setState(() {
             _otherPartyConfirmedMe = true;
@@ -568,7 +616,7 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
 
           // Check if both confirmations are done
           if (_hasConfirmedOtherParty && _otherPartyConfirmedMe) {
-            _moveToAdminReview();
+            await _moveToAdminReview();
           }
         }
       });
@@ -578,7 +626,15 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
     }
   }
 
-  void _moveToAdminReview() {
+  Future<void> _moveToAdminReview() async {
+    // First approve from user's side
+    final provider = context.read<PreTransactionProvider>();
+    await provider.approveMutualReview(
+      approvedBy: widget.isSeller ? 'seller' : 'buyer',
+    );
+
+    if (!mounted) return;
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Both parties confirmed! Moving to Admin Review...'),
@@ -587,16 +643,26 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
       ),
     );
 
-    // Mock: Admin review completes after 5 seconds
-    Future.delayed(const Duration(seconds: 5), () {
+    // Mock: Other party also approves after 2 seconds
+    Future.delayed(const Duration(seconds: 2), () async {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Admin review complete! Ready for payment.'),
-            backgroundColor: ColorConstants.primaryGreen,
-            duration: Duration(seconds: 2),
-          ),
+        await provider.approveMutualReview(
+          approvedBy: widget.isSeller ? 'buyer' : 'seller',
         );
+
+        // Status should now be pendingAdminReview
+        // Mock: Admin review completes after 3 seconds
+        Future.delayed(const Duration(seconds: 3), () {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Admin review complete! Ready for payment.'),
+                backgroundColor: ColorConstants.primaryGreen,
+                duration: Duration(seconds: 2),
+              ),
+            );
+          }
+        });
       }
     });
   }
@@ -642,7 +708,7 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
           ElevatedButton(
             onPressed: () {
               if (fieldController.text.isNotEmpty && reasonController.text.isNotEmpty) {
-                Navigator.pop(context, true);
+                Navigator.pop(context, false);
               }
             },
             style: ElevatedButton.styleFrom(
@@ -750,14 +816,10 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
   Future<void> _showMockEditRequestDialog() async {
     // Only show 3 times
     if (_editRequestCount >= 3) {
-      // After 3 edits, stay locked and user can use re-edit button
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Maximum edit requests reached. Use the Re-edit button if needed.'),
-          backgroundColor: Colors.orange,
-          duration: Duration(seconds: 2),
-        ),
-      );
+      // After 3 edits, start the confirmation dialog loop
+      if (_confirmationDialogTimer == null || !_confirmationDialogTimer!.isActive) {
+        _startConfirmationDialogLoop();
+      }
       return;
     }
 
@@ -771,7 +833,13 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
           children: [
             const Icon(Icons.edit_notifications, color: Colors.orange),
             const SizedBox(width: 12),
-            Text('Edit Request from ${widget.isSeller ? 'Buyer' : 'Seller'} (#$_editRequestCount)'),
+            Expanded(
+              child: Text(
+                'Edit Request from ${widget.isSeller ? 'Buyer' : 'Seller'} (#$_editRequestCount)',
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+              ),
+            ),
           ],
         ),
         content: Column(
@@ -832,14 +900,116 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Form unlocked! You can now make changes. (Edit $_editRequestCount/3)'),
+        const SnackBar(
+          content: Text('Form unlocked! You can now make changes.'),
           backgroundColor: Colors.orange,
         ),
       );
 
       // Switch to My Form tab
       _tabController.animateTo(1);
+    }
+  }
+
+  void _startConfirmationDialogLoop() {
+    // Start showing the confirmation dialog every 5 seconds
+    _confirmationDialogTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (mounted) {
+        _showOtherPartyConfirmedDialog();
+      }
+    });
+  }
+
+  Future<void> _showOtherPartyConfirmedDialog() async {
+    final otherPartyName = widget.isSeller ? 'Buyer' : 'Seller';
+
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.check_circle, color: ColorConstants.primaryGreen),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                '$otherPartyName Confirmed Your Form',
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'The $otherPartyName has confirmed your form submission.',
+              style: const TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: ColorConstants.primaryGreen.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: ColorConstants.primaryGreen.withOpacity(0.3)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline, color: ColorConstants.primaryGreen, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Accept to proceed with the transaction to admin review.',
+                      style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorConstants.primaryGreen,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Accept'),
+          ),
+        ],
+      ),
+    );
+
+    if (result == true && mounted) {
+      // Stop the timer
+      _confirmationDialogTimer?.cancel();
+
+      setState(() {
+        _otherPartyConfirmedMe = true;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Transaction confirmed! Moving to Admin Review...'),
+          backgroundColor: ColorConstants.primaryGreen,
+        ),
+      );
+
+      // Check if both confirmations are done
+      if (_hasConfirmedOtherParty && _otherPartyConfirmedMe) {
+        await _moveToAdminReview();
+      }
+
+      // Switch to Progress tab
+      _tabController.animateTo(3);
     }
   }
 
@@ -1044,6 +1214,61 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
           ),
         );
 
+        // Mock: Buyer submits their form after 3 seconds
+        Future.delayed(const Duration(seconds: 3), () async {
+          if (mounted) {
+            // Mock buyer form data
+            final mockBuyerFormData = {
+              'finalBidPrice': widget.winningBid,
+              'additionalFees': 5000.0,
+              'priceAndFeesConfirmed': true,
+              'paymentDuration': 3,
+              'paymentDurationUnit': 'days',
+              'latePaymentPenaltiesAcknowledged': true,
+              'shippingMethod': 'Transporter',
+              'shippingCostResponsibility': 'Buyer',
+              'deliveryLocation': 'Manila City',
+              'insuranceResponsibility': 'Buyer',
+              'estimatedDeliveryDays': 7,
+              'inspectionDuration': 2,
+              'inspectionDurationUnit': 'days',
+              'inspectionMethod': 'In-person',
+              'acceptanceCriteria': 'Check all mechanical parts',
+              'discrepancyProcedure': 'Contact seller immediately',
+              'buyerConfirmationLimit': 1,
+              'buyerConfirmationLimitUnit': 'days',
+              'titleRegistrationAcknowledged': true,
+              'noLiensAcknowledged': true,
+              'transferProcessAcknowledged': true,
+              'discussionsLoggedConfirmed': true,
+              'disputeResolutionAgreed': true,
+              'fraudPoliciesAcknowledged': true,
+              'additionalProtections': '',
+              'platformTermsAgreed': true,
+              'vehicleIdentityConfirmed': true,
+              'deliveryDate': DateTime.now().add(const Duration(days: 7)).toString(),
+              'uploadedDocuments': [],
+              'termsAgreed': true,
+              'notes': '',
+            };
+
+            await provider.submitBuyerConfirmation(
+              buyerId: 'user123',
+              buyerName: 'Juan Dela Cruz',
+              formData: mockBuyerFormData,
+            );
+
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Buyer has submitted their form!'),
+                  backgroundColor: Colors.blue,
+                ),
+              );
+            }
+          }
+        });
+
         // Schedule mock edit request from buyer after 5 seconds
         _editRequestTimer?.cancel();
         _editRequestTimer = Timer(const Duration(seconds: 5), () {
@@ -1087,6 +1312,58 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
         ),
       );
 
+      // Mock: Seller submits their form after 3 seconds
+      Future.delayed(const Duration(seconds: 3), () async {
+        if (mounted) {
+          // Mock seller form data
+          final mockSellerFormData = {
+            'vehicleMatchesListing': true,
+            'allIssuesDisclosed': true,
+            'conditionAccuratelyRepresented': true,
+            'conditionDocuments': [],
+            'ownershipDocuments': [],
+            'noOutstandingLiens': true,
+            'specialTransferInstructions': '',
+            'shippingMethod': 'Transporter',
+            'deliveryLocation': 'Quezon City',
+            'deliveryInstructions': '',
+            'shippingEvidenceDocuments': [],
+            'agreeToSubmitShippingEvidence': true,
+            'insuranceResponsibilityAcknowledged': true,
+            'availability': 'Weekdays 9-5',
+            'inspectionMethod': 'In-person',
+            'willReviewInspectionEvidence': true,
+            'inspectionNotes': '',
+            'disputeResolutionAgreed': true,
+            'fraudPoliciesAcknowledged': true,
+            'sellerProtections': '',
+            'informationAccuracyConfirmed': true,
+            'platformTermsAgreed': true,
+            'vehicleIdentityConfirmed': true,
+            'handoverDate': DateTime.now().add(const Duration(days: 7)).toString(),
+            'handoverLocation': 'Quezon City',
+            'uploadedDocuments': [],
+            'termsAgreed': true,
+            'notes': '',
+          };
+
+          await provider.submitSellerConfirmation(
+            sellerId: 'seller456',
+            sellerName: 'Pedro Santos',
+            formData: mockSellerFormData,
+          );
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Seller has submitted their form!'),
+                backgroundColor: Colors.blue,
+              ),
+            );
+          }
+        }
+      });
+
       // Schedule mock edit request from seller after 5 seconds
       _editRequestTimer?.cancel();
       _editRequestTimer = Timer(const Duration(seconds: 5), () {
@@ -1105,7 +1382,19 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
   }
 
   Widget _buildProgressTab(PreTransaction preTransaction) {
-    // Determine if we should show confirmation banner
+    // Check if we're in checkpoint flow (post-admin approval)
+    final isInCheckpointFlow = preTransaction.status == PreTransactionStatus.preparing ||
+        preTransaction.status == PreTransactionStatus.shipping ||
+        preTransaction.status == PreTransactionStatus.delivered ||
+        preTransaction.status == PreTransactionStatus.paymentSuccess ||
+        preTransaction.status == PreTransactionStatus.transactionComplete;
+
+    if (isInCheckpointFlow) {
+      // Show checkpoint-specific UI
+      return _buildCheckpointFlowUI(preTransaction);
+    }
+
+    // Original pre-transaction flow UI
     final otherPartyConfirmation = widget.isSeller
         ? preTransaction.buyerConfirmation
         : preTransaction.sellerConfirmation;
@@ -1136,6 +1425,598 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
         ],
       ),
     );
+  }
+
+  Widget _buildCheckpointFlowUI(PreTransaction preTransaction) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          PreTransactionProgressTracker(
+            currentStatus: preTransaction.status,
+            isSeller: widget.isSeller,
+          ),
+          const SizedBox(height: 24),
+          // Show seller checkpoint controls or buyer view-only
+          widget.isSeller
+              ? _buildSellerCheckpointControls(preTransaction)
+              : _buildBuyerCheckpointView(preTransaction),
+          const SizedBox(height: 24),
+          // Show rating UI if transaction complete
+          if (preTransaction.status == PreTransactionStatus.transactionComplete)
+            _buildRatingSection(preTransaction),
+          const SizedBox(height: 24),
+          _buildTransactionDetails(preTransaction),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSellerCheckpointControls(PreTransaction preTransaction) {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.update, color: ColorConstants.primaryGreen),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'Update Transaction Progress',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Manually update the transaction status as you progress through each checkpoint.',
+              style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+            ),
+            const SizedBox(height: 24),
+            // Checkpoint buttons (preparing is auto-set after admin approval)
+            _buildCheckpointButton(
+              title: 'Item Shipped',
+              subtitle: 'Mark item as shipped to buyer',
+              icon: Icons.local_shipping,
+              color: Colors.blue,
+              isEnabled: preTransaction.status == PreTransactionStatus.preparing,
+              currentStatus: PreTransactionStatus.shipping,
+              onPressed: () => _updateCheckpointStatus(PreTransactionStatus.shipping),
+            ),
+            const SizedBox(height: 12),
+            _buildCheckpointButton(
+              title: 'Item Delivered',
+              subtitle: 'Confirm item has been delivered',
+              icon: Icons.check_circle,
+              color: Colors.purple,
+              isEnabled: preTransaction.status == PreTransactionStatus.shipping,
+              currentStatus: PreTransactionStatus.delivered,
+              onPressed: () => _updateCheckpointStatus(PreTransactionStatus.delivered),
+            ),
+            const SizedBox(height: 12),
+            _buildCheckpointButton(
+              title: 'Payment Received',
+              subtitle: 'Confirm payment has been received',
+              icon: Icons.payments,
+              color: ColorConstants.primaryGreen,
+              isEnabled: preTransaction.status == PreTransactionStatus.delivered,
+              currentStatus: PreTransactionStatus.paymentSuccess,
+              onPressed: () => _updateCheckpointStatus(PreTransactionStatus.paymentSuccess),
+            ),
+            const SizedBox(height: 12),
+            _buildCheckpointButton(
+              title: 'Complete Transaction',
+              subtitle: 'Finalize and complete the transaction',
+              icon: Icons.done_all,
+              color: ColorConstants.primaryGreen,
+              isEnabled: preTransaction.status == PreTransactionStatus.paymentSuccess,
+              currentStatus: PreTransactionStatus.transactionComplete,
+              onPressed: () => _updateCheckpointStatus(PreTransactionStatus.transactionComplete),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCheckpointButton({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required bool isEnabled,
+    required PreTransactionStatus currentStatus,
+    required VoidCallback onPressed,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: isEnabled ? color.withOpacity(0.5) : Colors.grey[300]!,
+        ),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: ListTile(
+        leading: Icon(icon, color: isEnabled ? color : Colors.grey),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: isEnabled ? Colors.black : Colors.grey,
+          ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+        ),
+        trailing: ElevatedButton(
+          onPressed: isEnabled ? onPressed : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: color,
+            foregroundColor: Colors.white,
+          ),
+          child: const Text('Update'),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _updateCheckpointStatus(PreTransactionStatus newStatus) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.update, color: ColorConstants.primaryGreen),
+            SizedBox(width: 12),
+            Text('Confirm Status Update'),
+          ],
+        ),
+        content: Text(
+          'Are you sure you want to update the transaction status to ${_getCheckpointTitle(newStatus)}?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorConstants.primaryGreen,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      final provider = context.read<PreTransactionProvider>();
+      final success = await provider.updateCheckpointStatus(newStatus: newStatus);
+
+      if (!mounted) return;
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Status updated to ${_getCheckpointTitle(newStatus)}!'),
+            backgroundColor: ColorConstants.primaryGreen,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(provider.error ?? 'Failed to update status'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  String _getCheckpointTitle(PreTransactionStatus status) {
+    switch (status) {
+      case PreTransactionStatus.preparing:
+        return 'Preparing';
+      case PreTransactionStatus.shipping:
+        return 'Shipping';
+      case PreTransactionStatus.delivered:
+        return 'Delivered';
+      case PreTransactionStatus.paymentSuccess:
+        return 'Payment Success';
+      case PreTransactionStatus.transactionComplete:
+        return 'Transaction Complete';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  Widget _buildBuyerCheckpointView(PreTransaction preTransaction) {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.visibility, color: Colors.blue),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'Transaction Progress',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Track the seller\'s progress as they prepare and ship your item.',
+              style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+            ),
+            const SizedBox(height: 24),
+            // Show current status info
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.blue.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.blue.withOpacity(0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(_getCheckpointIcon(preTransaction.status), color: Colors.blue),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          _getCheckpointTitle(preTransaction.status),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _getBuyerCheckpointDescription(preTransaction.status),
+                    style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Timeline of completed checkpoints
+            _buildCheckpointTimeline(preTransaction),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCheckpointTimeline(PreTransaction preTransaction) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Checkpoint History',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        if (preTransaction.preparingStartedAt != null)
+          _buildTimelineItem(
+            'Preparing Started',
+            preTransaction.preparingStartedAt!,
+            Icons.inventory_2,
+            true,
+          ),
+        if (preTransaction.shippingStartedAt != null)
+          _buildTimelineItem(
+            'Shipping Started',
+            preTransaction.shippingStartedAt!,
+            Icons.local_shipping,
+            true,
+          ),
+        if (preTransaction.deliveredAt != null)
+          _buildTimelineItem(
+            'Delivered',
+            preTransaction.deliveredAt!,
+            Icons.check_circle,
+            true,
+          ),
+        if (preTransaction.paymentSuccessAt != null)
+          _buildTimelineItem(
+            'Payment Received',
+            preTransaction.paymentSuccessAt!,
+            Icons.payments,
+            true,
+          ),
+        if (preTransaction.transactionCompletedAt != null)
+          _buildTimelineItem(
+            'Transaction Complete',
+            preTransaction.transactionCompletedAt!,
+            Icons.done_all,
+            true,
+          ),
+      ],
+    );
+  }
+
+  IconData _getCheckpointIcon(PreTransactionStatus status) {
+    switch (status) {
+      case PreTransactionStatus.preparing:
+        return Icons.inventory_2;
+      case PreTransactionStatus.shipping:
+        return Icons.local_shipping;
+      case PreTransactionStatus.delivered:
+        return Icons.check_circle;
+      case PreTransactionStatus.paymentSuccess:
+        return Icons.payments;
+      case PreTransactionStatus.transactionComplete:
+        return Icons.done_all;
+      default:
+        return Icons.info;
+    }
+  }
+
+  String _getBuyerCheckpointDescription(PreTransactionStatus status) {
+    switch (status) {
+      case PreTransactionStatus.preparing:
+        return 'Seller is preparing your item for shipment. You will be notified when it ships.';
+      case PreTransactionStatus.shipping:
+        return 'Your item is on its way! Track your shipment and expect delivery soon.';
+      case PreTransactionStatus.delivered:
+        return 'Item has been delivered! Please confirm receipt and proceed with payment.';
+      case PreTransactionStatus.paymentSuccess:
+        return 'Payment successful! Transaction is being finalized.';
+      case PreTransactionStatus.transactionComplete:
+        return 'Transaction complete! Please rate your experience with the seller.';
+      default:
+        return 'Transaction in progress...';
+    }
+  }
+
+  Widget _buildRatingSection(PreTransaction preTransaction) {
+    return Column(
+      children: [
+        // Show deposit refund for buyer
+        if (!widget.isSeller)
+          Card(
+            elevation: 2,
+            color: ColorConstants.primaryGreen.withOpacity(0.1),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: ColorConstants.primaryGreen,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(Icons.account_balance_wallet, color: Colors.white, size: 24),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Deposit Refunded!',
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Your bidding deposit has been returned to your account',
+                              style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: ColorConstants.primaryGreen.withOpacity(0.3)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Refund Amount',
+                              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                            ),
+                            const SizedBox(height: 4),
+                            const Text(
+                              '₱1,000.00',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: ColorConstants.primaryGreen,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: ColorConstants.primaryGreen,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Text(
+                            'Processed',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Icon(Icons.info_outline, size: 16, color: Colors.grey[600]),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Deposit returned after transaction completion',
+                          style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        if (!widget.isSeller) const SizedBox(height: 16),
+
+        // Rating card
+        Card(
+          elevation: 2,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.star, color: Colors.amber),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Rate Your ${widget.isSeller ? 'Buyer' : 'Seller'}',
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Help others by sharing your experience with this ${widget.isSeller ? 'buyer' : 'seller'}.',
+                  style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () => _showRatingDialog(),
+                    icon: const Icon(Icons.rate_review),
+                    label: const Text('Leave a Review'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.amber,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _showRatingDialog() async {
+    int rating = 0;
+    final commentController = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text('Rate ${widget.isSeller ? 'Buyer' : 'Seller'}'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(5, (index) {
+                    return IconButton(
+                      onPressed: () {
+                        setState(() {
+                          rating = index + 1;
+                        });
+                      },
+                      icon: Icon(
+                        index < rating ? Icons.star : Icons.star_border,
+                        color: Colors.amber,
+                        size: 32,
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: commentController,
+                  decoration: const InputDecoration(
+                    labelText: 'Your Review (Optional)',
+                    hintText: 'Share your experience...',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 4,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: rating > 0
+                  ? () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Thank you for your review!'),
+                          backgroundColor: ColorConstants.primaryGreen,
+                        ),
+                      );
+                    }
+                  : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.amber,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Submit'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    commentController.dispose();
   }
 
   Widget _buildConfirmationBanner(PreTransaction preTransaction) {
