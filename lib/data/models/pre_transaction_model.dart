@@ -24,6 +24,17 @@ enum PreTransactionStatus {
   adminApproved,
   @JsonValue('ready_for_payment')
   readyForPayment,
+  // New checkpoint statuses (no escrow)
+  @JsonValue('preparing')
+  preparing,
+  @JsonValue('shipping')
+  shipping,
+  @JsonValue('delivered')
+  delivered,
+  @JsonValue('payment_success')
+  paymentSuccess,
+  @JsonValue('transaction_complete')
+  transactionComplete,
   @JsonValue('cancelled')
   cancelled,
 }
@@ -81,6 +92,14 @@ abstract class PreTransaction with _$PreTransaction {
     DateTime? adminReviewCompletedAt,
     String? adminReviewNotes,
     DateTime? readyForPaymentAt,
+
+    // New checkpoint timestamps (no escrow)
+    DateTime? preparingStartedAt,
+    DateTime? shippingStartedAt,
+    DateTime? deliveredAt,
+    DateTime? paymentSuccessAt,
+    DateTime? transactionCompletedAt,
+
     String? cancellationReason,
     DateTime? cancelledAt,
   }) = _PreTransaction;

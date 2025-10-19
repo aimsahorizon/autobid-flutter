@@ -103,6 +103,21 @@ _PreTransaction _$PreTransactionFromJson(Map<String, dynamic> json) =>
       readyForPaymentAt: json['readyForPaymentAt'] == null
           ? null
           : DateTime.parse(json['readyForPaymentAt'] as String),
+      preparingStartedAt: json['preparingStartedAt'] == null
+          ? null
+          : DateTime.parse(json['preparingStartedAt'] as String),
+      shippingStartedAt: json['shippingStartedAt'] == null
+          ? null
+          : DateTime.parse(json['shippingStartedAt'] as String),
+      deliveredAt: json['deliveredAt'] == null
+          ? null
+          : DateTime.parse(json['deliveredAt'] as String),
+      paymentSuccessAt: json['paymentSuccessAt'] == null
+          ? null
+          : DateTime.parse(json['paymentSuccessAt'] as String),
+      transactionCompletedAt: json['transactionCompletedAt'] == null
+          ? null
+          : DateTime.parse(json['transactionCompletedAt'] as String),
       cancellationReason: json['cancellationReason'] as String?,
       cancelledAt: json['cancelledAt'] == null
           ? null
@@ -140,6 +155,11 @@ Map<String, dynamic> _$PreTransactionToJson(
   'adminReviewCompletedAt': instance.adminReviewCompletedAt?.toIso8601String(),
   'adminReviewNotes': instance.adminReviewNotes,
   'readyForPaymentAt': instance.readyForPaymentAt?.toIso8601String(),
+  'preparingStartedAt': instance.preparingStartedAt?.toIso8601String(),
+  'shippingStartedAt': instance.shippingStartedAt?.toIso8601String(),
+  'deliveredAt': instance.deliveredAt?.toIso8601String(),
+  'paymentSuccessAt': instance.paymentSuccessAt?.toIso8601String(),
+  'transactionCompletedAt': instance.transactionCompletedAt?.toIso8601String(),
   'cancellationReason': instance.cancellationReason,
   'cancelledAt': instance.cancelledAt?.toIso8601String(),
 };
@@ -154,5 +174,10 @@ const _$PreTransactionStatusEnumMap = {
   PreTransactionStatus.pendingAdminReview: 'pending_admin_review',
   PreTransactionStatus.adminApproved: 'admin_approved',
   PreTransactionStatus.readyForPayment: 'ready_for_payment',
+  PreTransactionStatus.preparing: 'preparing',
+  PreTransactionStatus.shipping: 'shipping',
+  PreTransactionStatus.delivered: 'delivered',
+  PreTransactionStatus.paymentSuccess: 'payment_success',
+  PreTransactionStatus.transactionComplete: 'transaction_complete',
   PreTransactionStatus.cancelled: 'cancelled',
 };
