@@ -61,6 +61,9 @@ lib/
 │   │   ├── kyc_model_new.dart
 │   │   ├── notification_model.dart
 │   │   ├── payment_method.dart
+│   │   ├── pre_transaction_confirmation_model.dart
+│   │   ├── pre_transaction_message_model.dart
+│   │   ├── pre_transaction_model.dart
 │   │   ├── pricing_config.dart
 │   │   ├── required_car_images.dart
 │   │   ├── review_model.dart
@@ -84,6 +87,7 @@ lib/
 │       │   ├── mock_notification_service.dart
 │       │   ├── mock_otp_service.dart
 │       │   ├── mock_payment_service.dart
+│       │   ├── mock_pre_transaction_service.dart
 │       │   └── mock_review_service.dart
 │       └── mock_vehicle_conditions_service.dart
 ├── domain/
@@ -103,6 +107,7 @@ lib/
 │   │   ├── listing_provider.dart
 │   │   ├── notification_provider.dart
 │   │   ├── payment_provider.dart
+│   │   ├── pre_transaction_provider.dart
 │   │   ├── signup_provider.dart
 │   │   ├── theme_provider.dart
 │   │   ├── transaction_provider.dart
@@ -208,6 +213,10 @@ lib/
 │   │   │       ├── payment_method_card.dart
 │   │   │       ├── payment_summary.dart
 │   │   │       └── transaction_item.dart
+│   │   ├── pre_transaction/
+│   │   │   ├── pre_transaction_confirmation_form_screen.dart
+│   │   │   ├── pre_transaction_discussion_screen.dart
+│   │   │   └── pre_transaction_status_screen.dart
 │   │   ├── profile/
 │   │   │   ├── edit_profile_screen.dart
 │   │   │   ├── help_support_screen.dart
@@ -278,11 +287,11 @@ lib/
 | Enhanced KYC Phase 1 | ✅ Complete | 0.6.0 | main | Verification levels, proof of address |
 | Payment & Escrow | ✅ Complete | 0.7.0 | main | Multiple payment methods |
 | Notifications | ✅ Complete | 0.7.1 | main | In-app notifications |
+| Pre-Transaction Discussion | ✅ Complete | 0.12.0 | nekolaiv/enhance-auth | Buyer-seller chat, confirmation |
 | Ratings & Reviews | ✅ Complete | 0.8.0 | main | Seller reviews |
 | Vehicle Condition Enhancement | 🔄 In Progress | 0.8.3 | nekolaiv/carlisting-enhancement | Custom attributes |
 | Enhanced KYC Phase 2 | ⏳ Planned | 0.6.1 | - | Vehicle docs, limit enforcement |
 | Enhanced KYC Phase 3 | ⏳ Planned | 0.6.2 | - | Progressive upgrades |
-| Messaging/Chat | ⏳ Planned | 0.7.2 | - | In-app chat |
 | Admin Panel | ⏳ Planned | 0.9.0 | - | Moderation dashboard |
 | Analytics | ⏳ Planned | 1.0.0 | - | Metrics & reports |
 
@@ -357,7 +366,7 @@ P0 = Critical (blocks release) | P1 = High (fix soon) | P2 = Medium (next sprint
 - **Total Models:** 18 (with Freezed generation)
 - **Total Screens:** 70+
 - **Total Providers:** 12
-- **Total Services:** 9 mock + 1 local = 10 total
+- **Total Services:** 10 mock + 1 local = 11 total
 - **Lines of Code:** ~17,000+ (estimate)
 
 ---

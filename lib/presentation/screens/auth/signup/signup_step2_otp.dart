@@ -215,7 +215,7 @@ class _SignupStep2OtpState extends State<SignupStep2Otp> with SignupStepMixin {
       appBar: AppBar(
         title: const Text('Verify OTP'),
         centerTitle: true,
-        leading: buildBackButton(),
+        leading: buildBackButton('/signup/step1'),
       ),
       body: SafeArea(
         child: SingleChildScrollView(

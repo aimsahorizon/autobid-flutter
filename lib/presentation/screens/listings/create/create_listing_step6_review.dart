@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/utils/enum_extensions.dart';
+import '../../../../core/constants/color_constants.dart';
 import '../../../providers/listing_provider.dart';
 import '../../../widgets/custom_button.dart';
+import '../../../widgets/card_payment_dialog.dart';
 
 class CreateListingStep6Review extends StatefulWidget {
   const CreateListingStep6Review({super.key});
@@ -15,8 +17,44 @@ class CreateListingStep6Review extends StatefulWidget {
 
 class _CreateListingStep6ReviewState extends State<CreateListingStep6Review> {
   bool _isSubmitting = false;
+  bool _hasPaidListingFee = false;
+  static const double listingFee = 500.0;
+
+  void _showListingFeePayment() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => CardPaymentDialog(
+        title: 'Listing Fee',
+        amount: listingFee,
+        description: 'One-time fee to list your vehicle for auction',
+        onPaymentSuccess: () {
+          setState(() {
+            _hasPaidListingFee = true;
+          });
+          _proceedWithSubmission(false);
+        },
+      ),
+    );
+  }
 
   Future<void> _submitListing(bool isDraft) async {
+    // Skip payment for drafts
+    if (isDraft) {
+      await _proceedWithSubmission(true);
+      return;
+    }
+
+    // Require payment for final submission
+    if (!_hasPaidListingFee) {
+      _showListingFeePayment();
+      return;
+    }
+
+    await _proceedWithSubmission(false);
+  }
+
+  Future<void> _proceedWithSubmission(bool isDraft) async {
     setState(() => _isSubmitting = true);
 
     try {
@@ -210,6 +248,67 @@ class _CreateListingStep6ReviewState extends State<CreateListingStep6Review> {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 16),
+
+          // Listing Fee Notice
+          Card(
+            color: Colors.blue.withOpacity(0.1),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.info_outline, color: Colors.blue[700]),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Listing Fee Required',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue[900],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'A one-time listing fee of ₱500.00 is required to publish your vehicle listing to the auction platform.',
+                    style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Icon(Icons.check_circle, size: 16, color: ColorConstants.primaryGreen),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Payment is securely processed',
+                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.check_circle, size: 16, color: ColorConstants.primaryGreen),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Your listing will be live immediately after payment',
+                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),

@@ -1,3 +1,4 @@
+import 'package:autobid/data/models/search_filters.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' as riverpod;
 import 'package:go_router/go_router.dart';
@@ -6,6 +7,8 @@ import '../../providers/listing_provider.dart';
 import '../../providers/browse_provider.dart';
 import '../../providers/payment_provider.dart';
 import '../../providers/notification_provider.dart';
+import '../../providers/auction_provider.dart';
+// import '../../data/models/search_filters.dart';
 import '../browse/filter_bottom_sheet.dart';
 import 'tabs/browse_tab.dart';
 import 'tabs/watchlist_tab.dart';
@@ -70,6 +73,126 @@ class _HomeScreenState extends riverpod.ConsumerState<HomeScreen> {
         actions: [
           // Browse tab actions
           if (_selectedIndex == 0) ...[
+            provider.Consumer<AuctionProvider>(
+              builder: (context, auctionProvider, child) {
+                return PopupMenuButton<SortBy>(
+                  icon: const Icon(Icons.sort),
+                  tooltip: 'Sort',
+                  onSelected: (SortBy sortBy) {
+                    final currentFilters = auctionProvider.filters;
+                    auctionProvider.applyFilters(
+                      filters: currentFilters.copyWith(sortBy: sortBy),
+                    );
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: SortBy.priceAsc,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.arrow_upward,
+                            size: 18,
+                            color: auctionProvider.filters.sortBy == SortBy.priceAsc
+                                ? Theme.of(context).colorScheme.primary
+                                : null,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            'Price: Low to High',
+                            style: TextStyle(
+                              fontWeight: auctionProvider.filters.sortBy == SortBy.priceAsc
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              color: auctionProvider.filters.sortBy == SortBy.priceAsc
+                                  ? Theme.of(context).colorScheme.primary
+                                  : null,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: SortBy.priceDesc,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.arrow_downward,
+                            size: 18,
+                            color: auctionProvider.filters.sortBy == SortBy.priceDesc
+                                ? Theme.of(context).colorScheme.primary
+                                : null,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            'Price: High to Low',
+                            style: TextStyle(
+                              fontWeight: auctionProvider.filters.sortBy == SortBy.priceDesc
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              color: auctionProvider.filters.sortBy == SortBy.priceDesc
+                                  ? Theme.of(context).colorScheme.primary
+                                  : null,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: SortBy.endingSoon,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.timer,
+                            size: 18,
+                            color: auctionProvider.filters.sortBy == SortBy.endingSoon
+                                ? Theme.of(context).colorScheme.primary
+                                : null,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            'Ending Soon',
+                            style: TextStyle(
+                              fontWeight: auctionProvider.filters.sortBy == SortBy.endingSoon
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              color: auctionProvider.filters.sortBy == SortBy.endingSoon
+                                  ? Theme.of(context).colorScheme.primary
+                                  : null,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: SortBy.newest,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.new_releases,
+                            size: 18,
+                            color: auctionProvider.filters.sortBy == SortBy.newest
+                                ? Theme.of(context).colorScheme.primary
+                                : null,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            'Newest First',
+                            style: TextStyle(
+                              fontWeight: auctionProvider.filters.sortBy == SortBy.newest
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              color: auctionProvider.filters.sortBy == SortBy.newest
+                                  ? Theme.of(context).colorScheme.primary
+                                  : null,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
             provider.Consumer<BrowseProvider>(
               builder: (context, browseProvider, child) {
                 return Stack(

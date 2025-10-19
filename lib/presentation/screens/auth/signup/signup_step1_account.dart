@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +10,8 @@ import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/signup_stepper.dart';
 import 'signup_step_mixin.dart';
+import '../legal/terms_and_conditions_screen.dart';
+import '../legal/privacy_policy_screen.dart';
 
 class SignupStep1Account extends StatefulWidget {
   const SignupStep1Account({super.key});
@@ -134,7 +137,7 @@ class _SignupStep1AccountState extends State<SignupStep1Account>
       appBar: AppBar(
         title: const Text('Create Account'),
         centerTitle: true,
-        leading: buildBackButton(),
+        leading: buildBackButton('/signup/step1'),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -230,31 +233,87 @@ class _SignupStep1AccountState extends State<SignupStep1Account>
                   builder: (context, provider, child) {
                     return Column(
                       children: [
-                        CheckboxListTile(
-                          value: provider.termsAccepted,
-                          onChanged: (value) {
-                            provider.setTermsAccepted(value ?? false);
-                          },
-                          activeColor: ColorConstants.primaryGreen,
-                          contentPadding: EdgeInsets.zero,
-                          controlAffinity: ListTileControlAffinity.leading,
-                          title: Text(
-                            'I accept the Terms and Conditions',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Checkbox(
+                              value: provider.termsAccepted,
+                              onChanged: (value) {
+                                provider.setTermsAccepted(value ?? false);
+                              },
+                              activeColor: ColorConstants.primaryGreen,
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 12),
+                                child: RichText(
+                                  text: TextSpan(
+                                    style: Theme.of(context).textTheme.bodyMedium,
+                                    children: [
+                                      const TextSpan(text: 'I accept the '),
+                                      TextSpan(
+                                        text: 'Terms and Conditions',
+                                        style: const TextStyle(
+                                          color: ColorConstants.primaryGreen,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const TermsAndConditionsScreen(),
+                                              ),
+                                            );
+                                          },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        CheckboxListTile(
-                          value: provider.privacyAccepted,
-                          onChanged: (value) {
-                            provider.setPrivacyAccepted(value ?? false);
-                          },
-                          activeColor: ColorConstants.primaryGreen,
-                          contentPadding: EdgeInsets.zero,
-                          controlAffinity: ListTileControlAffinity.leading,
-                          title: Text(
-                            'I accept the Privacy Policy',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Checkbox(
+                              value: provider.privacyAccepted,
+                              onChanged: (value) {
+                                provider.setPrivacyAccepted(value ?? false);
+                              },
+                              activeColor: ColorConstants.primaryGreen,
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 12),
+                                child: RichText(
+                                  text: TextSpan(
+                                    style: Theme.of(context).textTheme.bodyMedium,
+                                    children: [
+                                      const TextSpan(text: 'I accept the '),
+                                      TextSpan(
+                                        text: 'Privacy Policy',
+                                        style: const TextStyle(
+                                          color: ColorConstants.primaryGreen,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const PrivacyPolicyScreen(),
+                                              ),
+                                            );
+                                          },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     );

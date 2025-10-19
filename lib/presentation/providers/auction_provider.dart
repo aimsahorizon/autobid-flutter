@@ -5,6 +5,7 @@ import '../../data/models/bid_model.dart';
 import '../../data/models/auto_bid_config.dart';
 import '../../data/models/search_filters.dart';
 import '../../data/services/mock/mock_auction_service.dart';
+import '../../config/app_config.dart';
 
 class AuctionProvider with ChangeNotifier {
   final MockAuctionService _service = MockAuctionService();
@@ -24,7 +25,7 @@ class AuctionProvider with ChangeNotifier {
   StreamSubscription? _bidSubscription;
 
   // ignore: prefer_final_fields
-  String? _currentUserId = 'current_user_123'; // Mock user ID
+  String? _currentUserId = AppConfig.demoUserId; // Use demo user ID from config
 
   // Getters
   List<Auction> get activeAuctions => _activeAuctions;

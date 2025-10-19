@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../data/models/car_model.dart';
+import '../../../../data/models/pre_transaction_model.dart';
+import '../../../../data/services/mock/mock_pre_transaction_service.dart';
 import '../../../../core/utils/listing_status_extensions.dart';
+import '../../../../core/constants/color_constants.dart';
 import '../../../providers/listing_provider.dart';
 import '../../../widgets/car_card.dart';
 
@@ -22,7 +25,7 @@ class _MyListingsTabState extends State<MyListingsTab>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: 6, vsync: this);
     _loadListings();
   }
 
@@ -51,6 +54,7 @@ class _MyListingsTabState extends State<MyListingsTab>
           tabs: [
             _buildTab('Active', ListingStatus.active, provider),
             _buildTab('Pending', ListingStatus.pendingReview, provider),
+            _buildTab('In Transaction', null, provider), // Special tab for sold items
             _buildTab('Drafts', ListingStatus.draft, provider),
             _buildTab('Sold', ListingStatus.sold, provider),
             _buildTab('Cancelled', ListingStatus.cancelled, provider),
@@ -92,6 +96,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                               .toList(),
                           ListingStatus.pendingReview,
                         ),
+                        _buildInTransactionList(), // New tab for sold auctions
                         _buildListingList(
                           provider.myListings
                               .where((l) => l.status == ListingStatus.draft)
@@ -117,10 +122,264 @@ class _MyListingsTabState extends State<MyListingsTab>
     );
   }
 
-  Widget _buildTab(String label, ListingStatus status, ListingProvider provider) {
+  Widget _buildTab(String label, ListingStatus? status, ListingProvider provider) {
     return Tab(
       child: Text(label),
     );
+  }
+
+  Widget _buildInTransactionList() {
+    final preTransactionService = MockPreTransactionService();
+
+    // Initialize mock data on first build
+    preTransactionService.initializeSellerMockData('mock-user-id');
+
+    final sellerTransactions = preTransactionService.getSellerPreTransactions('mock-user-id');
+
+    if (sellerTransactions.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                '🤝',
+                style: TextStyle(fontSize: 80),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'No Active Transactions',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Sold vehicles awaiting buyer confirmation will appear here.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: sellerTransactions.length,
+      itemBuilder: (context, index) {
+        final preTransaction = sellerTransactions[index];
+        return _buildPreTransactionCard(preTransaction);
+      },
+    );
+  }
+
+  Widget _buildPreTransactionCard(PreTransaction preTransaction) {
+    final hoursAgo = DateTime.now().difference(preTransaction.createdAt).inHours;
+
+    // Get status badge info
+    final statusInfo = _getStatusBadgeInfo(preTransaction.status);
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
+        onTap: () {
+          // Navigate to pre-transaction discussion screen (as seller)
+          context.push(
+            '/preTransaction/${preTransaction.auctionId}?carTitle=${Uri.encodeComponent(preTransaction.carTitle)}&winningBid=${preTransaction.finalBidAmount}&isSeller=true',
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 70,
+                    height: 70,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.directions_car,
+                      color: Colors.grey[400],
+                      size: 32,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          preTransaction.carTitle,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Buyer: ${preTransaction.buyerName}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '₱${_formatCurrency(preTransaction.finalBidAmount)}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: ColorConstants.primaryGreen,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(
+                    Icons.arrow_forward_ios,
+                    size: 16,
+                    color: Colors.grey,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Divider(color: Colors.grey[300]),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: statusInfo['color'].withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: statusInfo['color'].withOpacity(0.3)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          statusInfo['icon'],
+                          size: 14,
+                          color: statusInfo['color'],
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          statusInfo['label'],
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: statusInfo['color'],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    '${hoursAgo}h ago',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+              // Show action hint based on status
+              if (_getActionHint(preTransaction.status) != null) ...[
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.blue[50],
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.touch_app, size: 14, color: Colors.blue[700]),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          _getActionHint(preTransaction.status)!,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.blue[700],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Map<String, dynamic> _getStatusBadgeInfo(PreTransactionStatus status) {
+    switch (status) {
+      case PreTransactionStatus.inDiscussion:
+        return {
+          'label': 'In Discussion',
+          'color': Colors.orange[700],
+          'icon': Icons.chat_bubble_outline,
+        };
+      case PreTransactionStatus.pendingSellerConfirmation:
+        return {
+          'label': 'Action Required',
+          'color': Colors.red[700],
+          'icon': Icons.assignment_late,
+        };
+      case PreTransactionStatus.pendingAdminReview:
+        return {
+          'label': 'Admin Review',
+          'color': Colors.purple[700],
+          'icon': Icons.admin_panel_settings,
+        };
+      case PreTransactionStatus.adminApproved:
+      case PreTransactionStatus.readyForPayment:
+        return {
+          'label': 'Awaiting Payment',
+          'color': Colors.blue[700],
+          'icon': Icons.pending_actions,
+        };
+      default:
+        return {
+          'label': 'In Progress',
+          'color': Colors.grey[700],
+          'icon': Icons.sync,
+        };
+    }
+  }
+
+  String? _getActionHint(PreTransactionStatus status) {
+    switch (status) {
+      case PreTransactionStatus.inDiscussion:
+        return 'Discuss delivery details with buyer';
+      case PreTransactionStatus.pendingSellerConfirmation:
+        return 'Buyer confirmed. Fill out your seller form';
+      case PreTransactionStatus.pendingAdminReview:
+        return 'Admin reviewing both confirmations';
+      case PreTransactionStatus.readyForPayment:
+        return 'Payment received! Prepare shipping evidence';
+      default:
+        return null;
+    }
   }
 
   Widget _buildListingList(List<CarModel> listings, ListingStatus status) {
@@ -151,8 +410,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                   color: Colors.grey[600],
                 ),
               ),
-              if (status == ListingStatus.active ||
-                  status == ListingStatus.draft) ...[
+              if (status == ListingStatus.draft) ...[
                 const SizedBox(height: 24),
                 FilledButton.icon(
                   onPressed: () {
@@ -175,6 +433,11 @@ class _MyListingsTabState extends State<MyListingsTab>
       );
     }
 
+    // Determine if actions should be shown based on status
+    final bool showEditDelete = status == ListingStatus.draft;
+    final bool showReauctionDelete = status == ListingStatus.cancelled;
+    final bool showActions = showEditDelete || showReauctionDelete;
+
     if (widget.isGridView) {
       return GridView.builder(
         padding: const EdgeInsets.all(16),
@@ -189,15 +452,19 @@ class _MyListingsTabState extends State<MyListingsTab>
           final listing = listings[index];
           return CarCard(
             car: listing,
-            onTap: () => context.push('/car/${listing.id}'),
-            showActions: true,
-            onEdit: () {
+            onTap: () => _handleListingTap(listing, status),
+            showActions: showActions,
+            onEdit: showEditDelete ? () {
               final provider = context.read<ListingProvider>();
               provider.loadListingForEdit(listing);
-              // Always start from step 1, preserving all filled information
               context.push('/listing/create/step1');
-            },
-            onDelete: () => _showDeleteDialog(listing),
+            } : null,
+            onDelete: showEditDelete || showReauctionDelete
+                ? () => _showDeleteDialog(listing)
+                : null,
+            customActionButton: showReauctionDelete
+                ? _buildReauctionButton(listing)
+                : null,
           );
         },
       );
@@ -212,19 +479,77 @@ class _MyListingsTabState extends State<MyListingsTab>
           padding: const EdgeInsets.only(bottom: 12),
           child: CarCard(
             car: listing,
-            onTap: () => context.push('/car/${listing.id}'),
-            showActions: true,
-            onEdit: () {
+            onTap: () => _handleListingTap(listing, status),
+            showActions: showActions,
+            onEdit: showEditDelete ? () {
               final provider = context.read<ListingProvider>();
               provider.loadListingForEdit(listing);
-              // Always start from step 1, preserving all filled information
               context.push('/listing/create/step1');
-            },
-            onDelete: () => _showDeleteDialog(listing),
+            } : null,
+            onDelete: showEditDelete || showReauctionDelete
+                ? () => _showDeleteDialog(listing)
+                : null,
+            customActionButton: showReauctionDelete
+                ? _buildReauctionButton(listing)
+                : null,
           ),
         );
       },
     );
+  }
+
+  void _handleListingTap(CarModel listing, ListingStatus status) {
+    // Active listings go to auction view
+    if (status == ListingStatus.active) {
+      context.push('/auction/${listing.id}');
+    } else {
+      // All other statuses go to read-only car details
+      context.push('/car/${listing.id}');
+    }
+  }
+
+  Widget _buildReauctionButton(CarModel listing) {
+    return IconButton(
+      icon: const Icon(Icons.refresh),
+      tooltip: 'Reauction',
+      onPressed: () => _showReauctionDialog(listing),
+    );
+  }
+
+  Future<void> _showReauctionDialog(CarModel car) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reauction Listing'),
+        content: Text(
+          'Do you want to reauction "${car.brand} ${car.model}"?\n\nThis will create a new active auction with the same details.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(
+              backgroundColor: ColorConstants.primaryGreen,
+            ),
+            child: const Text('Reauction'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && mounted) {
+      final provider = context.read<ListingProvider>();
+      provider.loadListingForEdit(car);
+      context.push('/listing/create/step1');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Edit details and submit to reauction')),
+        );
+      }
+    }
   }
 
   Future<void> _showDeleteDialog(CarModel car) async {
@@ -289,5 +614,12 @@ class _MyListingsTabState extends State<MyListingsTab>
       case ListingStatus.cancelled:
         return 'Cancelled listings will appear here.';
     }
+  }
+
+  String _formatCurrency(double amount) {
+    return amount.toStringAsFixed(0).replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+        );
   }
 }

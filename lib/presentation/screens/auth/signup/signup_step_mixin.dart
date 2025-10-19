@@ -10,7 +10,7 @@ mixin SignupStepMixin<T extends StatefulWidget> on State<T> {
     final provider = context.read<SignupProvider>();
     if (provider.isEditingFromReview) {
       provider.setIsEditingFromReview(false);
-      context.go('/signup/step8');
+      context.go('/signup/step9');
     } else {
       context.go(nextRoute);
     }
@@ -20,7 +20,7 @@ mixin SignupStepMixin<T extends StatefulWidget> on State<T> {
     final provider = context.read<SignupProvider>();
     if (provider.isEditingFromReview) {
       provider.setIsEditingFromReview(false);
-      context.go('/signup/step8');
+      context.go('/signup/step9');
     } else {
       context.go(previousRoute);
     }
@@ -67,16 +67,16 @@ mixin SignupStepMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
-  Widget buildBackButton() {
+  Widget buildBackButton(String previousRoute) {
     final provider = context.watch<SignupProvider>();
     return IconButton(
       icon: const Icon(Icons.arrow_back),
       onPressed: () {
         if (provider.isEditingFromReview) {
           provider.setIsEditingFromReview(false);
-          context.go('/signup/step8');
+          context.go('/signup/step9');
         } else {
-          Navigator.of(context).pop();
+          context.go(previousRoute);
         }
       },
     );

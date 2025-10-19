@@ -50,6 +50,9 @@ import '../../presentation/screens/review/seller_reviews_screen.dart';
 import '../../presentation/screens/notifications/notifications_screen.dart';
 import '../../presentation/screens/guest/guest_view_screen.dart';
 import '../../presentation/screens/admin/admin_debug_panel.dart';
+import '../../presentation/screens/pre_transaction/pre_transaction_discussion_screen.dart';
+import '../../presentation/screens/pre_transaction/pre_transaction_confirmation_form_screen.dart';
+import '../../presentation/screens/pre_transaction/pre_transaction_status_screen.dart';
 import '../../presentation/providers/auth_provider.dart';
 import '../constants/string_constants.dart';
 
@@ -265,6 +268,57 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final auctionId = state.pathParameters['id']!;
           return AuctionDetailScreen(auctionId: auctionId);
+        },
+      ),
+      // Pre-Transaction Routes
+      GoRoute(
+        path: '/preTransaction/:auctionId',
+        name: 'preTransaction',
+        builder: (context, state) {
+          final auctionId = state.pathParameters['auctionId']!;
+          final carTitle = state.uri.queryParameters['carTitle'] ?? 'Vehicle';
+          final winningBid = double.tryParse(
+                  state.uri.queryParameters['winningBid'] ?? '0') ??
+              0;
+          final isSeller = state.uri.queryParameters['isSeller'] == 'true';
+          return PreTransactionDiscussionScreen(
+            auctionId: auctionId,
+            carTitle: carTitle,
+            winningBid: winningBid,
+            isSeller: isSeller,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/preTransactionForm/:auctionId',
+        name: 'preTransactionForm',
+        builder: (context, state) {
+          final auctionId = state.pathParameters['auctionId']!;
+          final carTitle = state.uri.queryParameters['carTitle'] ?? 'Vehicle';
+          final winningBid = double.tryParse(
+                  state.uri.queryParameters['winningBid'] ?? '0') ??
+              0;
+          return PreTransactionConfirmationFormScreen(
+            auctionId: auctionId,
+            carTitle: carTitle,
+            winningBid: winningBid,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/preTransactionStatus/:auctionId',
+        name: 'preTransactionStatus',
+        builder: (context, state) {
+          final auctionId = state.pathParameters['auctionId']!;
+          final carTitle = state.uri.queryParameters['carTitle'] ?? 'Vehicle';
+          final winningBid = double.tryParse(
+                  state.uri.queryParameters['winningBid'] ?? '0') ??
+              0;
+          return PreTransactionStatusScreen(
+            auctionId: auctionId,
+            carTitle: carTitle,
+            winningBid: winningBid,
+          );
         },
       ),
       // Payment Routes

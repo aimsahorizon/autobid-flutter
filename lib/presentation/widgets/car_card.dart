@@ -9,6 +9,7 @@ class CarCard extends StatelessWidget {
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final bool showActions;
+  final Widget? customActionButton;
 
   const CarCard({
     super.key,
@@ -17,6 +18,7 @@ class CarCard extends StatelessWidget {
     this.onEdit,
     this.onDelete,
     this.showActions = false,
+    this.customActionButton,
   });
 
   @override
@@ -123,6 +125,8 @@ class CarCard extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
+                        if (customActionButton != null)
+                          Flexible(child: customActionButton!),
                         if (onEdit != null)
                           Flexible(
                             child: TextButton.icon(

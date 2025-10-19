@@ -24,7 +24,7 @@ class AuctionCard extends StatelessWidget {
             Stack(
               children: [
                 auction.car?.images.isNotEmpty == true
-                  ? Image.network(
+                  ? Image.asset(
                       auction.car!.images.first,
                       height: 120,
                       width: double.infinity,

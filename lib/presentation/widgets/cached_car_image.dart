@@ -21,6 +21,19 @@ class CachedCarImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isNetwork = imageUrl.toLowerCase().startsWith('http://') || imageUrl.toLowerCase().startsWith('https://');
+
+    if (!isNetwork) {
+      // Treat as local asset path
+      return Image.asset(
+        imageUrl,
+        width: width,
+        height: height,
+        fit: fit,
+        errorBuilder: (context, error, stackTrace) => errorWidget ?? _buildErrorWidget(),
+      );
+    }
+
     return CachedNetworkImage(
       imageUrl: imageUrl,
       width: width,

@@ -52,6 +52,36 @@ class MockAuctionService implements AuctionRepository {
   @override
   List<Auction> getAuctions() => List.from(_auctions);
 
+  // Map brand names to actual car images in assets/images
+  String _getBrandImage(String brand) {
+    final brandImageMap = {
+      'Toyota': 'assets/images/toyota.jpg',
+      'Honda': 'assets/images/honda.jpg',
+      'Ford': 'assets/images/ford-mustang.jpg',
+      'Mazda': 'assets/images/bmw.jpg', // Using BMW as placeholder for Mazda
+      'Mitsubishi': 'assets/images/chevrolet.jpg', // Using Chevrolet as placeholder
+      'Suzuki': 'assets/images/honda.jpg',
+      'Nissan': 'assets/images/toyota.jpg', // Using Toyota as placeholder
+      'MG': 'assets/images/mercedez.jpg', // Using Mercedes as placeholder
+      'Geely': 'assets/images/chevrolet.jpg',
+      'Isuzu': 'assets/images/ford-mustang.jpg',
+      'Dodge': 'assets/images/dodge.jpg',
+      'Ferrari': 'assets/images/ferrari-250-gto.jpg',
+      'Audi': 'assets/images/audi.jpg',
+      'BMW': 'assets/images/bmw.jpg',
+      'Mercedes': 'assets/images/mercedez.jpg',
+      'McLaren': 'assets/images/mclaren.jpg',
+      'Porsche': 'assets/images/porsche.jpg',
+      'Tesla': 'assets/images/tesla.jpg',
+      'Bugatti': 'assets/images/bugatti.jpg',
+      'Chevrolet': 'assets/images/chevrolet.jpg',
+      'BYD': 'assets/images/tesla.jpg', // Using Tesla for electric cars
+      'Subaru': 'assets/images/toyota.jpg',
+    };
+
+    return brandImageMap[brand] ?? 'assets/images/toyota.jpg';
+  }
+
   List<CarModel> _generateFallbackCars() {
     final now = DateTime.now();
 
@@ -488,66 +518,12 @@ class MockAuctionService implements AuctionRepository {
         priceNegotiable: true,
         description: 'Well-maintained ${data['brand']} ${data['model']} ${data['variant']}. ${data['features'] != null ? "Features include: ${(data['features'] as List<String>).join(", ")}." : ""}',
         features: data['features'] as List<String>? ?? [],
-        images: ['https://via.placeholder.com/800x600?text=${data['brand']}+${data['model']}'],
+        images: [_getBrandImage(data['brand'] as String)],
         categorizedImages: {
-          'exterior': [
-            // Front views
-            'https://via.placeholder.com/800x600/4285F4/FFFFFF?text=Front+View',
-            'https://via.placeholder.com/800x600/4285F4/FFFFFF?text=Front+3-4+Driver',
-            'https://via.placeholder.com/800x600/4285F4/FFFFFF?text=Front+3-4+Passenger',
-            // Side views
-            'https://via.placeholder.com/800x600/4285F4/FFFFFF?text=Side+Driver',
-            'https://via.placeholder.com/800x600/4285F4/FFFFFF?text=Side+Passenger',
-            // Rear views
-            'https://via.placeholder.com/800x600/4285F4/FFFFFF?text=Rear+3-4+Driver',
-            'https://via.placeholder.com/800x600/4285F4/FFFFFF?text=Rear+3-4+Passenger',
-            'https://via.placeholder.com/800x600/4285F4/FFFFFF?text=Rear+View',
-            // Detail shots
-            'https://via.placeholder.com/800x600/4285F4/FFFFFF?text=Front+Bumper',
-            'https://via.placeholder.com/800x600/4285F4/FFFFFF?text=Rear+Bumper',
-            'https://via.placeholder.com/800x600/4285F4/FFFFFF?text=Wheels+FL',
-            'https://via.placeholder.com/800x600/4285F4/FFFFFF?text=Wheels+FR',
-            'https://via.placeholder.com/800x600/4285F4/FFFFFF?text=Wheels+RL',
-            'https://via.placeholder.com/800x600/4285F4/FFFFFF?text=Wheels+RR',
-            'https://via.placeholder.com/800x600/4285F4/FFFFFF?text=Roof+View',
-          ],
-          'interior': [
-            'https://via.placeholder.com/800x600/34A853/FFFFFF?text=Dashboard+Full',
-            'https://via.placeholder.com/800x600/34A853/FFFFFF?text=Steering+Wheel',
-            'https://via.placeholder.com/800x600/34A853/FFFFFF?text=Instrument+Cluster',
-            'https://via.placeholder.com/800x600/34A853/FFFFFF?text=Center+Console',
-            'https://via.placeholder.com/800x600/34A853/FFFFFF?text=Front+Seat+Driver',
-            'https://via.placeholder.com/800x600/34A853/FFFFFF?text=Front+Seat+Passenger',
-            'https://via.placeholder.com/800x600/34A853/FFFFFF?text=Rear+Seats',
-            'https://via.placeholder.com/800x600/34A853/FFFFFF?text=Cargo+Trunk',
-            'https://via.placeholder.com/800x600/34A853/FFFFFF?text=Headliner',
-            'https://via.placeholder.com/800x600/34A853/FFFFFF?text=Door+Panel+Driver',
-            'https://via.placeholder.com/800x600/34A853/FFFFFF?text=Door+Panel+Passenger',
-            'https://via.placeholder.com/800x600/34A853/FFFFFF?text=Gear+Shifter',
-          ],
-          'engine': [
-            'https://via.placeholder.com/800x600/FBBC04/FFFFFF?text=Engine+Bay+Full',
-            'https://via.placeholder.com/800x600/FBBC04/FFFFFF?text=Engine+Close-up',
-            'https://via.placeholder.com/800x600/FBBC04/FFFFFF?text=VIN+Plate',
-            'https://via.placeholder.com/800x600/FBBC04/FFFFFF?text=Odometer',
-            'https://via.placeholder.com/800x600/FBBC04/FFFFFF?text=Undercarriage',
-            'https://via.placeholder.com/800x600/FBBC04/FFFFFF?text=Suspension',
-          ],
-          'details': [
-            'https://via.placeholder.com/800x600/EA4335/FFFFFF?text=Paint+Condition',
-            'https://via.placeholder.com/800x600/EA4335/FFFFFF?text=Tire+Tread+FL',
-            'https://via.placeholder.com/800x600/EA4335/FFFFFF?text=Tire+Tread+FR',
-            'https://via.placeholder.com/800x600/EA4335/FFFFFF?text=Tire+Tread+RL',
-            'https://via.placeholder.com/800x600/EA4335/FFFFFF?text=Tire+Tread+RR',
-            'https://via.placeholder.com/800x600/EA4335/FFFFFF?text=Headlights',
-            'https://via.placeholder.com/800x600/EA4335/FFFFFF?text=Tail+Lights',
-            'https://via.placeholder.com/800x600/EA4335/FFFFFF?text=Interior+Wear',
-            'https://via.placeholder.com/800x600/EA4335/FFFFFF?text=Carpet+Condition',
-            'https://via.placeholder.com/800x600/EA4335/FFFFFF?text=Infotainment',
-            'https://via.placeholder.com/800x600/EA4335/FFFFFF?text=Service+Stickers',
-            'https://via.placeholder.com/800x600/EA4335/FFFFFF?text=Registration',
-            'https://via.placeholder.com/800x600/EA4335/FFFFFF?text=Service+History',
-          ],
+          'exterior': List.generate(15, (_) => _getBrandImage(data['brand'] as String)),
+          'interior': List.generate(12, (_) => _getBrandImage(data['brand'] as String)),
+          'engine': List.generate(6, (_) => _getBrandImage(data['brand'] as String)),
+          'details': List.generate(13, (_) => _getBrandImage(data['brand'] as String)),
         },
         status: ListingStatus.active,
         createdAt: now.subtract(Duration(days: i)),
@@ -782,6 +758,46 @@ class MockAuctionService implements AuctionRepository {
       _auctions[auctionIndex] = auction.copyWith(
         watchers: [...auction.watchers, userId],
       );
+    }
+
+    // 6. Create 2 sold auctions where current user is the SELLER (for seller-side testing)
+    for (int i = 0; i < 2; i++) {
+      CarModel? sellerCar;
+      if (_availableCars.length > 18 + i) {
+        sellerCar = _availableCars[18 + i];
+      }
+
+      final sellerAuction = Auction(
+        id: 'auction_seller_sold_$i',
+        carId: sellerCar?.id ?? 'car_seller_sold_$i',
+        sellerId: userId, // Current user is the seller
+        startingPrice: 180000.0,
+        currentBid: 220000.0 + (i * 30000),
+        reservePrice: 200000.0,
+        startTime: now.subtract(Duration(days: 6 + i)),
+        endTime: now.subtract(Duration(hours: 12 - i * 2)),
+        status: AuctionStatus.sold,
+        totalBids: 10 + i * 2,
+        topBidderId: 'buyer_demo_$i',
+        topBidderName: 'Demo Buyer ${i + 1}',
+        watchers: [],
+        createdAt: now.subtract(Duration(days: 7 + i)),
+        updatedAt: now.subtract(Duration(hours: 12 - i * 2)),
+        car: sellerCar,
+      );
+
+      _auctions.add(sellerAuction);
+
+      _bids.add(Bid(
+        id: 'bid_seller_sold_$i',
+        auctionId: sellerAuction.id,
+        bidderId: 'buyer_demo_$i',
+        bidderName: 'Demo Buyer ${i + 1}',
+        amount: sellerAuction.currentBid,
+        isAutoBid: false,
+        timestamp: sellerAuction.endTime.subtract(Duration(minutes: 3)),
+        status: BidStatus.won,
+      ));
     }
   }
 
@@ -1082,6 +1098,14 @@ class MockAuctionService implements AuctionRepository {
         .where((a) => a.watchers.contains(userId) && !userBidAuctionIds.contains(a.id))
         .toList()
       ..sort((a, b) => a.endTime.compareTo(b.endTime));
+  }
+
+  /// Get auctions where user is the seller and auction is sold (ready for pre-transaction)
+  List<Auction> getUserSellerSoldAuctions(String userId) {
+    return _auctions
+        .where((a) => a.sellerId == userId && a.status == AuctionStatus.sold)
+        .toList()
+      ..sort((a, b) => b.endTime.compareTo(a.endTime));
   }
 
   void _notifyListeners() {

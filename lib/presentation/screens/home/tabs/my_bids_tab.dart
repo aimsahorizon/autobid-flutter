@@ -101,11 +101,7 @@ class _ActiveTab extends StatelessWidget {
               userBidStatus: userBidStatus,
               userBidAmount: userBidAmount,
               onTap: () {
-                Navigator.pushNamed(
-                  context,
-                  '/auction',
-                  arguments: auction.id,
-                );
+                context.push('/auction/${auction.id}');
               },
             );
           },
@@ -271,11 +267,7 @@ class _LostTab extends StatelessWidget {
               auction: auction,
               won: false,
               onTap: () {
-                Navigator.pushNamed(
-                  context,
-                  '/auction',
-                  arguments: auction.id,
-                );
+                context.push('/auction/${auction.id}');
               },
             );
           },
@@ -341,11 +333,7 @@ class _WatchingTab extends StatelessWidget {
             return _WatchlistCard(
               auction: auction,
               onTap: () {
-                Navigator.pushNamed(
-                  context,
-                  '/auction',
-                  arguments: auction.id,
-                );
+                context.push('/auction/${auction.id}');
               },
               onUnwatch: () {
                 provider.unwatchAuction(auction.id);
@@ -444,7 +432,7 @@ class _AuctionResultCard extends StatelessWidget {
                             ),
                           )
                         : Icon(Icons.directions_car,
-                            size: 40, color: Colors.grey[600]),
+                            color: Colors.grey[100]),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -566,7 +554,7 @@ class _AuctionResultCard extends StatelessWidget {
   }
 
   Widget _buildActionButtons(BuildContext context, String carTitle) {
-    // No transaction - show pay now button
+    // No transaction - show start pre-transaction button
     if (transaction == null) {
       return SizedBox(
         width: double.infinity,
@@ -574,12 +562,12 @@ class _AuctionResultCard extends StatelessWidget {
         child: ElevatedButton.icon(
           onPressed: () async {
             await context.push(
-              '/payment/${auction.id}?carTitle=${Uri.encodeComponent(carTitle)}&winningBid=${auction.currentBid}',
+              '/preTransaction/${auction.id}?carTitle=${Uri.encodeComponent(carTitle)}&winningBid=${auction.currentBid}',
             );
             onRefresh?.call();
           },
-          icon: const Icon(Icons.payment),
-          label: const Text('Pay Now', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          icon: const Icon(Icons.chat),
+          label: const Text('Start Discussion', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           style: ElevatedButton.styleFrom(
             backgroundColor: ColorConstants.primaryGreen,
             foregroundColor: Colors.white,
@@ -591,7 +579,7 @@ class _AuctionResultCard extends StatelessWidget {
       );
     }
 
-    // Payment pending - show pay now + view auction
+    // Payment pending - show continue pre-transaction + view auction
     if (transaction!.escrowStatus == EscrowStatus.pending) {
       return SizedBox(
         height: 50,
@@ -602,12 +590,12 @@ class _AuctionResultCard extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: () async {
                   await context.push(
-                    '/payment/${auction.id}?carTitle=${Uri.encodeComponent(carTitle)}&winningBid=${auction.currentBid}',
+                    '/preTransaction/${auction.id}?carTitle=${Uri.encodeComponent(carTitle)}&winningBid=${auction.currentBid}',
                   );
                   onRefresh?.call();
                 },
-                icon: const Icon(Icons.payment, size: 18),
-                label: const Text('Pay Now', style: TextStyle(fontSize: 15)),
+                icon: const Icon(Icons.chat, size: 18),
+                label: const Text('Continue', style: TextStyle(fontSize: 15)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: ColorConstants.primaryGreen,
                   foregroundColor: Colors.white,
@@ -815,6 +803,9 @@ class _WatchlistCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final carTitle = auction.car != null
+        ? '${auction.car!.year} ${auction.car!.brand} ${auction.car!.model}'
+        : 'Vehicle';
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -832,7 +823,20 @@ class _WatchlistCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                   color: Colors.grey[300],
                 ),
-                child: Icon(Icons.directions_car, size: 40, color: Colors.grey[600]),
+                child: auction.car?.images.isNotEmpty == true
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          auction.car!.images.first,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Icon(
+                            Icons.directions_car,
+                            size: 40,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      )
+                    : Icon(Icons.directions_car, size: 40, color: Colors.grey[600]),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -840,7 +844,7 @@ class _WatchlistCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '2020 Toyota Camry',
+                      carTitle,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
