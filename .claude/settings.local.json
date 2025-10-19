@@ -33,7 +33,9 @@
       "Bash(for:*)",
       "Bash(cat:*)",
       "Bash(cmd.exe:*)",
-      "Bash(powershell.exe:*)"
+      "Bash(powershell.exe:*)",
+      "Bash(timeout 180 flutter pub run build_runner build:*)",
+      "Bash(timeout 180 dart run:*)"
     ],
     "deny": [],
     "ask": []
