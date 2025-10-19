@@ -20,6 +20,12 @@ class ActiveBidCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final carTitle = auction.car != null
+        ? '${auction.car!.year} ${auction.car!.brand} ${auction.car!.model}'
+        : 'Vehicle';
+    final carImage = auction.car?.images.isNotEmpty == true
+        ? auction.car!.images.first
+        : null;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -31,19 +37,27 @@ class ActiveBidCard extends StatelessWidget {
           children: [
             Stack(
               children: [
-                Image.network(
-                  'https://via.placeholder.com/400x200',
-                  height: 150,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      height: 150,
-                      color: Colors.grey[300],
-                      child: Icon(Icons.directions_car, size: 50, color: Colors.grey[600]),
-                    );
-                  },
-                ),
+                carImage != null
+                    ? Image.asset(
+                        carImage,
+                        height: 150,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 150,
+                            width: double.infinity,
+                            color: Colors.grey[300],
+                            child: Icon(Icons.directions_car, size: 50, color: Colors.grey[600]),
+                          );
+                        },
+                      )
+                    : Container(
+                        height: 150,
+                        width: double.infinity,
+                        color: Colors.grey[300],
+                        child: Icon(Icons.directions_car, size: 50, color: Colors.grey[600]),
+                      ),
                 Positioned(
                   top: 8,
                   right: 8,
@@ -73,7 +87,7 @@ class ActiveBidCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '2020 Toyota Camry',
+                    carTitle,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
