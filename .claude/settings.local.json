@@ -35,7 +35,10 @@
       "Bash(cmd.exe:*)",
       "Bash(powershell.exe:*)",
       "Bash(timeout 180 flutter pub run build_runner build:*)",
-      "Bash(timeout 180 dart run:*)"
+      "Bash(timeout 180 dart run:*)",
+      "Bash(del \"C:\\Users\\nekol\\Desktop\\Flutter\\AutoBID\\autobid\\lib\\data\\models\\onboarding_page_model.freezed.dart\")",
+      "Bash(del \"C:\\Users\\nekol\\Desktop\\Flutter\\AutoBID\\autobid\\lib\\data\\models\\onboarding_page_model.g.dart\")",
+      "Bash(dart pub get)"
     ],
     "deny": [],
     "ask": []
