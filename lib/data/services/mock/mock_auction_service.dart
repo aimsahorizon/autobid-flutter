@@ -8,6 +8,7 @@ import '../../../core/constants/bid_increments.dart';
 import '../../../config/app_config.dart';
 import '../../../domain/repositories/auction_repository.dart';
 import '../../../domain/services/pricing_calculator.dart';
+import 'mock_car_service.dart';
 
 class MockAuctionService implements AuctionRepository {
   static final MockAuctionService _instance = MockAuctionService._internal();
@@ -533,12 +534,16 @@ class MockAuctionService implements AuctionRepository {
     return cars;
   }
 
-  void _generateMockAuctions() {
+  void _generateMockAuctions() async {
     final now = DateTime.now();
     final random = Random();
 
-    // Get diverse car data - use fallback generation since MockCarService methods are private
-    _availableCars = _generateFallbackCars();
+    // Get cars from MockCarService that have status == active
+    final carService = MockCarService();
+    final activeCars = await carService.getAllActiveCars();
+
+    // Also add some fallback cars for variety
+    _availableCars = [...activeCars, ..._generateFallbackCars()];
 
     final durations = [
       Duration(minutes: 1),
@@ -566,10 +571,11 @@ class MockAuctionService implements AuctionRepository {
       final totalBids = random.nextInt(20);
       final currentBid = startingPrice + (totalBids * BidIncrements.minimumIncrement * (1 + random.nextInt(3)));
 
+      // CRITICAL: Use car's actual sellerId instead of random seller
       final auction = Auction(
         id: 'auction_$i',
         carId: car.id,
-        sellerId: 'seller_${random.nextInt(5)}',
+        sellerId: car.sellerId, // Preserve the actual seller ID from the car
         startingPrice: startingPrice,
         currentBid: currentBid,
         reservePrice: reservePrice,
