@@ -16,10 +16,14 @@ import 'tabs/car_info_tab.dart';
 
 class AuctionDetailScreen extends StatefulWidget {
   final String auctionId;
+  final bool isSeller;
+  final bool isCarId;
 
   const AuctionDetailScreen({
     super.key,
     required this.auctionId,
+    this.isSeller = false,
+    this.isCarId = false,
   });
 
   @override
@@ -35,7 +39,10 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
     _tabController = TabController(length: 2, vsync: this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AuctionProvider>().loadAuctionDetail(widget.auctionId);
+      context.read<AuctionProvider>().loadAuctionDetail(
+        widget.auctionId,
+        isCarId: widget.isCarId,
+      );
     });
   }
 
@@ -133,13 +140,14 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
                           auction: auction,
                           userBidStatus: provider.getUserBidStatus(auction.id),
                           userBidAmount: provider.getUserBidAmount(auction.id),
+                          isSeller: widget.isSeller,
                         ),
                         // Categorized Image Gallery
                         if (auction.car != null)
                           CategorizedImageGallery(
                             categorizedImages: auction.car!.getCategorizedImages(),
                           ),
-                        if (auction.status == AuctionStatus.live) ...[
+                        if (auction.status == AuctionStatus.live && !widget.isSeller) ...[
                           const SizedBox(height: 12),
                           BidInputWidget(
                             auction: auction,
@@ -180,6 +188,32 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
                                 ),
                               ),
                             ],
+                          ),
+                        ],
+                        if (widget.isSeller) ...[
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.blue[50],
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.blue[200]!),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.info_outline, color: Colors.blue[700]),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'You are viewing your active listing. Bidding is disabled for sellers.',
+                                    style: TextStyle(
+                                      color: Colors.blue[900],
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ],

@@ -212,10 +212,17 @@ class AuctionProvider with ChangeNotifier {
     return sorted;
   }
 
-  Future<void> loadAuctionDetail(String auctionId) async {
+  Future<void> loadAuctionDetail(String auctionId, {bool isCarId = false}) async {
     try {
-      _selectedAuction = _service.getAuctionById(auctionId);
-      _bidHistory = _service.getAuctionBids(auctionId);
+      if (isCarId) {
+        _selectedAuction = _service.getAuctionByCarId(auctionId);
+      } else {
+        _selectedAuction = _service.getAuctionById(auctionId);
+      }
+
+      if (_selectedAuction != null) {
+        _bidHistory = _service.getAuctionBids(_selectedAuction!.id);
+      }
       notifyListeners();
     } catch (e) {
       _error = e.toString();
