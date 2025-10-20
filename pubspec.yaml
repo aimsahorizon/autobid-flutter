@@ -44,6 +44,7 @@ dependencies:
 
   # UI
   google_fonts: ^6.1.0
+  smooth_page_indicator: ^1.2.0
 
   # Firebase
   firebase_core: ^4.1.1
