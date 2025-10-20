@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../data/services/mock/mock_review_service.dart';
 import '../../../widgets/reviews/rating_badge.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../providers/theme_provider.dart';
 import '../widgets/profile_stat_item.dart';
 import '../widgets/profile_info_tile.dart';
 import '../widgets/profile_action_button.dart';
@@ -223,7 +224,64 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
 
                 const SizedBox(height: 24),
 
-                // Actions
+                // Appearance Section
+                Text(
+                  'Appearance',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const SizedBox(height: 16),
+
+                // Dark Mode Toggle
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        ref.watch(appThemeModeProvider) == ThemeMode.dark
+                            ? Icons.dark_mode
+                            : Icons.light_mode,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Text(
+                          'Dark Mode',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                fontWeight: FontWeight.w500,
+                              ),
+                        ),
+                      ),
+                      Switch(
+                        value: ref.watch(appThemeModeProvider) == ThemeMode.dark,
+                        onChanged: (value) {
+                          ref.read(appThemeModeProvider.notifier).toggleTheme();
+                        },
+                        activeColor: Theme.of(context).colorScheme.primary,
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Actions Section
+                Text(
+                  'Account Settings',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const SizedBox(height: 16),
+
                 ProfileActionButton(
                   icon: Icons.edit,
                   label: 'Edit Profile',

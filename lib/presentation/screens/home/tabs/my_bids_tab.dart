@@ -86,6 +86,8 @@ class _ActiveTab extends StatelessWidget {
 
         return ListView.builder(
           padding: const EdgeInsets.all(16),
+          cacheExtent: 500.0, // Cache 2 screens ahead
+          addAutomaticKeepAlives: false, // Reduce memory
           itemCount: activeAuctions.length,
           itemBuilder: (context, index) {
             final auction = activeAuctions[index];
@@ -97,6 +99,7 @@ class _ActiveTab extends StatelessWidget {
             }
 
             return ActiveBidCard(
+              key: ValueKey(auction.id), // Preserve state
               auction: auction,
               userBidStatus: userBidStatus,
               userBidAmount: userBidAmount,

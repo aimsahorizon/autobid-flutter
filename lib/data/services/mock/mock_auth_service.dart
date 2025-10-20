@@ -211,8 +211,8 @@ class MockAuthService {
 
   Future<AuthResult> signInWithGoogle() async {
     try {
-      // Simulate network delay
-      await Future.delayed(const Duration(seconds: 2));
+      // Optimized: Simulate network delay (reduced from 2s)
+      await Future.delayed(const Duration(milliseconds: 600));
 
       // Create mock Google user
       final user = UserModel(

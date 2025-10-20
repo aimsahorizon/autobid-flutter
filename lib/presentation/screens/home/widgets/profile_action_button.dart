@@ -15,6 +15,7 @@ class ProfileActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Card(
       elevation: 1,
@@ -25,7 +26,12 @@ class ProfileActionButton extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              Icon(icon, color: colorScheme.primary),
+              Icon(
+                icon,
+                color: isDark
+                    ? colorScheme.onSurface.withValues(alpha: 0.7)
+                    : colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
               const SizedBox(width: 16),
               Expanded(
                 child: Text(

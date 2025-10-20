@@ -85,37 +85,38 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       authService.authStateChanges,
     ),
     redirect: (context, state) {
-      // Get current auth state without watching (to avoid rebuilding router)
+      // Optimized: Cache frequently accessed values
+      final path = state.uri.path;
       final authState = ref.read(authStateChangesProvider);
       final isAuthenticated = authState.value != null;
-      final isOnSplash = state.uri.path == StringConstants.splashRoute;
-      final isOnOnboarding = state.uri.path == StringConstants.onboardingRoute;
-      final isOnAuth = state.uri.path == StringConstants.loginRoute ||
-          state.uri.path == StringConstants.signupRoute;
+
+      // Early return: Skip redirect check for already-authenticated deep links
+      if (isAuthenticated && !path.startsWith('/auth') && !path.startsWith('/splash') && !path.startsWith('/onboarding')) {
+        return null;
+      }
+
+      // Cache route checks (avoid repeated string comparisons)
+      final isOnSplash = path == StringConstants.splashRoute;
+      final isOnOnboarding = path == StringConstants.onboardingRoute;
+      final isOnAuth = path == StringConstants.loginRoute || path == StringConstants.signupRoute;
 
       // Check onboarding status (sync)
       final hasCompletedOnboarding = ref.read(onboardingCompletedProvider);
 
-      // If not completed onboarding and not on splash/onboarding, redirect to onboarding
+      // Redirect logic with early returns
       if (!hasCompletedOnboarding && !isOnSplash && !isOnOnboarding) {
         return StringConstants.onboardingRoute;
       }
 
-      // If authenticated and on auth screens, redirect to home
       if (isAuthenticated && (isOnAuth || isOnSplash || isOnOnboarding)) {
         return StringConstants.homeRoute;
       }
 
-      // If not authenticated and not on auth/splash/onboarding screens, redirect to login
-      if (!isAuthenticated &&
-          !isOnAuth &&
-          !isOnSplash &&
-          !isOnOnboarding &&
-          authState.hasValue) {
+      if (!isAuthenticated && !isOnAuth && !isOnSplash && !isOnOnboarding && authState.hasValue) {
         return StringConstants.loginRoute;
       }
 
-      return null; // No redirect
+      return null;
     },
     routes: [
       GoRoute(

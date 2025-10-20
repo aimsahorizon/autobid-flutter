@@ -79,6 +79,8 @@ class _BrowseTabState extends State<BrowseTab> {
                   : widget.isGridView
                       ? GridView.builder(
                           padding: const EdgeInsets.all(16),
+                          cacheExtent: 500.0, // Cache 2 screens ahead
+                          addAutomaticKeepAlives: false, // Reduce memory
                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
                             childAspectRatio: 0.65,
@@ -89,6 +91,7 @@ class _BrowseTabState extends State<BrowseTab> {
                           itemBuilder: (context, index) {
                             final auction = auctionProvider.activeAuctions[index];
                             return AuctionCard(
+                              key: ValueKey(auction.id), // Preserve state
                               auction: auction,
                               onTap: () => context.push('/auction/${auction.id}'),
                             );
@@ -96,10 +99,13 @@ class _BrowseTabState extends State<BrowseTab> {
                         )
                       : ListView.builder(
                           padding: const EdgeInsets.all(16),
+                          cacheExtent: 500.0, // Cache 2 screens ahead
+                          addAutomaticKeepAlives: false, // Reduce memory
                           itemCount: auctionProvider.activeAuctions.length,
                           itemBuilder: (context, index) {
                             final auction = auctionProvider.activeAuctions[index];
                             return Padding(
+                              key: ValueKey(auction.id), // Preserve state
                               padding: const EdgeInsets.only(bottom: 12),
                               child: AuctionCard(
                                 auction: auction,

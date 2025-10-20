@@ -48,6 +48,8 @@ class BidHistoryTab extends StatelessWidget {
 
         return ListView.builder(
           padding: const EdgeInsets.all(16),
+          cacheExtent: 500.0, // Cache 2 screens ahead
+          addAutomaticKeepAlives: false, // Reduce memory
           itemCount: bids.length,
           itemBuilder: (context, index) {
             final bid = bids[index];
@@ -56,6 +58,7 @@ class BidHistoryTab extends StatelessWidget {
             final rank = index + 1;
 
             return BidHistoryItem(
+              key: ValueKey(bid.id), // Preserve state
               bid: bid,
               isCurrentUser: isCurrentUser,
               isTopBid: isTopBid,

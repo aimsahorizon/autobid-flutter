@@ -808,7 +808,9 @@ class MockAuctionService implements AuctionRepository {
   }
 
   void _startStatusUpdates() {
-    _statusUpdateTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+    // Optimized: Check every 5 seconds instead of 1 second
+    // Most auctions last hours/days, checking every second is wasteful
+    _statusUpdateTimer = Timer.periodic(Duration(seconds: 5), (timer) {
       _updateAuctionStatuses();
     });
   }
@@ -829,10 +831,15 @@ class MockAuctionService implements AuctionRepository {
     final now = DateTime.now();
     bool updated = false;
 
+    // Optimized: Only check live auctions, skip sold/ended/upcoming
     for (int i = 0; i < _auctions.length; i++) {
       final auction = _auctions[i];
 
-      if (auction.status == AuctionStatus.live && now.isAfter(auction.endTime)) {
+      // Skip if not live - no status change needed
+      if (auction.status != AuctionStatus.live) continue;
+
+      // Only process if auction has actually ended
+      if (now.isAfter(auction.endTime)) {
         final newStatus = auction.currentBid >= auction.reservePrice
             ? AuctionStatus.sold
             : AuctionStatus.ended;
@@ -842,7 +849,7 @@ class MockAuctionService implements AuctionRepository {
           updatedAt: now,
         );
 
-        // Update bid statuses
+        // Update bid statuses - only for this auction
         for (int j = 0; j < _bids.length; j++) {
           final bid = _bids[j];
           if (bid.auctionId == auction.id) {
@@ -860,6 +867,7 @@ class MockAuctionService implements AuctionRepository {
       }
     }
 
+    // Only notify if something actually changed
     if (updated) {
       _notifyListeners();
     }

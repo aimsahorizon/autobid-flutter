@@ -18,7 +18,11 @@ class ProfileStatItem extends StatelessWidget {
 
     return Column(
       children: [
-        Icon(icon, color: colorScheme.primary, size: 28),
+        Icon(
+          icon,
+          color: colorScheme.onSurface.withValues(alpha: 0.5),
+          size: 28,
+        ),
         const SizedBox(height: 8),
         Text(
           value,

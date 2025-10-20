@@ -29,6 +29,7 @@ class AuctionCard extends StatelessWidget {
                       height: 120,
                       width: double.infinity,
                       fit: BoxFit.cover,
+                      cacheWidth: 400, // Optimize: Cache at smaller resolution
                       errorBuilder: (context, error, stackTrace) => Container(
                         height: 120,
                         width: double.infinity,

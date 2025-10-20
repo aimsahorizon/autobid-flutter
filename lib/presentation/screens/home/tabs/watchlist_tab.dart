@@ -55,10 +55,13 @@ class _WatchlistTabState extends State<WatchlistTab> {
       onRefresh: () => auctionProvider.loadAuctions(),
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
+        cacheExtent: 500.0, // Cache 2 screens ahead
+        addAutomaticKeepAlives: false, // Reduce memory
         itemCount: watchlist.length,
         itemBuilder: (context, index) {
           final auction = watchlist[index];
           return Padding(
+            key: ValueKey(auction.id), // Preserve state
             padding: const EdgeInsets.only(bottom: 12),
             child: AuctionCard(
               auction: auction,

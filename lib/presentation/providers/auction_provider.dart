@@ -78,14 +78,22 @@ class AuctionProvider with ChangeNotifier {
       notifyListeners();
     });
 
-    // Update every 5 seconds for real-time feel
-    _updateTimer = Timer.periodic(Duration(seconds: 5), (timer) {
-      if (_selectedAuction != null) {
-        loadAuctionDetail(_selectedAuction!.id);
-      }
+    // Optimized: Use stream updates instead of polling
+    // Stream already provides real-time updates from mock service
+    // Only refresh user-specific data every 10 seconds (not 5)
+    _updateTimer = Timer.periodic(Duration(seconds: 10), (timer) {
       if (_currentUserId != null) {
-        _userBids = _service.getUserBids(_currentUserId!);
-        _watchlist = _service.getUserWatchlist(_currentUserId!);
+        // Only update user-specific data, not all auctions
+        final updatedBids = _service.getUserBids(_currentUserId!);
+        final updatedWatchlist = _service.getUserWatchlist(_currentUserId!);
+
+        // Only notify if data actually changed
+        if (updatedBids.length != _userBids.length ||
+            updatedWatchlist.length != _watchlist.length) {
+          _userBids = updatedBids;
+          _watchlist = updatedWatchlist;
+          notifyListeners();
+        }
       }
     });
   }
@@ -96,7 +104,7 @@ class AuctionProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      await Future.delayed(Duration(milliseconds: 300)); // Simulate network delay
+      await Future.delayed(Duration(milliseconds: 100)); // Optimized: Reduced from 300ms
       _allAuctions = _service.getActiveAuctions();
       _applyFiltersAndSort();
       if (_currentUserId != null) {
