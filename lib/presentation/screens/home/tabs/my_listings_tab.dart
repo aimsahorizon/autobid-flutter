@@ -499,9 +499,9 @@ class _MyListingsTabState extends State<MyListingsTab>
   }
 
   void _handleListingTap(CarModel listing, ListingStatus status) {
-    // Active listings go to auction view
+    // Active listings go to auction view as seller
     if (status == ListingStatus.active) {
-      context.push('/auction/${listing.id}');
+      context.push('/auction/${listing.id}?isSeller=true&isCarId=true');
     } else {
       // All other statuses go to read-only car details
       context.push('/car/${listing.id}');
