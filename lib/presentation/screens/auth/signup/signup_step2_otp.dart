@@ -154,7 +154,7 @@ class _SignupStep2OtpState extends State<SignupStep2Otp> with SignupStepMixin {
 
       // For demo, accept any 6-digit code
       if (phoneOtp.length == 6) {
-        handleNext('/signup/step3');
+        handleNext('/signup/step4');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -215,7 +215,7 @@ class _SignupStep2OtpState extends State<SignupStep2Otp> with SignupStepMixin {
       appBar: AppBar(
         title: const Text('Verify OTP'),
         centerTitle: true,
-        leading: buildBackButton('/signup/step1'),
+        leading: buildBackButton('/signup/step2'),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -223,7 +223,7 @@ class _SignupStep2OtpState extends State<SignupStep2Otp> with SignupStepMixin {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SignupStepper(currentStep: 2, totalSteps: 9),
+              const SignupStepper(currentStep: 3, totalSteps: 9),
               const SizedBox(height: 32),
               Text(
                 'Verification Codes',

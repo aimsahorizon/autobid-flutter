@@ -128,7 +128,7 @@ class _SignupStep1AccountState extends State<SignupStep1Account>
     provider.setConfirmPassword(_confirmPasswordController.text);
     provider.setPhoneNumber(_phoneController.text.trim());
 
-    handleNext('/signup/step2');
+    handleNext('/signup/step3');
   }
 
   @override
@@ -147,7 +147,7 @@ class _SignupStep1AccountState extends State<SignupStep1Account>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SignupStepper(currentStep: 1, totalSteps: 9),
+                const SignupStepper(currentStep: 2, totalSteps: 9),
                 const SizedBox(height: 32),
                 Text(
                   'Account Information',

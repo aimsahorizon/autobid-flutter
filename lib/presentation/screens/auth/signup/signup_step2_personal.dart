@@ -115,11 +115,11 @@ class _SignupStep2PersonalState extends State<SignupStep2Personal> with SignupSt
     provider.setMiddleName(_middleNameController.text.trim());
     provider.setLastName(_lastNameController.text.trim());
 
-    context.go('/signup/step4');
+    context.go('/signup/step2');
   }
 
   void _handleBack() {
-    context.go('/signup/step2');
+    context.go('/login');
   }
 
   @override
@@ -128,7 +128,7 @@ class _SignupStep2PersonalState extends State<SignupStep2Personal> with SignupSt
       appBar: AppBar(
         title: const Text('Personal Information'),
         centerTitle: true,
-        leading: buildBackButtonWithWarning(),
+        leading: buildBackButton('/login'),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -138,7 +138,7 @@ class _SignupStep2PersonalState extends State<SignupStep2Personal> with SignupSt
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SignupStepper(currentStep: 3, totalSteps: 9),
+                const SignupStepper(currentStep: 1, totalSteps: 9),
                 const SizedBox(height: 32),
                 Text(
                   'Personal Information',
