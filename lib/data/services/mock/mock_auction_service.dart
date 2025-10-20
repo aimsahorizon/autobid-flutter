@@ -881,6 +881,14 @@ class MockAuctionService implements AuctionRepository {
     }
   }
 
+  Auction? getAuctionByCarId(String carId) {
+    try {
+      return _auctions.firstWhere((a) => a.carId == carId);
+    } catch (e) {
+      return null;
+    }
+  }
+
   @override
   Future<bool> placeBid({
     required String auctionId,
