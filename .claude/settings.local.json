@@ -38,7 +38,12 @@
       "Bash(timeout 180 dart run:*)",
       "Bash(del \"C:\\Users\\nekol\\Desktop\\Flutter\\AutoBID\\autobid\\lib\\data\\models\\onboarding_page_model.freezed.dart\")",
       "Bash(del \"C:\\Users\\nekol\\Desktop\\Flutter\\AutoBID\\autobid\\lib\\data\\models\\onboarding_page_model.g.dart\")",
-      "Bash(dart pub get)"
+      "Bash(dart pub get)",
+      "Bash(./regenerate_freezed.bat)",
+      "Bash(where flutter)",
+      "Bash(findstr /C:\"error -\")",
+      "Bash(timeout 60 flutter analyze --no-pub)",
+      "Bash(findstr /C:\"error -\" /C:\"No issues found\")"
     ],
     "deny": [],
     "ask": []
