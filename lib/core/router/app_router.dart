@@ -53,7 +53,9 @@ import '../../presentation/screens/admin/admin_debug_panel.dart';
 import '../../presentation/screens/pre_transaction/pre_transaction_discussion_screen.dart';
 import '../../presentation/screens/pre_transaction/pre_transaction_confirmation_form_screen.dart';
 import '../../presentation/screens/pre_transaction/pre_transaction_status_screen.dart';
+import '../../presentation/screens/onboarding/onboarding_screen.dart';
 import '../../presentation/providers/auth_provider.dart';
+import '../../presentation/providers/onboarding_provider.dart';
 import '../constants/string_constants.dart';
 
 /// Helper class to refresh GoRouter when auth state changes
@@ -87,18 +89,28 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final authState = ref.read(authStateChangesProvider);
       final isAuthenticated = authState.value != null;
       final isOnSplash = state.uri.path == StringConstants.splashRoute;
+      final isOnOnboarding = state.uri.path == StringConstants.onboardingRoute;
       final isOnAuth = state.uri.path == StringConstants.loginRoute ||
           state.uri.path == StringConstants.signupRoute;
 
+      // Check onboarding status (sync)
+      final hasCompletedOnboarding = ref.read(onboardingCompletedProvider);
+
+      // If not completed onboarding and not on splash/onboarding, redirect to onboarding
+      if (!hasCompletedOnboarding && !isOnSplash && !isOnOnboarding) {
+        return StringConstants.onboardingRoute;
+      }
+
       // If authenticated and on auth screens, redirect to home
-      if (isAuthenticated && (isOnAuth || isOnSplash)) {
+      if (isAuthenticated && (isOnAuth || isOnSplash || isOnOnboarding)) {
         return StringConstants.homeRoute;
       }
 
-      // If not authenticated and not on auth/splash screens, redirect to login
+      // If not authenticated and not on auth/splash/onboarding screens, redirect to login
       if (!isAuthenticated &&
           !isOnAuth &&
           !isOnSplash &&
+          !isOnOnboarding &&
           authState.hasValue) {
         return StringConstants.loginRoute;
       }
@@ -110,6 +122,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: StringConstants.splashRoute,
         name: 'splash',
         builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: StringConstants.onboardingRoute,
+        name: 'onboarding',
+        builder: (context, state) => const OnboardingScreen(),
       ),
       GoRoute(
         path: '/entry',
@@ -134,17 +151,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/signup/step1',
         name: 'signup-step1',
-        builder: (context, state) => const SignupStep1Account(),
+        builder: (context, state) => const SignupStep2Personal(),
       ),
       GoRoute(
         path: '/signup/step2',
         name: 'signup-step2',
-        builder: (context, state) => const SignupStep2Otp(),
+        builder: (context, state) => const SignupStep1Account(),
       ),
       GoRoute(
         path: '/signup/step3',
-        name: 'signup-step3-personal',
-        builder: (context, state) => const SignupStep2Personal(),
+        name: 'signup-step3-otp',
+        builder: (context, state) => const SignupStep2Otp(),
       ),
       GoRoute(
         path: '/signup/step4',
@@ -267,7 +284,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'auction',
         builder: (context, state) {
           final auctionId = state.pathParameters['id']!;
-          return AuctionDetailScreen(auctionId: auctionId);
+          final isSeller = state.uri.queryParameters['isSeller'] == 'true';
+          final isCarId = state.uri.queryParameters['isCarId'] == 'true';
+          return AuctionDetailScreen(
+            auctionId: auctionId,
+            isSeller: isSeller,
+            isCarId: isCarId,
+          );
         },
       ),
       // Pre-Transaction Routes
