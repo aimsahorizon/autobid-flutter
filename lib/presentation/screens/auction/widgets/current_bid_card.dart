@@ -6,12 +6,14 @@ class CurrentBidCard extends StatelessWidget {
   final Auction auction;
   final BidStatus? userBidStatus;
   final double? userBidAmount;
+  final bool isSeller;
 
   const CurrentBidCard({
     super.key,
     required this.auction,
     this.userBidStatus,
     this.userBidAmount,
+    this.isSeller = false,
   });
 
   @override
