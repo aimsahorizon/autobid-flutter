@@ -7,7 +7,7 @@ import '../../../core/constants/color_constants.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/custom_button.dart';
-import 'otp_verification_screen.dart';
+import 'login_dual_otp_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -88,27 +88,64 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       await authService.signOut();
       if (!mounted) return;
 
-      // Step 2: Verify Email OTP
-      final emailVerified = await _verifyOtp(
-        authService: authService,
-        identifier: user.email,
-        title: 'Verify Email',
-        subtitle: 'Enter the 6-digit code sent to ${user.email}',
+      // Step 2: Request OTPs
+      final emailOtpResult = await authService.requestLoginOtp(user.email);
+      if (!emailOtpResult.success) {
+        _showError(emailOtpResult.errorMessage ?? 'Failed to send email OTP');
+        return;
+      }
+
+      String? debugPhoneOtp;
+      if (user.phoneNumber != null && user.phoneNumber!.isNotEmpty) {
+        final phoneOtpResult = await authService.requestLoginOtp(user.phoneNumber!);
+        if (!phoneOtpResult.success) {
+          _showError(phoneOtpResult.errorMessage ?? 'Failed to send phone OTP');
+          return;
+        }
+        debugPhoneOtp = phoneOtpResult.debugOtp;
+      }
+
+      if (!mounted) return;
+
+      // Step 3: Show dual OTP verification screen
+      final verified = await Navigator.of(context).push<bool>(
+        MaterialPageRoute(
+          builder: (context) => LoginDualOtpScreen(
+            email: user.email,
+            phoneNumber: user.phoneNumber,
+            debugEmailOtp: emailOtpResult.debugOtp,
+            debugPhoneOtp: debugPhoneOtp,
+            onVerifyEmail: (otp) async {
+              final result = await authService.otpService.verifyOtp(
+                identifier: user.email,
+                otp: otp,
+              );
+              if (!result.success) {
+                throw Exception(result.errorMessage ?? 'Invalid email OTP');
+              }
+            },
+            onVerifyPhone: (otp) async {
+              final result = await authService.otpService.verifyOtp(
+                identifier: user.phoneNumber!,
+                otp: otp,
+              );
+              if (!result.success) {
+                throw Exception(result.errorMessage ?? 'Invalid phone OTP');
+              }
+            },
+            onResendEmail: () async {
+              final result = await authService.requestLoginOtp(user.email);
+              return result.success;
+            },
+            onResendPhone: () async {
+              final result = await authService.requestLoginOtp(user.phoneNumber!);
+              return result.success;
+            },
+          ),
+        ),
       );
 
-      if (!emailVerified || !mounted) return;
-
-      // Step 3: Verify Phone OTP (if exists)
-      if (user.phoneNumber != null && user.phoneNumber!.isNotEmpty) {
-        final phoneVerified = await _verifyOtp(
-          authService: authService,
-          identifier: user.phoneNumber!,
-          title: 'Verify Phone',
-          subtitle: 'Enter the 6-digit code sent to ${user.phoneNumber}',
-        );
-
-        if (!phoneVerified || !mounted) return;
-      }
+      if (verified != true || !mounted) return;
 
       // Step 4: Complete login
       final loginResult = await authService.signInWithEmail(identifier, password);
@@ -134,61 +171,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         setState(() => _isLoading = false);
       }
     }
-  }
-
-  Future<bool> _verifyOtp({
-    required dynamic authService,
-    required String identifier,
-    required String title,
-    required String subtitle,
-  }) async {
-    // Request OTP
-    final otpResult = await authService.requestLoginOtp(identifier);
-
-    if (!mounted) return false;
-
-    if (!otpResult.success) {
-      _showError(otpResult.errorMessage ?? 'Failed to send OTP');
-      return false;
-    }
-
-    // Navigate to OTP verification screen
-    bool verified = false;
-
-    if (!mounted) return false;
-
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => OtpVerificationScreen(
-          identifier: identifier,
-          title: title,
-          subtitle: subtitle,
-          debugOtp: otpResult.debugOtp,
-          onVerify: (otp) async {
-            final verifyResult = await authService.otpService.verifyOtp(
-              identifier: identifier,
-              otp: otp,
-            );
-
-            if (!verifyResult.success) {
-              throw Exception(verifyResult.errorMessage ?? 'Invalid OTP');
-            }
-
-            // Mark as verified and pop
-            verified = true;
-            if (context.mounted) {
-              Navigator.of(context).pop();
-            }
-          },
-          onResend: () async {
-            final resendResult = await authService.requestLoginOtp(identifier);
-            return resendResult.success;
-          },
-        ),
-      ),
-    );
-
-    return verified;
   }
 
   void _showError(String message) {
