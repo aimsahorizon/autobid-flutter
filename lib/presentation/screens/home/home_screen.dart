@@ -35,6 +35,7 @@ class _HomeScreenState extends riverpod.ConsumerState<HomeScreen> {
   late int _subTabIndex;
   bool _isGridView = false;
   bool _isBrowseGridView = true;
+  bool _isWatchlistGridView = false;
 
   @override
   void initState() {
@@ -251,6 +252,15 @@ class _HomeScreenState extends riverpod.ConsumerState<HomeScreen> {
               },
             ),
           ],
+          if (_selectedIndex == 1) // Show grid/list toggle on Watchlist tab
+            IconButton(
+              icon: Icon(_isWatchlistGridView ? Icons.view_list : Icons.grid_view),
+              onPressed: () {
+                setState(() {
+                  _isWatchlistGridView = !_isWatchlistGridView;
+                });
+              },
+            ),
           if (_selectedIndex == 3) // Show create listing button on My Listings tab
             IconButton(
               icon: const Icon(Icons.add),
@@ -399,7 +409,7 @@ class _HomeScreenState extends riverpod.ConsumerState<HomeScreen> {
       case 0:
         return BrowseTab(isGridView: _isBrowseGridView);
       case 1:
-        return const WatchlistTab();
+        return WatchlistTab(isGridView: _isWatchlistGridView);
       case 2:
         return MyBidsTab(initialSubTab: _subTabIndex);
       case 3:

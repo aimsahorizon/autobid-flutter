@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth_provider.dart';
+import '../auth/otp_verification_screen.dart';
 
 class SecuritySettingsScreen extends ConsumerStatefulWidget {
   const SecuritySettingsScreen({super.key});
@@ -10,26 +11,32 @@ class SecuritySettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen> {
-  final _formKey = GlobalKey<FormState>();
+  final _passwordFormKey = GlobalKey<FormState>();
+  final _emailFormKey = GlobalKey<FormState>();
+  final _phoneFormKey = GlobalKey<FormState>();
+
   final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _newEmailController = TextEditingController();
+  final _newPhoneController = TextEditingController();
 
   bool _obscureCurrentPassword = true;
   bool _obscureNewPassword = true;
   bool _obscureConfirmPassword = true;
-  bool _twoFactorEnabled = false;
 
   @override
   void dispose() {
     _currentPasswordController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
+    _newEmailController.dispose();
+    _newPhoneController.dispose();
     super.dispose();
   }
 
   Future<void> _changePassword() async {
-    if (!_formKey.currentState!.validate()) {
+    if (!_passwordFormKey.currentState!.validate()) {
       return;
     }
 
@@ -68,28 +75,151 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
     );
   }
 
-  void _toggleTwoFactor(bool value) {
-    setState(() {
-      _twoFactorEnabled = value;
-    });
+  Future<void> _changeEmail() async {
+    if (!_emailFormKey.currentState!.validate()) {
+      return;
+    }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          value
-              ? 'Two-factor authentication enabled (Demo)'
-              : 'Two-factor authentication disabled (Demo)',
+    final newEmail = _newEmailController.text.trim();
+    final authService = ref.read(authServiceProvider);
+
+    // Step 1: Request OTP for new email
+    final otpResult = await authService.requestLoginOtp(newEmail);
+
+    if (!otpResult.success) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(otpResult.errorMessage ?? 'Failed to send OTP'),
+          backgroundColor: Colors.red,
         ),
-        backgroundColor: Colors.green,
+      );
+      return;
+    }
+
+    if (!mounted) return;
+
+    // Step 2: Navigate to OTP verification screen
+    final verified = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (context) => OtpVerificationScreen(
+          identifier: newEmail,
+          title: 'Verify New Email',
+          subtitle: 'Please enter the OTP sent to',
+          debugOtp: otpResult.debugOtp,
+          onVerify: (otp) async {
+            final result = await authService.otpService.verifyOtp(
+              identifier: newEmail,
+              otp: otp,
+            );
+            if (!result.success) {
+              throw Exception(result.errorMessage ?? 'Invalid OTP');
+            }
+            // OTP verified, now update email
+            final updateResult = await authService.updateProfile(
+              fullName: ref.read(currentUserProvider)?.fullName,
+            );
+            if (!updateResult.success) {
+              throw Exception(updateResult.errorMessage ?? 'Failed to update email');
+            }
+            if (context.mounted) {
+              Navigator.of(context).pop(true);
+            }
+          },
+          onResend: () async {
+            final result = await authService.requestLoginOtp(newEmail);
+            return result.success;
+          },
+        ),
       ),
     );
+
+    if (verified == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Email updated successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      _newEmailController.clear();
+    }
+  }
+
+  Future<void> _changePhoneNumber() async {
+    if (!_phoneFormKey.currentState!.validate()) {
+      return;
+    }
+
+    final newPhone = _newPhoneController.text.trim();
+    final authService = ref.read(authServiceProvider);
+
+    // Step 1: Request OTP for new phone number
+    final otpResult = await authService.requestLoginOtp(newPhone);
+
+    if (!otpResult.success) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(otpResult.errorMessage ?? 'Failed to send OTP'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (!mounted) return;
+
+    // Step 2: Navigate to OTP verification screen
+    final verified = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (context) => OtpVerificationScreen(
+          identifier: newPhone,
+          title: 'Verify New Phone Number',
+          subtitle: 'Please enter the OTP sent to',
+          debugOtp: otpResult.debugOtp,
+          onVerify: (otp) async {
+            final result = await authService.otpService.verifyOtp(
+              identifier: newPhone,
+              otp: otp,
+            );
+            if (!result.success) {
+              throw Exception(result.errorMessage ?? 'Invalid OTP');
+            }
+            // OTP verified, now update phone number
+            final updateResult = await authService.updateProfile(
+              phoneNumber: newPhone,
+            );
+            if (!updateResult.success) {
+              throw Exception(updateResult.errorMessage ?? 'Failed to update phone number');
+            }
+            if (context.mounted) {
+              Navigator.of(context).pop(true);
+            }
+          },
+          onResend: () async {
+            final result = await authService.requestLoginOtp(newPhone);
+            return result.success;
+          },
+        ),
+      ),
+    );
+
+    if (verified == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Phone number updated successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      _newPhoneController.clear();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final changePasswordState = ref.watch(changePasswordActionProvider);
     final isLoading = changePasswordState.isLoading;
-    final colorScheme = Theme.of(context).colorScheme;
+    final currentUser = ref.watch(currentUserProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -108,7 +238,7 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
           const SizedBox(height: 16),
 
           Form(
-            key: _formKey,
+            key: _passwordFormKey,
             child: Column(
               children: [
                 // Current Password
@@ -236,61 +366,123 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
           const Divider(),
           const SizedBox(height: 16),
 
-          // Two-Factor Authentication Section
+          // Change Email Section
           Text(
-            'Two-Factor Authentication',
+            'Change Email',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Add an extra layer of security to your account',
+            'Current: ${currentUser?.email ?? 'Not set'}',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Colors.grey[600],
                 ),
           ),
           const SizedBox(height: 16),
 
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey[300]!),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
+          Form(
+            key: _emailFormKey,
+            child: Column(
               children: [
-                Icon(
-                  Icons.security,
-                  color: colorScheme.primary,
-                  size: 32,
+                TextFormField(
+                  controller: _newEmailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(
+                    labelText: 'New Email',
+                    hintText: 'Enter new email address',
+                    prefixIcon: Icon(Icons.email_outlined),
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Email is required';
+                    }
+                    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+                    if (!emailRegex.hasMatch(value)) {
+                      return 'Enter a valid email';
+                    }
+                    if (value == currentUser?.email) {
+                      return 'New email must be different from current email';
+                    }
+                    return null;
+                  },
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Enable 2FA',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Protect your account with SMS verification',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: _changeEmail,
+                    icon: const Icon(Icons.email),
+                    label: const Text('Update Email'),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
                   ),
                 ),
-                Switch(
-                  value: _twoFactorEnabled,
-                  onChanged: _toggleTwoFactor,
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 32),
+          const Divider(),
+          const SizedBox(height: 16),
+
+          // Change Phone Number Section
+          Text(
+            'Change Phone Number',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Current: ${currentUser?.phoneNumber ?? 'Not set'}',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.grey[600],
+                ),
+          ),
+          const SizedBox(height: 16),
+
+          Form(
+            key: _phoneFormKey,
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: _newPhoneController,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(
+                    labelText: 'New Phone Number',
+                    hintText: 'Enter new phone number',
+                    prefixIcon: Icon(Icons.phone_outlined),
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Phone number is required';
+                    }
+                    final phoneRegex = RegExp(r'^\+?[0-9]{10,15}$');
+                    if (!phoneRegex.hasMatch(value)) {
+                      return 'Enter a valid phone number';
+                    }
+                    if (value == currentUser?.phoneNumber) {
+                      return 'New phone must be different from current phone';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: _changePhoneNumber,
+                    icon: const Icon(Icons.phone),
+                    label: const Text('Update Phone Number'),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -324,7 +516,7 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
                 ),
                 const SizedBox(height: 12),
                 _buildSecurityTip('Use a strong, unique password'),
-                _buildSecurityTip('Enable two-factor authentication'),
+                _buildSecurityTip('Verify OTP codes sent to your email and phone'),
                 _buildSecurityTip('Never share your password with anyone'),
                 _buildSecurityTip('Change your password regularly'),
               ],

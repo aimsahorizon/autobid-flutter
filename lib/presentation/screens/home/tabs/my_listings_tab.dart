@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../data/models/car_model.dart';
+import '../../../../data/models/auction_model.dart';
 import '../../../../data/models/pre_transaction_model.dart';
 import '../../../../data/services/mock/mock_pre_transaction_service.dart';
+import '../../../../data/services/mock/mock_auction_service.dart';
 import '../../../../core/utils/listing_status_extensions.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../providers/listing_provider.dart';
 import '../../../widgets/car_card.dart';
+import '../../../widgets/auction_card.dart';
 
 class MyListingsTab extends StatefulWidget {
   final bool isGridView;
@@ -90,11 +93,10 @@ class _MyListingsTabState extends State<MyListingsTab>
                               .toList(),
                           ListingStatus.active,
                         ),
-                        _buildListingList(
+                        _buildPendingListingsList(
                           provider.myListings
                               .where((l) => l.status == ListingStatus.pendingReview)
                               .toList(),
-                          ListingStatus.pendingReview,
                         ),
                         _buildInTransactionList(), // New tab for sold auctions
                         _buildListingList(
@@ -433,10 +435,25 @@ class _MyListingsTabState extends State<MyListingsTab>
       );
     }
 
+    // For ACTIVE listings, use AuctionCard like Browse tab
+    if (status == ListingStatus.active) {
+      return _buildActiveAuctionsList(listings);
+    }
+
+    // For SOLD listings, use custom SoldListingCard
+    if (status == ListingStatus.sold) {
+      return _buildSoldListingsList(listings);
+    }
+
+    // For CANCELLED listings, use custom CancelledListingCard
+    if (status == ListingStatus.cancelled) {
+      return _buildCancelledListingsList(listings);
+    }
+
+    // For other statuses, use CarCard as before
     // Determine if actions should be shown based on status
     final bool showEditDelete = status == ListingStatus.draft;
-    final bool showReauctionDelete = status == ListingStatus.cancelled;
-    final bool showActions = showEditDelete || showReauctionDelete;
+    final bool showActions = showEditDelete;
 
     if (widget.isGridView) {
       return GridView.builder(
@@ -459,11 +476,8 @@ class _MyListingsTabState extends State<MyListingsTab>
               provider.loadListingForEdit(listing);
               context.push('/listing/create/step1');
             } : null,
-            onDelete: showEditDelete || showReauctionDelete
+            onDelete: showEditDelete
                 ? () => _showDeleteDialog(listing)
-                : null,
-            customActionButton: showReauctionDelete
-                ? _buildReauctionButton(listing)
                 : null,
           );
         },
@@ -486,12 +500,864 @@ class _MyListingsTabState extends State<MyListingsTab>
               provider.loadListingForEdit(listing);
               context.push('/listing/create/step1');
             } : null,
-            onDelete: showEditDelete || showReauctionDelete
+            onDelete: showEditDelete
                 ? () => _showDeleteDialog(listing)
                 : null,
-            customActionButton: showReauctionDelete
-                ? _buildReauctionButton(listing)
-                : null,
+          ),
+        );
+      },
+    );
+  }
+
+  // Build pending listings with custom PendingListingCard
+  Widget _buildPendingListingsList(List<CarModel> listings) {
+    final auctionService = MockAuctionService();
+
+    if (listings.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                ListingStatus.pendingReview.iconEmoji,
+                style: const TextStyle(fontSize: 80),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'No Pending Listings',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Your submitted listings will appear here while waiting for admin approval.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (widget.isGridView) {
+      return GridView.builder(
+        padding: const EdgeInsets.all(16),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 0.75,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+        ),
+        itemCount: listings.length,
+        itemBuilder: (context, index) {
+          final auction = auctionService.getAuctionByCarId(listings[index].id);
+          return _buildPendingListingCard(listings[index], auction);
+        },
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: listings.length,
+      itemBuilder: (context, index) {
+        final auction = auctionService.getAuctionByCarId(listings[index].id);
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: _buildPendingListingCard(listings[index], auction),
+        );
+      },
+    );
+  }
+
+  Widget _buildPendingListingCard(CarModel car, Auction? auction) {
+    // Mock submission date
+    final submittedDate = car.createdAt;
+    final hoursAgo = DateTime.now().difference(submittedDate).inHours;
+    final daysAgo = hoursAgo ~/ 24;
+    final timeAgoText = daysAgo > 0 ? '${daysAgo}d ago' : '${hoursAgo}h ago';
+    final startingPrice = auction?.startingPrice ?? 0;
+
+    return Card(
+      elevation: 1,
+      child: InkWell(
+        onTap: () => context.push('/car/${car.id}'),
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Colors.blue[200]!,
+              width: 1,
+            ),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.blue.shade50.withOpacity(0.3),
+                Colors.white,
+              ],
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Pending badge
+              Row(
+                children: [
+                  Text(
+                    timeAgoText,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.orange[600],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.pending,
+                          size: 14,
+                          color: Colors.white,
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          'PENDING',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              // Car image and details
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 90,
+                    height: 90,
+                    decoration: BoxDecoration(
+                      color: Colors.blue[50],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Colors.blue[200]!,
+                        width: 2,
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: Icon(
+                        Icons.directions_car,
+                        color: Colors.blue[300],
+                        size: 40,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${car.brand} ${car.model}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            height: 1.2,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${car.year} • ${car.transmission}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.blue[50],
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            'Starting: ₱${_formatCurrency(startingPrice)}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.blue[700],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              // Review status banner
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.amber[50],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Colors.amber[200]!,
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      size: 16,
+                      color: Colors.amber[900],
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Under admin review. We\'ll notify you once approved',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.amber[900],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Divider(height: 1),
+              const SizedBox(height: 12),
+              // Footer with action
+              Row(
+                children: [
+                  Icon(
+                    Icons.visibility_outlined,
+                    size: 16,
+                    color: Colors.grey[600],
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'View Details',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[700],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const Spacer(),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    size: 14,
+                    color: Colors.grey[400],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Build sold listings with custom SoldListingCard
+  Widget _buildSoldListingsList(List<CarModel> listings) {
+    final auctionService = MockAuctionService();
+
+    if (widget.isGridView) {
+      return GridView.builder(
+        padding: const EdgeInsets.all(16),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 0.75,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+        ),
+        itemCount: listings.length,
+        itemBuilder: (context, index) {
+          final auction = auctionService.getAuctionByCarId(listings[index].id);
+          return _buildSoldListingCard(listings[index], auction);
+        },
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: listings.length,
+      itemBuilder: (context, index) {
+        final auction = auctionService.getAuctionByCarId(listings[index].id);
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: _buildSoldListingCard(listings[index], auction),
+        );
+      },
+    );
+  }
+
+  Widget _buildSoldListingCard(CarModel car, Auction? auction) {
+    // Mock sold date - in real app, this would come from auction/transaction data
+    final soldDate = DateTime.now().subtract(Duration(days: car.id.hashCode % 30));
+    final daysAgo = DateTime.now().difference(soldDate).inDays;
+    final finalPrice = auction?.currentBid ?? auction?.startingPrice ?? 0;
+
+    return Card(
+      elevation: 2,
+      child: InkWell(
+        onTap: () => context.push('/listing/sold/${car.id}'),
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.green.shade50,
+                Colors.white,
+              ],
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Success badge
+              Row(
+                children: [
+                  Text(
+                    '${daysAgo}d ago',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: ColorConstants.primaryGreen,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.check_circle,
+                          size: 14,
+                          color: Colors.white,
+                        ),
+                        SizedBox(width: 4),
+                        Text(
+                          'SOLD',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              // Car image and details
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 90,
+                    height: 90,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: ColorConstants.primaryGreen.withOpacity(0.3),
+                        width: 2,
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: Icon(
+                        Icons.directions_car,
+                        color: ColorConstants.primaryGreen.withOpacity(0.5),
+                        size: 40,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${car.brand} ${car.model}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            height: 1.2,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${car.year} • ${car.transmission}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: ColorConstants.primaryGreen.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            'Final Sale: ₱${_formatCurrency(finalPrice)}',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: ColorConstants.primaryGreen,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              const Divider(height: 1),
+              const SizedBox(height: 12),
+              // Footer with action
+              Row(
+                children: [
+                  Icon(
+                    Icons.visibility_outlined,
+                    size: 16,
+                    color: Colors.grey[600],
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'View Details',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[700],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const Spacer(),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    size: 14,
+                    color: Colors.grey[400],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Build cancelled listings with custom CancelledListingCard
+  Widget _buildCancelledListingsList(List<CarModel> listings) {
+    final auctionService = MockAuctionService();
+
+    if (widget.isGridView) {
+      return GridView.builder(
+        padding: const EdgeInsets.all(16),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 0.75,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+        ),
+        itemCount: listings.length,
+        itemBuilder: (context, index) {
+          final auction = auctionService.getAuctionByCarId(listings[index].id);
+          return _buildCancelledListingCard(listings[index], auction);
+        },
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: listings.length,
+      itemBuilder: (context, index) {
+        final auction = auctionService.getAuctionByCarId(listings[index].id);
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: _buildCancelledListingCard(listings[index], auction),
+        );
+      },
+    );
+  }
+
+  Widget _buildCancelledListingCard(CarModel car, Auction? auction) {
+    // Mock cancellation date
+    final cancelledDate = DateTime.now().subtract(Duration(days: car.id.hashCode % 60));
+    final daysAgo = DateTime.now().difference(cancelledDate).inDays;
+    final listedPrice = auction?.startingPrice ?? 0;
+
+    return Card(
+      elevation: 1,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Colors.grey[300]!,
+            width: 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            // Main content
+            InkWell(
+              onTap: () => context.push('/listing/cancelled/${car.id}'),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Cancelled badge
+                    Row(
+                      children: [
+                        Text(
+                          '${daysAgo}d ago',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[500],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Colors.grey[400]!,
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.cancel_outlined,
+                                size: 14,
+                                color: Colors.grey[700],
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'CANCELLED',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[700],
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    // Car image and details (muted appearance)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 90,
+                          height: 90,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Opacity(
+                            opacity: 0.5,
+                            child: Icon(
+                              Icons.directions_car,
+                              color: Colors.grey[400],
+                              size: 40,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${car.brand} ${car.model}',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[800],
+                                  height: 1.2,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${car.year} • ${car.transmission}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Listed at: ₱${_formatCurrency(listedPrice)}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                  decoration: TextDecoration.lineThrough,
+                                  decorationColor: Colors.grey[400],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    // Reauction suggestion
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.orange[50],
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Colors.orange[200]!,
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.lightbulb_outline,
+                            size: 16,
+                            color: Colors.orange[700],
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Consider re-listing with updated details',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.orange[900],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Action buttons footer
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
+                border: Border(
+                  top: BorderSide(
+                    color: Colors.grey[200]!,
+                    width: 1,
+                  ),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => _showReauctionDialog(car),
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(12),
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.refresh,
+                              size: 18,
+                              color: ColorConstants.primaryGreen,
+                            ),
+                            const SizedBox(width: 6),
+                            const Text(
+                              'Reauction',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: ColorConstants.primaryGreen,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    width: 1,
+                    height: 40,
+                    color: Colors.grey[200],
+                  ),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => _showDeleteDialog(car),
+                      borderRadius: const BorderRadius.only(
+                        bottomRight: Radius.circular(12),
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.delete_outline,
+                              size: 18,
+                              color: Colors.red[600],
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Delete',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.red[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Build active auctions list using AuctionCard (same as Browse tab)
+  Widget _buildActiveAuctionsList(List<CarModel> listings) {
+    final auctionService = MockAuctionService();
+
+    // Get auctions for these car IDs
+    final auctions = listings
+        .map((car) => auctionService.getAuctionByCarId(car.id))
+        .where((auction) => auction != null)
+        .cast<Auction>()
+        .toList();
+
+    if (auctions.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                '🚗',
+                style: TextStyle(fontSize: 80),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'No Active Auctions',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Your active listings will appear here as auctions.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (widget.isGridView) {
+      return GridView.builder(
+        padding: const EdgeInsets.all(16),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 0.65,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+        ),
+        itemCount: auctions.length,
+        itemBuilder: (context, index) {
+          final auction = auctions[index];
+          return AuctionCard(
+            auction: auction,
+            onTap: () => context.push('/auction/${auction.id}?isSeller=true'),
+          );
+        },
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: auctions.length,
+      itemBuilder: (context, index) {
+        final auction = auctions[index];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: AuctionCard(
+            auction: auction,
+            onTap: () => context.push('/auction/${auction.id}?isSeller=true'),
           ),
         );
       },
@@ -506,14 +1372,6 @@ class _MyListingsTabState extends State<MyListingsTab>
       // All other statuses go to read-only car details
       context.push('/car/${listing.id}');
     }
-  }
-
-  Widget _buildReauctionButton(CarModel listing) {
-    return IconButton(
-      icon: const Icon(Icons.refresh),
-      tooltip: 'Reauction',
-      onPressed: () => _showReauctionDialog(listing),
-    );
   }
 
   Future<void> _showReauctionDialog(CarModel car) async {

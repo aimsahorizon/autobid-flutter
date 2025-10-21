@@ -304,7 +304,7 @@ class MockAuthService {
         );
       }
 
-      // Mock validation - in production, verify currentPassword
+      // Validate both passwords are provided
       if (currentPassword.isEmpty || newPassword.isEmpty) {
         return AuthResult(
           success: false,
@@ -312,6 +312,15 @@ class MockAuthService {
         );
       }
 
+      // Validate current password matches stored password
+      if (_currentUser!.password != currentPassword) {
+        return AuthResult(
+          success: false,
+          errorMessage: 'Current password is incorrect',
+        );
+      }
+
+      // Validate new password length
       if (newPassword.length < 6) {
         return AuthResult(
           success: false,
@@ -319,7 +328,27 @@ class MockAuthService {
         );
       }
 
-      return AuthResult(success: true, user: _currentUser);
+      // Ensure new password is different from current
+      if (currentPassword == newPassword) {
+        return AuthResult(
+          success: false,
+          errorMessage: 'New password must be different from current password',
+        );
+      }
+
+      // Update password in current user and user list
+      final updatedUser = _currentUser!.copyWith(password: newPassword);
+      _currentUser = updatedUser;
+
+      // Update in user list as well
+      final userIndex = _users.indexWhere((u) => u.id == _currentUser!.id);
+      if (userIndex != -1) {
+        _users[userIndex] = updatedUser;
+      }
+
+      _authStateController.add(updatedUser);
+
+      return AuthResult(success: true, user: updatedUser);
     } catch (e) {
       return AuthResult(
         success: false,

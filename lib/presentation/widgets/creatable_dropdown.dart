@@ -227,12 +227,14 @@ class _CreatableDropdownState<T> extends State<CreatableDropdown<T>> {
             decoration: InputDecoration(
               labelText: widget.labelText,
               hintText: widget.hintText,
+              hintStyle: const TextStyle(fontSize: 13), // Smaller hint text
               border: const OutlineInputBorder(),
               suffixIcon: Icon(_isExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down),
             ),
             child: Text(
               _currentDisplayValue.isEmpty ? widget.hintText : _currentDisplayValue,
               style: TextStyle(
+                fontSize: _currentDisplayValue.isEmpty ? 13 : 14, // Smaller hint text
                 color: _currentDisplayValue.isEmpty
                     ? Theme.of(context).hintColor
                     : Theme.of(context).textTheme.bodyLarge?.color,
@@ -241,13 +243,14 @@ class _CreatableDropdownState<T> extends State<CreatableDropdown<T>> {
           ),
         ),
         if (_isExpanded) ...[
-          const SizedBox(height: 8),
+          const SizedBox(height: 4), // Reduced spacing
           Material(
-            elevation: 4,
+            elevation: 8, // Increased elevation to appear on top
             borderRadius: BorderRadius.circular(8),
             child: Container(
-              constraints: const BoxConstraints(maxHeight: 300),
+              constraints: const BoxConstraints(maxHeight: 250), // Reduced max height
               decoration: BoxDecoration(
+                color: Theme.of(context).scaffoldBackgroundColor,
                 border: Border.all(color: Theme.of(context).dividerColor),
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -260,17 +263,20 @@ class _CreatableDropdownState<T> extends State<CreatableDropdown<T>> {
                       controller: _searchController,
                       focusNode: _focusNode,
                       maxLength: widget.maxLength,
+                      style: const TextStyle(fontSize: 13), // Smaller text
                       decoration: InputDecoration(
-                        hintText: 'Search or type to add...',
-                        prefixIcon: const Icon(Icons.search, size: 20),
+                        hintText: 'Search or type...',
+                        hintStyle: const TextStyle(fontSize: 12),
+                        prefixIcon: const Icon(Icons.search, size: 18),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                         contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
+                          horizontal: 10,
+                          vertical: 6,
                         ),
                         counterText: '',
+                        isDense: true,
                       ),
                       onChanged: (value) {
                         setState(() {});

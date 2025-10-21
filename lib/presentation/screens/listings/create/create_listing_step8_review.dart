@@ -21,6 +21,9 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
   final _formKey = GlobalKey<FormState>();
   final _descriptionController = TextEditingController();
   final _issuesController = TextEditingController();
+  final _featureSearchController = TextEditingController();
+  final FocusNode _featureSearchFocus = FocusNode();
+  bool _showFeatureSuggestions = false;
 
   @override
   void initState() {
@@ -35,6 +38,8 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
   void dispose() {
     _descriptionController.dispose();
     _issuesController.dispose();
+    _featureSearchController.dispose();
+    _featureSearchFocus.dispose();
     super.dispose();
   }
 
@@ -43,6 +48,48 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
       context,
       _descriptionController,
       _issuesController,
+    );
+  }
+
+  List<String> _getFilteredFeatures(String query) {
+    if (query.isEmpty) return [];
+
+    final lowerQuery = query.toLowerCase();
+    final allFeatures = CarFeatures.standardFeatures;
+
+    return allFeatures
+        .where((feature) => feature.toLowerCase().contains(lowerQuery))
+        .take(10)
+        .toList();
+  }
+
+  void _addFeatureFromSearch(String feature, ListingProvider provider) {
+    final trimmed = feature.trim();
+    if (trimmed.isEmpty) return;
+
+    // Check if it's a standard feature
+    if (CarFeatures.standardFeatures.contains(trimmed)) {
+      if (!provider.features.contains(trimmed)) {
+        provider.toggleFeature(trimmed);
+      }
+    } else {
+      // It's a custom feature
+      if (!provider.customFeatures.contains(trimmed)) {
+        provider.addCustomFeature(trimmed);
+      }
+    }
+
+    _featureSearchController.clear();
+    setState(() {
+      _showFeatureSuggestions = false;
+    });
+    _featureSearchFocus.unfocus();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Added: $trimmed'),
+        duration: const Duration(seconds: 1),
+      ),
     );
   }
 
@@ -228,7 +275,7 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
                     border: Border.all(color: Colors.green.shade200),
                   ),
                   child: Text(
-                    '${provider.features.length} selected',
+                    '${provider.features.length + provider.customFeatures.length} selected',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -240,12 +287,206 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Select all features your vehicle has',
+              'Search and add features, or browse categories below',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.grey[600],
                   ),
             ),
             const SizedBox(height: 12),
+
+            // QUICK ADD FEATURE SEARCH
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: _featureSearchController,
+                  focusNode: _featureSearchFocus,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: InputDecoration(
+                    labelText: 'Quick Add Feature',
+                    hintText: 'Type to search or add custom feature...',
+                    hintStyle: const TextStyle(fontSize: 13),
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.search, size: 20),
+                    suffixIcon: _featureSearchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, size: 20),
+                            onPressed: () {
+                              _featureSearchController.clear();
+                              setState(() {
+                                _showFeatureSuggestions = false;
+                              });
+                            },
+                          )
+                        : null,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _showFeatureSuggestions = value.isNotEmpty;
+                    });
+                  },
+                  onSubmitted: (value) {
+                    if (value.trim().isNotEmpty) {
+                      _addFeatureFromSearch(value, provider);
+                    }
+                  },
+                ),
+                if (_showFeatureSuggestions && _featureSearchController.text.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Material(
+                    elevation: 4,
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      constraints: const BoxConstraints(maxHeight: 200),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        border: Border.all(color: Theme.of(context).dividerColor),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Builder(
+                        builder: (context) {
+                          final suggestions = _getFilteredFeatures(_featureSearchController.text);
+                          final searchText = _featureSearchController.text.trim();
+                          final isCustom = suggestions.isEmpty ||
+                              !suggestions.any((f) => f.toLowerCase() == searchText.toLowerCase());
+
+                          return ListView(
+                            shrinkWrap: true,
+                            children: [
+                              ...suggestions.map((feature) {
+                                final isSelected = provider.features.contains(feature);
+                                return InkWell(
+                                  onTap: () => _addFeatureFromSearch(feature, provider),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 10,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          isSelected ? Icons.check_circle : Icons.add_circle_outline,
+                                          size: 18,
+                                          color: isSelected ? Colors.green : Colors.grey,
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Text(
+                                            feature,
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: isSelected ? Colors.grey : null,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }),
+                              if (isCustom && searchText.isNotEmpty) ...[
+                                if (suggestions.isNotEmpty) const Divider(height: 1),
+                                InkWell(
+                                  onTap: () => _addFeatureFromSearch(searchText, provider),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 10,
+                                    ),
+                                    color: Colors.green.withOpacity(0.05),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.add_circle, size: 18, color: Colors.green[700]),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Text(
+                                            "Add custom: '$searchText'",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.green[700],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Selected Features Chips (Show quick preview)
+            if (provider.features.isNotEmpty || provider.customFeatures.isNotEmpty)
+              Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.check_circle, size: 16, color: Colors.green),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Selected Features',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          ...provider.features.map((feature) => Chip(
+                                label: Text(feature, style: const TextStyle(fontSize: 11)),
+                                onDeleted: () => provider.toggleFeature(feature),
+                                deleteIconColor: Colors.red,
+                                backgroundColor: Colors.green.shade50,
+                                padding: EdgeInsets.zero,
+                                visualDensity: VisualDensity.compact,
+                              )),
+                          ...provider.customFeatures.map((feature) => Chip(
+                                label: Text(feature, style: const TextStyle(fontSize: 11)),
+                                onDeleted: () => provider.removeCustomFeature(feature),
+                                deleteIconColor: Colors.red,
+                                backgroundColor: Colors.blue.shade50,
+                                padding: EdgeInsets.zero,
+                                visualDensity: VisualDensity.compact,
+                              )),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+            Text(
+              'Browse by Category',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[600],
+                  ),
+            ),
+            const SizedBox(height: 8),
 
             // Categorized features with expansion tiles
             ...CarFeatures.categories.map((category) {

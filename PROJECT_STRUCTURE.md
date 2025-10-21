@@ -1,7 +1,7 @@
 # AutoBID - Project Structure
 
-**Last Updated:** 2025-10-15
-**Version:** 0.12.0+21
+**Last Updated:** 2025-10-16
+**Version:** 0.13.0+22
 **Phase:** Beta Development
 
 ---
@@ -199,7 +199,9 @@ lib/
 │   │   │   │   └── widgets/
 │   │   │   │       └── auction_settings_dialog.dart
 │   │   │   └── my_listings/
-│   │   │       └── pending_listings_screen.dart
+│   │   │       ├── cancelled_listing_detail_screen.dart
+│   │   │       ├── pending_listings_screen.dart
+│   │   │       └── sold_listing_detail_screen.dart
 │   │   ├── notifications/
 │   │   │   └── notifications_screen.dart
 │   │   ├── payment/
@@ -364,7 +366,7 @@ P0 = Critical (blocks release) | P1 = High (fix soon) | P2 = Medium (next sprint
 
 - **Total Dart Files:** 240+ (including generated)
 - **Total Models:** 18 (with Freezed generation)
-- **Total Screens:** 70+
+- **Total Screens:** 72+
 - **Total Providers:** 12
 - **Total Services:** 10 mock + 1 local = 11 total
 - **Lines of Code:** ~17,000+ (estimate)

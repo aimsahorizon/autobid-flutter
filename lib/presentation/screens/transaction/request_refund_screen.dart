@@ -59,6 +59,7 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
 
     final pickedFiles = await _picker.pickMultiImage();
     if (pickedFiles.isNotEmpty) {
+      if (!mounted) return;
       setState(() {
         final remaining = 10 - _evidencePhotos.length;
         final filesToAdd = pickedFiles.take(remaining);

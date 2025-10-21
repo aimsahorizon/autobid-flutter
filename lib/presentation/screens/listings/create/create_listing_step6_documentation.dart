@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../data/models/car_model.dart';
-import '../../../../core/constants/ph_provinces.dart';
-import '../../../../core/constants/ph_cities.dart';
+import '../../../../core/constants/ph_province_cities.dart';
 import '../../../../core/utils/enum_extensions.dart';
 import '../../../../core/utils/dev_autofill.dart';
 import '../../../../core/utils/listing_autofill_helpers.dart';
@@ -197,14 +196,14 @@ class _CreateListingStep6DocumentationState
             const SizedBox(height: 16),
 
             DropdownButtonFormField<String>(
-              initialValue: PhilippineProvinces.provinces.contains(provider.province)
+              value: PhilippineProvinceCities.provinces.contains(provider.province)
                   ? provider.province
                   : null,
               decoration: const InputDecoration(
                 labelText: 'Province *',
                 border: OutlineInputBorder(),
               ),
-              items: PhilippineProvinces.provinces
+              items: PhilippineProvinceCities.provinces
                   .map((province) => DropdownMenuItem(
                         value: province,
                         child: Text(province),
@@ -212,7 +211,7 @@ class _CreateListingStep6DocumentationState
                   .toList(),
               onChanged: (value) {
                 provider.setProvince(value);
-                provider.setCity(null);
+                provider.setCity(null); // Reset city when province changes
               },
               validator: (value) =>
                   value == null ? 'Please select province' : null,
@@ -220,20 +219,29 @@ class _CreateListingStep6DocumentationState
             const SizedBox(height: 16),
 
             DropdownButtonFormField<String>(
-              initialValue: PhilippineCities.cities.contains(provider.city)
+              key: ValueKey(provider.province), // Reset dropdown when province changes
+              value: provider.city != null &&
+                      PhilippineProvinceCities.getCitiesForProvince(provider.province).contains(provider.city)
                   ? provider.city
                   : null,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'City/Municipality *',
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
+                hintText: provider.province == null
+                    ? 'Select province first'
+                    : 'Select city/municipality',
               ),
-              items: PhilippineCities.cities
-                  .map((city) => DropdownMenuItem(
-                        value: city,
-                        child: Text(city),
-                      ))
-                  .toList(),
-              onChanged: (value) => provider.setCity(value),
+              items: provider.province == null
+                  ? []
+                  : PhilippineProvinceCities.getCitiesForProvince(provider.province)
+                      .map((city) => DropdownMenuItem(
+                            value: city,
+                            child: Text(city),
+                          ))
+                      .toList(),
+              onChanged: provider.province == null
+                  ? null
+                  : (value) => provider.setCity(value),
               validator: (value) =>
                   value == null ? 'Please select city' : null,
             ),

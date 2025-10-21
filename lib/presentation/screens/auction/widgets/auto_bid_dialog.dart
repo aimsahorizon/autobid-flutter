@@ -161,6 +161,19 @@ class _AutoBidDialogState extends State<AutoBidDialog> {
                       _increment = amount;
                     });
                   },
+                  selectedColor: theme.colorScheme.primary.withOpacity(0.2),
+                  backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                  labelStyle: TextStyle(
+                    color: isSelected
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.onSurfaceVariant,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                  ),
+                  side: BorderSide(
+                    color: isSelected
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.outline.withOpacity(0.5),
+                  ),
                 );
               }).toList(),
             ),

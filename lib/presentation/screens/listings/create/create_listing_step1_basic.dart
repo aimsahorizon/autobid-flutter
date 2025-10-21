@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../../../../core/constants/car_brands.dart';
+import '../../../../core/constants/car_brand_models.dart';
 import '../../../../core/utils/dev_autofill.dart';
 import '../../../providers/listing_provider.dart';
 import '../../../widgets/custom_button.dart';
-import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/save_draft_button.dart';
 
 class CreateListingStep1Basic extends StatefulWidget {
@@ -18,38 +17,21 @@ class CreateListingStep1Basic extends StatefulWidget {
 
 class _CreateListingStep1BasicState extends State<CreateListingStep1Basic> {
   final _formKey = GlobalKey<FormState>();
-  final _modelController = TextEditingController();
-  final _variantController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     final provider = context.read<ListingProvider>();
     provider.setCurrentStep(1);
-    _modelController.text = provider.model ?? '';
-    _variantController.text = provider.variant ?? '';
-  }
-
-  @override
-  void dispose() {
-    _modelController.dispose();
-    _variantController.dispose();
-    super.dispose();
   }
 
   void _autofillForm() {
     final provider = context.read<ListingProvider>();
 
     provider.setBrand(CarListingAutofillData.brand);
-    provider.setYear(CarListingAutofillData.year);
-
-    setState(() {
-      _modelController.text = CarListingAutofillData.model;
-      _variantController.text = CarListingAutofillData.variant;
-    });
-
     provider.setModel(CarListingAutofillData.model);
     provider.setVariant(CarListingAutofillData.variant);
+    provider.setYear(CarListingAutofillData.year);
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -109,7 +91,7 @@ class _CreateListingStep1BasicState extends State<CreateListingStep1Basic> {
 
             // Brand dropdown
             DropdownButtonFormField<String>(
-              initialValue: CarBrands.popularBrands.contains(provider.brand)
+              value: CarBrandModels.brands.contains(provider.brand)
                   ? provider.brand
                   : null,
               decoration: const InputDecoration(
@@ -117,37 +99,82 @@ class _CreateListingStep1BasicState extends State<CreateListingStep1Basic> {
                 hintText: 'Select vehicle brand',
                 border: OutlineInputBorder(),
               ),
-              items: CarBrands.popularBrands
+              items: CarBrandModels.brands
                   .map((brand) => DropdownMenuItem(
                         value: brand,
                         child: Text(brand),
                       ))
                   .toList(),
-              onChanged: (value) => provider.setBrand(value),
+              onChanged: (value) {
+                provider.setBrand(value);
+                provider.setModel(null); // Reset model when brand changes
+                provider.setVariant(null); // Reset variant when brand changes
+              },
               validator: (value) =>
                   value == null ? 'Please select a brand' : null,
             ),
             const SizedBox(height: 16),
 
-            // Model
-            CustomTextField(
-              controller: _modelController,
-              labelText: 'Model *',
-              hintText: 'e.g., Vios, City, Montero',
-              onChanged: (value) => provider.setModel(value),
+            // Model dropdown (filtered by brand)
+            DropdownButtonFormField<String>(
+              key: ValueKey(provider.brand), // Reset dropdown when brand changes
+              value: provider.model != null &&
+                      CarBrandModels.getModelsForBrand(provider.brand).contains(provider.model)
+                  ? provider.model
+                  : null,
+              decoration: InputDecoration(
+                labelText: 'Model *',
+                border: const OutlineInputBorder(),
+                hintText: provider.brand == null
+                    ? 'Select brand first'
+                    : 'Select vehicle model',
+              ),
+              items: provider.brand == null
+                  ? []
+                  : CarBrandModels.getModelsForBrand(provider.brand)
+                      .map((model) => DropdownMenuItem(
+                            value: model,
+                            child: Text(model),
+                          ))
+                      .toList(),
+              onChanged: provider.brand == null
+                  ? null
+                  : (value) {
+                      provider.setModel(value);
+                      provider.setVariant(null); // Reset variant when model changes
+                    },
               validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter model' : null,
+                  value == null ? 'Please select a model' : null,
             ),
             const SizedBox(height: 16),
 
-            // Variant
-            CustomTextField(
-              controller: _variantController,
-              labelText: 'Variant *',
-              hintText: 'e.g., 1.3 E, VX CVT, GLS',
-              onChanged: (value) => provider.setVariant(value),
+            // Variant dropdown (filtered by brand and model)
+            DropdownButtonFormField<String>(
+              key: ValueKey('${provider.brand}_${provider.model}'), // Reset dropdown when brand or model changes
+              value: provider.variant != null &&
+                      CarBrandModels.getVariantsForModel(provider.brand, provider.model).contains(provider.variant)
+                  ? provider.variant
+                  : null,
+              decoration: InputDecoration(
+                labelText: 'Variant *',
+                border: const OutlineInputBorder(),
+                hintText: provider.model == null
+                    ? 'Select model first'
+                    : 'Select vehicle variant',
+              ),
+              items: provider.model == null
+                  ? []
+                  : CarBrandModels.getVariantsForModel(provider.brand, provider.model)
+                      .map((variant) => DropdownMenuItem(
+                            value: variant,
+                            child: Text(variant),
+                          ))
+                      .toList(),
+              onChanged: provider.model == null
+                  ? null
+                  : (value) => provider.setVariant(value),
               validator: (value) =>
-                  value?.isEmpty ?? true ? 'Please enter variant' : null,
+                  value == null ? 'Please select a variant' : null,
             ),
             const SizedBox(height: 16),
 

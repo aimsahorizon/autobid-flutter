@@ -43,7 +43,12 @@
       "Bash(where flutter)",
       "Bash(findstr /C:\"error -\")",
       "Bash(timeout 60 flutter analyze --no-pub)",
-      "Bash(findstr /C:\"error -\" /C:\"No issues found\")"
+      "Bash(findstr /C:\"error -\" /C:\"No issues found\")",
+      "Bash(findstr /i \"my_listings_tab\")",
+      "Bash(findstr /i \"Commonwealth\")",
+      "Bash(findstr /i \"signup_step3_address\")",
+      "Read(//c/**)",
+      "Bash(powershell -Command \"Start-Sleep -Seconds 5\")"
     ],
     "deny": [],
     "ask": []
