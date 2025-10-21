@@ -108,27 +108,6 @@ class _CarImageGalleryState extends State<CarImageGallery> {
           ),
         ),
 
-        // Page indicator
-        Positioned(
-          bottom: 16,
-          right: 16,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.6),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              '${_currentPage + 1}/${widget.images.length}',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ),
-
         // Navigation arrows (for larger screens)
         if (widget.images.length > 1) ...[
           // Previous button
@@ -179,20 +158,6 @@ class _CarImageGalleryState extends State<CarImageGallery> {
             ),
           ),
         ],
-
-        // Fullscreen button
-        Positioned(
-          top: 16,
-          right: 16,
-          child: IconButton(
-            icon: const Icon(Icons.fullscreen, size: 28),
-            color: Colors.white,
-            style: IconButton.styleFrom(
-              backgroundColor: Colors.black.withValues(alpha: 0.5),
-            ),
-            onPressed: () => _openFullScreenGallery(context, _currentPage),
-          ),
-        ),
       ],
     );
   }
