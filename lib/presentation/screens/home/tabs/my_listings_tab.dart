@@ -583,6 +583,8 @@ class _MyListingsTabState extends State<MyListingsTab>
     final daysAgo = hoursAgo ~/ 24;
     final timeAgoText = daysAgo > 0 ? '${daysAgo}d ago' : '${hoursAgo}h ago';
     final startingPrice = auction?.startingPrice ?? 0;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = Theme.of(context).cardColor;
 
     return Card(
       elevation: 1,
@@ -601,8 +603,8 @@ class _MyListingsTabState extends State<MyListingsTab>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                ColorConstants.warning.withOpacity(0.05),
-                Colors.white,
+                ColorConstants.warning.withOpacity(isDarkMode ? 0.15 : 0.05),
+                cardColor,
               ],
             ),
           ),
@@ -616,7 +618,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                     timeAgoText,
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.grey[600],
+                      color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -695,7 +697,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                           '${car.year} • ${car.transmission}',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey[700],
+                            color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -826,6 +828,8 @@ class _MyListingsTabState extends State<MyListingsTab>
     final soldDate = DateTime.now().subtract(Duration(days: car.id.hashCode % 30));
     final daysAgo = DateTime.now().difference(soldDate).inDays;
     final finalPrice = auction?.currentBid ?? auction?.startingPrice ?? 0;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = Theme.of(context).cardColor;
 
     return Card(
       elevation: 2,
@@ -840,8 +844,8 @@ class _MyListingsTabState extends State<MyListingsTab>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                ColorConstants.success.withOpacity(0.05),
-                Colors.white,
+                ColorConstants.success.withOpacity(isDarkMode ? 0.15 : 0.05),
+                cardColor,
               ],
             ),
           ),
@@ -855,7 +859,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                     '${daysAgo}d ago',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.grey[600],
+                      color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -934,7 +938,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                           '${car.year} • ${car.transmission}',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey[700],
+                            color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -1032,6 +1036,7 @@ class _MyListingsTabState extends State<MyListingsTab>
     final cancelledDate = DateTime.now().subtract(Duration(days: car.id.hashCode % 60));
     final daysAgo = DateTime.now().difference(cancelledDate).inDays;
     final listedPrice = auction?.startingPrice ?? 0;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Card(
       elevation: 1,
@@ -1039,7 +1044,7 @@ class _MyListingsTabState extends State<MyListingsTab>
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: Colors.grey[300]!,
+            color: isDarkMode ? Colors.grey[700]! : Colors.grey[300]!,
             width: 1,
           ),
         ),
@@ -1061,7 +1066,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                           '${daysAgo}d ago',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey[500],
+                            color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -1069,10 +1074,10 @@ class _MyListingsTabState extends State<MyListingsTab>
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Colors.grey[100],
+                            color: isDarkMode ? Colors.grey[800] : Colors.grey[100],
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: Colors.grey[400]!,
+                              color: isDarkMode ? Colors.grey[600]! : Colors.grey[400]!,
                               width: 1,
                             ),
                           ),
@@ -1082,7 +1087,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                               Icon(
                                 Icons.cancel_outlined,
                                 size: 14,
-                                color: Colors.grey[700],
+                                color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
                               ),
                               const SizedBox(width: 4),
                               Text(
@@ -1090,7 +1095,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.grey[700],
+                                  color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
                                   letterSpacing: 0.5,
                                 ),
                               ),
@@ -1108,14 +1113,14 @@ class _MyListingsTabState extends State<MyListingsTab>
                           width: 90,
                           height: 90,
                           decoration: BoxDecoration(
-                            color: Colors.grey[200],
+                            color: isDarkMode ? Colors.grey[800] : Colors.grey[200],
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Opacity(
                             opacity: 0.5,
                             child: Icon(
                               Icons.directions_car,
-                              color: Colors.grey[400],
+                              color: isDarkMode ? Colors.grey[500] : Colors.grey[400],
                               size: 40,
                             ),
                           ),
@@ -1199,11 +1204,11 @@ class _MyListingsTabState extends State<MyListingsTab>
             // Action buttons footer
             Container(
               decoration: BoxDecoration(
-                color: Colors.grey[50],
+                color: isDarkMode ? Colors.grey[900] : Colors.grey[50],
                 borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
                 border: Border(
                   top: BorderSide(
-                    color: Colors.grey[200]!,
+                    color: isDarkMode ? Colors.grey[700]! : Colors.grey[200]!,
                     width: 1,
                   ),
                 ),
@@ -1243,7 +1248,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                   Container(
                     width: 1,
                     height: 40,
-                    color: Colors.grey[200],
+                    color: isDarkMode ? Colors.grey[700] : Colors.grey[200],
                   ),
                   Expanded(
                     child: InkWell(
@@ -1342,7 +1347,7 @@ class _MyListingsTabState extends State<MyListingsTab>
           final auction = auctions[index];
           return AuctionCard(
             auction: auction,
-            onTap: () => context.push('/auction/${auction.id}?isSeller=true'),
+            onTap: () => context.push('/seller/auction/${auction.id}'),
           );
         },
       );
@@ -1357,7 +1362,7 @@ class _MyListingsTabState extends State<MyListingsTab>
           padding: const EdgeInsets.only(bottom: 12),
           child: AuctionCard(
             auction: auction,
-            onTap: () => context.push('/auction/${auction.id}?isSeller=true'),
+            onTap: () => context.push('/seller/auction/${auction.id}'),
           ),
         );
       },
@@ -1367,7 +1372,7 @@ class _MyListingsTabState extends State<MyListingsTab>
   void _handleListingTap(CarModel listing, ListingStatus status) {
     // Active listings go to auction view as seller
     if (status == ListingStatus.active) {
-      context.push('/auction/${listing.id}?isSeller=true&isCarId=true');
+      context.push('/seller/auction/${listing.id}?isCarId=true');
     } else {
       // All other statuses go to read-only car details
       context.push('/car/${listing.id}');

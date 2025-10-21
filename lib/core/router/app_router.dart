@@ -40,6 +40,7 @@ import '../../presentation/screens/browse/browse_cars_screen.dart';
 import '../../presentation/screens/browse/search_screen.dart';
 import '../../presentation/screens/browse/car_detail_screen.dart';
 import '../../presentation/screens/auction/auction_detail_screen.dart';
+import '../../presentation/screens/seller/seller_auction_detail_screen.dart';
 import '../../presentation/screens/payment/payment_screen.dart';
 import '../../presentation/screens/payment/transactions_screen.dart';
 import '../../presentation/screens/transaction/transaction_detail_screen.dart';
@@ -293,6 +294,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return AuctionDetailScreen(
             auctionId: auctionId,
             isSeller: isSeller,
+            isCarId: isCarId,
+          );
+        },
+      ),
+      // Seller Auction Management Route
+      GoRoute(
+        path: '/seller/auction/:id',
+        name: 'seller-auction',
+        builder: (context, state) {
+          final auctionId = state.pathParameters['id']!;
+          final isCarId = state.uri.queryParameters['isCarId'] == 'true';
+          return SellerAuctionDetailScreen(
+            auctionId: auctionId,
             isCarId: isCarId,
           );
         },

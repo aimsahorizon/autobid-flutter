@@ -50,6 +50,9 @@ class _PendingListingDetailScreenState extends State<PendingListingDetailScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+
     if (_isLoading) {
       return Scaffold(
         appBar: AppBar(),
@@ -164,8 +167,8 @@ class _PendingListingDetailScreenState extends State<PendingListingDetailScreen>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        ColorConstants.warning.withOpacity(0.05),
-                        Colors.white,
+                        ColorConstants.warning.withOpacity(isDarkMode ? 0.15 : 0.05),
+                        backgroundColor,
                       ],
                     ),
                   ),
@@ -192,7 +195,7 @@ class _PendingListingDetailScreenState extends State<PendingListingDetailScreen>
                                   'Your listing is being reviewed by our team',
                                   style: TextStyle(
                                     fontSize: 14,
-                                    color: Colors.grey[700],
+                                    color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
                                   ),
                                 ),
                               ],

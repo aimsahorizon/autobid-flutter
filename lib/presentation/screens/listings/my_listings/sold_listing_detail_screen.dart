@@ -50,6 +50,9 @@ class _SoldListingDetailScreenState extends State<SoldListingDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+
     if (_isLoading) {
       return Scaffold(
         appBar: AppBar(),
@@ -162,8 +165,8 @@ class _SoldListingDetailScreenState extends State<SoldListingDetailScreen> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        ColorConstants.success.withOpacity(0.05),
-                        Colors.white,
+                        ColorConstants.success.withOpacity(isDarkMode ? 0.15 : 0.05),
+                        backgroundColor,
                       ],
                     ),
                   ),
@@ -182,7 +185,7 @@ class _SoldListingDetailScreenState extends State<SoldListingDetailScreen> {
                         'Your vehicle has been successfully sold',
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey[700],
+                          color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
                         ),
                       ),
                     ],

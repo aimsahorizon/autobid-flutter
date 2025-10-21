@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/auction_provider.dart';
 import '../widgets/bid_history_item.dart';
+import '../widgets/buyer_comment_section.dart';
 
 class BidHistoryTab extends StatelessWidget {
   final String auctionId;
@@ -61,6 +62,8 @@ class BidHistoryTab extends StatelessWidget {
           bids: bids,
           currentUserId: provider.currentUserId,
           isSeller: isSeller,
+          auctionId: auctionId,
+          sellerId: sellerId,
         );
       },
     );
@@ -71,11 +74,15 @@ class _BidHistoryList extends StatefulWidget {
   final List bids;
   final String? currentUserId;
   final bool isSeller;
+  final String auctionId;
+  final String sellerId;
 
   const _BidHistoryList({
     required this.bids,
     required this.currentUserId,
     this.isSeller = false,
+    required this.auctionId,
+    required this.sellerId,
   });
 
   @override
@@ -136,6 +143,23 @@ class _BidHistoryListState extends State<_BidHistoryList> {
             ),
           ),
         ],
+
+        // Divider between bid history and Q&A section
+        if (widget.bids.isNotEmpty) ...[
+          const SizedBox(height: 24),
+          Divider(
+            thickness: 1,
+            color: theme.colorScheme.outline.withValues(alpha: 0.3),
+          ),
+          const SizedBox(height: 24),
+        ],
+
+        // Questions & Answers section for buyers
+        BuyerCommentSection(
+          auctionId: widget.auctionId,
+          sellerId: widget.sellerId,
+          currentUserId: widget.currentUserId,
+        ),
       ],
     );
   }
