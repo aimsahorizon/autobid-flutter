@@ -114,7 +114,7 @@ class _SoldListingDetailScreenState extends State<SoldListingDetailScreen> {
                   // Sold badge
                   Positioned(
                     top: 60,
-                    left: 16,
+                    right: 16,
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(

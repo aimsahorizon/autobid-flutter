@@ -116,7 +116,7 @@ class _PendingListingDetailScreenState extends State<PendingListingDetailScreen>
                   // Pending badge
                   Positioned(
                     top: 60,
-                    left: 16,
+                    right: 16,
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(

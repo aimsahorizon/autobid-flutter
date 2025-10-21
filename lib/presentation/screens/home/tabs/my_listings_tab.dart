@@ -469,7 +469,7 @@ class _MyListingsTabState extends State<MyListingsTab>
           final listing = listings[index];
           return CarCard(
             car: listing,
-            onTap: () => _handleListingTap(listing, status),
+            onTap: status == ListingStatus.draft ? null : () => _handleListingTap(listing, status),
             showActions: showActions,
             onEdit: showEditDelete ? () {
               final provider = context.read<ListingProvider>();
@@ -493,7 +493,7 @@ class _MyListingsTabState extends State<MyListingsTab>
           padding: const EdgeInsets.only(bottom: 12),
           child: CarCard(
             car: listing,
-            onTap: () => _handleListingTap(listing, status),
+            onTap: status == ListingStatus.draft ? null : () => _handleListingTap(listing, status),
             showActions: showActions,
             onEdit: showEditDelete ? () {
               final provider = context.read<ListingProvider>();
