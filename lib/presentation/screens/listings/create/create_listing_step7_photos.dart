@@ -103,7 +103,7 @@ class _CreateListingStep7PhotosState extends State<CreateListingStep7Photos>
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
+          onPressed: () => context.go('/my_listings'),
         ),
         title: const Text('Photos'),
         actions: [
