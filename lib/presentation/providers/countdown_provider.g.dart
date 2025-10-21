@@ -47,7 +47,7 @@ final class CountdownNotifierProvider
   }
 }
 
-String _$countdownNotifierHash() => r'a3a7bf4f9446be1415c680a88217f55de596b1b5';
+String _$countdownNotifierHash() => r'0ed62bb523b352584ef1b98b4ec6d8510aeeaddb';
 
 /// Global countdown provider - Single timer for all countdowns
 /// Replaces 20+ individual timers with one efficient global timer

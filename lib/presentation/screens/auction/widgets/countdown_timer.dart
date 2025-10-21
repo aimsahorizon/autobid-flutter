@@ -55,7 +55,11 @@ class _CountdownTimerState extends ConsumerState<CountdownTimer> {
                      widget.endTime.difference(DateTime.now());
 
     final color = _getColor(remaining);
-    final text = TimeFormatter.formatCountdown(remaining);
+    // OPTIMIZED: Use optimized formatter for grid/list views
+    // Shows hours OR minutes only (no seconds)
+    // Shows "< 1m" when less than 1 minute
+    // Matches 1-minute refresh interval
+    final text = TimeFormatter.formatCountdownOptimized(remaining);
 
     return Row(
       mainAxisSize: MainAxisSize.min,

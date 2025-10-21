@@ -42,8 +42,10 @@ class CountdownNotifier extends _$CountdownNotifier {
   }
 
   void _startGlobalTimer() {
-    // Single timer updates all countdowns every second
-    Stream.periodic(const Duration(seconds: 1)).listen((_) {
+    // OPTIMIZED: Single timer updates all countdowns every 1 MINUTE
+    // This significantly reduces CPU usage and battery drain
+    // UI shows hours/minutes only, no seconds needed
+    Stream.periodic(const Duration(minutes: 1)).listen((_) {
       if (state.remainingTimes.isEmpty) return;
 
       final now = DateTime.now();
@@ -51,7 +53,7 @@ class CountdownNotifier extends _$CountdownNotifier {
 
       // Update all registered countdowns in one pass
       state.remainingTimes.forEach((key, remaining) {
-        final newRemaining = remaining - const Duration(seconds: 1);
+        final newRemaining = remaining - const Duration(minutes: 1);
         if (newRemaining.isNegative) {
           updatedTimes[key] = Duration.zero;
         } else {
