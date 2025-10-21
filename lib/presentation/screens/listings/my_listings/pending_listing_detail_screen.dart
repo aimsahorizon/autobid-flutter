@@ -120,7 +120,7 @@ class _PendingListingDetailScreenState extends State<PendingListingDetailScreen>
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
-                        color: Colors.orange[600],
+                        color: ColorConstants.warning,
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
@@ -164,7 +164,7 @@ class _PendingListingDetailScreenState extends State<PendingListingDetailScreen>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Colors.amber[50]!,
+                        ColorConstants.warning.withOpacity(0.05),
                         Colors.white,
                       ],
                     ),
@@ -174,7 +174,7 @@ class _PendingListingDetailScreenState extends State<PendingListingDetailScreen>
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.hourglass_top, color: Colors.orange[700], size: 28),
+                          Icon(Icons.hourglass_top, color: ColorConstants.warning, size: 28),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
@@ -184,7 +184,7 @@ class _PendingListingDetailScreenState extends State<PendingListingDetailScreen>
                                   'Under Admin Review',
                                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.orange[900],
+                                        color: ColorConstants.warning,
                                       ),
                                 ),
                                 const SizedBox(height: 4),
@@ -228,10 +228,10 @@ class _PendingListingDetailScreenState extends State<PendingListingDetailScreen>
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.blue[50],
+                          color: ColorConstants.warning.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: Colors.blue[200]!,
+                            color: ColorConstants.warning.withOpacity(0.3),
                             width: 2,
                           ),
                         ),
@@ -252,17 +252,17 @@ class _PendingListingDetailScreenState extends State<PendingListingDetailScreen>
                                 const SizedBox(height: 4),
                                 Text(
                                   '₱${_formatCurrency(startingPrice)}',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 28,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.blue[700],
+                                    color: ColorConstants.warning,
                                   ),
                                 ),
                               ],
                             ),
                             Icon(
                               Icons.gavel,
-                              color: Colors.blue[700],
+                              color: ColorConstants.warning,
                               size: 48,
                             ),
                           ],
@@ -299,23 +299,23 @@ class _PendingListingDetailScreenState extends State<PendingListingDetailScreen>
                   child: Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.blue[50],
+                      color: ColorConstants.info.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.blue[200]!),
+                      border: Border.all(color: ColorConstants.info.withOpacity(0.3)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.info_outline, color: Colors.blue[700]),
+                            Icon(Icons.info_outline, color: ColorConstants.info),
                             const SizedBox(width: 8),
                             Text(
                               'What Happens Next?',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.blue[900],
+                                color: ColorConstants.info,
                               ),
                             ),
                           ],
@@ -329,7 +329,7 @@ class _PendingListingDetailScreenState extends State<PendingListingDetailScreen>
                           '• You can withdraw this submission at any time',
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.blue[900],
+                            color: ColorConstants.info.withOpacity(0.9),
                             height: 1.6,
                           ),
                         ),
@@ -411,8 +411,8 @@ class _PendingListingDetailScreenState extends State<PendingListingDetailScreen>
                           icon: const Icon(Icons.cancel_outlined),
                           label: const Text('Withdraw Submission'),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.red[700],
-                            side: BorderSide(color: Colors.red[300]!),
+                            foregroundColor: ColorConstants.error,
+                            side: BorderSide(color: ColorConstants.error.withOpacity(0.5)),
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
                         ),
@@ -425,7 +425,7 @@ class _PendingListingDetailScreenState extends State<PendingListingDetailScreen>
                           icon: const Icon(Icons.arrow_back),
                           label: const Text('Back to My Listings'),
                           style: FilledButton.styleFrom(
-                            backgroundColor: ColorConstants.primaryGreen,
+                            backgroundColor: ColorConstants.primary,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
                         ),
@@ -515,7 +515,7 @@ class _PendingListingDetailScreenState extends State<PendingListingDetailScreen>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${car.brand} ${car.model} has been withdrawn from review'),
-        backgroundColor: Colors.orange[700],
+        backgroundColor: ColorConstants.warning,
         action: SnackBarAction(
           label: 'Undo',
           textColor: Colors.white,

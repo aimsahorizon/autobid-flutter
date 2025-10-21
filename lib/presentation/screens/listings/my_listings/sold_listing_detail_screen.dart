@@ -118,7 +118,7 @@ class _SoldListingDetailScreenState extends State<SoldListingDetailScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
-                        color: ColorConstants.primaryGreen,
+                        color: ColorConstants.success,
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
@@ -162,7 +162,7 @@ class _SoldListingDetailScreenState extends State<SoldListingDetailScreen> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        ColorConstants.primaryGreen.withOpacity(0.1),
+                        ColorConstants.success.withOpacity(0.05),
                         Colors.white,
                       ],
                     ),
@@ -174,7 +174,7 @@ class _SoldListingDetailScreenState extends State<SoldListingDetailScreen> {
                         'Congratulations!',
                         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: ColorConstants.primaryGreen,
+                              color: ColorConstants.success,
                             ),
                       ),
                       const SizedBox(height: 4),
@@ -213,10 +213,10 @@ class _SoldListingDetailScreenState extends State<SoldListingDetailScreen> {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: ColorConstants.primaryGreen.withOpacity(0.1),
+                          color: ColorConstants.success.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: ColorConstants.primaryGreen.withOpacity(0.3),
+                            color: ColorConstants.success.withOpacity(0.3),
                             width: 2,
                           ),
                         ),
@@ -240,14 +240,14 @@ class _SoldListingDetailScreenState extends State<SoldListingDetailScreen> {
                                   style: const TextStyle(
                                     fontSize: 28,
                                     fontWeight: FontWeight.bold,
-                                    color: ColorConstants.primaryGreen,
+                                    color: ColorConstants.success,
                                   ),
                                 ),
                               ],
                             ),
                             Icon(
                               Icons.check_circle,
-                              color: ColorConstants.primaryGreen,
+                              color: ColorConstants.success,
                               size: 48,
                             ),
                           ],
@@ -292,10 +292,10 @@ class _SoldListingDetailScreenState extends State<SoldListingDetailScreen> {
                         children: [
                           CircleAvatar(
                             radius: 24,
-                            backgroundColor: ColorConstants.primaryGreen.withOpacity(0.2),
+                            backgroundColor: ColorConstants.success.withOpacity(0.2),
                             child: Icon(
                               Icons.person,
-                              color: ColorConstants.primaryGreen,
+                              color: ColorConstants.success,
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -320,7 +320,7 @@ class _SoldListingDetailScreenState extends State<SoldListingDetailScreen> {
                               ],
                             ),
                           ),
-                          Icon(Icons.verified_user, color: ColorConstants.primaryGreen, size: 20),
+                          Icon(Icons.verified_user, color: ColorConstants.success, size: 20),
                         ],
                       ),
                     ),
@@ -366,23 +366,23 @@ class _SoldListingDetailScreenState extends State<SoldListingDetailScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.blue[50],
+                      color: ColorConstants.info.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.blue[200]!),
+                      border: Border.all(color: ColorConstants.info.withOpacity(0.3)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.info_outline, color: Colors.blue[700]),
+                            Icon(Icons.info_outline, color: ColorConstants.info),
                             const SizedBox(width: 8),
                             Text(
                               'What\'s Next?',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.blue[900],
+                                color: ColorConstants.info,
                               ),
                             ),
                           ],
@@ -395,7 +395,7 @@ class _SoldListingDetailScreenState extends State<SoldListingDetailScreen> {
                           '• Payment will be processed through our secure platform',
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.blue[900],
+                            color: ColorConstants.info.withOpacity(0.9),
                             height: 1.6,
                           ),
                         ),

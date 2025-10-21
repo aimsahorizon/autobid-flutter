@@ -305,19 +305,19 @@ class _MyListingsTabState extends State<MyListingsTab>
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.blue[50],
+                    color: ColorConstants.info.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.touch_app, size: 14, color: Colors.blue[700]),
+                      Icon(Icons.touch_app, size: 14, color: ColorConstants.info),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
                           _getActionHint(preTransaction.status)!,
                           style: TextStyle(
                             fontSize: 11,
-                            color: Colors.blue[700],
+                            color: ColorConstants.info.withOpacity(0.9),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -338,32 +338,32 @@ class _MyListingsTabState extends State<MyListingsTab>
       case PreTransactionStatus.inDiscussion:
         return {
           'label': 'In Discussion',
-          'color': Colors.orange[700],
+          'color': ColorConstants.warning,
           'icon': Icons.chat_bubble_outline,
         };
       case PreTransactionStatus.pendingSellerConfirmation:
         return {
           'label': 'Action Required',
-          'color': Colors.red[700],
+          'color': ColorConstants.error,
           'icon': Icons.assignment_late,
         };
       case PreTransactionStatus.pendingAdminReview:
         return {
           'label': 'Admin Review',
-          'color': Colors.purple[700],
+          'color': ColorConstants.primary,
           'icon': Icons.admin_panel_settings,
         };
       case PreTransactionStatus.adminApproved:
       case PreTransactionStatus.readyForPayment:
         return {
           'label': 'Awaiting Payment',
-          'color': Colors.blue[700],
+          'color': ColorConstants.info,
           'icon': Icons.pending_actions,
         };
       default:
         return {
           'label': 'In Progress',
-          'color': Colors.grey[700],
+          'color': ColorConstants.textSecondaryLight,
           'icon': Icons.sync,
         };
     }
@@ -594,14 +594,14 @@ class _MyListingsTabState extends State<MyListingsTab>
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: Colors.blue[200]!,
+              color: ColorConstants.warning.withOpacity(0.3),
               width: 1,
             ),
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Colors.blue.shade50.withOpacity(0.3),
+                ColorConstants.warning.withOpacity(0.05),
                 Colors.white,
               ],
             ),
@@ -624,7 +624,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Colors.orange[600],
+                      color: ColorConstants.warning,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Row(
@@ -659,10 +659,10 @@ class _MyListingsTabState extends State<MyListingsTab>
                     width: 90,
                     height: 90,
                     decoration: BoxDecoration(
-                      color: Colors.blue[50],
+                      color: ColorConstants.warning.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: Colors.blue[200]!,
+                        color: ColorConstants.warning.withOpacity(0.3),
                         width: 2,
                       ),
                     ),
@@ -670,7 +670,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                       borderRadius: BorderRadius.circular(6),
                       child: Icon(
                         Icons.directions_car,
-                        color: Colors.blue[300],
+                        color: ColorConstants.warning.withOpacity(0.5),
                         size: 40,
                       ),
                     ),
@@ -702,15 +702,15 @@ class _MyListingsTabState extends State<MyListingsTab>
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.blue[50],
+                            color: ColorConstants.warning.withOpacity(0.15),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
                             'Starting: ₱${_formatCurrency(startingPrice)}',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: Colors.blue[700],
+                              color: ColorConstants.warning,
                             ),
                           ),
                         ),
@@ -724,10 +724,10 @@ class _MyListingsTabState extends State<MyListingsTab>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.amber[50],
+                  color: ColorConstants.info.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: Colors.amber[200]!,
+                    color: ColorConstants.info.withOpacity(0.3),
                     width: 1,
                   ),
                 ),
@@ -736,7 +736,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                     Icon(
                       Icons.info_outline,
                       size: 16,
-                      color: Colors.amber[900],
+                      color: ColorConstants.info,
                     ),
                     const SizedBox(width: 8),
                     Expanded(
@@ -744,7 +744,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                         'Under admin review. We\'ll notify you once approved',
                         style: TextStyle(
                           fontSize: 11,
-                          color: Colors.amber[900],
+                          color: ColorConstants.info.withOpacity(0.9),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -840,7 +840,7 @@ class _MyListingsTabState extends State<MyListingsTab>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Colors.green.shade50,
+                ColorConstants.success.withOpacity(0.05),
                 Colors.white,
               ],
             ),
@@ -863,7 +863,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: ColorConstants.primaryGreen,
+                      color: ColorConstants.success,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Row(
@@ -898,10 +898,10 @@ class _MyListingsTabState extends State<MyListingsTab>
                     width: 90,
                     height: 90,
                     decoration: BoxDecoration(
-                      color: Colors.grey[100],
+                      color: ColorConstants.success.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: ColorConstants.primaryGreen.withOpacity(0.3),
+                        color: ColorConstants.success.withOpacity(0.3),
                         width: 2,
                       ),
                     ),
@@ -909,7 +909,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                       borderRadius: BorderRadius.circular(6),
                       child: Icon(
                         Icons.directions_car,
-                        color: ColorConstants.primaryGreen.withOpacity(0.5),
+                        color: ColorConstants.success.withOpacity(0.5),
                         size: 40,
                       ),
                     ),
@@ -941,7 +941,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: ColorConstants.primaryGreen.withOpacity(0.1),
+                            color: ColorConstants.success.withOpacity(0.15),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -949,7 +949,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                             style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
-                              color: ColorConstants.primaryGreen,
+                              color: ColorConstants.success,
                             ),
                           ),
                         ),
@@ -1164,10 +1164,10 @@ class _MyListingsTabState extends State<MyListingsTab>
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                       decoration: BoxDecoration(
-                        color: Colors.orange[50],
+                        color: ColorConstants.info.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: Colors.orange[200]!,
+                          color: ColorConstants.info.withOpacity(0.3),
                           width: 1,
                         ),
                       ),
@@ -1176,7 +1176,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                           Icon(
                             Icons.lightbulb_outline,
                             size: 16,
-                            color: Colors.orange[700],
+                            color: ColorConstants.info,
                           ),
                           const SizedBox(width: 8),
                           Expanded(
@@ -1184,7 +1184,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                               'Consider re-listing with updated details',
                               style: TextStyle(
                                 fontSize: 11,
-                                color: Colors.orange[900],
+                                color: ColorConstants.info.withOpacity(0.9),
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -1224,7 +1224,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                             Icon(
                               Icons.refresh,
                               size: 18,
-                              color: ColorConstants.primaryGreen,
+                              color: ColorConstants.primary,
                             ),
                             const SizedBox(width: 6),
                             const Text(
@@ -1232,7 +1232,7 @@ class _MyListingsTabState extends State<MyListingsTab>
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: ColorConstants.primaryGreen,
+                                color: ColorConstants.primary,
                               ),
                             ),
                           ],
@@ -1259,15 +1259,15 @@ class _MyListingsTabState extends State<MyListingsTab>
                             Icon(
                               Icons.delete_outline,
                               size: 18,
-                              color: Colors.red[600],
+                              color: ColorConstants.error,
                             ),
                             const SizedBox(width: 6),
-                            Text(
+                            const Text(
                               'Delete',
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.red[600],
+                                color: ColorConstants.error,
                               ),
                             ),
                           ],
