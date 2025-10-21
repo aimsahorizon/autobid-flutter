@@ -301,19 +301,33 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
   void _showAutoBidDialog(BuildContext context, Auction auction, AuctionProvider provider) {
     final existingConfig = provider.getAutoBidConfig(auction.id);
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) => AutoBidDialog(
         auction: auction,
         existingConfig: existingConfig,
       ),
-    ).then((config) {
+    ).then((config) async {
       if (config != null && config is AutoBidConfig) {
         provider.setupAutoBid(auction.id, config);
+
+        // Refresh auction data to reflect auto-bid changes
+        await provider.loadAuctionDetail(auction.id);
+
         // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Auto-bid configured successfully!')),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Auto bid set successfully'),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
       }
     });
   }

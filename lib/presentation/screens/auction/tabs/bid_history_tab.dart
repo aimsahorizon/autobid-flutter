@@ -60,6 +60,7 @@ class BidHistoryTab extends StatelessWidget {
         return _BidHistoryList(
           bids: bids,
           currentUserId: provider.currentUserId,
+          isSeller: isSeller,
         );
       },
     );
@@ -69,10 +70,12 @@ class BidHistoryTab extends StatelessWidget {
 class _BidHistoryList extends StatefulWidget {
   final List bids;
   final String? currentUserId;
+  final bool isSeller;
 
   const _BidHistoryList({
     required this.bids,
     required this.currentUserId,
+    this.isSeller = false,
   });
 
   @override
@@ -97,7 +100,9 @@ class _BidHistoryListState extends State<_BidHistoryList> {
           displayCount.clamp(0, widget.bids.length),
           (index) {
             final bid = widget.bids[index];
-            final isCurrentUser = bid.bidderId == widget.currentUserId;
+            // IMPORTANT: Sellers should NEVER see "YOU" on any bids
+            // because sellers cannot bid on their own auctions
+            final isCurrentUser = !widget.isSeller && bid.bidderId == widget.currentUserId;
             final isTopBid = index == 0;
             final rank = index + 1;
 
