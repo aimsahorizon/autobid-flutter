@@ -5,7 +5,9 @@ import '../../../providers/auction_provider.dart';
 import '../../../widgets/auction_card.dart';
 
 class WatchlistTab extends StatefulWidget {
-  const WatchlistTab({super.key});
+  final bool isGridView;
+
+  const WatchlistTab({super.key, this.isGridView = false});
 
   @override
   State<WatchlistTab> createState() => _WatchlistTabState();
@@ -53,23 +55,44 @@ class _WatchlistTabState extends State<WatchlistTab> {
 
     return RefreshIndicator(
       onRefresh: () => auctionProvider.loadAuctions(),
-      child: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        cacheExtent: 500.0, // Cache 2 screens ahead
-        addAutomaticKeepAlives: false, // Reduce memory
-        itemCount: watchlist.length,
-        itemBuilder: (context, index) {
-          final auction = watchlist[index];
-          return Padding(
-            key: ValueKey(auction.id), // Preserve state
-            padding: const EdgeInsets.only(bottom: 12),
-            child: AuctionCard(
-              auction: auction,
-              onTap: () => context.push('/auction/${auction.id}'),
+      child: widget.isGridView
+          ? GridView.builder(
+              padding: const EdgeInsets.all(16),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.65,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+              ),
+              cacheExtent: 500.0, // Cache 2 screens ahead
+              addAutomaticKeepAlives: false, // Reduce memory
+              itemCount: watchlist.length,
+              itemBuilder: (context, index) {
+                final auction = watchlist[index];
+                return AuctionCard(
+                  key: ValueKey(auction.id), // Preserve state
+                  auction: auction,
+                  onTap: () => context.push('/auction/${auction.id}'),
+                );
+              },
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              cacheExtent: 500.0, // Cache 2 screens ahead
+              addAutomaticKeepAlives: false, // Reduce memory
+              itemCount: watchlist.length,
+              itemBuilder: (context, index) {
+                final auction = watchlist[index];
+                return Padding(
+                  key: ValueKey(auction.id), // Preserve state
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: AuctionCard(
+                    auction: auction,
+                    onTap: () => context.push('/auction/${auction.id}'),
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 }
