@@ -56,6 +56,7 @@ import '../../presentation/screens/pre_transaction/pre_transaction_status_screen
 import '../../presentation/screens/onboarding/onboarding_screen.dart';
 import '../../presentation/screens/listings/my_listings/sold_listing_detail_screen.dart';
 import '../../presentation/screens/listings/my_listings/cancelled_listing_detail_screen.dart';
+import '../../presentation/screens/listings/my_listings/pending_listing_detail_screen.dart';
 import '../../presentation/providers/auth_provider.dart';
 import '../../presentation/providers/onboarding_provider.dart';
 import '../constants/string_constants.dart';
@@ -498,6 +499,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ListingSuccessScreen(),
       ),
       // My Listings Detail Routes
+      GoRoute(
+        path: '/listing/pending/:id',
+        name: 'pending-listing-detail',
+        builder: (context, state) {
+          final carId = state.pathParameters['id']!;
+          return PendingListingDetailScreen(carId: carId);
+        },
+      ),
       GoRoute(
         path: '/listing/sold/:id',
         name: 'sold-listing-detail',

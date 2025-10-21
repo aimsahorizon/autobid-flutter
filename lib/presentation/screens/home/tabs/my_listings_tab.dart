@@ -587,7 +587,7 @@ class _MyListingsTabState extends State<MyListingsTab>
     return Card(
       elevation: 1,
       child: InkWell(
-        onTap: () => context.push('/car/${car.id}'),
+        onTap: () => context.push('/listing/pending/${car.id}'),
         borderRadius: BorderRadius.circular(12),
         child: Container(
           padding: const EdgeInsets.all(16),
