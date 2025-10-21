@@ -5,7 +5,7 @@ import '../../providers/auction_provider.dart';
 import '../../../data/models/auction_model.dart';
 import '../../../data/models/auto_bid_config.dart';
 import '../../../data/models/car_model.dart';
-import 'widgets/countdown_timer.dart';
+import 'widgets/detailed_countdown_timer.dart';
 import 'widgets/current_bid_card.dart';
 import 'widgets/bid_input_widget.dart';
 import 'widgets/auto_bid_dialog.dart';
@@ -118,12 +118,6 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              const SizedBox(height: 8),
-                              if (auction.status == AuctionStatus.live)
-                                CountdownTimer(
-                                  endTime: auction.endTime,
-                                  textStyle: TextStyle(fontSize: 18, color: Colors.white),
-                                ),
                             ],
                           ),
                         ),
@@ -136,6 +130,12 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
                     padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
                     child: Column(
                       children: [
+                        // Modern Timer Card - Shows real-time seconds
+                        if (auction.status == AuctionStatus.live)
+                          DetailedCountdownTimer(
+                            endTime: auction.endTime,
+                          ),
+                        // Current Bid Card
                         CurrentBidCard(
                           auction: auction,
                           userBidStatus: provider.getUserBidStatus(auction.id),
@@ -237,7 +237,11 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
             body: TabBarView(
               controller: _tabController,
               children: [
-                BidHistoryTab(auctionId: auction.id),
+                BidHistoryTab(
+                  auctionId: auction.id,
+                  isSeller: widget.isSeller,
+                  sellerId: auction.sellerId,
+                ),
                 CarInfoTab(auction: auction),
               ],
             ),
