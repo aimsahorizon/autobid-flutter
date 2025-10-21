@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/constants/color_constants.dart';
+import '../../../../core/utils/demo_data_helper.dart';
 import '../../../providers/signup_provider.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/signup_stepper.dart';
@@ -18,6 +19,15 @@ class SignupStep6Selfie extends StatefulWidget {
 
 class _SignupStep6SelfieState extends State<SignupStep6Selfie> with SignupStepMixin {
   final _picker = ImagePicker();
+
+  Future<void> _autoFillDemo() async {
+    final provider = context.read<SignupProvider>();
+    await provider.autoFillStep6();
+
+    if (mounted) {
+      DemoDataHelper.showDemoFilledMessage(context);
+    }
+  }
 
   Future<void> _pickImage() async {
     try {
@@ -145,6 +155,17 @@ class _SignupStep6SelfieState extends State<SignupStep6Selfie> with SignupStepMi
         title: const Text('Selfie Verification'),
         centerTitle: true,
         leading: buildBackButtonWithWarning(),
+        actions: [
+          if (DemoDataHelper.isDemoModeEnabled)
+            TextButton.icon(
+              onPressed: _autoFillDemo,
+              icon: const Icon(Icons.auto_awesome, size: 18),
+              label: const Text('Demo'),
+              style: TextButton.styleFrom(
+                foregroundColor: ColorConstants.primaryGreen,
+              ),
+            ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(

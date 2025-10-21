@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/utils/demo_data_helper.dart';
 import '../../../providers/signup_provider.dart';
 import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/custom_button.dart';
@@ -44,6 +45,22 @@ class _SignupStep2PersonalState extends State<SignupStep2Personal> with SignupSt
     _lastNameController.dispose();
     _dateController.dispose();
     super.dispose();
+  }
+
+  void _autoFillDemo() {
+    final provider = context.read<SignupProvider>();
+    provider.autoFillStep2();
+
+    // Update controllers
+    _firstNameController.text = provider.firstName;
+    _middleNameController.text = provider.middleName;
+    _lastNameController.text = provider.lastName;
+    if (provider.dateOfBirth != null) {
+      _dateController.text =
+          DateFormat('MMMM dd, yyyy').format(provider.dateOfBirth!);
+    }
+
+    DemoDataHelper.showDemoFilledMessage(context);
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -129,6 +146,17 @@ class _SignupStep2PersonalState extends State<SignupStep2Personal> with SignupSt
         title: const Text('Personal Information'),
         centerTitle: true,
         leading: buildBackButton('/login'),
+        actions: [
+          if (DemoDataHelper.isDemoModeEnabled)
+            TextButton.icon(
+              onPressed: _autoFillDemo,
+              icon: const Icon(Icons.auto_awesome, size: 18),
+              label: const Text('Demo'),
+              style: TextButton.styleFrom(
+                foregroundColor: ColorConstants.primaryGreen,
+              ),
+            ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
