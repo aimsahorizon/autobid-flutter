@@ -94,6 +94,7 @@ class _CreateListingStep7PhotosState extends State<CreateListingStep7Photos>
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ListingProvider>();
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     final totalImages = provider.categorizedImages.values
         .fold<int>(0, (sum, list) => sum + list.length);
@@ -126,7 +127,7 @@ class _CreateListingStep7PhotosState extends State<CreateListingStep7Photos>
               children: [
                 LinearProgressIndicator(
                   value: 7 / 9,
-                  backgroundColor: Colors.grey[200],
+                  backgroundColor: isDarkMode ? Colors.grey[700] : Colors.grey[200],
                 ),
                 const SizedBox(height: 24),
 
@@ -140,7 +141,7 @@ class _CreateListingStep7PhotosState extends State<CreateListingStep7Photos>
                           'Step 7 of 9',
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Colors.grey[600],
+                                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                                   ),
                         ),
                         const SizedBox(height: 4),
@@ -160,13 +161,13 @@ class _CreateListingStep7PhotosState extends State<CreateListingStep7Photos>
                           horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
                         color: totalImages >= requiredTotal
-                            ? Colors.green.shade50
-                            : Colors.orange.shade50,
+                            ? (isDarkMode ? Colors.green.shade900 : Colors.green.shade50)
+                            : (isDarkMode ? Colors.orange.shade900 : Colors.orange.shade50),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: totalImages >= requiredTotal
-                              ? Colors.green
-                              : Colors.orange,
+                              ? (isDarkMode ? Colors.green.shade700 : Colors.green)
+                              : (isDarkMode ? Colors.orange.shade700 : Colors.orange),
                         ),
                       ),
                       child: Text(
@@ -174,8 +175,8 @@ class _CreateListingStep7PhotosState extends State<CreateListingStep7Photos>
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: totalImages >= requiredTotal
-                              ? Colors.green.shade900
-                              : Colors.orange.shade900,
+                              ? (isDarkMode ? Colors.green.shade200 : Colors.green.shade900)
+                              : (isDarkMode ? Colors.orange.shade200 : Colors.orange.shade900),
                         ),
                       ),
                     ),
@@ -187,22 +188,35 @@ class _CreateListingStep7PhotosState extends State<CreateListingStep7Photos>
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
+                    color: isDarkMode
+                        ? Colors.blue.shade900.withOpacity(0.3)
+                        : Colors.blue.shade50,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.blue.shade200),
+                    border: Border.all(
+                      color: isDarkMode
+                          ? Colors.blue.shade700
+                          : Colors.blue.shade200,
+                    ),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.info_outline,
-                          color: Colors.blue.shade700, size: 20),
+                      Icon(
+                        Icons.info_outline,
+                        color: isDarkMode
+                            ? Colors.blue.shade300
+                            : Colors.blue.shade700,
+                        size: 20,
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           'All 46 photos are required for a complete listing. Take clear, well-lit photos from specified angles.',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.blue.shade900,
+                            color: isDarkMode
+                                ? Colors.blue.shade100
+                                : Colors.blue.shade900,
                           ),
                         ),
                       ),
@@ -259,7 +273,7 @@ class _CreateListingStep7PhotosState extends State<CreateListingStep7Photos>
             child: TabBarView(
               controller: _tabController,
               children: CarImageCategory.values.map((category) {
-                return _buildCategoryView(category, provider);
+                return _buildCategoryView(category, provider, isDarkMode);
               }).toList(),
             ),
           ),
@@ -303,7 +317,7 @@ class _CreateListingStep7PhotosState extends State<CreateListingStep7Photos>
   }
 
   Widget _buildCategoryView(
-      CarImageCategory category, ListingProvider provider) {
+      CarImageCategory category, ListingProvider provider, bool isDarkMode) {
     final requiredImages = _getRequiredImages(category);
     final categoryImages = provider.categorizedImages[category.name] ?? [];
 
@@ -323,17 +337,27 @@ class _CreateListingStep7PhotosState extends State<CreateListingStep7Photos>
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: hasImage ? Colors.green.shade50 : Colors.grey.shade200,
+                      color: hasImage
+                          ? (isDarkMode ? Colors.green.shade900 : Colors.green.shade50)
+                          : (isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: hasImage ? Colors.green : Colors.grey,
+                        color: hasImage
+                            ? (isDarkMode ? Colors.green.shade700 : Colors.green)
+                            : (isDarkMode ? Colors.grey.shade600 : Colors.grey),
                       ),
                     ),
                     child: hasImage
-                        ? Icon(Icons.check_circle,
-                            color: Colors.green.shade700, size: 30)
-                        : Icon(Icons.add_photo_alternate,
-                            color: Colors.grey.shade600, size: 30),
+                        ? Icon(
+                            Icons.check_circle,
+                            color: isDarkMode ? Colors.green.shade200 : Colors.green.shade700,
+                            size: 30,
+                          )
+                        : Icon(
+                            Icons.add_photo_alternate,
+                            color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600,
+                            size: 30,
+                          ),
                   ),
                   title: Text(
                     displayName,
@@ -378,24 +402,37 @@ class _CreateListingStep7PhotosState extends State<CreateListingStep7Photos>
                     margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.blue.shade50,
+                      color: isDarkMode
+                          ? Colors.blue.shade900.withOpacity(0.3)
+                          : Colors.blue.shade50,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.blue.shade200),
+                      border: Border.all(
+                        color: isDarkMode
+                            ? Colors.blue.shade700
+                            : Colors.blue.shade200,
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.info_outline,
-                                size: 16, color: Colors.blue.shade700),
+                            Icon(
+                              Icons.info_outline,
+                              size: 16,
+                              color: isDarkMode
+                                  ? Colors.blue.shade300
+                                  : Colors.blue.shade700,
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               'Sample Guide',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.blue.shade900,
+                                color: isDarkMode
+                                    ? Colors.blue.shade100
+                                    : Colors.blue.shade900,
                               ),
                             ),
                           ],
@@ -406,22 +443,35 @@ class _CreateListingStep7PhotosState extends State<CreateListingStep7Photos>
                           height: 120,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
+                            color: isDarkMode
+                                ? Colors.grey.shade800
+                                : Colors.grey.shade300,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                                color: Colors.grey.shade400, width: 2),
+                              color: isDarkMode
+                                  ? Colors.grey.shade600
+                                  : Colors.grey.shade400,
+                              width: 2,
+                            ),
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.image_outlined,
-                                  size: 40, color: Colors.grey.shade600),
+                              Icon(
+                                Icons.image_outlined,
+                                size: 40,
+                                color: isDarkMode
+                                    ? Colors.grey.shade400
+                                    : Colors.grey.shade600,
+                              ),
                               const SizedBox(height: 8),
                               Text(
                                 'Sample: $displayName',
                                 style: TextStyle(
                                   fontSize: 11,
-                                  color: Colors.grey.shade700,
+                                  color: isDarkMode
+                                      ? Colors.grey.shade300
+                                      : Colors.grey.shade700,
                                   fontWeight: FontWeight.w500,
                                 ),
                                 textAlign: TextAlign.center,
@@ -433,7 +483,9 @@ class _CreateListingStep7PhotosState extends State<CreateListingStep7Photos>
                                   _getSampleImageTip(imageKey),
                                   style: TextStyle(
                                     fontSize: 10,
-                                    color: Colors.grey.shade600,
+                                    color: isDarkMode
+                                        ? Colors.grey.shade400
+                                        : Colors.grey.shade600,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),

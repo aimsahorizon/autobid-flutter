@@ -27,6 +27,7 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ListingProvider>();
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final dateFormat = DateFormat('MMM dd, yyyy');
 
     return Scaffold(
@@ -48,14 +49,14 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> {
         children: [
           LinearProgressIndicator(
             value: 9 / 9,
-            backgroundColor: Colors.grey[200],
+            backgroundColor: isDarkMode ? Colors.grey[700] : Colors.grey[200],
           ),
           const SizedBox(height: 24),
 
           Text(
             'Step 9 of 9',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
+                  color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                 ),
           ),
           const SizedBox(height: 8),
@@ -71,7 +72,7 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> {
           Text(
             'Please review all information before submitting',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[600],
+                  color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                 ),
           ),
           const SizedBox(height: 24),
@@ -252,7 +253,9 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> {
                 child: Text(
                   provider.description.isEmpty ? 'No description provided' : provider.description,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: provider.description.isEmpty ? Colors.grey : Colors.black87,
+                        color: provider.description.isEmpty
+                            ? (isDarkMode ? Colors.grey[500] : Colors.grey)
+                            : (isDarkMode ? Colors.grey[300] : Colors.black87),
                         fontStyle: provider.description.isEmpty ? FontStyle.italic : FontStyle.normal,
                       ),
                 ),
@@ -264,7 +267,7 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> {
                   child: Text(
                     provider.issues!,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.black87,
+                          color: isDarkMode ? Colors.grey[300] : Colors.black87,
                         ),
                   ),
                 ),
@@ -276,7 +279,7 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> {
                   child: Text(
                     'No features selected',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey,
+                          color: isDarkMode ? Colors.grey[500] : Colors.grey,
                           fontStyle: FontStyle.italic,
                         ),
                   ),
@@ -299,7 +302,7 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: Colors.grey[600],
+                            color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -312,8 +315,12 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> {
                                 feature,
                                 style: const TextStyle(fontSize: 11),
                               ),
-                              backgroundColor: Colors.green.shade50,
-                              side: BorderSide(color: Colors.green.shade200),
+                              backgroundColor: isDarkMode
+                                  ? Colors.green.shade900.withOpacity(0.3)
+                                  : Colors.green.shade50,
+                              side: BorderSide(
+                                color: isDarkMode ? Colors.green.shade700 : Colors.green.shade200,
+                              ),
                               visualDensity: VisualDensity.compact,
                               padding: EdgeInsets.zero,
                               labelPadding: const EdgeInsets.symmetric(horizontal: 8),
@@ -333,22 +340,29 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.green.shade50,
+              color: isDarkMode
+                  ? Colors.green.shade900.withOpacity(0.3)
+                  : Colors.green.shade50,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.green.shade200),
+              border: Border.all(
+                color: isDarkMode ? Colors.green.shade700 : Colors.green.shade200,
+              ),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.check_circle_outline,
-                    color: Colors.green.shade700, size: 20),
+                Icon(
+                  Icons.check_circle_outline,
+                  color: isDarkMode ? Colors.green.shade300 : Colors.green.shade700,
+                  size: 20,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     'Review all information carefully. Once submitted, your listing will be reviewed by our team before going live. You can edit the listing by tapping on each section above.',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.green.shade900,
+                      color: isDarkMode ? Colors.green.shade100 : Colors.green.shade900,
                     ),
                   ),
                 ),
@@ -578,6 +592,7 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> {
   }
 
   Widget _buildSubsectionTitle(String title) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.only(top: 8, bottom: 4),
       child: Text(
@@ -585,13 +600,14 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> {
         style: TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.bold,
-          color: Colors.grey[700],
+          color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
         ),
       ),
     );
   }
 
   Widget _buildInfoRow(String label, String value) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.only(bottom: 8, left: 16),
       child: Row(
@@ -603,7 +619,7 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> {
               label,
               style: TextStyle(
                 fontSize: 13,
-                color: Colors.grey[600],
+                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
               ),
             ),
           ),

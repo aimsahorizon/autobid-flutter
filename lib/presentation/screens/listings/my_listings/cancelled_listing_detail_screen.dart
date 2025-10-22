@@ -52,6 +52,9 @@ class _CancelledListingDetailScreenState extends State<CancelledListingDetailScr
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = Theme.of(context).cardColor;
+
     if (_isLoading) {
       return Scaffold(
         appBar: AppBar(),
@@ -166,7 +169,7 @@ class _CancelledListingDetailScreenState extends State<CancelledListingDetailScr
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
-                  color: Colors.grey[100],
+                  color: isDarkMode ? Colors.grey[900] : Colors.grey[100],
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -174,7 +177,7 @@ class _CancelledListingDetailScreenState extends State<CancelledListingDetailScr
                         'Listing Cancelled',
                         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: Colors.grey[800],
+                              color: isDarkMode ? Colors.grey[200] : Colors.grey[800],
                             ),
                       ),
                       const SizedBox(height: 4),
@@ -182,7 +185,7 @@ class _CancelledListingDetailScreenState extends State<CancelledListingDetailScr
                         'Cancelled on ${_formatDate(cancelledDate)}',
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey[600],
+                          color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                         ),
                       ),
                     ],
@@ -205,7 +208,7 @@ class _CancelledListingDetailScreenState extends State<CancelledListingDetailScr
                         car.variant,
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.grey[600],
+                          color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -213,9 +216,11 @@ class _CancelledListingDetailScreenState extends State<CancelledListingDetailScr
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.grey[50],
+                          color: isDarkMode ? Colors.grey[850] : Colors.grey[50],
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey[300]!),
+                          border: Border.all(
+                            color: isDarkMode ? Colors.grey[700]! : Colors.grey[300]!,
+                          ),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -227,7 +232,7 @@ class _CancelledListingDetailScreenState extends State<CancelledListingDetailScr
                                   'Original Starting Price',
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: Colors.grey[600],
+                                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -237,16 +242,16 @@ class _CancelledListingDetailScreenState extends State<CancelledListingDetailScr
                                   style: TextStyle(
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.grey[700],
+                                    color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
                                     decoration: TextDecoration.lineThrough,
-                                    decorationColor: Colors.grey[400],
+                                    decorationColor: isDarkMode ? Colors.grey[600] : Colors.grey[400],
                                   ),
                                 ),
                               ],
                             ),
                             Icon(
                               Icons.info_outline,
-                              color: Colors.grey[400],
+                              color: isDarkMode ? Colors.grey[600] : Colors.grey[400],
                               size: 32,
                             ),
                           ],
@@ -264,13 +269,13 @@ class _CancelledListingDetailScreenState extends State<CancelledListingDetailScr
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          ColorConstants.primaryGreen.withOpacity(0.1),
-                          Colors.white,
+                          ColorConstants.primary.withOpacity(isDarkMode ? 0.15 : 0.1),
+                          cardColor,
                         ],
                       ),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: ColorConstants.primaryGreen.withOpacity(0.3),
+                        color: ColorConstants.primary.withOpacity(0.3),
                         width: 2,
                       ),
                     ),
@@ -282,12 +287,12 @@ class _CancelledListingDetailScreenState extends State<CancelledListingDetailScr
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: ColorConstants.primaryGreen.withOpacity(0.2),
+                                color: ColorConstants.primary.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Icon(
                                 Icons.restart_alt,
-                                color: ColorConstants.primaryGreen,
+                                color: ColorConstants.primary,
                                 size: 28,
                               ),
                             ),
@@ -307,7 +312,7 @@ class _CancelledListingDetailScreenState extends State<CancelledListingDetailScr
                                     'Relist this vehicle with updated details',
                                     style: TextStyle(
                                       fontSize: 13,
-                                      color: Colors.grey[600],
+                                      color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                                     ),
                                   ),
                                 ],
@@ -323,7 +328,7 @@ class _CancelledListingDetailScreenState extends State<CancelledListingDetailScr
                             icon: const Icon(Icons.refresh),
                             label: const Text('Reauction This Listing'),
                             style: FilledButton.styleFrom(
-                              backgroundColor: ColorConstants.primaryGreen,
+                              backgroundColor: ColorConstants.primary,
                               padding: const EdgeInsets.symmetric(vertical: 16),
                             ),
                           ),
@@ -342,21 +347,24 @@ class _CancelledListingDetailScreenState extends State<CancelledListingDetailScr
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.grey[50],
+                      color: isDarkMode ? Colors.grey[850] : Colors.grey[50],
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey[200]!),
+                      border: Border.all(
+                        color: isDarkMode ? Colors.grey[700]! : Colors.grey[200]!,
+                      ),
                     ),
                     child: Column(
                       children: [
-                        _buildStatRow('Total Views', '${car.viewCount}', Icons.visibility),
+                        _buildStatRow('Total Views', '${car.viewCount}', Icons.visibility, isDarkMode),
                         if (_auction != null) ...[
                           const Divider(height: 24),
-                          _buildStatRow('Bids Received', '${_auction!.totalBids}', Icons.gavel),
+                          _buildStatRow('Bids Received', '${_auction!.totalBids}', Icons.gavel, isDarkMode),
                           const Divider(height: 24),
                           _buildStatRow(
                             'Highest Bid',
                             _auction!.totalBids > 0 ? '₱${_formatCurrency(_auction!.currentBid)}' : 'No bids',
                             Icons.trending_up,
+                            isDarkMode,
                           ),
                         ],
                       ],
@@ -372,32 +380,34 @@ class _CancelledListingDetailScreenState extends State<CancelledListingDetailScr
                   child: Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.orange[50],
+                      color: ColorConstants.info.withOpacity(isDarkMode ? 0.15 : 0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.orange[200]!),
+                      border: Border.all(
+                        color: ColorConstants.info.withOpacity(0.3),
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.lightbulb_outline, color: Colors.orange[700], size: 24),
+                            Icon(Icons.lightbulb_outline, color: ColorConstants.info, size: 24),
                             const SizedBox(width: 8),
                             Text(
                               'Tips for Better Results',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.orange[900],
+                                color: ColorConstants.info,
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 12),
-                        _buildTip('Consider adjusting your starting price based on market demand'),
-                        _buildTip('Add more high-quality photos from different angles'),
-                        _buildTip('Provide detailed maintenance and service history'),
-                        _buildTip('Highlight unique features and recent upgrades'),
+                        _buildTip('Consider adjusting your starting price based on market demand', isDarkMode),
+                        _buildTip('Add more high-quality photos from different angles', isDarkMode),
+                        _buildTip('Provide detailed maintenance and service history', isDarkMode),
+                        _buildTip('Highlight unique features and recent upgrades', isDarkMode),
                       ],
                     ),
                   ),
@@ -448,8 +458,10 @@ class _CancelledListingDetailScreenState extends State<CancelledListingDetailScr
                           icon: const Icon(Icons.delete_outline),
                           label: const Text('Delete Listing'),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.red[700],
-                            side: BorderSide(color: Colors.red[300]!),
+                            foregroundColor: ColorConstants.error,
+                            side: BorderSide(
+                              color: ColorConstants.error.withOpacity(0.5),
+                            ),
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
                         ),
@@ -461,7 +473,7 @@ class _CancelledListingDetailScreenState extends State<CancelledListingDetailScr
                           icon: const Icon(Icons.refresh),
                           label: const Text('Reauction'),
                           style: FilledButton.styleFrom(
-                            backgroundColor: ColorConstants.primaryGreen,
+                            backgroundColor: ColorConstants.primary,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
                         ),
@@ -491,17 +503,21 @@ class _CancelledListingDetailScreenState extends State<CancelledListingDetailScr
     );
   }
 
-  Widget _buildStatRow(String label, String value, IconData icon) {
+  Widget _buildStatRow(String label, String value, IconData icon, bool isDarkMode) {
     return Row(
       children: [
-        Icon(icon, color: Colors.grey[600], size: 20),
+        Icon(
+          icon,
+          color: isDarkMode ? Colors.grey[500] : Colors.grey[600],
+          size: 20,
+        ),
         const SizedBox(width: 12),
         Expanded(
           child: Text(
             label,
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey[700],
+              color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
             ),
           ),
         ),
@@ -516,20 +532,20 @@ class _CancelledListingDetailScreenState extends State<CancelledListingDetailScr
     );
   }
 
-  Widget _buildTip(String tip) {
+  Widget _buildTip(String tip, bool isDarkMode) {
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.check_circle, color: Colors.orange[700], size: 16),
+          Icon(Icons.check_circle, color: ColorConstants.info, size: 16),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               tip,
               style: TextStyle(
                 fontSize: 13,
-                color: Colors.orange[900],
+                color: isDarkMode ? Colors.grey[300] : ColorConstants.info.withOpacity(0.9),
                 height: 1.4,
               ),
             ),
@@ -556,7 +572,7 @@ class _CancelledListingDetailScreenState extends State<CancelledListingDetailScr
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             style: FilledButton.styleFrom(
-              backgroundColor: ColorConstants.primaryGreen,
+              backgroundColor: ColorConstants.primary,
             ),
             child: const Text('Continue'),
           ),
@@ -596,7 +612,7 @@ class _CancelledListingDetailScreenState extends State<CancelledListingDetailScr
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             style: FilledButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: ColorConstants.error,
             ),
             child: const Text('Delete'),
           ),

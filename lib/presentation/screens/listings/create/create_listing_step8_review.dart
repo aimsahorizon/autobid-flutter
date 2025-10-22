@@ -156,6 +156,7 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ListingProvider>();
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -183,14 +184,14 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
           children: [
             LinearProgressIndicator(
               value: 8 / 9,
-              backgroundColor: Colors.grey[200],
+              backgroundColor: isDarkMode ? Colors.grey[700] : Colors.grey[200],
             ),
             const SizedBox(height: 24),
 
             Text(
               'Step 8 of 9',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                   ),
             ),
             const SizedBox(height: 8),
@@ -214,7 +215,7 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
             Text(
               'Minimum 50 characters',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                   ),
             ),
             const SizedBox(height: 8),
@@ -270,16 +271,20 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.green.shade50,
+                    color: isDarkMode
+                        ? Colors.green.shade900.withOpacity(0.3)
+                        : Colors.green.shade50,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.green.shade200),
+                    border: Border.all(
+                      color: isDarkMode ? Colors.green.shade700 : Colors.green.shade200,
+                    ),
                   ),
                   child: Text(
                     '${provider.features.length + provider.customFeatures.length} selected',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: Colors.green.shade700,
+                      color: isDarkMode ? Colors.green.shade100 : Colors.green.shade700,
                     ),
                   ),
                 ),
@@ -289,7 +294,7 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
             Text(
               'Search and add features, or browse categories below',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                   ),
             ),
             const SizedBox(height: 12),
@@ -446,7 +451,7 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
-                              color: Colors.grey[700],
+                              color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
                             ),
                           ),
                         ],
@@ -483,7 +488,7 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
               'Browse by Category',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey[600],
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                   ),
             ),
             const SizedBox(height: 8),
@@ -519,16 +524,20 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.green.shade50,
+                              color: isDarkMode
+                                  ? Colors.green.shade900.withOpacity(0.3)
+                                  : Colors.green.shade50,
                               borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.green.shade200),
+                              border: Border.all(
+                                color: isDarkMode ? Colors.green.shade700 : Colors.green.shade200,
+                              ),
                             ),
                             child: Text(
                               '$selectedCount/${categoryFeatures.length}',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.green.shade700,
+                                color: isDarkMode ? Colors.green.shade100 : Colors.green.shade700,
                               ),
                             ),
                           ),
@@ -586,16 +595,20 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
+                            color: isDarkMode
+                                ? Colors.blue.shade900.withOpacity(0.3)
+                                : Colors.blue.shade50,
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Colors.blue.shade200),
+                            border: Border.all(
+                              color: isDarkMode ? Colors.blue.shade700 : Colors.blue.shade200,
+                            ),
                           ),
                           child: Text(
                             '${provider.customFeatures.length}',
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
-                              color: Colors.blue.shade700,
+                              color: isDarkMode ? Colors.blue.shade100 : Colors.blue.shade700,
                             ),
                           ),
                         ),

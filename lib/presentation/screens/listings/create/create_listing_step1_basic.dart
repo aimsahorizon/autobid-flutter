@@ -45,6 +45,7 @@ class _CreateListingStep1BasicState extends State<CreateListingStep1Basic> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ListingProvider>();
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -69,14 +70,14 @@ class _CreateListingStep1BasicState extends State<CreateListingStep1Basic> {
             // Progress indicator
             LinearProgressIndicator(
               value: 1 / 9,
-              backgroundColor: Colors.grey[200],
+              backgroundColor: isDarkMode ? Colors.grey[700] : Colors.grey[200],
             ),
             const SizedBox(height: 24),
 
             Text(
               'Step 1 of 9',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                   ),
             ),
             const SizedBox(height: 8),
@@ -206,21 +207,29 @@ class _CreateListingStep1BasicState extends State<CreateListingStep1Basic> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.blue.shade50,
+                color: isDarkMode
+                    ? Colors.blue.shade900.withOpacity(0.3)
+                    : Colors.blue.shade50,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.blue.shade200),
+                border: Border.all(
+                  color: isDarkMode ? Colors.blue.shade700 : Colors.blue.shade200,
+                ),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
+                  Icon(
+                    Icons.info_outline,
+                    color: isDarkMode ? Colors.blue.shade300 : Colors.blue.shade700,
+                    size: 20,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       'Make sure to enter the exact model and variant as shown in your vehicle registration documents.',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.blue.shade900,
+                        color: isDarkMode ? Colors.blue.shade100 : Colors.blue.shade900,
                       ),
                     ),
                   ),

@@ -38,6 +38,7 @@ class _CreateListingStep4ConditionState
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ListingProvider>();
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -48,14 +49,14 @@ class _CreateListingStep4ConditionState
         children: [
           LinearProgressIndicator(
             value: 4 / 6,
-            backgroundColor: Colors.grey[200],
+            backgroundColor: isDarkMode ? Colors.grey[700] : Colors.grey[200],
           ),
           const SizedBox(height: 24),
 
           Text(
             'Step 4 of 6',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
+                  color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                 ),
           ),
           const SizedBox(height: 8),
@@ -121,7 +122,7 @@ class _CreateListingStep4ConditionState
                                       .textTheme
                                       .bodySmall
                                       ?.copyWith(
-                                        color: Colors.grey[600],
+                                        color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                                       ),
                                 ),
                               ],
@@ -191,7 +192,7 @@ class _CreateListingStep4ConditionState
           Text(
             'Select all features your vehicle has',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
+                  color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                 ),
           ),
           const SizedBox(height: 12),
