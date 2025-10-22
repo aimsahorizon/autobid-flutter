@@ -12,6 +12,7 @@ import '../../../data/models/pre_transaction_message_model.dart';
 import '../../../data/models/pre_transaction_confirmation_model.dart';
 import '../../../core/constants/color_constants.dart';
 import '../../widgets/pre_transaction_progress_tracker.dart';
+import '../../widgets/ph_address_picker.dart';
 
 
 class PreTransactionDiscussionScreen extends StatefulWidget {
@@ -70,10 +71,15 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
 
   // === BUYER FORM FIELDS ===
   // Inspection Agreement
-  String? _buyerInspectionChoice; // 'inspected', 'inspection_before_payment', 'waives_inspection'
+  String? _buyerInspectionChoice; // 'inspection_before_payment', 'waives_inspection', 'specify'
+  final _buyerInspectionSpecifyController = TextEditingController();
 
-  // Handover Location
-  String? _buyerHandoverLocation; // Dropdown selection
+  // Handover Location (5-field address)
+  String? _buyerHandoverRegion;
+  String? _buyerHandoverProvince;
+  String? _buyerHandoverCity;
+  String? _buyerHandoverBarangay;
+  String? _buyerHandoverLandmark;
 
   // Target Delivery Date
   DateTime? _buyerTargetDeliveryDate;
@@ -92,10 +98,15 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
 
   // === SELLER FORM FIELDS ===
   // Inspection Agreement Response
-  String? _sellerInspectionResponse; // 'buyer_inspected', 'will_allow', 'sold_as_is'
+  String? _sellerInspectionResponse; // 'will_allow', 'sold_as_is', 'specify'
+  final _sellerInspectionSpecifyController = TextEditingController();
 
-  // Handover Location Confirmation
-  String? _sellerHandoverLocation;
+  // Handover Location Confirmation (5-field address)
+  String? _sellerHandoverRegion;
+  String? _sellerHandoverProvince;
+  String? _sellerHandoverCity;
+  String? _sellerHandoverBarangay;
+  String? _sellerHandoverLandmark;
 
   // Delivery Date Commitment
   DateTime? _sellerDeliveryDate;
@@ -431,6 +442,11 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
 
                 const SizedBox(height: 24),
 
+                // === DATA PRIVACY ACT SECTION (at bottom of form) ===
+                _buildDataPrivacySection(),
+
+                const SizedBox(height: 16),
+
                 // === RA 8792 LEGAL ACKNOWLEDGMENT SECTION (at bottom of form) ===
                 _buildLegalAcknowledgmentSection(preTransaction),
               ],
@@ -543,39 +559,62 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
     final isConsented = widget.isSeller ? _dataPrivacyConsentSeller : _dataPrivacyConsentBuyer;
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.orange.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.orange.withOpacity(0.3)),
+        border: Border(
+          top: BorderSide(color: Colors.grey[300]!),
+        ),
       ),
-      child: CheckboxListTile(
-        value: isConsented,
-        onChanged: _isFormDeactivated ? null : (value) {
-          setState(() {
-            if (widget.isSeller) {
-              _dataPrivacyConsentSeller = value ?? false;
-            } else {
-              _dataPrivacyConsentBuyer = value ?? false;
-            }
-          });
-        },
-        contentPadding: EdgeInsets.zero,
-        controlAffinity: ListTileControlAffinity.leading,
-        dense: true,
-        title: RichText(
-          text: TextSpan(
-            style: const TextStyle(fontSize: 12, color: Colors.black87),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              const TextSpan(text: 'I consent to the collection and processing of my personal data in accordance with the '),
-              TextSpan(
-                text: 'Data Privacy Act of 2012 (RA 10173)',
-                style: TextStyle(fontWeight: FontWeight.w600, color: Colors.orange[800]),
+              Icon(Icons.privacy_tip, color: Colors.orange[700], size: 20),
+              const SizedBox(width: 8),
+              const Text(
+                'Data Privacy Act Notice (RA 10173)',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-              const TextSpan(text: ' and applicable electronic transaction laws.'),
             ],
           ),
-        ),
+          const SizedBox(height: 12),
+          CheckboxListTile(
+            value: isConsented,
+            onChanged: _isFormDeactivated ? null : (value) {
+              setState(() {
+                if (widget.isSeller) {
+                  _dataPrivacyConsentSeller = value ?? false;
+                } else {
+                  _dataPrivacyConsentBuyer = value ?? false;
+                }
+              });
+            },
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            dense: true,
+            title: const Text(
+              'I consent to the collection and processing of my personal data in accordance with the Data Privacy Act of 2012 (RA 10173) and applicable electronic transaction laws.',
+              style: TextStyle(fontSize: 13),
+            ),
+          ),
+          if (!isConsented)
+            Padding(
+              padding: const EdgeInsets.only(top: 8, left: 40),
+              child: Text(
+                'You must consent to data privacy terms before submitting',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.orange[700],
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -599,9 +638,9 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
         _buildRadioGroup(
           value: _buyerInspectionChoice,
           options: [
-            {'value': 'inspected', 'label': 'Vehicle inspected and accepted'},
             {'value': 'inspection_before_payment', 'label': 'Inspection required before payment'},
             {'value': 'waives_inspection', 'label': 'Waives inspection (buy as-is)'},
+            {'value': 'specify', 'label': 'Specify custom arrangement'},
           ],
           onChanged: (value) {
             setState(() {
@@ -609,48 +648,41 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
             });
           },
         ),
+        if (_buyerInspectionChoice == 'specify') ...[
+          const SizedBox(height: 8),
+          TextField(
+            controller: _buyerInspectionSpecifyController,
+            enabled: !_isFormDeactivated,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Specify inspection arrangement',
+              hintText: 'Describe your inspection arrangement',
+            ),
+            maxLength: 200,
+            maxLines: 2,
+          ),
+        ],
         const SizedBox(height: 16),
 
         // 2. Agreed Handover Location
         _buildSectionTitle('2. Agreed Handover Location'),
-        DropdownButtonFormField<String>(
-          value: _buyerHandoverLocation,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            hintText: 'Select handover location',
-            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-          ),
-          items: [
-            'Manila City',
-            'Quezon City',
-            'Makati City',
-            'Pasig City',
-            'Taguig City',
-            'Seller\'s Location',
-            'Buyer\'s Location',
-            'Other',
-          ].map((location) {
-            return DropdownMenuItem(value: location, child: Text(location));
-          }).toList(),
-          onChanged: _isFormDeactivated ? null : (value) {
+        PhilippineAddressPicker(
+          initialRegion: _buyerHandoverRegion,
+          initialProvince: _buyerHandoverProvince,
+          initialCity: _buyerHandoverCity,
+          initialBarangay: _buyerHandoverBarangay,
+          initialLandmark: _buyerHandoverLandmark,
+          enabled: !_isFormDeactivated,
+          onAddressChanged: (address) {
             setState(() {
-              _buyerHandoverLocation = value;
+              _buyerHandoverRegion = address['region'];
+              _buyerHandoverProvince = address['province'];
+              _buyerHandoverCity = address['city'];
+              _buyerHandoverBarangay = address['barangay'];
+              _buyerHandoverLandmark = address['landmark'];
             });
           },
         ),
-        if (_buyerHandoverLocation == 'Other') ...[
-          const SizedBox(height: 8),
-          TextField(
-            controller: _handoverLocationController,
-            enabled: !_isFormDeactivated,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Specify location',
-              hintText: 'Enter specific handover location',
-            ),
-            maxLength: 100,
-          ),
-        ],
         const SizedBox(height: 16),
 
         // 3. Target Delivery Date
@@ -815,9 +847,9 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
         _buildRadioGroup(
           value: _sellerInspectionResponse,
           options: [
-            {'value': 'buyer_inspected', 'label': 'Buyer already inspected vehicle'},
             {'value': 'will_allow', 'label': 'Will allow inspection before payment'},
             {'value': 'sold_as_is', 'label': 'Sold as-is, no inspection allowed'},
+            {'value': 'specify', 'label': 'Specify custom arrangement'},
           ],
           onChanged: (value) {
             setState(() {
@@ -825,38 +857,42 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
             });
           },
         ),
+        if (_sellerInspectionResponse == 'specify') ...[
+          const SizedBox(height: 8),
+          TextField(
+            controller: _sellerInspectionSpecifyController,
+            enabled: !_isFormDeactivated,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Specify inspection arrangement',
+              hintText: 'Describe your inspection arrangement',
+            ),
+            maxLength: 200,
+            maxLines: 2,
+          ),
+        ],
         const SizedBox(height: 16),
 
         // 2. Handover Location Confirmation
         _buildSectionTitle('2. Handover Location Confirmation'),
-        DropdownButtonFormField<String>(
-          value: _sellerHandoverLocation,
-          decoration: InputDecoration(
-            border: const OutlineInputBorder(),
-            hintText: _buyerHandoverLocation != null
-                ? 'Buyer suggested: $_buyerHandoverLocation'
-                : 'Select handover location',
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-          ),
-          items: [
-            'Manila City',
-            'Quezon City',
-            'Makati City',
-            'Pasig City',
-            'Taguig City',
-            'Seller\'s Location',
-            'Buyer\'s Location',
-            'Other',
-          ].map((location) {
-            return DropdownMenuItem(value: location, child: Text(location));
-          }).toList(),
-          onChanged: _isFormDeactivated ? null : (value) {
+        PhilippineAddressPicker(
+          initialRegion: _sellerHandoverRegion,
+          initialProvince: _sellerHandoverProvince,
+          initialCity: _sellerHandoverCity,
+          initialBarangay: _sellerHandoverBarangay,
+          initialLandmark: _sellerHandoverLandmark,
+          enabled: !_isFormDeactivated,
+          onAddressChanged: (address) {
             setState(() {
-              _sellerHandoverLocation = value;
+              _sellerHandoverRegion = address['region'];
+              _sellerHandoverProvince = address['province'];
+              _sellerHandoverCity = address['city'];
+              _sellerHandoverBarangay = address['barangay'];
+              _sellerHandoverLandmark = address['landmark'];
             });
           },
         ),
-        if (_sellerHandoverLocation == 'Other') ...[
+        if (false) ...[
           const SizedBox(height: 8),
           TextField(
             controller: _handoverLocationController,
@@ -1084,11 +1120,45 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
   // FORM VALIDATION AND SUBMISSION
   // =============================================================================
 
+  String _getBuyerFullAddress() {
+    final parts = <String>[];
+    if (_buyerHandoverLandmark != null && _buyerHandoverLandmark!.isNotEmpty) parts.add(_buyerHandoverLandmark!);
+    if (_buyerHandoverBarangay != null && _buyerHandoverBarangay!.isNotEmpty) parts.add(_buyerHandoverBarangay!);
+    if (_buyerHandoverCity != null && _buyerHandoverCity!.isNotEmpty) parts.add(_buyerHandoverCity!);
+    if (_buyerHandoverProvince != null && _buyerHandoverProvince!.isNotEmpty) parts.add(_buyerHandoverProvince!);
+    if (_buyerHandoverRegion != null && _buyerHandoverRegion!.isNotEmpty) parts.add(_buyerHandoverRegion!);
+    return parts.join(', ');
+  }
+
+  String _getSellerFullAddress() {
+    final parts = <String>[];
+    if (_sellerHandoverLandmark != null && _sellerHandoverLandmark!.isNotEmpty) parts.add(_sellerHandoverLandmark!);
+    if (_sellerHandoverBarangay != null && _sellerHandoverBarangay!.isNotEmpty) parts.add(_sellerHandoverBarangay!);
+    if (_sellerHandoverCity != null && _sellerHandoverCity!.isNotEmpty) parts.add(_sellerHandoverCity!);
+    if (_sellerHandoverProvince != null && _sellerHandoverProvince!.isNotEmpty) parts.add(_sellerHandoverProvince!);
+    if (_sellerHandoverRegion != null && _sellerHandoverRegion!.isNotEmpty) parts.add(_sellerHandoverRegion!);
+    return parts.join(', ');
+  }
+
+  bool _isBuyerAddressFilled() {
+    return (_buyerHandoverRegion != null && _buyerHandoverRegion!.isNotEmpty) ||
+        (_buyerHandoverProvince != null && _buyerHandoverProvince!.isNotEmpty) ||
+        (_buyerHandoverCity != null && _buyerHandoverCity!.isNotEmpty) ||
+        (_buyerHandoverBarangay != null && _buyerHandoverBarangay!.isNotEmpty);
+  }
+
+  bool _isSellerAddressFilled() {
+    return (_sellerHandoverRegion != null && _sellerHandoverRegion!.isNotEmpty) ||
+        (_sellerHandoverProvince != null && _sellerHandoverProvince!.isNotEmpty) ||
+        (_sellerHandoverCity != null && _sellerHandoverCity!.isNotEmpty) ||
+        (_sellerHandoverBarangay != null && _sellerHandoverBarangay!.isNotEmpty);
+  }
+
   bool _canSubmitBuyerForm() {
     return _dataPrivacyConsentBuyer &&
         _legalAcknowledgmentBuyer &&
         _buyerInspectionChoice != null &&
-        _buyerHandoverLocation != null &&
+        _isBuyerAddressFilled() &&
         _buyerTargetDeliveryDate != null &&
         _buyerPaymentWindow != null;
   }
@@ -1097,7 +1167,7 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
     return _dataPrivacyConsentSeller &&
         _legalAcknowledgmentSeller &&
         _sellerInspectionResponse != null &&
-        _sellerHandoverLocation != null &&
+        _isSellerAddressFilled() &&
         _sellerDeliveryDate != null &&
         _sellerPaymentMethod != null;
   }
@@ -1118,7 +1188,12 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
       'finalBidAmount': widget.winningBid,
       'buyer': {
         'inspectionChoice': _buyerInspectionChoice,
-        'handoverLocation': _buyerHandoverLocation,
+        'handoverLocation': _getBuyerFullAddress(),
+        'handoverRegion': _buyerHandoverRegion,
+        'handoverProvince': _buyerHandoverProvince,
+        'handoverCity': _buyerHandoverCity,
+        'handoverBarangay': _buyerHandoverBarangay,
+        'handoverLandmark': _buyerHandoverLandmark,
         'targetDeliveryDate': _buyerTargetDeliveryDate?.toIso8601String(),
         'paymentWindow': _buyerPaymentWindow,
         'conditions': {
@@ -1132,7 +1207,12 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
       },
       'seller': {
         'inspectionResponse': _sellerInspectionResponse,
-        'handoverLocation': _sellerHandoverLocation,
+        'handoverLocation': _getSellerFullAddress(),
+        'handoverRegion': _sellerHandoverRegion,
+        'handoverProvince': _sellerHandoverProvince,
+        'handoverCity': _sellerHandoverCity,
+        'handoverBarangay': _sellerHandoverBarangay,
+        'handoverLandmark': _sellerHandoverLandmark,
         'deliveryDate': _sellerDeliveryDate?.toIso8601String(),
         'deliveryDelayClause': _deliveryDelayClauseController.text,
         'paymentMethod': _sellerPaymentMethod,
@@ -1416,7 +1496,7 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
             ),
             const SizedBox(height: 16),
             _buildFormDataRow('Inspection Agreement', _getInspectionChoiceLabel(_buyerInspectionChoice)),
-            _buildFormDataRow('Handover Location', _buyerHandoverLocation ?? 'Not specified'),
+            _buildFormDataRow('Handover Location', _getBuyerFullAddress().isNotEmpty ? _getBuyerFullAddress() : 'Not specified'),
             _buildFormDataRow('Target Delivery Date', _buyerTargetDeliveryDate != null ? DateFormat('MMM dd, yyyy').format(_buyerTargetDeliveryDate!) : 'Not specified'),
             _buildFormDataRow('Payment Window', _getPaymentWindowLabel(_buyerPaymentWindow)),
             const Divider(height: 24),
@@ -1473,7 +1553,7 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
             ),
             const SizedBox(height: 16),
             _buildFormDataRow('Inspection Response', _getInspectionResponseLabel(_sellerInspectionResponse)),
-            _buildFormDataRow('Handover Location', _sellerHandoverLocation ?? 'Not specified'),
+            _buildFormDataRow('Handover Location', _getSellerFullAddress().isNotEmpty ? _getSellerFullAddress() : 'Not specified'),
             _buildFormDataRow('Delivery Date', _sellerDeliveryDate != null ? DateFormat('MMM dd, yyyy').format(_sellerDeliveryDate!) : 'Not specified'),
             if (_deliveryDelayClauseController.text.isNotEmpty)
               _buildFormDataRow('Delivery Delay Clause', _deliveryDelayClauseController.text),
@@ -2383,10 +2463,12 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
     // Prepare buyer form data
     final buyerData = {
       'inspectionChoice': _buyerInspectionChoice,
-      'handoverLocation': _buyerHandoverLocation,
-      'handoverLocationOther': _buyerHandoverLocation == 'Other'
-          ? _handoverLocationController.text
-          : null,
+      'handoverLocation': _getBuyerFullAddress(),
+      'handoverRegion': _buyerHandoverRegion,
+      'handoverProvince': _buyerHandoverProvince,
+      'handoverCity': _buyerHandoverCity,
+      'handoverBarangay': _buyerHandoverBarangay,
+      'handoverLandmark': _buyerHandoverLandmark,
       'targetDeliveryDate': _buyerTargetDeliveryDate?.toIso8601String(),
       'paymentWindow': _buyerPaymentWindow,
       'conditionInspectionCompleted': _buyerConditionInspectionCompleted,
@@ -2414,10 +2496,12 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
     // Prepare seller form data
     final sellerData = {
       'inspectionResponse': _sellerInspectionResponse,
-      'handoverLocation': _sellerHandoverLocation,
-      'handoverLocationOther': _sellerHandoverLocation == 'Other'
-          ? _handoverLocationController.text
-          : null,
+      'handoverLocation': _getSellerFullAddress(),
+      'handoverRegion': _sellerHandoverRegion,
+      'handoverProvince': _sellerHandoverProvince,
+      'handoverCity': _sellerHandoverCity,
+      'handoverBarangay': _sellerHandoverBarangay,
+      'handoverLandmark': _sellerHandoverLandmark,
       'deliveryDate': _sellerDeliveryDate?.toIso8601String(),
       'deliveryDelayClause': _deliveryDelayClauseController.text,
       'paymentMethod': _sellerPaymentMethod,
