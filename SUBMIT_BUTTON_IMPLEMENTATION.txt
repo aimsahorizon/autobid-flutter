@@ -1,0 +1,262 @@
+// =============================================================================
+// UPDATED _buildFormSubmitButton METHOD
+// Replace the existing _buildFormSubmitButton in pre_transaction_discussion_screen.dart
+// =============================================================================
+
+  Widget _buildFormSubmitButton(PreTransaction preTransaction) {
+    final isSubmitted = widget.isSeller ? _sellerSubmittedAt != null : _buyerSubmittedAt != null;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: SizedBox(
+          width: double.infinity,
+          height: 52,
+          child: Consumer<PreTransactionProvider>(
+            builder: (context, provider, child) {
+              if (isSubmitted) {
+                // Show Re-edit button if form is already submitted
+                return OutlinedButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      _isFormDeactivated = false;
+                      if (widget.isSeller) {
+                        _sellerSubmittedAt = null;
+                      } else {
+                        _buyerSubmittedAt = null;
+                      }
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Form unlocked! You can now make changes.'),
+                        backgroundColor: Colors.orange,
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.edit),
+                  label: const Text(
+                    'Re-edit Form',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    foregroundColor: Colors.orange,
+                    side: const BorderSide(color: Colors.orange, width: 2),
+                  ),
+                );
+              }
+
+              // Check if form can be submitted
+              final canSubmit = widget.isSeller
+                  ? _canSubmitSellerForm()
+                  : _canSubmitBuyerForm();
+
+              return ElevatedButton(
+                onPressed: canSubmit && !provider.isLoading
+                    ? () => _submitAgreementForm(provider)
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: ColorConstants.primaryGreen,
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: Colors.grey[300],
+                ),
+                child: provider.isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : const Text(
+                        'Submit Agreement',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  // =============================================================================
+  // UPDATED SUBMISSION METHOD
+  // Replace _submitConfirmation with this new method
+  // =============================================================================
+
+  Future<void> _submitAgreementForm(PreTransactionProvider provider) async {
+    // Validate data privacy consent
+    final dataPrivacyConsent = widget.isSeller ? _dataPrivacyConsentSeller : _dataPrivacyConsentBuyer;
+    if (!dataPrivacyConsent) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please accept the Data Privacy consent'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Validate legal acknowledgment
+    final legalAck = widget.isSeller ? _legalAcknowledgmentSeller : _legalAcknowledgmentBuyer;
+    if (!legalAck) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please acknowledge the legal terms (RA 8792)'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isFormDeactivated = true; // Lock the form
+    });
+
+    try {
+      if (widget.isSeller) {
+        // === SELLER SUBMISSION ===
+        await _submitSellerAgreement(provider);
+      } else {
+        // === BUYER SUBMISSION ===
+        await _submitBuyerAgreement(provider);
+      }
+
+      if (!mounted) return;
+
+      // Set submission timestamp
+      setState(() {
+        if (widget.isSeller) {
+          _sellerSubmittedAt = DateTime.now();
+        } else {
+          _buyerSubmittedAt = DateTime.now();
+        }
+      });
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            widget.isSeller
+                ? '✓ Seller agreement submitted!'
+                : '✓ Buyer agreement submitted!',
+          ),
+          backgroundColor: ColorConstants.primaryGreen,
+        ),
+      );
+
+      // Check if both parties have submitted -> Generate combined agreement
+      if (_buyerSubmittedAt != null && _sellerSubmittedAt != null) {
+        _generateCombinedAgreement();
+      }
+
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isFormDeactivated = false; // Unlock on error
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error submitting form: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _submitBuyerAgreement(PreTransactionProvider provider) async {
+    // Prepare buyer form data
+    final buyerData = {
+      'inspectionChoice': _buyerInspectionChoice,
+      'handoverLocation': _buyerHandoverLocation,
+      'handoverLocationOther': _buyerHandoverLocation == 'Other'
+          ? _handoverLocationController.text
+          : null,
+      'targetDeliveryDate': _buyerTargetDeliveryDate?.toIso8601String(),
+      'paymentWindow': _buyerPaymentWindow,
+      'conditionInspectionCompleted': _buyerConditionInspectionCompleted,
+      'conditionOwnershipVerified': _buyerConditionOwnershipVerified,
+      'conditionDeedReceived': _buyerConditionDeedReceived,
+      'otherConditions': _otherConditionsController.text,
+      'notes': _buyerNotesController.text,
+      'dataPrivacyConsent': _dataPrivacyConsentBuyer,
+      'legalAcknowledgment': _legalAcknowledgmentBuyer,
+      'submittedAt': DateTime.now().toIso8601String(),
+    };
+
+    // TODO: Backend integration
+    // await provider.submitBuyerAgreement(buyerData);
+    // await BackendService.storeBuyerAgreement(widget.auctionId, buyerData);
+
+    debugPrint('✓ Buyer Agreement Submitted');
+    debugPrint('  Data: ${jsonEncode(buyerData)}');
+
+    // Simulate backend delay
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
+
+  Future<void> _submitSellerAgreement(PreTransactionProvider provider) async {
+    // Prepare seller form data
+    final sellerData = {
+      'inspectionResponse': _sellerInspectionResponse,
+      'handoverLocation': _sellerHandoverLocation,
+      'handoverLocationOther': _sellerHandoverLocation == 'Other'
+          ? _handoverLocationController.text
+          : null,
+      'deliveryDate': _sellerDeliveryDate?.toIso8601String(),
+      'deliveryDelayClause': _deliveryDelayClauseController.text,
+      'paymentMethod': _sellerPaymentMethod,
+      'otherPaymentMethod': _sellerPaymentMethod == 'others'
+          ? _otherPaymentMethodController.text
+          : null,
+      'notes': _sellerNotesController.text,
+      'dataPrivacyConsent': _dataPrivacyConsentSeller,
+      'legalAcknowledgment': _legalAcknowledgmentSeller,
+      'submittedAt': DateTime.now().toIso8601String(),
+    };
+
+    // TODO: Backend integration
+    // await provider.submitSellerAgreement(sellerData);
+    // await BackendService.storeSellerAgreement(widget.auctionId, sellerData);
+
+    debugPrint('✓ Seller Agreement Submitted');
+    debugPrint('  Data: ${jsonEncode(sellerData)}');
+
+    // Simulate backend delay
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
+
+  // =============================================================================
+  // REMOVE/COMMENT OUT OLD METHODS
+  // =============================================================================
+
+  // DEPRECATED: Remove or comment out these old methods:
+  // - _submitConfirmation()
+  // - _getFormDataFromConfirmation()
+  // - Any references to EmbeddedBuyerForm or EmbeddedSellerForm
+  // - Any payment confirmation or vehicle handover logic
+
+  /*
+  // OLD METHOD - DEPRECATED
+  Future<void> _submitConfirmation(PreTransactionProvider provider) async {
+    // This method is no longer needed - replaced by _submitAgreementForm
+  }
+
+  // OLD METHOD - DEPRECATED
+  Map<String, dynamic> _getFormDataFromConfirmation(PreTransactionConfirmation confirmation) {
+    // This method is no longer needed - form data is now stored in state variables
+  }
+  */
