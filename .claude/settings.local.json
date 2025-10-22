@@ -48,7 +48,18 @@
       "Bash(findstr /i \"Commonwealth\")",
       "Bash(findstr /i \"signup_step3_address\")",
       "Read(//c/**)",
-      "Bash(powershell -Command \"Start-Sleep -Seconds 5\")"
+      "Bash(powershell -Command \"Start-Sleep -Seconds 5\")",
+      "Bash(findstr:*)",
+      "Bash(powershell -Command \"Get-Content ''C:\\Users\\nekol\\Desktop\\Flutter\\AutoBID\\autobid\\lib\\presentation\\screens\\auction\\tabs\\car_info_tab.dart'' | Measure-Object -Line\")",
+      "Bash(powershell -Command \"Get-Content ''C:\\Users\\nekol\\Desktop\\Flutter\\AutoBID\\autobid\\lib\\presentation\\screens\\pre_transaction\\pre_transaction_discussion_screen.dart'' | Measure-Object -Line\")",
+      "Bash(tree:*)",
+      "Bash(timeout 90 flutter analyze:*)",
+      "Bash(powershell -Command \"$input | Select-String ''''issues? found''''\")",
+      "Bash(del \"C:\\Users\\nekol\\Desktop\\Flutter\\AutoBID\\autobid\\lib\\data\\models\\bidding_deposit.freezed.dart\" \"C:\\Users\\nekol\\Desktop\\Flutter\\AutoBID\\autobid\\lib\\data\\models\\bidding_deposit.g.dart\" \"C:\\Users\\nekol\\Desktop\\Flutter\\AutoBID\\autobid\\lib\\data\\models\\subscription_tier.freezed.dart\" \"C:\\Users\\nekol\\Desktop\\Flutter\\AutoBID\\autobid\\lib\\data\\models\\subscription_tier.g.dart\")",
+      "Bash(ls:*)",
+      "Bash(powershell -Command \"Select-String ''''issues? found''''\")",
+      "Bash(powershell -Command \"Get-Content ''lib\\data\\models\\bidding_deposit.freezed.dart'' | Select-String -Pattern ''class _BiddingDeposit'' -Context 0,10\")",
+      "Bash(powershell -Command \"$input | Measure-Object -Line\")"
     ],
     "deny": [],
     "ask": []
