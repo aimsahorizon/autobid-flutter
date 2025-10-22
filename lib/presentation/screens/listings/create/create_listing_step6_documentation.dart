@@ -11,6 +11,7 @@ import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/date_picker_field.dart';
 import '../../../widgets/save_draft_button.dart';
+import 'create_listing_step_mixin.dart';
 
 class CreateListingStep6Documentation extends StatefulWidget {
   const CreateListingStep6Documentation({super.key});
@@ -21,7 +22,7 @@ class CreateListingStep6Documentation extends StatefulWidget {
 }
 
 class _CreateListingStep6DocumentationState
-    extends State<CreateListingStep6Documentation> {
+    extends State<CreateListingStep6Documentation> with CreateListingMixin {
   final _formKey = GlobalKey<FormState>();
   final _plateController = TextEditingController();
   final _orcrController = TextEditingController();
@@ -55,7 +56,7 @@ class _CreateListingStep6DocumentationState
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
+          onPressed: () => handleBackWithWarning(),
         ),
         title: const Text('Documentation & Location'),
         actions: [

@@ -7,6 +7,7 @@ import '../../../../core/utils/enum_extensions.dart';
 import '../../../providers/listing_provider.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/save_draft_button.dart';
+import 'create_listing_step_mixin.dart';
 
 class CreateListingStep9Summary extends StatefulWidget {
   const CreateListingStep9Summary({super.key});
@@ -16,7 +17,7 @@ class CreateListingStep9Summary extends StatefulWidget {
       _CreateListingStep9SummaryState();
 }
 
-class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> {
+class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> with CreateListingMixin {
   @override
   void initState() {
     super.initState();
@@ -34,7 +35,7 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
+          onPressed: () => handleBackWithWarning(),
         ),
         title: const Text('Listing Summary'),
         actions: [

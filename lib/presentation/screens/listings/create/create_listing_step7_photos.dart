@@ -9,6 +9,7 @@ import '../../../../core/utils/listing_autofill_helpers.dart';
 import '../../../providers/listing_provider.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/save_draft_button.dart';
+import 'create_listing_step_mixin.dart';
 
 class CreateListingStep7Photos extends StatefulWidget {
   const CreateListingStep7Photos({super.key});
@@ -19,7 +20,7 @@ class CreateListingStep7Photos extends StatefulWidget {
 }
 
 class _CreateListingStep7PhotosState extends State<CreateListingStep7Photos>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, CreateListingMixin {
   final ImagePicker _picker = ImagePicker();
   late TabController _tabController;
 
@@ -104,7 +105,7 @@ class _CreateListingStep7PhotosState extends State<CreateListingStep7Photos>
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/my_listings'),
+          onPressed: () => handleBackWithWarning(),
         ),
         title: const Text('Photos'),
         actions: [

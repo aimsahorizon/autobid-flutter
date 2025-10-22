@@ -6,6 +6,7 @@ import '../../../../core/constants/ph_cities.dart';
 import '../../../providers/listing_provider.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_text_field.dart';
+import 'create_listing_step_mixin.dart';
 
 class CreateListingStep3Documents extends StatefulWidget {
   const CreateListingStep3Documents({super.key});
@@ -16,7 +17,7 @@ class CreateListingStep3Documents extends StatefulWidget {
 }
 
 class _CreateListingStep3DocumentsState
-    extends State<CreateListingStep3Documents> {
+    extends State<CreateListingStep3Documents> with CreateListingMixin {
   final _formKey = GlobalKey<FormState>();
   final _plateController = TextEditingController();
   final _orcrController = TextEditingController();
@@ -43,6 +44,10 @@ class _CreateListingStep3DocumentsState
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => handleBackWithWarning(),
+        ),
         title: const Text('Documents & Location'),
       ),
       body: Form(

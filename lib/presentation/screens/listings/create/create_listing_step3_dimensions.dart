@@ -11,6 +11,7 @@ import '../../../widgets/number_input_field.dart';
 import '../../../widgets/counter_input_field.dart';
 import '../../../widgets/save_draft_button.dart';
 import '../../../widgets/creatable_dropdown.dart';
+import 'create_listing_step_mixin.dart';
 
 class CreateListingStep3Dimensions extends StatefulWidget {
   const CreateListingStep3Dimensions({super.key});
@@ -21,7 +22,7 @@ class CreateListingStep3Dimensions extends StatefulWidget {
 }
 
 class _CreateListingStep3DimensionsState
-    extends State<CreateListingStep3Dimensions> {
+    extends State<CreateListingStep3Dimensions> with CreateListingMixin{
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -42,7 +43,7 @@ class _CreateListingStep3DimensionsState
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
+          onPressed: () => handleBackWithWarning(),
         ),
         title: const Text('Dimensions & Capacity'),
         actions: [

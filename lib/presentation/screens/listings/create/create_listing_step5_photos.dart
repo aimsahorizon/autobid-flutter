@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../providers/listing_provider.dart';
 import '../../../widgets/custom_button.dart';
+import 'create_listing_step_mixin.dart';
 
 class CreateListingStep5Photos extends StatefulWidget {
   const CreateListingStep5Photos({super.key});
@@ -13,7 +14,7 @@ class CreateListingStep5Photos extends StatefulWidget {
       _CreateListingStep5PhotosState();
 }
 
-class _CreateListingStep5PhotosState extends State<CreateListingStep5Photos> {
+class _CreateListingStep5PhotosState extends State<CreateListingStep5Photos> with CreateListingMixin {
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage(ImageSource source) async {
@@ -49,6 +50,10 @@ class _CreateListingStep5PhotosState extends State<CreateListingStep5Photos> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => handleBackWithWarning(),
+        ),
         title: const Text('Photos'),
       ),
       body: ListView(

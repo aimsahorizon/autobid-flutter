@@ -8,6 +8,7 @@ import '../../../../core/utils/listing_autofill_helpers.dart';
 import '../../../providers/listing_provider.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/save_draft_button.dart';
+import 'create_listing_step_mixin.dart';
 
 class CreateListingStep8Review extends StatefulWidget {
   const CreateListingStep8Review({super.key});
@@ -17,7 +18,7 @@ class CreateListingStep8Review extends StatefulWidget {
       _CreateListingStep8ReviewState();
 }
 
-class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
+class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> with CreateListingMixin {
   final _formKey = GlobalKey<FormState>();
   final _descriptionController = TextEditingController();
   final _issuesController = TextEditingController();
@@ -162,7 +163,7 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
+          onPressed: () => handleBackWithWarning(),
         ),
         title: const Text('Final Details'),
         actions: [

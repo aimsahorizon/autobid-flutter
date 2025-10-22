@@ -12,6 +12,7 @@ import '../../../widgets/number_input_field.dart';
 import '../../../widgets/counter_input_field.dart';
 import '../../../widgets/save_draft_button.dart';
 import '../../../widgets/creatable_dropdown.dart';
+import 'create_listing_step_mixin.dart';
 
 class CreateListingStep2Mechanical extends StatefulWidget {
   const CreateListingStep2Mechanical({super.key});
@@ -22,7 +23,7 @@ class CreateListingStep2Mechanical extends StatefulWidget {
 }
 
 class _CreateListingStep2MechanicalState
-    extends State<CreateListingStep2Mechanical> {
+    extends State<CreateListingStep2Mechanical> with CreateListingMixin {
   final _formKey = GlobalKey<FormState>();
   final _engineSizeController = TextEditingController();
   final _chargingTimeController = TextEditingController();
@@ -63,7 +64,7 @@ class _CreateListingStep2MechanicalState
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
+          onPressed: () => handleBackWithWarning(),
         ),
         title: const Text('Mechanical Specifications'),
         actions: [

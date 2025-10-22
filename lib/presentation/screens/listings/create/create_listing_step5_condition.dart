@@ -14,6 +14,7 @@ import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/counter_input_field.dart';
 import '../../../widgets/save_draft_button.dart';
 import '../../../widgets/condition_category_section.dart';
+import 'create_listing_step_mixin.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// REFACTORED STEP 5: DYNAMIC VEHICLE CONDITION & HISTORY
@@ -42,7 +43,7 @@ class CreateListingStep5Condition extends StatefulWidget {
 }
 
 class _CreateListingStep5ConditionState
-    extends State<CreateListingStep5Condition> {
+    extends State<CreateListingStep5Condition> with CreateListingMixin {
   final _formKey = GlobalKey<FormState>();
   final _mileageController = TextEditingController();
 
@@ -403,7 +404,7 @@ class _CreateListingStep5ConditionState
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
+          onPressed: () => handleBackWithWarning(),
         ),
         title: const Text('Condition & History'),
         actions: [

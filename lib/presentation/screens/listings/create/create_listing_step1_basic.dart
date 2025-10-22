@@ -6,6 +6,7 @@ import '../../../../core/utils/dev_autofill.dart';
 import '../../../providers/listing_provider.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/save_draft_button.dart';
+import 'create_listing_step_mixin.dart';
 
 class CreateListingStep1Basic extends StatefulWidget {
   const CreateListingStep1Basic({super.key});
@@ -15,7 +16,8 @@ class CreateListingStep1Basic extends StatefulWidget {
       _CreateListingStep1BasicState();
 }
 
-class _CreateListingStep1BasicState extends State<CreateListingStep1Basic> {
+class _CreateListingStep1BasicState extends State<CreateListingStep1Basic>
+with CreateListingMixin{
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -49,6 +51,10 @@ class _CreateListingStep1BasicState extends State<CreateListingStep1Basic> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => handleBackWithWarning(),
+        ),
         title: const Text('Basic Information'),
         actions: [
           if (DevAutofill.isEnabled)

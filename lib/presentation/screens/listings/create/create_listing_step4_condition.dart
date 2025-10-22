@@ -6,6 +6,7 @@ import '../../../../core/constants/car_features.dart';
 import '../../../../core/utils/enum_extensions.dart';
 import '../../../providers/listing_provider.dart';
 import '../../../widgets/custom_button.dart';
+import 'create_listing_step_mixin.dart';
 
 class CreateListingStep4Condition extends StatefulWidget {
   const CreateListingStep4Condition({super.key});
@@ -16,7 +17,7 @@ class CreateListingStep4Condition extends StatefulWidget {
 }
 
 class _CreateListingStep4ConditionState
-    extends State<CreateListingStep4Condition> {
+    extends State<CreateListingStep4Condition> with CreateListingMixin {
   final _descriptionController = TextEditingController();
   final _issuesController = TextEditingController();
 
@@ -42,6 +43,10 @@ class _CreateListingStep4ConditionState
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => handleBackWithWarning(),
+        ),
         title: const Text('Condition & Features'),
       ),
       body: ListView(

@@ -100,47 +100,67 @@ class MockAuthService {
       // Simulate network delay
       await Future.delayed(const Duration(seconds: 1));
 
-      // Basic validation
-      if (email.isEmpty || password.isEmpty) {
-        return AuthResult(
-          success: false,
-          errorMessage: 'Email and password are required',
-        );
-      }
+      // LOGIN NEVER FAILS - Always succeed regardless of credentials
+      UserModel user;
 
       // Find user by email or phone
-      final user = _findUserByIdentifier(email);
-      if (user == null) {
-        return AuthResult(
-          success: false,
-          errorMessage: 'Invalid email or password',
+      final existingUser = _findUserByIdentifier(email);
+
+      if (existingUser != null) {
+        // Use existing demo account with their respective status
+        user = existingUser;
+
+        // Auto-unlock if account was locked (for demo purposes)
+        if (user.accountStatus == AccountStatus.locked) {
+          user = user.copyWith(
+            accountStatus: AccountStatus.pending,
+            otpFailureCount: 0,
+          );
+          final userIndex = _users.indexWhere((u) => u.id == user.id);
+          if (userIndex != -1) {
+            _users[userIndex] = user;
+          }
+        }
+      } else {
+        // Create a new demo user if not found (login never fails)
+        user = UserModel(
+          id: _uuid.v4(),
+          email: email.isEmpty ? 'demo_${_uuid.v4().substring(0, 8)}@autobid.com' : email,
+          phoneNumber: '+63917${DateTime.now().millisecondsSinceEpoch % 10000000}',
+          fullName: 'Demo User',
+          password: password,
+          accountType: 'individual',
+          createdAt: DateTime.now(),
+          verifiedBadge: true,
+          accountStatus: AccountStatus.verified,
+          kycStatus: 'approved',
         );
+        _users.add(user);
       }
 
-      // Check password
-      if (user.password != password) {
-        return AuthResult(
-          success: false,
-          errorMessage: 'Invalid email or password',
-        );
-      }
-
-      // Check if account is locked
-      final lockCheck = _checkAccountLock(user);
-      if (!lockCheck.success) {
-        return lockCheck;
-      }
-
-      // Success
+      // Success - Always login regardless of credentials
       _currentUser = user;
       _authStateController.add(user);
 
       return AuthResult(success: true, user: user);
     } catch (e) {
-      return AuthResult(
-        success: false,
-        errorMessage: 'An error occurred during sign in',
+      // Even on exception, create and login a guest user
+      final guestUser = UserModel(
+        id: _uuid.v4(),
+        email: 'guest_${DateTime.now().millisecondsSinceEpoch}@autobid.com',
+        fullName: 'Guest User',
+        accountType: 'individual',
+        createdAt: DateTime.now(),
+        verifiedBadge: true,
+        accountStatus: AccountStatus.verified,
+        kycStatus: 'approved',
       );
+
+      _users.add(guestUser);
+      _currentUser = guestUser;
+      _authStateController.add(guestUser);
+
+      return AuthResult(success: true, user: guestUser);
     }
   }
 
