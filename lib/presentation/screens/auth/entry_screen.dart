@@ -1,22 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/color_constants.dart';
+import '../../providers/theme_provider.dart';
 import '../../widgets/custom_button.dart';
 
 /// Entry/Welcome Screen
 /// First screen users see with options to login, signup, or browse as guest
-class EntryScreen extends StatelessWidget {
+class EntryScreen extends ConsumerWidget {
   const EntryScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(appThemeModeProvider);
+    final isDark = themeMode == ThemeMode.dark;
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Theme toggle button at top-right
+              Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  onPressed: () {
+                    ref.read(appThemeModeProvider.notifier).toggleTheme();
+                  },
+                  icon: Icon(
+                    isDark ? Icons.light_mode : Icons.dark_mode,
+                    color: ColorConstants.primaryGreen,
+                  ),
+                  tooltip: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
               // Logo/Icon
               Container(
                 padding: const EdgeInsets.all(24),
@@ -120,6 +142,9 @@ class EntryScreen extends StatelessWidget {
                         color: Colors.grey[500],
                       ),
                   textAlign: TextAlign.center,
+                ),
+              ),
+                  ],
                 ),
               ),
             ],

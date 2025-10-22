@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/string_constants.dart';
 import '../../../core/constants/color_constants.dart';
+import '../../../data/models/user_model.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/theme_provider.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/custom_button.dart';
 import 'login_dual_otp_screen.dart';
@@ -157,7 +159,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         // Small delay for user to see success message
         await Future.delayed(const Duration(milliseconds: 500));
         if (mounted) {
-          context.go('/home');
+          // Check account status and show appropriate dialog
+          final user = loginResult.user;
+          if (user != null) {
+            switch (user.accountStatus) {
+              case AccountStatus.pending:
+                _showPendingStatusDialog();
+                break;
+              case AccountStatus.rejected:
+                _showRejectedStatusDialog(user.rejectionReason);
+                break;
+              case AccountStatus.verified:
+              case AccountStatus.guest:
+              default:
+                context.go('/home');
+                break;
+            }
+          } else {
+            context.go('/home');
+          }
         }
       } else {
         _showError(loginResult.errorMessage ?? 'Login failed');
@@ -224,6 +244,92 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
+  void _showPendingStatusDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        icon: const Icon(
+          Icons.hourglass_empty,
+          color: Colors.orange,
+          size: 48,
+        ),
+        title: const Text('Account Pending Review'),
+        content: const Text(
+          'Your account is currently under review. You have limited access until your KYC verification is approved.\n\n'
+          'You can browse listings but cannot participate in auctions or create listings yet.\n\n'
+          'Review typically takes 1-3 business days.',
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.go('/home');
+            },
+            child: const Text('Continue to Home'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showRejectedStatusDialog(String? rejectionReason) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        icon: const Icon(
+          Icons.cancel,
+          color: ColorConstants.error,
+          size: 48,
+        ),
+        title: const Text('Account Verification Rejected'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Your KYC verification has been rejected.',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 12),
+            if (rejectionReason != null && rejectionReason.isNotEmpty) ...[
+              const Text(
+                'Reason:',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                rejectionReason,
+                style: const TextStyle(color: ColorConstants.error),
+              ),
+              const SizedBox(height: 12),
+            ],
+            const Text(
+              'You can re-submit your verification documents from your profile settings.',
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.go('/home');
+            },
+            child: const Text('Continue to Home'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.go('/profile/kyc');
+            },
+            child: const Text('Re-submit KYC'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _autoFillCredentials(String email, String password) {
     setState(() {
       _identifierController.text = email;
@@ -281,6 +387,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeMode = ref.watch(appThemeModeProvider);
+    final isDark = themeMode == ThemeMode.dark;
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -290,7 +399,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 40),
+                // Theme toggle button
+                Align(
+                  alignment: Alignment.topRight,
+                  child: IconButton(
+                    onPressed: () {
+                      ref.read(appThemeModeProvider.notifier).toggleTheme();
+                    },
+                    icon: Icon(
+                      isDark ? Icons.light_mode : Icons.dark_mode,
+                      color: ColorConstants.primaryGreen,
+                    ),
+                    tooltip: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+                  ),
+                ),
+                const SizedBox(height: 8),
                 Text(
                   'Welcome Back',
                   style: Theme.of(context).textTheme.displayLarge?.copyWith(
