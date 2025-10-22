@@ -173,7 +173,8 @@ class PreTransactionProgressTracker extends StatelessWidget {
   }
 
   List<Map<String, String>> _getProgressSteps() {
-    // Check if we're in the new checkpoint flow (after admin approval)
+    // RA 8792 Compliant Progress: Simplified no-escrow flow
+    // Check if we're in the legacy checkpoint flow (for backward compatibility)
     final isInCheckpointFlow = currentStatus == PreTransactionStatus.preparing ||
         currentStatus == PreTransactionStatus.shipping ||
         currentStatus == PreTransactionStatus.delivered ||
@@ -181,7 +182,7 @@ class PreTransactionProgressTracker extends StatelessWidget {
         currentStatus == PreTransactionStatus.transactionComplete;
 
     if (isInCheckpointFlow) {
-      // New checkpoint flow (no escrow)
+      // Legacy checkpoint flow (maintain for existing transactions)
       return [
         {'label': 'Preparing'},
         {'label': 'Shipping'},
@@ -191,20 +192,33 @@ class PreTransactionProgressTracker extends StatelessWidget {
       ];
     }
 
-    // Original pre-transaction flow
+    // NEW: RA 8792 Compliant Flow - 3 Simple Steps
     return [
-      {'label': 'Discussion'},
-      {'label': 'Buyer Form'},
-      {'label': 'Seller Form'},
-      {'label': isSeller ? 'Buyer Confirmation' : 'Seller Confirmation'},
-      {'label': 'Admin Review'},
-      {'label': 'Transaction Start'},
+      {'label': 'KYC Verification'},
+      {'label': 'Agreement & Acknowledgment'},
+      {'label': 'Completed'},
     ];
   }
 
   int _getCurrentStepIndex() {
     switch (currentStatus) {
-      // Checkpoint flow
+      // RA 8792 Compliant Flow - 3 Steps
+      case PreTransactionStatus.inDiscussion:
+      case PreTransactionStatus.pendingVerification:
+        return 0; // KYC Verification
+      case PreTransactionStatus.verificationComplete:
+      case PreTransactionStatus.pendingBuyerConfirmation:
+      case PreTransactionStatus.pendingSellerConfirmation:
+      case PreTransactionStatus.agreementDraft:
+        return 1; // Agreement & Acknowledgment
+      case PreTransactionStatus.agreementSigned:
+      case PreTransactionStatus.pendingMutualConfirmation:
+      case PreTransactionStatus.pendingAdminReview:
+      case PreTransactionStatus.adminApproved:
+      case PreTransactionStatus.readyForPayment:
+        return 2; // Completed
+
+      // Legacy checkpoint flow (backward compatibility)
       case PreTransactionStatus.preparing:
         return 0;
       case PreTransactionStatus.shipping:
@@ -216,20 +230,6 @@ class PreTransactionProgressTracker extends StatelessWidget {
       case PreTransactionStatus.transactionComplete:
         return 4;
 
-      // Pre-transaction flow
-      case PreTransactionStatus.inDiscussion:
-        return 0;
-      case PreTransactionStatus.pendingBuyerConfirmation:
-        return 1;
-      case PreTransactionStatus.pendingSellerConfirmation:
-        return 2;
-      case PreTransactionStatus.pendingMutualConfirmation:
-        return 3;
-      case PreTransactionStatus.pendingAdminReview:
-        return 4;
-      case PreTransactionStatus.adminApproved:
-      case PreTransactionStatus.readyForPayment:
-        return 5;
       default:
         return 0;
     }
@@ -329,6 +329,17 @@ class PreTransactionProgressTracker extends StatelessWidget {
 
   String _getStatusDescription() {
     switch (currentStatus) {
+      // RA 8792 Compliant Flow Descriptions
+      case PreTransactionStatus.pendingVerification:
+        return 'Identity verification required under RA 8792 before proceeding';
+      case PreTransactionStatus.verificationComplete:
+        return 'KYC verified. Proceed to fill out and acknowledge the agreement';
+      case PreTransactionStatus.agreementDraft:
+        return 'Review agreement and provide legal acknowledgment under RA 8792';
+      case PreTransactionStatus.agreementSigned:
+        return 'Agreement signed and legally binding under RA 8792 Section 8';
+
+      // Original flow with RA 8792 references
       case PreTransactionStatus.inDiscussion:
         return 'Discuss delivery details, inspection, and terms with ${isSeller ? 'buyer' : 'seller'}';
       case PreTransactionStatus.pendingBuyerConfirmation:

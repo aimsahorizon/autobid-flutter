@@ -122,6 +122,36 @@ _PreTransaction _$PreTransactionFromJson(Map<String, dynamic> json) =>
       cancelledAt: json['cancelledAt'] == null
           ? null
           : DateTime.parse(json['cancelledAt'] as String),
+      buyerVerification: json['buyerVerification'] == null
+          ? null
+          : KycVerification.fromJson(
+              json['buyerVerification'] as Map<String, dynamic>,
+            ),
+      sellerVerification: json['sellerVerification'] == null
+          ? null
+          : KycVerification.fromJson(
+              json['sellerVerification'] as Map<String, dynamic>,
+            ),
+      digitalAgreement: json['digitalAgreement'] == null
+          ? null
+          : DigitalAgreement.fromJson(
+              json['digitalAgreement'] as Map<String, dynamic>,
+            ),
+      paymentConfirmation: json['paymentConfirmation'] == null
+          ? null
+          : PaymentConfirmation.fromJson(
+              json['paymentConfirmation'] as Map<String, dynamic>,
+            ),
+      handoverConfirmation: json['handoverConfirmation'] == null
+          ? null
+          : HandoverConfirmation.fromJson(
+              json['handoverConfirmation'] as Map<String, dynamic>,
+            ),
+      auditLog:
+          (json['auditLog'] as List<dynamic>?)
+              ?.map((e) => AuditLogEntry.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$PreTransactionToJson(
@@ -162,6 +192,12 @@ Map<String, dynamic> _$PreTransactionToJson(
   'transactionCompletedAt': instance.transactionCompletedAt?.toIso8601String(),
   'cancellationReason': instance.cancellationReason,
   'cancelledAt': instance.cancelledAt?.toIso8601String(),
+  'buyerVerification': instance.buyerVerification,
+  'sellerVerification': instance.sellerVerification,
+  'digitalAgreement': instance.digitalAgreement,
+  'paymentConfirmation': instance.paymentConfirmation,
+  'handoverConfirmation': instance.handoverConfirmation,
+  'auditLog': instance.auditLog,
 };
 
 const _$PreTransactionStatusEnumMap = {
@@ -180,4 +216,13 @@ const _$PreTransactionStatusEnumMap = {
   PreTransactionStatus.paymentSuccess: 'payment_success',
   PreTransactionStatus.transactionComplete: 'transaction_complete',
   PreTransactionStatus.cancelled: 'cancelled',
+  PreTransactionStatus.pendingVerification: 'pending_verification',
+  PreTransactionStatus.verificationComplete: 'verification_complete',
+  PreTransactionStatus.agreementDraft: 'agreement_draft',
+  PreTransactionStatus.agreementSigned: 'agreement_signed',
+  PreTransactionStatus.paymentPending: 'payment_pending',
+  PreTransactionStatus.paymentConfirmed: 'payment_confirmed',
+  PreTransactionStatus.handoverPending: 'handover_pending',
+  PreTransactionStatus.handoverComplete: 'handover_complete',
+  PreTransactionStatus.transactionCompleted: 'transaction_completed',
 };

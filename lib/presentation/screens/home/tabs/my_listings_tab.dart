@@ -11,6 +11,7 @@ import '../../../../core/constants/color_constants.dart';
 import '../../../providers/listing_provider.dart';
 import '../../../widgets/car_card.dart';
 import '../../../widgets/auction_card.dart';
+import 'my_listings_tab_kyc_modal.dart';
 
 class MyListingsTab extends StatefulWidget {
   final bool isGridView;
@@ -191,9 +192,11 @@ class _MyListingsTabState extends State<MyListingsTab>
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         onTap: () {
-          // Navigate to pre-transaction discussion screen (as seller)
-          context.push(
-            '/preTransaction/${preTransaction.auctionId}?carTitle=${Uri.encodeComponent(preTransaction.carTitle)}&winningBid=${preTransaction.finalBidAmount}&isSeller=true',
+          // RA 8792 Compliance: KYC verification required before pre-transaction access
+          _showKycModalAndNavigate(
+            auctionId: preTransaction.auctionId,
+            carTitle: preTransaction.carTitle,
+            winningBid: preTransaction.finalBidAmount,
           );
         },
         child: Padding(
@@ -1484,5 +1487,27 @@ class _MyListingsTabState extends State<MyListingsTab>
           RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
           (Match m) => '${m[1]},',
         );
+  }
+
+  // RA 8792 Compliance: KYC verification before pre-transaction access
+  Future<void> _showKycModalAndNavigate({
+    required String auctionId,
+    required String carTitle,
+    required double winningBid,
+  }) async {
+    // Show KYC modal
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => KycVerificationModal(
+        isSeller: true,
+        onSuccess: () {
+          // Navigate to pre-transaction after KYC success
+          context.push(
+            '/preTransaction/$auctionId?carTitle=${Uri.encodeComponent(carTitle)}&winningBid=$winningBid&isSeller=true',
+          );
+        },
+      ),
+    );
   }
 }

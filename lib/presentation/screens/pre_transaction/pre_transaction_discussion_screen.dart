@@ -12,7 +12,7 @@ import '../../../core/constants/color_constants.dart';
 import '../../widgets/pre_transaction_progress_tracker.dart';
 import 'embedded_buyer_form.dart';
 import 'embedded_seller_form.dart';
-import 'combined_review_screen.dart';
+
 
 class PreTransactionDiscussionScreen extends StatefulWidget {
   final String auctionId;
@@ -61,6 +61,11 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
   int _editRequestCount = 0;
   bool _hasConfirmedOtherParty = false;
   bool _otherPartyConfirmedMe = false;
+
+  // RA 8792 Legal acknowledgment tracking
+  // Both parties must independently acknowledge that agreements are legally binding
+  bool _legalAcknowledgmentBuyer = false;
+  bool _legalAcknowledgmentSeller = false;
 
   // Mock update timer for other party form
   Timer? _mockUpdateTimer;
@@ -370,6 +375,8 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
                   isReadOnly: _isFormDeactivated,
                 ),
         ),
+        // RA 8792 Legal Acknowledgment Section
+        _buildLegalAcknowledgmentSection(preTransaction),
         _buildFormSubmitButton(preTransaction),
       ],
     );
@@ -1106,6 +1113,76 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
     );
   }
 
+  /// RA 8792 Legal Acknowledgment Section
+  /// Both parties must independently acknowledge that agreements are legally binding
+  Widget _buildLegalAcknowledgmentSection(PreTransaction preTransaction) {
+    final isMyAcknowledgment = widget.isSeller
+        ? _legalAcknowledgmentSeller
+        : _legalAcknowledgmentBuyer;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: ColorConstants.info.withOpacity(0.05),
+        border: Border(
+          top: BorderSide(color: Colors.grey[300]!),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.gavel, color: ColorConstants.primaryGreen, size: 20),
+              const SizedBox(width: 8),
+              const Text(
+                'Legal Acknowledgment (RA 8792)',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // RA 8792 Section 8: Electronic signatures are legally binding
+          // RA 8792 Section 11: Electronic agreements are admissible as evidence
+          CheckboxListTile(
+            value: isMyAcknowledgment,
+            onChanged: _isFormDeactivated ? null : (value) {
+              setState(() {
+                if (widget.isSeller) {
+                  _legalAcknowledgmentSeller = value ?? false;
+                } else {
+                  _legalAcknowledgmentBuyer = value ?? false;
+                }
+              });
+            },
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            dense: true,
+            title: const Text(
+              'I acknowledge that this pre-transaction process and any signed agreements are legally binding and admissible under Republic Act No. 8792 (Electronic Commerce Act of 2000).',
+              style: TextStyle(fontSize: 13),
+            ),
+          ),
+          if (!isMyAcknowledgment)
+            Padding(
+              padding: const EdgeInsets.only(top: 8, left: 40),
+              child: Text(
+                'You must acknowledge the legal terms before submitting',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.orange[700],
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildFormSubmitButton(PreTransaction preTransaction) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -1153,9 +1230,16 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
                 );
               }
 
-              final canSubmit = widget.isSeller
+              // RA 8792: Require legal acknowledgment before submission
+              final formCanSubmit = widget.isSeller
                   ? (_sellerFormKey.currentState?.canSubmit() ?? false)
                   : (_buyerFormKey.currentState?.canSubmit() ?? false);
+
+              final acknowledgmentGiven = widget.isSeller
+                  ? _legalAcknowledgmentSeller
+                  : _legalAcknowledgmentBuyer;
+
+              final canSubmit = formCanSubmit && acknowledgmentGiven;
 
               return ElevatedButton(
                 onPressed: canSubmit && !provider.isLoading
@@ -1408,9 +1492,9 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
         children: [
           // Show confirmation banner based on mutual confirmation state
           if (showConfirmationBanner)
-            _buildConfirmationBanner(preTransaction)
-          else if (preTransaction.status == PreTransactionStatus.pendingMutualConfirmation)
-            _buildCombinedReviewBanner(preTransaction),
+            _buildConfirmationBanner(preTransaction),
+          // else if (preTransaction.status == PreTransactionStatus.pendingMutualConfirmation)
+          //   _buildCombinedReviewBanner(preTransaction),
           if (showConfirmationBanner || preTransaction.status == PreTransactionStatus.pendingMutualConfirmation)
             const SizedBox(height: 16),
 
@@ -2119,83 +2203,83 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
     );
   }
 
-  Widget _buildCombinedReviewBanner(PreTransaction preTransaction) {
-    final hasUserApproved = widget.isSeller
-        ? preTransaction.sellerMutualReviewApproved
-        : preTransaction.buyerMutualReviewApproved;
+  // Widget _buildCombinedReviewBanner(PreTransaction preTransaction) {
+  //   final hasUserApproved = widget.isSeller
+  //       ? preTransaction.sellerMutualReviewApproved
+  //       : preTransaction.buyerMutualReviewApproved;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: hasUserApproved
-            ? Colors.orange.withOpacity(0.1)
-            : ColorConstants.primaryGreen.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: hasUserApproved
-              ? Colors.orange.withOpacity(0.3)
-              : ColorConstants.primaryGreen.withOpacity(0.3),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                hasUserApproved ? Icons.hourglass_empty : Icons.info,
-                color: hasUserApproved ? Colors.orange : ColorConstants.primaryGreen,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  hasUserApproved
-                      ? 'Waiting for ${widget.isSeller ? 'Buyer' : 'Seller'}'
-                      : 'Combined Review Required',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: hasUserApproved ? Colors.orange : ColorConstants.primaryGreen,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            hasUserApproved
-                ? 'You have approved the combined details. Waiting for the other party to review and approve.'
-                : 'Both parties have submitted their forms. Please review the combined details and approve to proceed to admin review.',
-            style: TextStyle(fontSize: 13, color: Colors.grey[700]),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                // Navigate to combined review screen
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CombinedReviewScreen(
-                      preTransactionId: preTransaction.id,
-                      isSeller: widget.isSeller,
-                    ),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.visibility),
-              label: const Text('Go to Combined Review'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: hasUserApproved ? Colors.orange : ColorConstants.primaryGreen,
-                foregroundColor: Colors.white,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  //   return Container(
+  //     padding: const EdgeInsets.all(16),
+  //     decoration: BoxDecoration(
+  //       color: hasUserApproved
+  //           ? Colors.orange.withOpacity(0.1)
+  //           : ColorConstants.primaryGreen.withOpacity(0.1),
+  //       borderRadius: BorderRadius.circular(12),
+  //       border: Border.all(
+  //         color: hasUserApproved
+  //             ? Colors.orange.withOpacity(0.3)
+  //             : ColorConstants.primaryGreen.withOpacity(0.3),
+  //       ),
+  //     ),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Row(
+  //           children: [
+  //             Icon(
+  //               hasUserApproved ? Icons.hourglass_empty : Icons.info,
+  //               color: hasUserApproved ? Colors.orange : ColorConstants.primaryGreen,
+  //             ),
+  //             const SizedBox(width: 12),
+  //             Expanded(
+  //               child: Text(
+  //                 hasUserApproved
+  //                     ? 'Waiting for ${widget.isSeller ? 'Buyer' : 'Seller'}'
+  //                     : 'Combined Review Required',
+  //                 style: TextStyle(
+  //                   fontSize: 16,
+  //                   fontWeight: FontWeight.bold,
+  //                   color: hasUserApproved ? Colors.orange : ColorConstants.primaryGreen,
+  //                 ),
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //         const SizedBox(height: 8),
+  //         Text(
+  //           hasUserApproved
+  //               ? 'You have approved the combined details. Waiting for the other party to review and approve.'
+  //               : 'Both parties have submitted their forms. Please review the combined details and approve to proceed to admin review.',
+  //           style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+  //         ),
+  //         const SizedBox(height: 12),
+  //         SizedBox(
+  //           width: double.infinity,
+  //           child: ElevatedButton.icon(
+  //             onPressed: () {
+  //               // Navigate to combined review screen
+  //               Navigator.push(
+  //                 context,
+  //                 MaterialPageRoute(
+  //                   builder: (context) => CombinedReviewScreen(
+  //                     preTransactionId: preTransaction.id,
+  //                     isSeller: widget.isSeller,
+  //                   ),
+  //                 ),
+  //               );
+  //             },
+  //             icon: const Icon(Icons.visibility),
+  //             label: const Text('Go to Combined Review'),
+  //             style: ElevatedButton.styleFrom(
+  //               backgroundColor: hasUserApproved ? Colors.orange : ColorConstants.primaryGreen,
+  //               foregroundColor: Colors.white,
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildFormHeader(PreTransaction preTransaction) {
     final isAlreadySubmitted = widget.isSeller

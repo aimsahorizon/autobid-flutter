@@ -1,6 +1,11 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'pre_transaction_message_model.dart';
 import 'pre_transaction_confirmation_model.dart';
+import 'kyc_verification_model.dart';
+import 'digital_agreement_model.dart';
+import 'payment_confirmation_model.dart';
+import 'handover_confirmation_model.dart';
+import 'audit_log_entry_model.dart';
 
 part 'pre_transaction_model.freezed.dart';
 part 'pre_transaction_model.g.dart';
@@ -37,6 +42,25 @@ enum PreTransactionStatus {
   transactionComplete,
   @JsonValue('cancelled')
   cancelled,
+  // ===== RA 8792 COMPLIANT STATUSES =====
+  @JsonValue('pending_verification')
+  pendingVerification,
+  @JsonValue('verification_complete')
+  verificationComplete,
+  @JsonValue('agreement_draft')
+  agreementDraft,
+  @JsonValue('agreement_signed')
+  agreementSigned,
+  @JsonValue('payment_pending')
+  paymentPending,
+  @JsonValue('payment_confirmed')
+  paymentConfirmed,
+  @JsonValue('handover_pending')
+  handoverPending,
+  @JsonValue('handover_complete')
+  handoverComplete,
+  @JsonValue('transaction_completed')
+  transactionCompleted,
 }
 
 /// Edit request model for combined review phase
@@ -102,6 +126,25 @@ abstract class PreTransaction with _$PreTransaction {
 
     String? cancellationReason,
     DateTime? cancelledAt,
+
+    // ===== RA 8792 COMPLIANT FIELDS =====
+    /// KYC verification for buyer (identity verification)
+    KycVerification? buyerVerification,
+
+    /// KYC verification for seller (identity verification)
+    KycVerification? sellerVerification,
+
+    /// Digital sale agreement (legally binding under RA 8792)
+    DigitalAgreement? digitalAgreement,
+
+    /// Payment confirmation (electronic receipt under RA 8792)
+    PaymentConfirmation? paymentConfirmation,
+
+    /// Handover confirmation (vehicle transfer documentation)
+    HandoverConfirmation? handoverConfirmation,
+
+    /// Audit log entries (immutable record protected under RA 8792)
+    @Default([]) List<AuditLogEntry> auditLog,
   }) = _PreTransaction;
 
   factory PreTransaction.fromJson(Map<String, dynamic> json) =>
