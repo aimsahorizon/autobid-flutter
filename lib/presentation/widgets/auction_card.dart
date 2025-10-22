@@ -12,6 +12,41 @@ class AuctionCard extends StatelessWidget {
     this.onTap,
   });
 
+  /// Build image widget based on image path type
+  Widget _buildCarImage(String imagePath) {
+    final isAsset = imagePath.startsWith('assets/');
+
+    if (isAsset) {
+      return Image.asset(
+        imagePath,
+        height: 120,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        cacheWidth: 400,
+        errorBuilder: (context, error, stackTrace) => Container(
+          height: 120,
+          width: double.infinity,
+          color: Colors.grey[300],
+          child: Icon(Icons.directions_car, size: 40, color: Colors.grey[600]),
+        ),
+      );
+    } else {
+      return Image.network(
+        imagePath,
+        height: 120,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        cacheWidth: 400,
+        errorBuilder: (context, error, stackTrace) => Container(
+          height: 120,
+          width: double.infinity,
+          color: Colors.grey[300],
+          child: Icon(Icons.directions_car, size: 40, color: Colors.grey[600]),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -24,19 +59,7 @@ class AuctionCard extends StatelessWidget {
             Stack(
               children: [
                 auction.car?.images.isNotEmpty == true
-                  ? Image.asset(
-                      auction.car!.images.first,
-                      height: 120,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      cacheWidth: 400, // Optimize: Cache at smaller resolution
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        height: 120,
-                        width: double.infinity,
-                        color: Colors.grey[300],
-                        child: Icon(Icons.directions_car, size: 40, color: Colors.grey[600]),
-                      ),
-                    )
+                  ? _buildCarImage(auction.car!.images.first)
                   : Container(
                       height: 120,
                       width: double.infinity,

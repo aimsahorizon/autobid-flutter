@@ -21,6 +21,36 @@ class CarCard extends StatelessWidget {
     this.customActionButton,
   });
 
+  /// Build image widget based on image path type
+  Widget _buildCarImage(String imagePath) {
+    // Check if image is a local asset or network URL
+    final isAsset = imagePath.startsWith('assets/');
+
+    if (isAsset) {
+      return Image.asset(
+        imagePath,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey[300],
+            child: const Icon(Icons.directions_car, size: 50),
+          );
+        },
+      );
+    } else {
+      return Image.network(
+        imagePath,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey[300],
+            child: const Icon(Icons.directions_car, size: 50),
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -34,16 +64,7 @@ class CarCard extends StatelessWidget {
             AspectRatio(
               aspectRatio: 16 / 9,
               child: car.images.isNotEmpty
-                  ? Image.network(
-                      car.images.first,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.directions_car, size: 50),
-                        );
-                      },
-                    )
+                  ? _buildCarImage(car.images.first)
                   : Container(
                       color: Colors.grey[300],
                       child: const Icon(Icons.directions_car, size: 50),
