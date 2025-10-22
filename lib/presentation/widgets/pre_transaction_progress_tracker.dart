@@ -192,31 +192,37 @@ class PreTransactionProgressTracker extends StatelessWidget {
       ];
     }
 
-    // NEW: RA 8792 Compliant Flow - 3 Simple Steps
+    // NEW: RA 8792 Compliant Flow - Full Form Process
     return [
       {'label': 'KYC Verification'},
-      {'label': 'Agreement & Acknowledgment'},
-      {'label': 'Completed'},
+      {'label': 'Buyer Form'},
+      {'label': 'Seller Form'},
+      {'label': 'Mutual Confirmation'},
+      {'label': 'Admin Review'},
+      {'label': 'Payment Ready'},
     ];
   }
 
   int _getCurrentStepIndex() {
     switch (currentStatus) {
-      // RA 8792 Compliant Flow - 3 Steps
+      // RA 8792 Compliant Flow - Full Form Process
       case PreTransactionStatus.inDiscussion:
       case PreTransactionStatus.pendingVerification:
         return 0; // KYC Verification
       case PreTransactionStatus.verificationComplete:
       case PreTransactionStatus.pendingBuyerConfirmation:
+        return 1; // Buyer Form
       case PreTransactionStatus.pendingSellerConfirmation:
+        return 2; // Seller Form
       case PreTransactionStatus.agreementDraft:
-        return 1; // Agreement & Acknowledgment
       case PreTransactionStatus.agreementSigned:
       case PreTransactionStatus.pendingMutualConfirmation:
+        return 3; // Mutual Confirmation
       case PreTransactionStatus.pendingAdminReview:
+        return 4; // Admin Review
       case PreTransactionStatus.adminApproved:
       case PreTransactionStatus.readyForPayment:
-        return 2; // Completed
+        return 5; // Payment Ready
 
       // Legacy checkpoint flow (backward compatibility)
       case PreTransactionStatus.preparing:
