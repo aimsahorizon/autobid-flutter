@@ -46,7 +46,7 @@ mixin CreateListingMixin<T extends StatefulWidget> on State<T> {
           ),
           ElevatedButton(
             onPressed: () {
-              context.go('/my_listings');
+              context.go('/home?tab=2&subTab=1');
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: ColorConstants.error,
