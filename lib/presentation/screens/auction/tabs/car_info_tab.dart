@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../data/models/auction_model.dart';
 import '../../../../core/utils/car_enum_extensions.dart';
-import '../widgets/buyer_comment_section.dart';
-import 'package:provider/provider.dart';
-import '../../../providers/auction_provider.dart';
 
 class CarInfoTab extends StatelessWidget {
   final Auction auction;
@@ -201,26 +198,6 @@ class CarInfoTab extends StatelessWidget {
               ),
             ],
           ],
-
-          // Divider before Q&A section
-          const SizedBox(height: 32),
-          Divider(
-            thickness: 1,
-            color: theme.colorScheme.outline.withValues(alpha: 0.3),
-          ),
-          const SizedBox(height: 24),
-
-          // Questions & Answers section
-          Builder(
-            builder: (context) {
-              final provider = context.watch<AuctionProvider>();
-              return BuyerCommentSection(
-                auctionId: auction.id,
-                sellerId: auction.sellerId,
-                currentUserId: provider.currentUserId,
-              );
-            },
-          ),
         ],
       ),
     );

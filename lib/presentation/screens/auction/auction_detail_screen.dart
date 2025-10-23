@@ -18,6 +18,7 @@ import 'widgets/categorized_image_gallery.dart';
 import 'widgets/deposit_lock_card.dart';
 import 'tabs/bid_history_tab.dart';
 import 'tabs/car_info_tab.dart';
+import 'tabs/questions_answers_tab.dart';
 
 class AuctionDetailScreen extends ConsumerStatefulWidget {
   final String auctionId;
@@ -41,7 +42,7 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> with 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       provider_pkg.Provider.of<AuctionProvider>(context, listen: false).loadAuctionDetail(
@@ -296,6 +297,7 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> with 
                       tabs: const [
                         Tab(text: 'Bid History'),
                         Tab(text: 'Car Info'),
+                        Tab(text: 'Q&A'),
                       ],
                     ),
                   ),
@@ -311,6 +313,10 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> with 
                   sellerId: auction.sellerId,
                 ),
                 CarInfoTab(auction: auction),
+                QuestionsAnswersTab(
+                  auctionId: auction.id,
+                  sellerId: auction.sellerId,
+                ),
               ],
             ),
           );
