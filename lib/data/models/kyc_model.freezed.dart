@@ -259,6 +259,10 @@ String toString() {
   return 'KycModel(id: $id, userId: $userId, idType: $idType, idNumber: $idNumber, idImageUrl: $idImageUrl, secondaryIdImageUrl: $secondaryIdImageUrl, selfieUrl: $selfieUrl, verificationStatus: $verificationStatus, submittedAt: $submittedAt, verifiedAt: $verifiedAt, rejectionReason: $rejectionReason)';
 }
 
+  @override
+  // TODO: implement secondaryIdType
+  get secondaryIdType => throw UnimplementedError();
+
 
 }
 

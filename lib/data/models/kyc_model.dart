@@ -41,4 +41,6 @@ abstract class KycModel with _$KycModel {
 
   factory KycModel.fromJson(Map<String, dynamic> json) =>
       _$KycModelFromJson(json);
+
+  get secondaryIdType => null;
 }
