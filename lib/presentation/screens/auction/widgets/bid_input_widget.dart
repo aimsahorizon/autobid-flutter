@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../data/models/auction_model.dart';
 import '../../../../core/constants/bid_increments.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/utils/bid_validator.dart';
-import '../../../widgets/card_payment_dialog.dart';
+import '../../../providers/token_provider.dart';
+import '../../../providers/auth_provider.dart';
+import '../../../widgets/token_top_up_sheet.dart';
 
-class BidInputWidget extends StatefulWidget {
+class BidInputWidget extends ConsumerStatefulWidget {
   final Auction auction;
   final Function(double) onBidPlaced;
 
@@ -17,18 +20,13 @@ class BidInputWidget extends StatefulWidget {
   });
 
   @override
-  State<BidInputWidget> createState() => _BidInputWidgetState();
+  ConsumerState<BidInputWidget> createState() => _BidInputWidgetState();
 }
 
-class _BidInputWidgetState extends State<BidInputWidget> {
+class _BidInputWidgetState extends ConsumerState<BidInputWidget> {
   final _controller = TextEditingController();
   String? _error;
   double? _bidAmount;
-  bool _hasPaidDeposit = false; // Track deposit payment status
-
-  static const double depositAmount = 1000.0;
-  static const double biddingFee = 500.0;
-  static const double totalDepositFee = depositAmount + biddingFee; // 1500 PHP
 
   @override
   void dispose() {
@@ -36,25 +34,60 @@ class _BidInputWidgetState extends State<BidInputWidget> {
     super.dispose();
   }
 
-  void _showPaymentDialog() {
-    showDialog(
+  Future<void> _showInsufficientTokensDialog(int currentBalance) async {
+    return showDialog(
       context: context,
-      barrierDismissible: false,
-      builder: (context) => CardPaymentDialog(
-        title: 'Bidding Deposit & Fee',
-        amount: totalDepositFee,
-        description: 'Deposit: ₱${_formatCurrency(depositAmount)} + Bidding Fee: ₱${_formatCurrency(biddingFee)}',
-        onPaymentSuccess: () {
-          setState(() {
-            _hasPaidDeposit = true;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('✓ Payment successful! You can now place bids.'),
-              backgroundColor: ColorConstants.primaryGreen,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.orange),
+            SizedBox(width: 12),
+            Text('Insufficient Tokens'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('You need at least 1 token to place a bid.'),
+            const SizedBox(height: 12),
+            Text(
+              'Current balance: $currentBalance tokens',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: currentBalance == 0 ? Colors.red : Colors.orange,
+              ),
             ),
-          );
-        },
+            const SizedBox(height: 16),
+            Text(
+              'Purchase tokens to continue bidding.',
+              style: TextStyle(color: Colors.grey[600], fontSize: 14),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (context) => const TokenTopUpSheet(),
+              );
+            },
+            icon: const Icon(Icons.add),
+            label: const Text('Buy Tokens'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -76,9 +109,19 @@ class _BidInputWidgetState extends State<BidInputWidget> {
     _updateBidAmount(amount.toString());
   }
 
-  void _placeBid() {
+  Future<void> _placeBid() async {
     if (_bidAmount == null || _error != null) return;
 
+    // Check token balance (REVISED Revenue Model)
+    final tokenBalanceAsync = ref.read(currentUserTokenBalanceProvider);
+    final balance = await tokenBalanceAsync.first;
+
+    if (balance < 1) {
+      _showInsufficientTokensDialog(balance);
+      return;
+    }
+
+    // Proceed with bid
     widget.onBidPlaced(_bidAmount!);
     _controller.clear();
     setState(() {
@@ -91,151 +134,9 @@ class _BidInputWidgetState extends State<BidInputWidget> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final minBid = BidValidator.getMinimumBid(widget.auction);
+    final tokenBalanceAsync = ref.watch(currentUserTokenBalanceProvider);
 
-    // Show payment requirement banner if deposit not paid
-    if (!_hasPaidDeposit) {
-      return Card(
-        color: Colors.orange.withOpacity(0.1),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.lock, color: Colors.orange[700], size: 28),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Payment Required to Bid',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.orange[900],
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Pay deposit & bidding fee to participate in this auction',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.orange.withOpacity(0.3)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Deposit',
-                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '₱${_formatCurrency(depositAmount)}',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Text('+', style: TextStyle(fontSize: 18)),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Bidding Fee',
-                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '₱${_formatCurrency(biddingFee)}',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Text('=', style: TextStyle(fontSize: 18)),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Total',
-                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '₱${_formatCurrency(totalDepositFee)}',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: ColorConstants.primaryGreen,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _showPaymentDialog,
-                  icon: const Icon(Icons.payment),
-                  label: const Text(
-                    'Pay to Unlock Bidding',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: ColorConstants.primaryGreen,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Icon(Icons.info_outline, size: 16, color: Colors.grey[600]),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Deposit will be refunded if you don\'t win the auction',
-                      style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    // Regular bidding interface (after payment)
+    // Bidding interface (REVISED - Token-based)
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -345,4 +246,8 @@ class _BidInputWidgetState extends State<BidInputWidget> {
           (Match m) => '${m[1]},',
         );
   }
+}
+
+extension on AsyncValue<int> {
+  Future? get first => null;
 }

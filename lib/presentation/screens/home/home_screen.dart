@@ -8,6 +8,7 @@ import '../../providers/browse_provider.dart';
 import '../../providers/payment_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/auction_provider.dart';
+import '../../widgets/token_balance_icon.dart';
 // import '../../data/models/search_filters.dart';
 import '../browse/filter_bottom_sheet.dart';
 import 'tabs/browse_tab.dart';
@@ -74,6 +75,8 @@ class _HomeScreenState extends riverpod.ConsumerState<HomeScreen> {
         actions: [
           // Browse tab actions
           if (_selectedIndex == 0) ...[
+            // Token balance (REVISED Revenue Model)
+            const TokenBalanceIcon(),
             provider.Consumer<AuctionProvider>(
               builder: (context, auctionProvider, child) {
                 return PopupMenuButton<SortBy>(

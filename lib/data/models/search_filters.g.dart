@@ -455,6 +455,12 @@ const _$RegistrationStatusEnumMap = {
   RegistrationStatus.current: 'current',
   RegistrationStatus.expiringSoon: 'expiring_soon',
   RegistrationStatus.expired: 'expired',
+  RegistrationStatus.forRenewal: 'for_renewal',
+  RegistrationStatus.pendingRenewal: 'pending_renewal',
+  RegistrationStatus.delinquent: 'delinquent',
+  RegistrationStatus.underAlarm: 'under_alarm',
+  RegistrationStatus.carnapped: 'carnapped',
+  RegistrationStatus.other: 'other',
 };
 
 const _$SortByEnumMap = {

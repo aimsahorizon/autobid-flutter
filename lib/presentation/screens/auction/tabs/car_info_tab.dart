@@ -120,7 +120,6 @@ class CarInfoTab extends StatelessWidget {
                 _buildInfoRow('Accident History', auction.car!.hasAccidentHistory ? 'Yes' : 'No'),
                 _buildInfoRow('Flood Damage', auction.car!.floodDamage ? 'Yes' : 'No'),
                 _buildInfoRow('Service History', auction.car!.serviceHistoryComplete ? 'Complete' : 'Incomplete'),
-                _buildInfoRow('Warranty Remaining', auction.car!.warrantyRemaining ? 'Yes' : 'No'),
                 if (auction.car!.registrationExpiry != null)
                   _buildInfoRow('Registration Expiry', _formatDate(auction.car!.registrationExpiry!)),
               ],

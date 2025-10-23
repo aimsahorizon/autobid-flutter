@@ -125,7 +125,6 @@ class Step5AutofillHelper {
         CarListingAutofillData.serviceHistoryComplete);
     provider.setHasAccidentHistory(CarListingAutofillData.hasAccidentHistory);
     provider.setFloodDamage(CarListingAutofillData.floodDamage);
-    provider.setWarrantyRemaining(CarListingAutofillData.warrantyRemaining);
 
     _showSuccessSnackbar(context);
   }

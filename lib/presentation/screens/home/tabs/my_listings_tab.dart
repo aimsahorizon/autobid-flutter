@@ -1,28 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' as provider_pkg;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../../../data/models/car_model.dart';
 import '../../../../data/models/auction_model.dart';
 import '../../../../data/models/pre_transaction_model.dart';
+import '../../../../data/models/subscription_tier.dart';
 import '../../../../data/services/mock/mock_pre_transaction_service.dart';
 import '../../../../data/services/mock/mock_auction_service.dart';
 import '../../../../core/utils/listing_status_extensions.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../providers/listing_provider.dart';
+import '../../../providers/auth_provider.dart';
+import '../../../providers/subscription_provider.dart';
 import '../../../widgets/car_card.dart';
 import '../../../widgets/auction_card.dart';
 import 'my_listings_tab_kyc_modal.dart';
 
-class MyListingsTab extends StatefulWidget {
+class MyListingsTab extends ConsumerStatefulWidget {
   final bool isGridView;
 
   const MyListingsTab({super.key, required this.isGridView});
 
   @override
-  State<MyListingsTab> createState() => _MyListingsTabState();
+  ConsumerState<MyListingsTab> createState() => _MyListingsTabState();
 }
 
-class _MyListingsTabState extends State<MyListingsTab>
+class _MyListingsTabState extends ConsumerState<MyListingsTab>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
@@ -46,10 +51,14 @@ class _MyListingsTabState extends State<MyListingsTab>
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<ListingProvider>();
+    final provider = provider_pkg.Provider.of<ListingProvider>(context);
+    final currentUser = ref.watch(currentUserProvider);
 
     return Column(
       children: [
+        // REVISED Revenue Model: Quota Usage Display
+        if (currentUser != null) _buildQuotaDisplay(currentUser),
+
         // Tab bar
         TabBar(
           controller: _tabController,
@@ -1507,6 +1516,160 @@ class _MyListingsTabState extends State<MyListingsTab>
             '/preTransaction/$auctionId?carTitle=${Uri.encodeComponent(carTitle)}&winningBid=$winningBid&isSeller=true',
           );
         },
+      ),
+    );
+  }
+
+  // REVISED Revenue Model: Quota usage display
+  Widget _buildQuotaDisplay(dynamic user) {
+    final tier = user.subscriptionTier.config;
+    final used = user.listingsUsedThisMonth;
+    final quota = tier.maxListingsPerMonth;
+    final remaining = ref.read(remainingListingQuotaProvider(user));
+    final resetDate = user.listingQuotaResetDate;
+
+    // Determine color based on remaining quota
+    Color getBgColor() {
+      if (remaining == 0) return Colors.red.shade50;
+      if (remaining <= quota * 0.3) return Colors.orange.shade50;
+      return Colors.green.shade50;
+    }
+
+    Color getBorderColor() {
+      if (remaining == 0) return Colors.red.shade200;
+      if (remaining <= quota * 0.3) return Colors.orange.shade200;
+      return Colors.green.shade200;
+    }
+
+    Color getTextColor() {
+      if (remaining == 0) return Colors.red.shade900;
+      if (remaining <= quota * 0.3) return Colors.orange.shade900;
+      return Colors.green.shade900;
+    }
+
+    Color getIconColor() {
+      if (remaining == 0) return Colors.red.shade700;
+      if (remaining <= quota * 0.3) return Colors.orange.shade700;
+      return Colors.green.shade700;
+    }
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: getBgColor(),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: getBorderColor()),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.8),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              Icons.list_alt,
+              color: getIconColor(),
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Listing Quota',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: getTextColor().withOpacity(0.7),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      '$used',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: getTextColor(),
+                        height: 1,
+                      ),
+                    ),
+                    Text(
+                      ' / $quota',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: getTextColor().withOpacity(0.6),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'used this month',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: getTextColor().withOpacity(0.7),
+                      ),
+                    ),
+                  ],
+                ),
+                if (resetDate != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    'Resets ${DateFormat('MMM dd, yyyy').format(resetDate)}',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: getTextColor().withOpacity(0.6),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          if (remaining == 0 && user.subscriptionTier == SubscriptionTierType.free) ...[
+            Column(
+              children: [
+                const Icon(
+                  Icons.warning_rounded,
+                  color: Colors.red,
+                  size: 20,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '₱199/extra',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red.shade900,
+                  ),
+                ),
+              ],
+            ),
+          ] else if (remaining > 0) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                '$remaining left',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: getIconColor(),
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

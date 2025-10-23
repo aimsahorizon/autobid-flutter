@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' as provider_pkg;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auction_provider.dart';
-// import '../../providers/bid_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../../data/models/auction_model.dart';
 import '../../../data/models/auto_bid_config.dart';
 import '../../../data/models/car_model.dart';
+import '../../../data/models/subscription_tier.dart';
 import 'widgets/detailed_countdown_timer.dart';
 import 'widgets/current_bid_card.dart';
 import 'widgets/bid_input_widget.dart';
@@ -14,7 +16,7 @@ import 'widgets/categorized_image_gallery.dart';
 import 'tabs/bid_history_tab.dart';
 import 'tabs/car_info_tab.dart';
 
-class AuctionDetailScreen extends StatefulWidget {
+class AuctionDetailScreen extends ConsumerStatefulWidget {
   final String auctionId;
   final bool isSeller;
   final bool isCarId;
@@ -27,10 +29,10 @@ class AuctionDetailScreen extends StatefulWidget {
   });
 
   @override
-  State<AuctionDetailScreen> createState() => _AuctionDetailScreenState();
+  ConsumerState<AuctionDetailScreen> createState() => _AuctionDetailScreenState();
 }
 
-class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTickerProviderStateMixin {
+class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -39,7 +41,7 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
     _tabController = TabController(length: 2, vsync: this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AuctionProvider>().loadAuctionDetail(
+      provider_pkg.Provider.of<AuctionProvider>(context, listen: false).loadAuctionDetail(
         widget.auctionId,
         isCarId: widget.isCarId,
       );
@@ -55,7 +57,7 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer<AuctionProvider>(
+      body: provider_pkg.Consumer<AuctionProvider>(
         builder: (context, provider, child) {
           final auction = provider.selectedAuction;
 
@@ -148,6 +150,32 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
                             categorizedImages: auction.car!.getCategorizedImages(),
                           ),
                         if (auction.status == AuctionStatus.live && !widget.isSeller) ...[
+                          const SizedBox(height: 12),
+                          // Token Cost Info (REVISED Revenue Model)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.green[50],
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.green[200]!),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.generating_tokens_rounded, color: Colors.green[700], size: 20),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Each bid costs 1 token',
+                                    style: TextStyle(
+                                      color: Colors.green[900],
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                           const SizedBox(height: 12),
                           BidInputWidget(
                             auction: auction,
@@ -266,7 +294,7 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
           color = Colors.grey;
           break;
         case AuctionStatus.sold:
-          final isWinner = auction.topBidderId == context.read<AuctionProvider>().currentUserId;
+          final isWinner = auction.topBidderId == provider_pkg.Provider.of<AuctionProvider>(context, listen: false).currentUserId;
           text = isWinner ? '🎉 You Won!' : 'Sold';
           color = isWinner ? Colors.green : Colors.grey;
           break;
@@ -299,6 +327,20 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
   }
 
   void _showAutoBidDialog(BuildContext context, Auction auction, AuctionProvider provider) {
+    // REVISED Revenue Model: Check AutoBid feature access (Pro Basic/Plus only)
+    final currentUser = ref.read(currentUserProvider);
+    if (currentUser == null) return;
+
+    final tier = currentUser.subscriptionTier;
+    final hasAutoBid = currentUser.subscriptionTier.config.hasAutoBid;
+
+    if (!hasAutoBid || tier == SubscriptionTierType.free) {
+      // Show upgrade dialog for Free tier users
+      _showAutoBidUpgradeDialog();
+      return;
+    }
+
+    // User has access to AutoBid
     final existingConfig = provider.getAutoBidConfig(auction.id);
 
     showModalBottomSheet(
@@ -330,6 +372,120 @@ class _AuctionDetailScreenState extends State<AuctionDetailScreen> with SingleTi
         }
       }
     });
+  }
+
+  // REVISED Revenue Model: AutoBid feature upgrade dialog
+  void _showAutoBidUpgradeDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.blue.shade50,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.auto_mode,
+            size: 48,
+            color: Colors.blue.shade700,
+          ),
+        ),
+        title: const Text('AutoBid is a Pro Feature'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'AutoBid automatically places bids for you based on your preferences, so you never miss an auction!',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.green.shade600, Colors.green.shade400],
+                ),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.workspace_premium, color: Colors.white, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Included in Pro Plans',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  _buildProFeature('Pro Basic - ₱199/month', '100 bid tokens + AutoBid'),
+                  const SizedBox(height: 8),
+                  _buildProFeature('Pro Plus - ₱499/month', 'Unlimited tokens + AutoBid'),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Maybe Later'),
+          ),
+          FilledButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+              // TODO: Navigate to subscription upgrade screen
+              // context.push('/subscription/upgrade');
+            },
+            icon: const Icon(Icons.upgrade),
+            label: const Text('Upgrade Now'),
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.green,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProFeature(String title, String subtitle) {
+    return Row(
+      children: [
+        Icon(Icons.check_circle, color: Colors.white, size: 18),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.9),
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   String _formatCurrency(double amount) {

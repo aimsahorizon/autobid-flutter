@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' as provider_pkg;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/car_features.dart';
 import '../../../../core/utils/enum_extensions.dart';
+import '../../../../data/models/subscription_tier.dart';
 import '../../../providers/listing_provider.dart';
+import '../../../providers/auth_provider.dart';
+import '../../../providers/subscription_provider.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/save_draft_button.dart';
+import '../../../widgets/token_top_up_sheet.dart';
 import 'create_listing_step_mixin.dart';
 
-class CreateListingStep9Summary extends StatefulWidget {
+class CreateListingStep9Summary extends ConsumerStatefulWidget {
   const CreateListingStep9Summary({super.key});
 
   @override
-  State<CreateListingStep9Summary> createState() =>
+  ConsumerState<CreateListingStep9Summary> createState() =>
       _CreateListingStep9SummaryState();
 }
 
-class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> with CreateListingMixin {
+class _CreateListingStep9SummaryState extends ConsumerState<CreateListingStep9Summary> with CreateListingMixin {
   @override
   void initState() {
     super.initState();
@@ -27,7 +32,7 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> w
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<ListingProvider>();
+    final provider = provider_pkg.Provider.of<ListingProvider>(context);
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final dateFormat = DateFormat('MMM dd, yyyy');
 
@@ -196,7 +201,6 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> w
               _buildInfoRow('Taxi/Rental/Fleet Use', provider.commercialUse ? 'Yes' : 'No'),
               _buildInfoRow('Smoker Vehicle', provider.smokerVehicle ? 'Yes' : 'No'),
               _buildInfoRow('Complete Service History', provider.serviceHistoryComplete ? 'Yes' : 'No'),
-              _buildInfoRow('Warranty Remaining', provider.warrantyRemaining ? 'Yes' : 'No'),
               if (provider.registrationExpiry != null) ...[
                 _buildInfoRow('Registration Expiry', dateFormat.format(provider.registrationExpiry!)),
               ],
@@ -401,6 +405,42 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> w
   }
 
   Future<void> _submitListing(BuildContext context, ListingProvider provider) async {
+    // REVISED Revenue Model: Check listing quota
+    final currentUser = ref.read(currentUserProvider);
+    if (currentUser == null) {
+      _showErrorDialog('Please log in to create a listing');
+      return;
+    }
+
+    // Check if quota needs reset (rolling 30-day)
+    final subscriptionActions = ref.read(subscriptionActionsProvider.notifier);
+    if (ref.read(needsQuotaResetProvider(currentUser))) {
+      await subscriptionActions.resetListingQuota(userId: currentUser.id);
+    }
+
+    // Get remaining quota after potential reset
+    final remainingQuota = ref.read(remainingListingQuotaProvider(currentUser));
+    final tier = currentUser.subscriptionTier.config;
+
+    if (remainingQuota <= 0) {
+      // Quota exceeded
+      if (currentUser.subscriptionTier == SubscriptionTierType.free) {
+        // Free tier - show payment dialog for ₱199 extra listing
+        final shouldProceed = await _showExtraListingPaymentDialog();
+        if (!shouldProceed) return;
+
+        // Process payment (mock)
+        await _processExtraListingPayment(currentUser.id);
+      } else {
+        // Pro tiers should not run out of quota
+        _showErrorDialog(
+          'You have reached your monthly listing limit (${tier.maxListingsPerMonth} listings). '
+          'Your quota will reset on ${_getQuotaResetDate(currentUser)}.'
+        );
+        return;
+      }
+    }
+
     // Show loading dialog
     showDialog(
       context: context,
@@ -425,10 +465,13 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> w
     try {
       // Create the listing with pendingReview status
       final listing = await provider.createListing(
-        'mock-user-id', // TODO: Get from auth
-        'Mock User', // TODO: Get from auth
+        currentUser.id,
+        currentUser.fullName,
         isDraft: false,
       );
+
+      // Increment listingsUsedThisMonth
+      await subscriptionActions.incrementListingUsage(userId: currentUser.id);
 
       if (!context.mounted) return;
 
@@ -636,5 +679,167 @@ class _CreateListingStep9SummaryState extends State<CreateListingStep9Summary> w
         ],
       ),
     );
+  }
+
+  // REVISED Revenue Model: Extra listing payment dialog
+  Future<bool> _showExtraListingPaymentDialog() async {
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        icon: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.orange.shade50,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.post_add,
+            size: 48,
+            color: Colors.orange.shade700,
+          ),
+        ),
+        title: const Text('Extra Listing Quota'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'You have used your monthly free listing quota.',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.green.shade200),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    'Additional Listing Fee',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green.shade900,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '₱199',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green.shade700,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'per extra listing',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.green.shade700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.blue.shade200),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.lightbulb_outline,
+                          size: 16, color: Colors.blue.shade700),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Tip: Upgrade to Pro',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue.shade900,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    '• Pro Basic: 3 listings/month (₱199/mo)\n'
+                    '• Pro Plus: 10 listings/month (₱499/mo)',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.blue.shade900,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton.icon(
+            onPressed: () => Navigator.pop(context, true),
+            icon: const Icon(Icons.payment),
+            label: const Text('Pay ₱199'),
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.green,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    return result ?? false;
+  }
+
+  // REVISED Revenue Model: Process extra listing payment
+  Future<void> _processExtraListingPayment(String userId) async {
+    // TODO: Integrate with actual payment gateway
+    // For now, simulate payment delay
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    // In production:
+    // 1. Redirect to payment gateway
+    // 2. Wait for payment confirmation
+    // 3. Record transaction
+    // 4. Grant extra listing quota
+  }
+
+  // Helper: Show error dialog
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.error_outline, size: 48, color: Colors.red),
+        title: const Text('Cannot Create Listing'),
+        content: Text(message),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Helper: Get quota reset date formatted
+  String _getQuotaResetDate(dynamic user) {
+    final resetDate = user.listingQuotaResetDate;
+    if (resetDate == null) return 'N/A';
+    return DateFormat('MMM dd, yyyy').format(resetDate);
   }
 }

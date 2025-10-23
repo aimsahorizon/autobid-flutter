@@ -59,7 +59,9 @@
       "Bash(ls:*)",
       "Bash(powershell -Command \"Select-String ''''issues? found''''\")",
       "Bash(powershell -Command \"Get-Content ''lib\\data\\models\\bidding_deposit.freezed.dart'' | Select-String -Pattern ''class _BiddingDeposit'' -Context 0,10\")",
-      "Bash(powershell -Command \"$input | Measure-Object -Line\")"
+      "Bash(powershell -Command \"$input | Measure-Object -Line\")",
+      "Bash(powershell -Command \"Get-Content ''lib/data/services/mock/mock_car_service.dart'' | Measure-Object -Line\")",
+      "Bash(powershell -Command:*)"
     ],
     "deny": [],
     "ask": []

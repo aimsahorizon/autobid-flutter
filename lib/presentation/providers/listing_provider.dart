@@ -64,7 +64,6 @@ class ListingProvider extends ChangeNotifier {
   bool _commercialUse = false;
   bool _smokerVehicle = false;
   bool _serviceHistoryComplete = false;
-  bool _warrantyRemaining = false;
   DateTime? _registrationExpiry;
 
   // CUSTOM CONDITION ATTRIBUTES
@@ -86,6 +85,7 @@ class ListingProvider extends ChangeNotifier {
   String? _plateNumber;
   String? _orcrNumber;
   RegistrationStatus _registrationStatus = RegistrationStatus.current;
+  String? _registrationStatusOther;
   bool _emissionTestValid = true;
   bool _comprehensiveInsurance = false;
 
@@ -203,7 +203,6 @@ class ListingProvider extends ChangeNotifier {
   bool get commercialUse => _commercialUse;
   bool get smokerVehicle => _smokerVehicle;
   bool get serviceHistoryComplete => _serviceHistoryComplete;
-  bool get warrantyRemaining => _warrantyRemaining;
   DateTime? get registrationExpiry => _registrationExpiry;
   Map<String, bool> get customConditionAttributes => _customConditionAttributes;
   List<Map<String, dynamic>> get customConditionAttributesList => _customConditionAttributesList;
@@ -218,6 +217,7 @@ class ListingProvider extends ChangeNotifier {
   String? get plateNumber => _plateNumber;
   String? get orcrNumber => _orcrNumber;
   RegistrationStatus get registrationStatus => _registrationStatus;
+  String? get registrationStatusOther => _registrationStatusOther;
   bool get emissionTestValid => _emissionTestValid;
   bool get comprehensiveInsurance => _comprehensiveInsurance;
 
@@ -457,11 +457,6 @@ class ListingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setWarrantyRemaining(bool value) {
-    _warrantyRemaining = value;
-    notifyListeners();
-  }
-
   void setRegistrationExpiry(DateTime? value) {
     _registrationExpiry = value;
     notifyListeners();
@@ -479,6 +474,15 @@ class ListingProvider extends ChangeNotifier {
 
   void setRegistrationStatus(RegistrationStatus value) {
     _registrationStatus = value;
+    // Clear the other field if not "other"
+    if (value != RegistrationStatus.other) {
+      _registrationStatusOther = null;
+    }
+    notifyListeners();
+  }
+
+  void setRegistrationStatusOther(String? value) {
+    _registrationStatusOther = value;
     notifyListeners();
   }
 
@@ -944,7 +948,6 @@ class ListingProvider extends ChangeNotifier {
       commercialUse: _commercialUse,
       smokerVehicle: _smokerVehicle,
       serviceHistoryComplete: _serviceHistoryComplete,
-      warrantyRemaining: _warrantyRemaining,
       registrationExpiry: _registrationExpiry,
       // LOCATION & AVAILABILITY - Use defaults for drafts if null
       location: CarLocation(
@@ -957,6 +960,7 @@ class ListingProvider extends ChangeNotifier {
       plateNumber: _plateNumber ?? 'TBD',
       orcrNumber: _orcrNumber ?? 'TBD',
       registrationStatus: _registrationStatus,
+      registrationStatusOther: _registrationStatusOther,
       emissionTestValid: _emissionTestValid,
       comprehensiveInsurance: _comprehensiveInsurance,
       // SELLER PREFERENCES
@@ -1064,7 +1068,6 @@ class ListingProvider extends ChangeNotifier {
     _commercialUse = car.commercialUse;
     _smokerVehicle = car.smokerVehicle;
     _serviceHistoryComplete = car.serviceHistoryComplete;
-    _warrantyRemaining = car.warrantyRemaining;
     _registrationExpiry = car.registrationExpiry;
     // LOCATION & AVAILABILITY
     _city = car.location.city;
@@ -1075,6 +1078,7 @@ class ListingProvider extends ChangeNotifier {
     _plateNumber = car.plateNumber;
     _orcrNumber = car.orcrNumber;
     _registrationStatus = car.registrationStatus;
+    _registrationStatusOther = car.registrationStatusOther;
     _emissionTestValid = car.emissionTestValid;
     _comprehensiveInsurance = car.comprehensiveInsurance;
     // SELLER PREFERENCES
@@ -1163,7 +1167,6 @@ class ListingProvider extends ChangeNotifier {
     _commercialUse = false;
     _smokerVehicle = false;
     _serviceHistoryComplete = false;
-    _warrantyRemaining = false;
     _registrationExpiry = null;
     _customConditionAttributes = {};
     _customConditionAttributesList = [];
@@ -1176,6 +1179,7 @@ class ListingProvider extends ChangeNotifier {
     _plateNumber = null;
     _orcrNumber = null;
     _registrationStatus = RegistrationStatus.current;
+    _registrationStatusOther = null;
     _emissionTestValid = true;
     _comprehensiveInsurance = false;
     // SELLER PREFERENCES

@@ -59,6 +59,14 @@ _Transaction _$TransactionFromJson(Map<String, dynamic> json) => _Transaction(
   transactionFee: (json['transactionFee'] as num?)?.toDouble() ?? 0.0,
   priceTier: $enumDecodeNullable(_$PriceTierEnumMap, json['priceTier']),
   sellerPayout: (json['sellerPayout'] as num?)?.toDouble() ?? 0.0,
+  buyersPremium: (json['buyersPremium'] as num?)?.toDouble() ?? 0.0,
+  buyersPremiumRate: (json['buyersPremiumRate'] as num?)?.toDouble() ?? 0.035,
+  buyerTier:
+      $enumDecodeNullable(_$SubscriptionTierTypeEnumMap, json['buyerTier']) ??
+      SubscriptionTierType.free,
+  depositCredited: (json['depositCredited'] as num?)?.toDouble() ?? 0.0,
+  depositRefunded: (json['depositRefunded'] as num?)?.toDouble() ?? 0.0,
+  buyerTotalDue: (json['buyerTotalDue'] as num?)?.toDouble() ?? 0.0,
 );
 
 Map<String, dynamic> _$TransactionToJson(
@@ -95,6 +103,12 @@ Map<String, dynamic> _$TransactionToJson(
   'transactionFee': instance.transactionFee,
   'priceTier': _$PriceTierEnumMap[instance.priceTier],
   'sellerPayout': instance.sellerPayout,
+  'buyersPremium': instance.buyersPremium,
+  'buyersPremiumRate': instance.buyersPremiumRate,
+  'buyerTier': _$SubscriptionTierTypeEnumMap[instance.buyerTier]!,
+  'depositCredited': instance.depositCredited,
+  'depositRefunded': instance.depositRefunded,
+  'buyerTotalDue': instance.buyerTotalDue,
 };
 
 const _$EscrowStatusEnumMap = {
@@ -119,4 +133,10 @@ const _$PriceTierEnumMap = {
   PriceTier.economy: 'economy',
   PriceTier.midRange: 'midRange',
   PriceTier.premium: 'premium',
+};
+
+const _$SubscriptionTierTypeEnumMap = {
+  SubscriptionTierType.free: 'free',
+  SubscriptionTierType.proBasic: 'proBasic',
+  SubscriptionTierType.proPlus: 'proPlus',
 };

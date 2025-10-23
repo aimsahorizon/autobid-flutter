@@ -360,4 +360,26 @@ abstract class SearchFilters with _$SearchFilters {
     if (hasEnginePhotos) count++;
     return count;
   }
+
+  get groundClearanceMax => null;
+
+  get cargoCapacityMax => null;
+
+  get numberOfOwnersMax => null;
+
+  get hasAccidentHistory => null;
+
+  get floodDamage => null;
+
+  get serviceHistoryComplete => null;
+
+  get warrantyRemaining => null;
+
+  get cities => null;
+
+  get availableForTestDrive => null;
+
+  get priceNegotiable => null;
+
+  get statuses => null;
 }

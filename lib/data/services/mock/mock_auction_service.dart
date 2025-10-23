@@ -501,7 +501,6 @@ class MockAuctionService implements AuctionRepository {
         hasAccidentHistory: data['hasAccidentHistory'] as bool,
         floodDamage: data['floodDamage'] as bool,
         serviceHistoryComplete: i % 2 == 0,
-        warrantyRemaining: i % 3 == 0,
         plateNumber: 'ABC${1000 + i}',
         orcrNumber: 'ORCR${1000 + i}',
         registrationStatus: RegistrationStatus.current,

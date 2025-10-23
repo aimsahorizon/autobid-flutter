@@ -61,6 +61,13 @@ class _CreateListingStep5ConditionState
   Map<String, List<VehicleConditionAttribute>> _groupedAttributes = {};
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // UNIT SYSTEM STATE
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Mileage unit (km or mi)
+  String _mileageUnit = 'km';
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // LIFECYCLE: INIT & DISPOSE
   // ═══════════════════════════════════════════════════════════════════════════
 
@@ -175,8 +182,6 @@ class _CreateListingStep5ConditionState
         return provider.commercialUse;
       case 'smokerVehicle':
         return provider.smokerVehicle;
-      case 'warrantyRemaining':
-        return provider.warrantyRemaining;
       default:
         // Custom attributes: check customConditionAttributes map
         return provider.customConditionAttributes[attributeId] ?? false;
@@ -222,9 +227,6 @@ class _CreateListingStep5ConditionState
       case 'smokerVehicle':
         provider.setSmokerVehicle(value);
         break;
-      case 'warrantyRemaining':
-        provider.setWarrantyRemaining(value);
-        break;
       default:
         // Custom attributes: store in customConditionAttributes map
         provider.setCustomConditionAttribute(attributeId, value);
@@ -259,6 +261,43 @@ class _CreateListingStep5ConditionState
   /// Autofill helper for dev mode
   void _autofillForm() {
     Step5AutofillHelper.autofill(context, _mileageController);
+  }
+
+  /// Convert km to mi
+  double _kmToMi(double km) => km * 0.621371;
+
+  /// Convert mi to km
+  double _miToKm(double mi) => mi * 1.60934;
+
+  /// Toggle mileage unit and convert value
+  void _toggleMileageUnit(String newUnit) {
+    if (_mileageUnit == newUnit || _mileageController.text.isEmpty) {
+      setState(() {
+        _mileageUnit = newUnit;
+      });
+      return;
+    }
+
+    final currentValue = double.tryParse(_mileageController.text);
+    if (currentValue != null) {
+      final convertedValue = newUnit == 'mi'
+          ? _kmToMi(currentValue)
+          : _miToKm(currentValue);
+
+      setState(() {
+        _mileageUnit = newUnit;
+        _mileageController.text = convertedValue.round().toString();
+      });
+
+      // Update provider with value in km (always store in km)
+      final provider = context.read<ListingProvider>();
+      final valueInKm = newUnit == 'km' ? convertedValue : _miToKm(convertedValue);
+      provider.setMileage(valueInKm.round());
+    } else {
+      setState(() {
+        _mileageUnit = newUnit;
+      });
+    }
   }
 
   /// Handles "Next" button press
@@ -518,16 +557,53 @@ class _CreateListingStep5ConditionState
             const SizedBox(height: 24),
 
             // ═══════════════════════════════════════════════════════════════
-            // MILEAGE & OWNERS (UNCHANGED)
+            // MILEAGE & OWNERS
             // ═══════════════════════════════════════════════════════════════
+            // Mileage Unit Toggle
+            Row(
+              children: [
+                Text(
+                  'Mileage Unit',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                const SizedBox(width: 12),
+                SegmentedButton<String>(
+                  segments: const [
+                    ButtonSegment(value: 'km', label: Text('km')),
+                    ButtonSegment(value: 'mi', label: Text('mi')),
+                  ],
+                  selected: {_mileageUnit},
+                  onSelectionChanged: (Set<String> selection) {
+                    _toggleMileageUnit(selection.first);
+                  },
+                  style: ButtonStyle(
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
             CustomTextField(
               controller: _mileageController,
-              labelText: 'Mileage (km) *',
+              labelText: 'Mileage ($_mileageUnit) *',
               hintText: 'Enter current mileage',
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              suffixText: 'km',
-              onChanged: (value) => provider.setMileage(int.tryParse(value)),
+              suffixText: _mileageUnit,
+              onChanged: (value) {
+                final mileageValue = int.tryParse(value);
+                if (mileageValue != null) {
+                  // Convert to km if currently in mi
+                  final valueInKm = _mileageUnit == 'km'
+                      ? mileageValue
+                      : _miToKm(mileageValue.toDouble()).round();
+                  provider.setMileage(valueInKm);
+                }
+              },
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter mileage';

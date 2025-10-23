@@ -46,7 +46,7 @@
 // Min: ₱3,000 | Max: ₱60,000
 // Round up to nearest ₱10
 // Tier discounts:
-//   - Free: 0% discount → 3.5% rate
+//   - Free: 0% discount → 3.5 rate
 //   - Pro Basic: 0.5% discount → 3.0% rate
 //   - Pro Plus: 1.0% discount → 2.5% rate
 ```

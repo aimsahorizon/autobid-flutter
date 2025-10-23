@@ -151,6 +151,25 @@ class _CreateListingStep6DocumentationState
             ),
             const SizedBox(height: 16),
 
+            // Show text field if "Other" is selected
+            if (provider.registrationStatus == RegistrationStatus.other) ...[
+              CustomTextField(
+                labelText: 'Specify Registration Status *',
+                hintText: 'Please specify the registration status',
+                initialValue: provider.registrationStatusOther,
+                onChanged: (value) => provider.setRegistrationStatusOther(value),
+                validator: (value) {
+                  if (provider.registrationStatus == RegistrationStatus.other &&
+                      (value?.isEmpty ?? true)) {
+                    return 'Please specify registration status';
+                  }
+                  return null;
+                },
+                maxLines: 2,
+              ),
+              const SizedBox(height: 16),
+            ],
+
             DatePickerField(
               labelText: 'Registration Expiry',
               selectedDate: provider.registrationExpiry,
