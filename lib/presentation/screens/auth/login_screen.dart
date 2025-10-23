@@ -86,11 +86,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         return;
       }
 
-      // Sign out temporarily - OTP verification required
+      // Check account status before proceeding with OTP
+      // For pending/rejected accounts, show status dialog immediately
+      if (user.accountStatus == AccountStatus.pending) {
+        _showPendingStatusDialog();
+        return;
+      }
+
+      if (user.accountStatus == AccountStatus.rejected) {
+        _showRejectedStatusDialog(user.rejectionReason);
+        return;
+      }
+
+      // Sign out temporarily - OTP verification required for verified/guest accounts
       await authService.signOut();
       if (!mounted) return;
 
-      // Step 2: Request OTPs
+      // Step 2: Request OTPs (only for verified/guest accounts)
       final emailOtpResult = await authService.requestLoginOtp(user.email);
       if (!emailOtpResult.success) {
         _showError(emailOtpResult.errorMessage ?? 'Failed to send email OTP');
@@ -159,25 +171,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         // Small delay for user to see success message
         await Future.delayed(const Duration(milliseconds: 500));
         if (mounted) {
-          // Check account status and show appropriate dialog
-          final user = loginResult.user;
-          if (user != null) {
-            switch (user.accountStatus) {
-              case AccountStatus.pending:
-                _showPendingStatusDialog();
-                break;
-              case AccountStatus.rejected:
-                _showRejectedStatusDialog(user.rejectionReason);
-                break;
-              case AccountStatus.verified:
-              case AccountStatus.guest:
-              default:
-                context.go('/home');
-                break;
-            }
-          } else {
-            context.go('/home');
-          }
+          // Navigate to home (account status already checked before OTP)
+          context.go('/home');
         }
       } else {
         _showError(loginResult.errorMessage ?? 'Login failed');
@@ -423,7 +418,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Enter credentials and verify with OTP',
+                  'Sign in to your AutoBID account',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 24),

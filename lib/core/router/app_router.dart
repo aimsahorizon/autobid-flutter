@@ -42,6 +42,7 @@ import '../../presentation/screens/browse/car_detail_screen.dart';
 import '../../presentation/screens/auction/auction_detail_screen.dart';
 import '../../presentation/screens/seller/seller_auction_detail_screen.dart';
 import '../../presentation/screens/payment/payment_screen.dart';
+import '../../presentation/screens/deposit/deposit_payment_screen.dart';
 import '../../presentation/screens/payment/transactions_screen.dart';
 import '../../presentation/screens/transaction/transaction_detail_screen.dart';
 import '../../presentation/screens/transaction/submit_transfer_evidence_screen.dart';
@@ -378,6 +379,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             winningBid: winningBid,
           );
         },
+      ),
+      GoRoute(
+        path: '/deposit/payment',
+        name: 'deposit-payment',
+        builder: (context, state) => const DepositPaymentScreen(),
       ),
       GoRoute(
         path: '/transaction/:id',

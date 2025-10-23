@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart' as provider_pkg;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/auction_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/deposit_provider.dart';
 import '../../../data/models/auction_model.dart';
 import '../../../data/models/auto_bid_config.dart';
 import '../../../data/models/car_model.dart';
@@ -13,6 +15,7 @@ import 'widgets/bid_input_widget.dart';
 import 'widgets/auto_bid_dialog.dart';
 import 'widgets/car_image_gallery.dart';
 import 'widgets/categorized_image_gallery.dart';
+import 'widgets/deposit_lock_card.dart';
 import 'tabs/bid_history_tab.dart';
 import 'tabs/car_info_tab.dart';
 
@@ -96,11 +99,14 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> with 
                     background: Stack(
                       fit: StackFit.expand,
                       children: [
-                        // Use CarImageGallery widget
-                        CarImageGallery(
-                          images: auction.car?.images ?? [],
-                          height: 380,
-                          showThumbnails: true,
+                        // Single car image
+                        Image.asset(
+                          auction.car?.images.isNotEmpty == true
+                              ? auction.car!.images.first
+                              : 'assets/images/placeholder.jpg',
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(color: Colors.grey[300]),
                         ),
                         Positioned(
                           bottom: 16,
@@ -151,71 +157,105 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> with 
                           ),
                         if (auction.status == AuctionStatus.live && !widget.isSeller) ...[
                           const SizedBox(height: 12),
-                          // Token Cost Info (REVISED Revenue Model)
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                            decoration: BoxDecoration(
-                              color: Colors.green[50],
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.green[200]!),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(Icons.generating_tokens_rounded, color: Colors.green[700], size: 20),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    'Each bid costs 1 token',
-                                    style: TextStyle(
-                                      color: Colors.green[900],
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          BidInputWidget(
-                            auction: auction,
-                            onBidPlaced: (amount) async {
-                              final success = await provider.placeBid(auction.id, amount);
-                              if (success && context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Bid placed successfully!')),
-                                );
+                          // Check deposit status
+                          Consumer(
+                            builder: (context, ref, child) {
+                              final currentUser = ref.watch(currentUserProvider);
+                              if (currentUser == null) {
+                                return const SizedBox();
                               }
+
+                              final hasDepositAsync = ref.watch(hasDepositProvider(currentUser.id));
+
+                              return hasDepositAsync.when(
+                                data: (hasDeposit) {
+                                  if (!hasDeposit) {
+                                    // Show locked state - deposit required
+                                    return DepositLockCard(
+                                      onPayDeposit: () {
+                                        context.push('/deposit/payment');
+                                      },
+                                    );
+                                  }
+
+                                  // User has paid deposit - show bidding UI
+                                  return Column(
+                                    children: [
+                                      // Token Cost Info (REVISED Revenue Model)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                        decoration: BoxDecoration(
+                                          color: Colors.green[50],
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(color: Colors.green[200]!),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.generating_tokens_rounded, color: Colors.green[700], size: 20),
+                                            const SizedBox(width: 12),
+                                            Expanded(
+                                              child: Text(
+                                                'Each bid costs 1 token',
+                                                style: TextStyle(
+                                                  color: Colors.green[900],
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      BidInputWidget(
+                                        auction: auction,
+                                        onBidPlaced: (amount) async {
+                                          final success = await provider.placeBid(auction.id, amount);
+                                          if (success && context.mounted) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text('Bid placed successfully!')),
+                                            );
+                                          }
+                                        },
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          if (auction.buyNowPrice != null)
+                                            Expanded(
+                                              child: OutlinedButton.icon(
+                                                onPressed: () {
+                                                  // Buy now functionality
+                                                },
+                                                icon: Icon(Icons.shopping_cart),
+                                                label: Text('Buy Now - ₱${_formatCurrency(auction.buyNowPrice!)}'),
+                                                style: OutlinedButton.styleFrom(
+                                                  padding: EdgeInsets.symmetric(vertical: 12),
+                                                ),
+                                              ),
+                                            ),
+                                          if (auction.buyNowPrice != null) const SizedBox(width: 8),
+                                          Expanded(
+                                            child: OutlinedButton.icon(
+                                              onPressed: () => _showAutoBidDialog(context, auction, provider),
+                                              icon: Icon(Icons.auto_mode),
+                                              label: Text('Auto-Bid'),
+                                              style: OutlinedButton.styleFrom(
+                                                padding: EdgeInsets.symmetric(vertical: 12),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  );
+                                },
+                                loading: () => const Center(child: CircularProgressIndicator()),
+                                error: (error, stack) => Center(
+                                  child: Text('Error checking deposit: $error'),
+                                ),
+                              );
                             },
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              if (auction.buyNowPrice != null)
-                                Expanded(
-                                  child: OutlinedButton.icon(
-                                    onPressed: () {
-                                      // Buy now functionality
-                                    },
-                                    icon: Icon(Icons.shopping_cart),
-                                    label: Text('Buy Now - ₱${_formatCurrency(auction.buyNowPrice!)}'),
-                                    style: OutlinedButton.styleFrom(
-                                      padding: EdgeInsets.symmetric(vertical: 12),
-                                    ),
-                                  ),
-                                ),
-                              if (auction.buyNowPrice != null) const SizedBox(width: 8),
-                              Expanded(
-                                child: OutlinedButton.icon(
-                                  onPressed: () => _showAutoBidDialog(context, auction, provider),
-                                  icon: Icon(Icons.auto_mode),
-                                  label: Text('Auto-Bid'),
-                                  style: OutlinedButton.styleFrom(
-                                    padding: EdgeInsets.symmetric(vertical: 12),
-                                  ),
-                                ),
-                              ),
-                            ],
                           ),
                         ],
                         if (widget.isSeller) ...[
@@ -326,11 +366,19 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> with 
     return SizedBox.shrink();
   }
 
-  void _showAutoBidDialog(BuildContext context, Auction auction, AuctionProvider provider) {
-    // REVISED Revenue Model: Check AutoBid feature access (Pro Basic/Plus only)
+  void _showAutoBidDialog(BuildContext context, Auction auction, AuctionProvider provider) async {
+    // Check deposit first
     final currentUser = ref.read(currentUserProvider);
     if (currentUser == null) return;
 
+    final hasDeposit = await ref.read(hasDepositProvider(currentUser.id).future);
+    if (!hasDeposit) {
+      // Show deposit required dialog
+      _showDepositRequiredDialog();
+      return;
+    }
+
+    // REVISED Revenue Model: Check AutoBid feature access (Pro Basic/Plus only)
     final tier = currentUser.subscriptionTier;
     final hasAutoBid = currentUser.subscriptionTier.config.hasAutoBid;
 
@@ -372,6 +420,76 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> with 
         }
       }
     });
+  }
+
+  // Deposit required dialog for AutoBid
+  void _showDepositRequiredDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.orange.shade50,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.lock_outline,
+            size: 48,
+            color: Colors.orange.shade700,
+          ),
+        ),
+        title: const Text('Deposit Required'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'You need to pay a ₱10,000 refundable deposit before using AutoBid.',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.check_circle, size: 16, color: Colors.green),
+                  const SizedBox(width: 8),
+                  Text(
+                    '100% Refundable',
+                    style: TextStyle(
+                      color: Colors.green.shade900,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+              context.push('/deposit/payment');
+            },
+            icon: const Icon(Icons.payment),
+            label: const Text('Pay Deposit'),
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.orange,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   // REVISED Revenue Model: AutoBid feature upgrade dialog

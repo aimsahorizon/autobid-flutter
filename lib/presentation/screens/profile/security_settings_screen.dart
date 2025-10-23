@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth_provider.dart';
-import '../auth/otp_verification_screen.dart';
+import 'security_change_dual_otp_screen.dart';
 
 class SecuritySettingsScreen extends ConsumerStatefulWidget {
   const SecuritySettingsScreen({super.key});
@@ -24,6 +24,10 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
   bool _obscureCurrentPassword = true;
   bool _obscureNewPassword = true;
   bool _obscureConfirmPassword = true;
+
+  bool _isPasswordLoading = false;
+  bool _isEmailLoading = false;
+  bool _isPhoneLoading = false;
 
   @override
   void dispose() {
@@ -52,55 +56,7 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
       return;
     }
 
-    final authService = ref.read(authServiceProvider);
-
-    // Step 1: Verify OTP sent to email
-    final emailOtpResult = await authService.requestLoginOtp(currentUser.email);
-    if (!emailOtpResult.success) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(emailOtpResult.errorMessage ?? 'Failed to send OTP to email'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    if (!mounted) return;
-
-    // Step 1.5: Verify email OTP
-    final emailVerified = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(
-        builder: (context) => OtpVerificationScreen(
-          identifier: currentUser.email,
-          title: 'Verify Your Email',
-          subtitle: 'Enter OTP sent to',
-          debugOtp: emailOtpResult.debugOtp,
-          onVerify: (otp) async {
-            final result = await authService.otpService.verifyOtp(
-              identifier: currentUser.email,
-              otp: otp,
-            );
-            if (!result.success) {
-              throw Exception(result.errorMessage ?? 'Invalid OTP');
-            }
-            if (context.mounted) {
-              Navigator.of(context).pop(true);
-            }
-          },
-          onResend: () async {
-            final result = await authService.requestLoginOtp(currentUser.email);
-            return result.success;
-          },
-        ),
-      ),
-    );
-
-    if (emailVerified != true || !mounted) return;
-
-    // Step 2: Verify OTP sent to phone number
-    if (currentUser.phoneNumber == null) {
+    if (currentUser.phoneNumber == null || currentUser.phoneNumber!.isEmpty) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -111,84 +67,118 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
       return;
     }
 
-    final phoneOtpResult = await authService.requestLoginOtp(currentUser.phoneNumber!);
-    if (!phoneOtpResult.success) {
+    setState(() => _isPasswordLoading = true);
+
+    final authService = ref.read(authServiceProvider);
+
+    try {
+      // Request OTPs for both email and phone
+      final emailOtpResult = await authService.requestLoginOtp(currentUser.email);
+      if (!emailOtpResult.success) {
+        throw Exception(emailOtpResult.errorMessage ?? 'Failed to send OTP to email');
+      }
+
+      final phoneOtpResult = await authService.requestLoginOtp(currentUser.phoneNumber!);
+      if (!phoneOtpResult.success) {
+        throw Exception(phoneOtpResult.errorMessage ?? 'Failed to send OTP to phone');
+      }
+
+      setState(() => _isPasswordLoading = false);
+
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(phoneOtpResult.errorMessage ?? 'Failed to send OTP to phone'),
-          backgroundColor: Colors.red,
+
+      // Navigate to dual OTP verification screen
+      final verified = await Navigator.of(context).push<bool>(
+        MaterialPageRoute(
+          builder: (context) => SecurityChangeDualOtpScreen(
+            step1Title: 'Verify Email',
+            step2Title: 'Verify Phone',
+            step1Subtitle: 'Enter the 6-digit code sent to your email',
+            step2Subtitle: 'Now enter the 6-digit code sent to your phone',
+            step1Identifier: currentUser.email,
+            step2Identifier: currentUser.phoneNumber!,
+            step1Label: 'Email',
+            step2Label: 'Phone',
+            debugStep1Otp: emailOtpResult.debugOtp,
+            debugStep2Otp: phoneOtpResult.debugOtp,
+            successMessage: 'Identity verified! Updating password...',
+            onVerifyStep1: (otp) async {
+              final result = await authService.otpService.verifyOtp(
+                identifier: currentUser.email,
+                otp: otp,
+              );
+              if (!result.success) {
+                throw Exception(result.errorMessage ?? 'Invalid email OTP');
+              }
+            },
+            onVerifyStep2: (otp) async {
+              final result = await authService.otpService.verifyOtp(
+                identifier: currentUser.phoneNumber!,
+                otp: otp,
+              );
+              if (!result.success) {
+                throw Exception(result.errorMessage ?? 'Invalid phone OTP');
+              }
+            },
+            onResendStep1: () async {
+              final result = await authService.requestLoginOtp(currentUser.email);
+              return result.success;
+            },
+            onResendStep2: () async {
+              final result = await authService.requestLoginOtp(currentUser.phoneNumber!);
+              return result.success;
+            },
+          ),
         ),
       );
-      return;
-    }
 
-    if (!mounted) return;
+      if (verified != true || !mounted) return;
 
-    // Step 2.5: Verify phone OTP
-    final phoneVerified = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(
-        builder: (context) => OtpVerificationScreen(
-          identifier: currentUser.phoneNumber!,
-          title: 'Verify Your Phone',
-          subtitle: 'Enter OTP sent to',
-          debugOtp: phoneOtpResult.debugOtp,
-          onVerify: (otp) async {
-            final result = await authService.otpService.verifyOtp(
-              identifier: currentUser.phoneNumber!,
-              otp: otp,
-            );
-            if (!result.success) {
-              throw Exception(result.errorMessage ?? 'Invalid OTP');
-            }
-            if (context.mounted) {
-              Navigator.of(context).pop(true);
-            }
-          },
-          onResend: () async {
-            final result = await authService.requestLoginOtp(currentUser.phoneNumber!);
-            return result.success;
-          },
-        ),
-      ),
-    );
+      // Now update the password
+      final changePasswordAction = ref.read(changePasswordActionProvider.notifier);
 
-    if (phoneVerified != true || !mounted) return;
+      await changePasswordAction.changePassword(
+        currentPassword: _currentPasswordController.text,
+        newPassword: _newPasswordController.text,
+      );
 
-    // Step 3: Now update the password
-    final changePasswordAction = ref.read(changePasswordActionProvider.notifier);
+      if (!mounted) return;
 
-    await changePasswordAction.changePassword(
-      currentPassword: _currentPasswordController.text,
-      newPassword: _newPasswordController.text,
-    );
+      final state = ref.read(changePasswordActionProvider);
 
-    if (!mounted) return;
-
-    final state = ref.read(changePasswordActionProvider);
-
-    state.when(
-      data: (_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Password changed successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        _currentPasswordController.clear();
-        _newPasswordController.clear();
-        _confirmPasswordController.clear();
-      },
-      loading: () {},
-      error: (error, _) {
+      state.when(
+        data: (_) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Password changed successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          _currentPasswordController.clear();
+          _newPasswordController.clear();
+          _confirmPasswordController.clear();
+        },
+        loading: () {},
+        error: (error, _) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error.toString()),
+              backgroundColor: Colors.red,
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      setState(() => _isPasswordLoading = false);
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(error.toString()),
+            content: Text(e.toString().replaceAll('Exception: ', '')),
             backgroundColor: Colors.red,
           ),
         );
-      },
-    );
+      }
+    }
   }
 
   Future<void> _changeEmail() async {
@@ -209,56 +199,7 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
       return;
     }
 
-    final authService = ref.read(authServiceProvider);
-
-    // Step 1: Request OTP for new email
-    final newEmailOtpResult = await authService.requestLoginOtp(newEmail);
-
-    if (!newEmailOtpResult.success) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(newEmailOtpResult.errorMessage ?? 'Failed to send OTP to new email'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    if (!mounted) return;
-
-    // Step 1.5: Verify new email OTP
-    final newEmailVerified = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(
-        builder: (context) => OtpVerificationScreen(
-          identifier: newEmail,
-          title: 'Verify New Email',
-          subtitle: 'Enter OTP sent to',
-          debugOtp: newEmailOtpResult.debugOtp,
-          onVerify: (otp) async {
-            final result = await authService.otpService.verifyOtp(
-              identifier: newEmail,
-              otp: otp,
-            );
-            if (!result.success) {
-              throw Exception(result.errorMessage ?? 'Invalid OTP');
-            }
-            if (context.mounted) {
-              Navigator.of(context).pop(true);
-            }
-          },
-          onResend: () async {
-            final result = await authService.requestLoginOtp(newEmail);
-            return result.success;
-          },
-        ),
-      ),
-    );
-
-    if (newEmailVerified != true || !mounted) return;
-
-    // Step 2: Request OTP for phone number
-    if (currentUser.phoneNumber == null) {
+    if (currentUser.phoneNumber == null || currentUser.phoneNumber!.isEmpty) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -269,64 +210,92 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
       return;
     }
 
-    final phoneOtpResult = await authService.requestLoginOtp(currentUser.phoneNumber!);
+    setState(() => _isEmailLoading = true);
 
-    if (!phoneOtpResult.success) {
+    final authService = ref.read(authServiceProvider);
+
+    try {
+      // Request OTPs for new email and current phone
+      final newEmailOtpResult = await authService.requestSecurityOtp(newEmail);
+      if (!newEmailOtpResult.success) {
+        throw Exception(newEmailOtpResult.errorMessage ?? 'Failed to send OTP to new email');
+      }
+
+      final phoneOtpResult = await authService.requestLoginOtp(currentUser.phoneNumber!);
+      if (!phoneOtpResult.success) {
+        throw Exception(phoneOtpResult.errorMessage ?? 'Failed to send OTP to phone');
+      }
+
+      setState(() => _isEmailLoading = false);
+
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(phoneOtpResult.errorMessage ?? 'Failed to send OTP to phone'),
-          backgroundColor: Colors.red,
+
+      // Navigate to dual OTP verification screen
+      final verified = await Navigator.of(context).push<bool>(
+        MaterialPageRoute(
+          builder: (context) => SecurityChangeDualOtpScreen(
+            step1Title: 'Verify New Email',
+            step2Title: 'Verify Current Phone',
+            step1Subtitle: 'Enter the 6-digit code sent to your new email',
+            step2Subtitle: 'Now enter the 6-digit code sent to your current phone',
+            step1Identifier: newEmail,
+            step2Identifier: currentUser.phoneNumber!,
+            step1Label: 'New Email',
+            step2Label: 'Current Phone',
+            debugStep1Otp: newEmailOtpResult.debugOtp,
+            debugStep2Otp: phoneOtpResult.debugOtp,
+            successMessage: 'Email updated successfully!',
+            onVerifyStep1: (otp) async {
+              final result = await authService.otpService.verifyOtp(
+                identifier: newEmail,
+                otp: otp,
+              );
+              if (!result.success) {
+                throw Exception(result.errorMessage ?? 'Invalid email OTP');
+              }
+            },
+            onVerifyStep2: (otp) async {
+              final result = await authService.otpService.verifyOtp(
+                identifier: currentUser.phoneNumber!,
+                otp: otp,
+              );
+              if (!result.success) {
+                throw Exception(result.errorMessage ?? 'Invalid phone OTP');
+              }
+
+              // Both OTPs verified, now update email
+              final updateResult = await authService.updateProfile(
+                fullName: currentUser.fullName,
+              );
+              if (!updateResult.success) {
+                throw Exception(updateResult.errorMessage ?? 'Failed to update email');
+              }
+            },
+            onResendStep1: () async {
+              final result = await authService.requestSecurityOtp(newEmail);
+              return result.success;
+            },
+            onResendStep2: () async {
+              final result = await authService.requestLoginOtp(currentUser.phoneNumber!);
+              return result.success;
+            },
+          ),
         ),
       );
-      return;
-    }
 
-    if (!mounted) return;
-
-    // Step 2.5: Verify phone OTP
-    final phoneVerified = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(
-        builder: (context) => OtpVerificationScreen(
-          identifier: currentUser.phoneNumber!,
-          title: 'Verify Your Phone',
-          subtitle: 'Enter OTP sent to',
-          debugOtp: phoneOtpResult.debugOtp,
-          onVerify: (otp) async {
-            final result = await authService.otpService.verifyOtp(
-              identifier: currentUser.phoneNumber!,
-              otp: otp,
-            );
-            if (!result.success) {
-              throw Exception(result.errorMessage ?? 'Invalid OTP');
-            }
-            // Both OTPs verified, now update email
-            final updateResult = await authService.updateProfile(
-              fullName: ref.read(currentUserProvider)?.fullName,
-            );
-            if (!updateResult.success) {
-              throw Exception(updateResult.errorMessage ?? 'Failed to update email');
-            }
-            if (context.mounted) {
-              Navigator.of(context).pop(true);
-            }
-          },
-          onResend: () async {
-            final result = await authService.requestLoginOtp(currentUser.phoneNumber!);
-            return result.success;
-          },
-        ),
-      ),
-    );
-
-    if (phoneVerified == true && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Email updated successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      _newEmailController.clear();
+      if (verified == true && mounted) {
+        _newEmailController.clear();
+      }
+    } catch (e) {
+      setState(() => _isEmailLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -348,113 +317,92 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
       return;
     }
 
+    setState(() => _isPhoneLoading = true);
+
     final authService = ref.read(authServiceProvider);
 
-    // Step 1: Request OTP for new phone number
-    final newPhoneOtpResult = await authService.requestLoginOtp(newPhone);
+    try {
+      // Request OTPs for new phone and current email
+      final newPhoneOtpResult = await authService.requestSecurityOtp(newPhone);
+      if (!newPhoneOtpResult.success) {
+        throw Exception(newPhoneOtpResult.errorMessage ?? 'Failed to send OTP to new phone');
+      }
 
-    if (!newPhoneOtpResult.success) {
+      final emailOtpResult = await authService.requestLoginOtp(currentUser.email);
+      if (!emailOtpResult.success) {
+        throw Exception(emailOtpResult.errorMessage ?? 'Failed to send OTP to email');
+      }
+
+      setState(() => _isPhoneLoading = false);
+
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(newPhoneOtpResult.errorMessage ?? 'Failed to send OTP to new phone'),
-          backgroundColor: Colors.red,
+
+      // Navigate to dual OTP verification screen
+      final verified = await Navigator.of(context).push<bool>(
+        MaterialPageRoute(
+          builder: (context) => SecurityChangeDualOtpScreen(
+            step1Title: 'Verify New Phone',
+            step2Title: 'Verify Current Email',
+            step1Subtitle: 'Enter the 6-digit code sent to your new phone',
+            step2Subtitle: 'Now enter the 6-digit code sent to your current email',
+            step1Identifier: newPhone,
+            step2Identifier: currentUser.email,
+            step1Label: 'New Phone',
+            step2Label: 'Current Email',
+            debugStep1Otp: newPhoneOtpResult.debugOtp,
+            debugStep2Otp: emailOtpResult.debugOtp,
+            successMessage: 'Phone number updated successfully!',
+            onVerifyStep1: (otp) async {
+              final result = await authService.otpService.verifyOtp(
+                identifier: newPhone,
+                otp: otp,
+              );
+              if (!result.success) {
+                throw Exception(result.errorMessage ?? 'Invalid phone OTP');
+              }
+            },
+            onVerifyStep2: (otp) async {
+              final result = await authService.otpService.verifyOtp(
+                identifier: currentUser.email,
+                otp: otp,
+              );
+              if (!result.success) {
+                throw Exception(result.errorMessage ?? 'Invalid email OTP');
+              }
+
+              // Both OTPs verified, now update phone number
+              final updateResult = await authService.updateProfile(
+                phoneNumber: newPhone,
+              );
+              if (!updateResult.success) {
+                throw Exception(updateResult.errorMessage ?? 'Failed to update phone number');
+              }
+            },
+            onResendStep1: () async {
+              final result = await authService.requestSecurityOtp(newPhone);
+              return result.success;
+            },
+            onResendStep2: () async {
+              final result = await authService.requestLoginOtp(currentUser.email);
+              return result.success;
+            },
+          ),
         ),
       );
-      return;
-    }
 
-    if (!mounted) return;
-
-    // Step 1.5: Verify new phone OTP
-    final newPhoneVerified = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(
-        builder: (context) => OtpVerificationScreen(
-          identifier: newPhone,
-          title: 'Verify New Phone Number',
-          subtitle: 'Enter OTP sent to',
-          debugOtp: newPhoneOtpResult.debugOtp,
-          onVerify: (otp) async {
-            final result = await authService.otpService.verifyOtp(
-              identifier: newPhone,
-              otp: otp,
-            );
-            if (!result.success) {
-              throw Exception(result.errorMessage ?? 'Invalid OTP');
-            }
-            if (context.mounted) {
-              Navigator.of(context).pop(true);
-            }
-          },
-          onResend: () async {
-            final result = await authService.requestLoginOtp(newPhone);
-            return result.success;
-          },
-        ),
-      ),
-    );
-
-    if (newPhoneVerified != true || !mounted) return;
-
-    // Step 2: Request OTP for email
-    final emailOtpResult = await authService.requestLoginOtp(currentUser.email);
-
-    if (!emailOtpResult.success) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(emailOtpResult.errorMessage ?? 'Failed to send OTP to email'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    if (!mounted) return;
-
-    // Step 2.5: Verify email OTP
-    final emailVerified = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(
-        builder: (context) => OtpVerificationScreen(
-          identifier: currentUser.email,
-          title: 'Verify Your Email',
-          subtitle: 'Enter OTP sent to',
-          debugOtp: emailOtpResult.debugOtp,
-          onVerify: (otp) async {
-            final result = await authService.otpService.verifyOtp(
-              identifier: currentUser.email,
-              otp: otp,
-            );
-            if (!result.success) {
-              throw Exception(result.errorMessage ?? 'Invalid OTP');
-            }
-            // Both OTPs verified, now update phone number
-            final updateResult = await authService.updateProfile(
-              phoneNumber: newPhone,
-            );
-            if (!updateResult.success) {
-              throw Exception(updateResult.errorMessage ?? 'Failed to update phone number');
-            }
-            if (context.mounted) {
-              Navigator.of(context).pop(true);
-            }
-          },
-          onResend: () async {
-            final result = await authService.requestLoginOtp(currentUser.email);
-            return result.success;
-          },
-        ),
-      ),
-    );
-
-    if (emailVerified == true && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Phone number updated successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      _newPhoneController.clear();
+      if (verified == true && mounted) {
+        _newPhoneController.clear();
+      }
+    } catch (e) {
+      setState(() => _isPhoneLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -510,7 +458,7 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
                     }
                     return null;
                   },
-                  enabled: !isLoading,
+                  enabled: !isLoading && !_isPasswordLoading,
                 ),
                 const SizedBox(height: 16),
 
@@ -543,7 +491,7 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
                     }
                     return null;
                   },
-                  enabled: !isLoading,
+                  enabled: !isLoading && !_isPasswordLoading,
                 ),
                 const SizedBox(height: 16),
 
@@ -576,7 +524,7 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
                     }
                     return null;
                   },
-                  enabled: !isLoading,
+                  enabled: !isLoading && !_isPasswordLoading,
                 ),
                 const SizedBox(height: 24),
 
@@ -584,8 +532,8 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
-                    onPressed: isLoading ? null : _changePassword,
-                    icon: isLoading
+                    onPressed: _isPasswordLoading ? null : _changePassword,
+                    icon: _isPasswordLoading
                         ? const SizedBox(
                             width: 20,
                             height: 20,
@@ -595,7 +543,7 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
                             ),
                           )
                         : const Icon(Icons.key),
-                    label: Text(isLoading ? 'Changing...' : 'Change Password'),
+                    label: Text(_isPasswordLoading ? 'Sending OTP...' : 'Change Password'),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
@@ -651,14 +599,24 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
                     }
                     return null;
                   },
+                  enabled: !_isEmailLoading,
                 ),
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
-                    onPressed: _changeEmail,
-                    icon: const Icon(Icons.email),
-                    label: const Text('Update Email'),
+                    onPressed: _isEmailLoading ? null : _changeEmail,
+                    icon: _isEmailLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.email),
+                    label: Text(_isEmailLoading ? 'Sending OTP...' : 'Update Email'),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
@@ -714,14 +672,24 @@ class _SecuritySettingsScreenState extends ConsumerState<SecuritySettingsScreen>
                     }
                     return null;
                   },
+                  enabled: !_isPhoneLoading,
                 ),
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
-                    onPressed: _changePhoneNumber,
-                    icon: const Icon(Icons.phone),
-                    label: const Text('Update Phone Number'),
+                    onPressed: _isPhoneLoading ? null : _changePhoneNumber,
+                    icon: _isPhoneLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.phone),
+                    label: Text(_isPhoneLoading ? 'Sending OTP...' : 'Update Phone Number'),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),

@@ -275,6 +275,313 @@ class TokenTopUpSheet extends ConsumerWidget {
     );
   }
 
+  Future<Map<String, String>?> _showPaymentMethodDialog(BuildContext context, TokenPurchaseTierConfig config) async {
+    String? selectedMethod;
+    String? reference;
+
+    final result = await showDialog<Map<String, String>?>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Select Payment Method'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Amount: ₱${config.price.toStringAsFixed(0)}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 20),
+                _buildPaymentOption(context, 'gcash', 'GCash', Icons.account_balance_wallet, Colors.blue, selectedMethod, (method) async {
+                  setState(() => selectedMethod = method);
+                  reference = await _showGCashPayment(context, config.price);
+                }),
+                const SizedBox(height: 12),
+                _buildPaymentOption(context, 'paymaya', 'Maya', Icons.account_balance_wallet_outlined, Colors.green, selectedMethod, (method) async {
+                  setState(() => selectedMethod = method);
+                  reference = await _showMayaPayment(context, config.price);
+                }),
+                const SizedBox(height: 12),
+                _buildPaymentOption(context, 'card', 'Credit/Debit Card', Icons.credit_card, Colors.purple, selectedMethod, (method) async {
+                  setState(() => selectedMethod = method);
+                  reference = await _showCardPayment(context, config.price);
+                }),
+                if (reference != null) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.check_circle, color: Colors.green),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text('Ref: $reference', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold))),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: reference != null ? () => Navigator.pop(context, {'method': selectedMethod!, 'reference': reference!}) : null,
+              child: const Text('Confirm Payment'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    return result;
+  }
+
+  Widget _buildPaymentOption(BuildContext context, String id, String name, IconData icon, Color color, String? selected, Function(String) onTap) {
+    final isSelected = selected == id;
+    return InkWell(
+      onTap: () => onTap(id),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: isSelected ? color : Colors.grey[300]!, width: isSelected ? 2 : 1),
+          borderRadius: BorderRadius.circular(12),
+          color: isSelected ? color.withOpacity(0.05) : null,
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: color, size: 24),
+            ),
+            const SizedBox(width: 16),
+            Expanded(child: Text(name, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16))),
+            if (isSelected) Icon(Icons.check_circle, color: color),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<String?> _showGCashPayment(BuildContext context, double amount) async {
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.account_balance_wallet, color: Colors.blue),
+            const SizedBox(width: 12),
+            const Text('GCash Payment'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Icon(Icons.qr_code_2, size: 120, color: Colors.blue.shade700),
+                  const SizedBox(height: 16),
+                  Text('Scan QR Code', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const SizedBox(height: 8),
+                  Text('Amount: ₱${amount.toStringAsFixed(2)}', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text('Open GCash app and scan to pay', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey[600])),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final ref = 'GCASH${DateTime.now().millisecondsSinceEpoch}';
+              Navigator.pop(context, ref);
+            },
+            style: FilledButton.styleFrom(backgroundColor: Colors.blue),
+            child: const Text('I\'ve Paid'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<String?> _showMayaPayment(BuildContext context, double amount) async {
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.account_balance_wallet_outlined, color: Colors.green),
+            const SizedBox(width: 12),
+            const Text('Maya Payment'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Icon(Icons.qr_code_2, size: 120, color: Colors.green.shade700),
+                  const SizedBox(height: 16),
+                  Text('Scan QR Code', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const SizedBox(height: 8),
+                  Text('Amount: ₱${amount.toStringAsFixed(2)}', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text('Open Maya app and scan to pay', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey[600])),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final ref = 'MAYA${DateTime.now().millisecondsSinceEpoch}';
+              Navigator.pop(context, ref);
+            },
+            style: FilledButton.styleFrom(backgroundColor: Colors.green),
+            child: const Text('I\'ve Paid'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<String?> _showCardPayment(BuildContext context, double amount) async {
+    final cardController = TextEditingController();
+    final expiryController = TextEditingController();
+    final cvvController = TextEditingController();
+
+    return showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.credit_card, color: Colors.purple),
+            const SizedBox(width: 12),
+            const Text('Card Payment'),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: cardController,
+                decoration: InputDecoration(
+                  labelText: 'Card Number',
+                  hintText: '1234 5678 9012 3456',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                keyboardType: TextInputType.number,
+                maxLength: 19,
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: expiryController,
+                      decoration: InputDecoration(
+                        labelText: 'Expiry',
+                        hintText: 'MM/YY',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      maxLength: 5,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextField(
+                      controller: cvvController,
+                      decoration: InputDecoration(
+                        labelText: 'CVV',
+                        hintText: '123',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      keyboardType: TextInputType.number,
+                      maxLength: 3,
+                      obscureText: true,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.purple.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Amount: ', style: TextStyle(fontSize: 14)),
+                    Text('₱${amount.toStringAsFixed(2)}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.purple)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              cardController.dispose();
+              expiryController.dispose();
+              cvvController.dispose();
+              Navigator.pop(context);
+            },
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final ref = 'CARD${DateTime.now().millisecondsSinceEpoch}';
+              cardController.dispose();
+              expiryController.dispose();
+              cvvController.dispose();
+              Navigator.pop(context, ref);
+            },
+            style: FilledButton.styleFrom(backgroundColor: Colors.purple),
+            child: const Text('Pay Now'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _handlePurchase(
     BuildContext context,
     WidgetRef ref,
@@ -290,44 +597,12 @@ class TokenTopUpSheet extends ConsumerWidget {
           return;
         }
 
-        // Show confirmation dialog
-        final confirmed = await showDialog<bool>(
-          context: context,
-          builder: (context) {
-            final config = TokenPurchaseTierConfig.forTier(tier);
-            return AlertDialog(
-              title: const Text('Confirm Purchase'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('You will receive ${config.totalTokens} tokens for ₱${config.price.toStringAsFixed(0)}.'),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'BACKEND NOTE: Payment gateway integration required here.',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontStyle: FontStyle.italic,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => context.pop(false),
-                  child: const Text('Cancel'),
-                ),
-                ElevatedButton(
-                  onPressed: () => context.pop(true),
-                  child: const Text('Proceed to Payment'),
-                ),
-              ],
-            );
-          },
-        );
+        final config = TokenPurchaseTierConfig.forTier(tier);
 
-        if (confirmed == true && context.mounted) {
+        // Show payment method selection
+        final paymentData = await _showPaymentMethodDialog(context, config);
+
+        if (paymentData != null && context.mounted) {
           try {
             // Call purchase action
             final tokenActions = ref.read(tokenActionsProvider.notifier);

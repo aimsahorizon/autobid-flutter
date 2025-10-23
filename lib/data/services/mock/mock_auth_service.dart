@@ -524,6 +524,48 @@ class MockAuthService {
     }
   }
 
+  /// Request OTP for security changes (email/phone change)
+  /// Does NOT validate if identifier exists in system
+  /// Used for verifying new emails/phones during security settings changes
+  Future<AuthResult> requestSecurityOtp(String identifier) async {
+    try {
+      await Future.delayed(const Duration(milliseconds: 800));
+
+      // Validate identifier format only
+      if (identifier.isEmpty) {
+        return AuthResult(
+          success: false,
+          errorMessage: 'Email or phone number is required',
+        );
+      }
+
+      // Send OTP directly without user validation
+      final otpResult = await _otpService.sendOtp(
+        identifier: identifier,
+        purpose: OtpPurpose.emailVerification, // Generic purpose
+      );
+
+      if (!otpResult.success) {
+        return AuthResult(
+          success: false,
+          errorMessage: otpResult.errorMessage ?? 'Failed to send OTP',
+        );
+      }
+
+      return AuthResult(
+        success: true,
+        message: 'OTP sent successfully',
+        otpSent: true,
+        debugOtp: otpResult.otp, // For testing
+      );
+    } catch (e) {
+      return AuthResult(
+        success: false,
+        errorMessage: 'An error occurred while sending OTP',
+      );
+    }
+  }
+
   // ========== OTP-BASED REGISTRATION FLOW ==========
 
   /// Step 1: Check if user exists and send registration OTP

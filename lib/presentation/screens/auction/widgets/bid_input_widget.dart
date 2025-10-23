@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../data/models/auction_model.dart';
 import '../../../../core/constants/bid_increments.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/utils/bid_validator.dart';
 import '../../../providers/token_provider.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../providers/deposit_provider.dart';
 import '../../../widgets/token_top_up_sheet.dart';
 
 class BidInputWidget extends ConsumerStatefulWidget {
@@ -32,6 +34,75 @@ class _BidInputWidgetState extends ConsumerState<BidInputWidget> {
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  Future<void> _showDepositRequiredDialog() async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.orange.shade50,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.lock_outline,
+            size: 48,
+            color: Colors.orange.shade700,
+          ),
+        ),
+        title: const Text('Deposit Required'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'You need to pay a ₱10,000 refundable deposit before placing bids.',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.check_circle, size: 16, color: Colors.green),
+                  const SizedBox(width: 8),
+                  Text(
+                    '100% Refundable',
+                    style: TextStyle(
+                      color: Colors.green.shade900,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+              context.push('/deposit/payment');
+            },
+            icon: const Icon(Icons.payment),
+            label: const Text('Pay Deposit'),
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.orange,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _showInsufficientTokensDialog(int currentBalance) async {
@@ -111,6 +182,16 @@ class _BidInputWidgetState extends ConsumerState<BidInputWidget> {
 
   Future<void> _placeBid() async {
     if (_bidAmount == null || _error != null) return;
+
+    // Check deposit first
+    final currentUser = ref.read(currentUserProvider);
+    if (currentUser == null) return;
+
+    final hasDeposit = await ref.read(hasDepositProvider(currentUser.id).future);
+    if (!hasDeposit) {
+      _showDepositRequiredDialog();
+      return;
+    }
 
     // Check token balance (REVISED Revenue Model)
     final tokenBalanceAsync = ref.read(currentUserTokenBalanceProvider);

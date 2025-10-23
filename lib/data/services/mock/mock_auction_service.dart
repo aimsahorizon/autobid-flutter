@@ -34,7 +34,7 @@ class MockAuctionService implements AuctionRepository {
 
   @override
   void initialize() {
-    // _generateMockAuctionsSync();
+    _generateMockAuctionsSync();
     if (AppConfig.enableDemoData) {
       _generateMockUserBids();
     }
