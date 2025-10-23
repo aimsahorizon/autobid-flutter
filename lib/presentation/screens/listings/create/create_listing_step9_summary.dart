@@ -416,6 +416,7 @@ class _CreateListingStep9SummaryState extends ConsumerState<CreateListingStep9Su
     final subscriptionActions = ref.read(subscriptionActionsProvider.notifier);
     if (ref.read(needsQuotaResetProvider(currentUser))) {
       await subscriptionActions.resetListingQuota(userId: currentUser.id);
+      if (!mounted) return; // Check if widget is still mounted after async gap
     }
 
     // Get remaining quota after potential reset
@@ -470,8 +471,10 @@ class _CreateListingStep9SummaryState extends ConsumerState<CreateListingStep9Su
         isDraft: false,
       );
 
-      // Increment listingsUsedThisMonth
-      await subscriptionActions.incrementListingUsage(userId: currentUser.id);
+      if (!mounted) return; // Check if widget is still mounted after async gap
+
+      // Increment listingsUsedThisMonth - read fresh reference after async gap
+      await ref.read(subscriptionActionsProvider.notifier).incrementListingUsage(userId: currentUser.id);
 
       if (!context.mounted) return;
 
