@@ -26,6 +26,7 @@ class _CreateListingStep6DocumentationState
   final _formKey = GlobalKey<FormState>();
   final _plateController = TextEditingController();
   final _orcrController = TextEditingController();
+  final _registrationStatusOtherController = TextEditingController();
 
   @override
   void initState() {
@@ -34,12 +35,14 @@ class _CreateListingStep6DocumentationState
     provider.setCurrentStep(6);
     _plateController.text = provider.plateNumber ?? '';
     _orcrController.text = provider.orcrNumber ?? '';
+    _registrationStatusOtherController.text = provider.registrationStatusOther ?? '';
   }
 
   @override
   void dispose() {
     _plateController.dispose();
     _orcrController.dispose();
+    _registrationStatusOtherController.dispose();
     super.dispose();
   }
 
@@ -154,9 +157,9 @@ class _CreateListingStep6DocumentationState
             // Show text field if "Other" is selected
             if (provider.registrationStatus == RegistrationStatus.other) ...[
               CustomTextField(
+                controller: _registrationStatusOtherController,
                 labelText: 'Specify Registration Status *',
                 hintText: 'Please specify the registration status',
-                initialValue: provider.registrationStatusOther,
                 onChanged: (value) => provider.setRegistrationStatusOther(value),
                 validator: (value) {
                   if (provider.registrationStatus == RegistrationStatus.other &&
