@@ -1522,9 +1522,17 @@ class _MyListingsTabState extends ConsumerState<MyListingsTab>
 
   // REVISED Revenue Model: Quota usage display
   Widget _buildQuotaDisplay(dynamic user) {
-    final tier = user.subscriptionTier.config;
+    // Gracefully handle missing config getter
+    SubscriptionTier? tier;
+    try {
+      tier = user.subscriptionTier.config;
+    } catch (e) {
+      // Fallback to default free tier if extension not available
+      tier = SubscriptionTier.free;
+    }
+
     final used = user.listingsUsedThisMonth;
-    final quota = tier.maxListingsPerMonth;
+    final quota = tier!.maxListingsPerMonth;
     final remaining = ref.read(remainingListingQuotaProvider(user));
     final resetDate = user.listingQuotaResetDate;
 

@@ -8,6 +8,7 @@ import '../../../core/constants/bid_increments.dart';
 import '../../../config/app_config.dart';
 import '../../../domain/repositories/auction_repository.dart';
 import '../../../domain/services/pricing_calculator.dart';
+import 'mock_car_listings.dart';
 
 class MockAuctionService implements AuctionRepository {
   static final MockAuctionService _instance = MockAuctionService._internal();
@@ -33,7 +34,7 @@ class MockAuctionService implements AuctionRepository {
 
   @override
   void initialize() {
-    _generateMockAuctionsSync();
+    // _generateMockAuctionsSync();
     if (AppConfig.enableDemoData) {
       _generateMockUserBids();
     }
@@ -536,8 +537,8 @@ class MockAuctionService implements AuctionRepository {
     final now = DateTime.now();
     final random = Random();
 
-    // Generate fallback cars
-    _availableCars = _generateFallbackCars();
+    // Use real car listings with asset images
+    _availableCars = MockCarListings.generateListings();
 
     final durations = [
       Duration(minutes: 1),
