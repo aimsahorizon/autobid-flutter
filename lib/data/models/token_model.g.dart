@@ -72,8 +72,10 @@ Map<String, dynamic> _$TokenPurchaseToJson(_TokenPurchase instance) =>
     };
 
 const _$TokenPurchaseTierEnumMap = {
-  TokenPurchaseTier.tier100: 'tier100',
-  TokenPurchaseTier.tier500: 'tier500',
+  TokenPurchaseTier.tier99: 'tier99',
+  TokenPurchaseTier.tier349: 'tier349',
+  // TokenPurchaseTier.tier599: 'tier599',
+  TokenPurchaseTier.tier1299: 'tier1299',
 };
 
 const _$TokenPurchaseStatusEnumMap = {

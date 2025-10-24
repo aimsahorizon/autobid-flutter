@@ -136,7 +136,7 @@ class _SubscriptionSelectionScreenState
           textAlign: TextAlign.center,
           style: TextStyle(
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected ? Colors.green : Colors.grey[700],
+            color: isSelected ? Colors.purple : Colors.grey[700],
           ),
         ),
       ),
@@ -164,7 +164,7 @@ class _SubscriptionSelectionScreenState
           color: isPremium
               ? Colors.amber
               : isCurrentTier
-                  ? Colors.green
+                  ? Colors.purple
                   : Colors.grey[300]!,
           width: isPremium ? 3 : isCurrentTier ? 2 : 1,
         ),
@@ -189,7 +189,7 @@ class _SubscriptionSelectionScreenState
               color: isPremium
                   ? Colors.amber[50]
                   : isProTier
-                      ? Colors.green[50]
+                      ? Colors.purple[50]
                       : Colors.grey[100],
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16),
@@ -216,7 +216,7 @@ class _SubscriptionSelectionScreenState
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.green,
+                          color: Colors.purple,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: const Text(
@@ -322,7 +322,7 @@ class _SubscriptionSelectionScreenState
                         children: [
                           Icon(
                             Icons.check_circle,
-                            color: Colors.green[600],
+                            color: Colors.purple[600],
                             size: 20,
                           ),
                           const SizedBox(width: 12),
@@ -351,7 +351,7 @@ class _SubscriptionSelectionScreenState
                       : () => _handleSubscribe(tier, userId),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: isPremium ? Colors.amber : Colors.green,
+                    backgroundColor: isPremium ? Colors.amber : Colors.purple,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -454,7 +454,7 @@ class _SubscriptionSelectionScreenState
               content: Text(
                 'Successfully subscribed to ${tier.displayName}!',
               ),
-              backgroundColor: Colors.green,
+              backgroundColor: Colors.purple,
             ),
           );
 

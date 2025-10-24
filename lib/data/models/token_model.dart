@@ -15,8 +15,9 @@ enum TokenTransactionType {
 
 /// Token purchase tier
 enum TokenPurchaseTier {
-  tier100, // ₱100 = 100 tokens
-  tier500, // ₱500 = 600 tokens (100 bonus)
+  tier99, // ₱100 = 100 tokens
+  tier349, // ₱500 = 600 tokens (100 bonus)
+  tier1299, // ₱500 = 600 tokens (100 bonus)
 }
 
 /// Token transaction record
@@ -130,32 +131,46 @@ abstract class TokenPurchase with _$TokenPurchase {
       _$TokenPurchaseFromJson(json);
 
   /// Create a tier 100 purchase
-  factory TokenPurchase.tier100({
+  factory TokenPurchase.tier99({
     required String userId,
   }) {
     final now = DateTime.now();
     return TokenPurchase(
       id: 'TKPUR${now.millisecondsSinceEpoch}',
       userId: userId,
-      tier: TokenPurchaseTier.tier100,
-      tokensAdded: 100,
-      amountPaid: 100.0,
+      tier: TokenPurchaseTier.tier99,
+      tokensAdded: 5,
+      amountPaid: 99.0,
+      purchasedAt: now,
+      status: TokenPurchaseStatus.pending,
+    );
+  }
+
+  /// Create a tier 100 purchase
+  factory TokenPurchase.tier349({required String userId}) {
+    final now = DateTime.now();
+    return TokenPurchase(
+      id: 'TKPUR${now.millisecondsSinceEpoch}',
+      userId: userId,
+      tier: TokenPurchaseTier.tier349,
+      tokensAdded: 25,
+      amountPaid: 349.0,
       purchasedAt: now,
       status: TokenPurchaseStatus.pending,
     );
   }
 
   /// Create a tier 500 purchase (includes bonus)
-  factory TokenPurchase.tier500({
+  factory TokenPurchase.tier1299({
     required String userId,
   }) {
     final now = DateTime.now();
     return TokenPurchase(
       id: 'TKPUR${now.millisecondsSinceEpoch}',
       userId: userId,
-      tier: TokenPurchaseTier.tier500,
-      tokensAdded: 600, // 500 base + 100 bonus
-      amountPaid: 500.0,
+      tier: TokenPurchaseTier.tier1299,
+      tokensAdded: 100, // 500 base + 100 bonus
+      amountPaid: 1299.0,
       purchasedAt: now,
       status: TokenPurchaseStatus.pending,
     );
@@ -193,35 +208,47 @@ class TokenPurchaseTierConfig {
   String get bonusText => hasBonus ? '+$bonusTokens bonus' : '';
 
   /// Tier 100 configuration
-  static const tier100 = TokenPurchaseTierConfig(
-    tier: TokenPurchaseTier.tier100,
-    price: 100.0,
-    baseTokens: 100,
+  static const tier99 = TokenPurchaseTierConfig(
+    tier: TokenPurchaseTier.tier99,
+    price: 99.0,
+    baseTokens: 50,
     bonusTokens: 0,
-    displayName: '100 Tokens',
-    description: '₱100 for 100 tokens',
+    displayName: '50 Tokens',
+    description: '₱99 for 50 tokens',
   );
 
   /// Tier 500 configuration
-  static const tier500 = TokenPurchaseTierConfig(
-    tier: TokenPurchaseTier.tier500,
-    price: 500.0,
-    baseTokens: 500,
-    bonusTokens: 100,
-    displayName: '600 Tokens',
-    description: '₱500 for 600 tokens (+100 bonus)',
+  static const tier349 = TokenPurchaseTierConfig(
+    tier: TokenPurchaseTier.tier349,
+    price: 349.0,
+    baseTokens: 25,
+    bonusTokens: 0,
+    displayName: '150 Tokens',
+    description: '₱349 for 25 tokens',
+  );
+
+  /// Tier 500 configuration
+  static const tier1299 = TokenPurchaseTierConfig(
+    tier: TokenPurchaseTier.tier1299,
+    price: 1299.0,
+    baseTokens: 100,
+    bonusTokens: 20,
+    displayName: '100 Tokens',
+    description: '₱1299 for 100 tokens (+20 bonus)',
   );
 
   /// Get all available tiers
-  static List<TokenPurchaseTierConfig> get allTiers => [tier100, tier500];
+  static List<TokenPurchaseTierConfig> get allTiers => [tier99, tier1299];
 
   /// Get configuration for a tier
   static TokenPurchaseTierConfig forTier(TokenPurchaseTier tier) {
     switch (tier) {
-      case TokenPurchaseTier.tier100:
-        return tier100;
-      case TokenPurchaseTier.tier500:
-        return tier500;
+      case TokenPurchaseTier.tier99:
+        return tier99;
+      case TokenPurchaseTier.tier349:
+        return tier349;
+      case TokenPurchaseTier.tier1299:
+        return tier1299;
     }
   }
 }

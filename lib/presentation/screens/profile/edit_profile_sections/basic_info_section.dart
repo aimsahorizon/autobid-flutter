@@ -172,9 +172,13 @@ class _BasicInfoSectionState extends ConsumerState<BasicInfoSection> {
                   leading: const Icon(Icons.phone, color: Colors.green),
                   title: const Text('Mobile Number'),
                   subtitle: Text(widget.user.phoneNumber ?? 'Not set'),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.edit),
-                    onPressed: () => setState(() => _isEditingPhone = true),
+                  trailing: Chip(
+                    label: const Text(
+                      'Verified',
+                      style: TextStyle(fontSize: 11),
+                    ),
+                    backgroundColor: Colors.green.shade50,
+                    side: BorderSide(color: Colors.green.shade200),
                   ),
                 ),
         ),

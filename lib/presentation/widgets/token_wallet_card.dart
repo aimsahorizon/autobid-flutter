@@ -23,14 +23,14 @@ class TokenWalletCard extends ConsumerWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.green[700]!,
-            Colors.green[500]!,
+            Colors.purple[700]!,
+            Colors.purple[500]!,
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.green.withOpacity(0.3),
+            color: Colors.purple.withOpacity(0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),

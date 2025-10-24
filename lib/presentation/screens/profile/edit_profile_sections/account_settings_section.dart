@@ -109,34 +109,7 @@ class _AccountSettingsSectionState extends ConsumerState<AccountSettingsSection>
                 color: Colors.grey[600],
               ),
         ),
-        const SizedBox(height: 24),
-
-        // Password
-        Card(
-          child: ListTile(
-            leading: const Icon(Icons.lock, color: Colors.red),
-            title: const Text('Password'),
-            subtitle: const Text('Change your password'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: _changePassword,
-          ),
-        ),
         const SizedBox(height: 12),
-
-        // Two-Factor Authentication
-        Card(
-          child: SwitchListTile(
-            secondary: Icon(
-              Icons.security,
-              color: _twoFactorEnabled ? Colors.green : Colors.grey,
-            ),
-            title: const Text('Two-Factor Authentication'),
-            subtitle: const Text('Add an extra layer of security'),
-            value: _twoFactorEnabled,
-            onChanged: _toggleTwoFactor,
-          ),
-        ),
-        const SizedBox(height: 24),
 
         // Notifications Section
         Text(

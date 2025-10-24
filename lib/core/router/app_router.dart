@@ -60,6 +60,7 @@ import '../../presentation/screens/onboarding/onboarding_screen.dart';
 import '../../presentation/screens/listings/my_listings/sold_listing_detail_screen.dart';
 import '../../presentation/screens/listings/my_listings/cancelled_listing_detail_screen.dart';
 import '../../presentation/screens/listings/my_listings/pending_listing_detail_screen.dart';
+import '../../presentation/screens/subscription/subscription_selection_screen.dart';
 import '../../presentation/providers/auth_provider.dart';
 import '../../presentation/providers/onboarding_provider.dart';
 import '../constants/string_constants.dart';
@@ -243,6 +244,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/profile/help',
         name: 'help-support',
         builder: (context, state) => const HelpSupportScreen(),
+      ),
+      GoRoute(
+        path: '/subscription',
+        name: 'subscription',
+        builder: (context, state) => const SubscriptionSelectionScreen(),
       ),
       GoRoute(
         path: '/kyc-intro',

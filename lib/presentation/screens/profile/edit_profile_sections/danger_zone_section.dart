@@ -365,60 +365,6 @@ class DangerZoneSection extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 24),
-
-        // Help Section
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.blue.shade50,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.blue.shade200),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.help_outline, color: Colors.blue.shade700, size: 24),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Need Help?',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue.shade900,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'If you\'re experiencing issues or have concerns, our support team is here to help. Contact us before taking any irreversible action.',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.blue.shade900,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    // TODO: Navigate to support
-                  },
-                  icon: const Icon(Icons.support_agent),
-                  label: const Text('Contact Support'),
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: Colors.blue.shade700),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
       ],
     );
   }

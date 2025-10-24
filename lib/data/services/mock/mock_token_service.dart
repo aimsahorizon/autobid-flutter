@@ -106,10 +106,21 @@ class MockTokenService {
 
     final config = TokenPurchaseTierConfig.forTier(tier);
 
-    // Create purchase record
-    final purchase = tier == TokenPurchaseTier.tier100
-        ? TokenPurchase.tier100(userId: userId)
-        : TokenPurchase.tier500(userId: userId);
+    // Create purchase record based on selected tier
+    late final TokenPurchase purchase;
+
+    switch (tier) {
+      case TokenPurchaseTier.tier99:
+        purchase = TokenPurchase.tier99(userId: userId);
+        break;
+      case TokenPurchaseTier.tier349:
+        purchase = TokenPurchase.tier349(userId: userId);
+        break;
+      case TokenPurchaseTier.tier1299:
+        purchase = TokenPurchase.tier1299(userId: userId);
+        break;
+    }
+
 
     // Mark as completed (simulate successful payment)
     final completedPurchase = purchase.copyWith(

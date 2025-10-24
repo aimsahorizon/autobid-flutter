@@ -135,7 +135,6 @@ abstract class SubscriptionTier with _$SubscriptionTier {
           'Featured placement',
           'Waived re-list fee',
           'Verified Pro+ badge',
-          'Performance insights & analytics',
           'Streak rewards & bonuses',
         ],
       );

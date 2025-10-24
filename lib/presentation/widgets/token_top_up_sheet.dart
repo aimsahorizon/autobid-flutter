@@ -104,16 +104,24 @@ class TokenTopUpSheet extends ConsumerWidget {
                 context,
                 ref,
                 authState,
-                tier: TokenPurchaseTier.tier100,
-                config: TokenPurchaseTierConfig.tier100,
+                tier: TokenPurchaseTier.tier99,
+                config: TokenPurchaseTierConfig.tier99,
               ),
               const SizedBox(height: 16),
               _buildPurchaseTier(
                 context,
                 ref,
                 authState,
-                tier: TokenPurchaseTier.tier500,
-                config: TokenPurchaseTierConfig.tier500,
+                tier: TokenPurchaseTier.tier349,
+                config: TokenPurchaseTierConfig.tier349,
+              ),
+              const SizedBox(height: 24),
+              _buildPurchaseTier(
+                context,
+                ref,
+                authState,
+                tier: TokenPurchaseTier.tier1299,
+                config: TokenPurchaseTierConfig.tier1299,
                 isRecommended: true,
               ),
               const SizedBox(height: 24),
@@ -253,7 +261,7 @@ class TokenTopUpSheet extends ConsumerWidget {
           ),
           if (isRecommended)
             Positioned(
-              top: 12,
+              top: 5,
               right: 12,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),

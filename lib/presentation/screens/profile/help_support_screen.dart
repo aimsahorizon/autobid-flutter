@@ -98,18 +98,18 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
           _buildFAQItem(
             question: 'How do I sell my car?',
             answer:
-                'Create a listing with your vehicle details, upload 5-15 photos, and submit vehicle documents (OR/CR, emission test). Once approved, your car will be listed for auction.',
+                'Create a listing with your vehicle details, upload photos, and submit vehicle documents (OR/CR, emission test). Once approved, your car will be listed for auction.',
           ),
-          _buildFAQItem(
-            question: 'What are verification levels?',
-            answer:
-                'Verification levels determine your buying/selling limits. Level 1 (default) allows up to ₱500k, Level 2 up to ₱2M, and Level 3 has no limits. Upgrade by submitting additional documents.',
-          ),
-          _buildFAQItem(
-            question: 'How long does delivery take?',
-            answer:
-                'Delivery time depends on the seller and location. Typically, vehicles are transferred within 7-14 days after payment. You can also arrange self-pickup.',
-          ),
+          // _buildFAQItem(
+          //   question: 'What are verification levels?',
+          //   answer:
+          //       'Verification levels determine your buying/selling limits. Level 1 (default) allows up to ₱500k, Level 2 up to ₱2M, and Level 3 has no limits. Upgrade by submitting additional documents.',
+          // ),
+          // _buildFAQItem(
+          //   question: 'How long does delivery take?',
+          //   answer:
+          //       'Delivery time depends on the seller and location. Typically, vehicles are transferred within 7-14 days after payment. You can also arrange self-pickup.',
+          // ),
 
           const SizedBox(height: 32),
           const Divider(),
@@ -265,46 +265,42 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
             ),
           ),
 
-          const SizedBox(height: 32),
-          const Divider(),
-          const SizedBox(height: 16),
-
           // Additional Support Channels
-          Text(
-            'Other Ways to Reach Us',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          const SizedBox(height: 16),
+          // Text(
+          //   'Other Ways to Reach Us',
+          //   style: Theme.of(context).textTheme.titleLarge?.copyWith(
+          //         fontWeight: FontWeight.bold,
+          //       ),
+          // ),
+          // const SizedBox(height: 16),
 
-          _buildSupportChannel(
-            icon: Icons.email,
-            title: 'Email',
-            subtitle: 'support@autobid.ph',
-            color: Colors.blue,
-          ),
-          const SizedBox(height: 12),
-          _buildSupportChannel(
-            icon: Icons.phone,
-            title: 'Phone',
-            subtitle: '+63 (02) 8123-4567',
-            color: Colors.green,
-          ),
-          const SizedBox(height: 12),
-          _buildSupportChannel(
-            icon: Icons.chat,
-            title: 'Live Chat',
-            subtitle: 'Available Mon-Fri, 9AM-6PM',
-            color: Colors.orange,
-          ),
-          const SizedBox(height: 12),
-          _buildSupportChannel(
-            icon: Icons.facebook,
-            title: 'Facebook',
-            subtitle: 'fb.com/AutoBIDPH',
-            color: Colors.indigo,
-          ),
+          // _buildSupportChannel(
+          //   icon: Icons.email,
+          //   title: 'Email',
+          //   subtitle: 'support@autobid.ph',
+          //   color: Colors.blue,
+          // ),
+          // const SizedBox(height: 12),
+          // _buildSupportChannel(
+          //   icon: Icons.phone,
+          //   title: 'Phone',
+          //   subtitle: '+63 (02) 8123-4567',
+          //   color: Colors.green,
+          // ),
+          // const SizedBox(height: 12),
+          // _buildSupportChannel(
+          //   icon: Icons.chat,
+          //   title: 'Live Chat',
+          //   subtitle: 'Available Mon-Fri, 9AM-6PM',
+          //   color: Colors.orange,
+          // ),
+          // const SizedBox(height: 12),
+          // _buildSupportChannel(
+          //   icon: Icons.facebook,
+          //   title: 'Facebook',
+          //   subtitle: 'fb.com/AutoBIDPH',
+          //   color: Colors.indigo,
+          // ),
         ],
       ),
     );

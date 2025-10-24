@@ -63,12 +63,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen>
           child: TabBar(
             controller: _tabController,
             isScrollable: true,
-            tabAlignment: TabAlignment.start,
+            tabAlignment: TabAlignment.center,
             tabs: const [
               Tab(icon: Icon(Icons.account_circle, size: 20), text: 'Basic'),
-              Tab(icon: Icon(Icons.person, size: 20), text: 'Personal'),
+              // Tab(icon: Icon(Icons.person, size: 20), text: 'Personal'),
               Tab(icon: Icon(Icons.home, size: 20), text: 'Address'),
-              Tab(icon: Icon(Icons.privacy_tip, size: 20), text: 'Privacy'),
+              // Tab(icon: Icon(Icons.privacy_tip, size: 20), text: 'Privacy'),
               Tab(icon: Icon(Icons.warning, size: 20), text: 'Danger'),
             ],
           ),
