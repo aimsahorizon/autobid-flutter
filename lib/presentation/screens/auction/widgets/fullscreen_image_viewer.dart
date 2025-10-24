@@ -145,16 +145,7 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer> {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(6),
-                            child: CachedNetworkImage(
-                              imageUrl: widget.images[index],
-                              fit: BoxFit.cover,
-                              errorWidget: (context, url, error) => Container(
-                                color: Colors.grey[800],
-                                child: Icon(Icons.broken_image, color: Colors.grey[600]),
-                              ),
-                              memCacheWidth: 160,
-                              maxWidthDiskCache: 160,
-                            ),
+                            child: _buildThumbnail(widget.images[index]),
                           ),
                         ),
                       );
@@ -166,6 +157,32 @@ class _FullscreenImageViewerState extends State<FullscreenImageViewer> {
         ],
       ),
     );
+  }
+
+  Widget _buildThumbnail(String imagePath) {
+    final isAsset = imagePath.startsWith('assets/');
+
+    if (isAsset) {
+      return Image.asset(
+        imagePath,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Container(
+          color: Colors.grey[800],
+          child: Icon(Icons.broken_image, color: Colors.grey[600]),
+        ),
+      );
+    } else {
+      return CachedNetworkImage(
+        imageUrl: imagePath,
+        fit: BoxFit.cover,
+        errorWidget: (context, url, error) => Container(
+          color: Colors.grey[800],
+          child: Icon(Icons.broken_image, color: Colors.grey[600]),
+        ),
+        memCacheWidth: 160,
+        maxWidthDiskCache: 160,
+      );
+    }
   }
 }
 
@@ -224,22 +241,38 @@ class _ZoomableImageState extends State<_ZoomableImage> with SingleTickerProvide
         minScale: 0.5,
         maxScale: 4.0,
         child: Center(
-          child: CachedNetworkImage(
-            imageUrl: widget.imageUrl,
-            fit: BoxFit.contain,
-            placeholder: (context, url) => const Center(
-              child: CircularProgressIndicator(
-                color: Colors.white,
-              ),
-            ),
-            errorWidget: (context, url, error) => const Center(
-              child: Icon(Icons.broken_image, size: 100, color: Colors.white54),
-            ),
-            memCacheWidth: 1920,
-            maxWidthDiskCache: 1920,
-          ),
+          child: _buildFullImage(widget.imageUrl),
         ),
       ),
     );
+  }
+
+  Widget _buildFullImage(String imagePath) {
+    final isAsset = imagePath.startsWith('assets/');
+
+    if (isAsset) {
+      return Image.asset(
+        imagePath,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) => const Center(
+          child: Icon(Icons.broken_image, size: 100, color: Colors.white54),
+        ),
+      );
+    } else {
+      return CachedNetworkImage(
+        imageUrl: imagePath,
+        fit: BoxFit.contain,
+        placeholder: (context, url) => const Center(
+          child: CircularProgressIndicator(
+            color: Colors.white,
+          ),
+        ),
+        errorWidget: (context, url, error) => const Center(
+          child: Icon(Icons.broken_image, size: 100, color: Colors.white54),
+        ),
+        memCacheWidth: 1920,
+        maxWidthDiskCache: 1920,
+      );
+    }
   }
 }

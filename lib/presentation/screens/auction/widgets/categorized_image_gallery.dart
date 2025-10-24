@@ -182,22 +182,7 @@ class _CategorizedImageGalleryState extends State<CategorizedImageGallery> {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: CachedNetworkImage(
-                      imageUrl: images[index],
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: Colors.grey[300],
-                        child: const Center(
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: Colors.grey[300],
-                        child: Icon(Icons.broken_image, color: Colors.grey[600]),
-                      ),
-                      memCacheWidth: 560,
-                      maxWidthDiskCache: 560,
-                    ),
+                    child: _buildImage(images[index]),
                   ),
                   if (showViewAll)
                     Container(
@@ -246,5 +231,38 @@ class _CategorizedImageGalleryState extends State<CategorizedImageGallery> {
         ),
       ),
     );
+  }
+
+  Widget _buildImage(String imagePath) {
+    // Check if the image is an asset or network URL
+    final isAsset = imagePath.startsWith('assets/');
+
+    if (isAsset) {
+      return Image.asset(
+        imagePath,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Container(
+          color: Colors.grey[300],
+          child: Icon(Icons.broken_image, color: Colors.grey[600]),
+        ),
+      );
+    } else {
+      return CachedNetworkImage(
+        imageUrl: imagePath,
+        fit: BoxFit.cover,
+        placeholder: (context, url) => Container(
+          color: Colors.grey[300],
+          child: const Center(
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+        errorWidget: (context, url, error) => Container(
+          color: Colors.grey[300],
+          child: Icon(Icons.broken_image, color: Colors.grey[600]),
+        ),
+        memCacheWidth: 560,
+        maxWidthDiskCache: 560,
+      );
+    }
   }
 }
