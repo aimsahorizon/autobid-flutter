@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:autobid/data/models/token_model.dart';
 import 'package:autobid/data/models/subscription_tier.dart';
+import 'package:autobid/data/services/mock/mock_auth_service.dart';
 
 /// Mock Token Service - REVISED Revenue Model
 ///
@@ -34,6 +35,9 @@ class MockTokenService {
   // Mock delay configuration
   static const Duration _mockDelay = Duration(milliseconds: 500);
   static const Duration _purchaseDelay = Duration(seconds: 2);
+
+  // Auth service reference to update user profile
+  final _authService = MockAuthService();
 
   /// Initialize with sample data
   void _initializeMockData() {
@@ -147,6 +151,13 @@ class MockTokenService {
     _transactions.add(transaction);
 
     _notifyListeners();
+
+    // Update user profile with new token balance
+    await _authService.updateUserTokenBalance(
+      userId: userId,
+      tokenBalance: newBalance,
+    );
+
     return completedPurchase;
   }
 
@@ -179,6 +190,13 @@ class MockTokenService {
     _transactions.add(transaction);
 
     _notifyListeners();
+
+    // Update user profile with new token balance
+    await _authService.updateUserTokenBalance(
+      userId: userId,
+      tokenBalance: newBalance,
+    );
+
     return true;
   }
 
@@ -208,6 +226,12 @@ class MockTokenService {
     _transactions.add(transaction);
 
     _notifyListeners();
+
+    // Update user profile with new token balance
+    await _authService.updateUserTokenBalance(
+      userId: userId,
+      tokenBalance: newBalance,
+    );
   }
 
   /// Allocate monthly subscription tokens
@@ -244,6 +268,12 @@ class MockTokenService {
     _transactions.add(transaction);
 
     _notifyListeners();
+
+    // Update user profile with new token balance
+    await _authService.updateUserTokenBalance(
+      userId: userId,
+      tokenBalance: newBalance,
+    );
   }
 
   /// Add tokens manually (admin/promotional)
@@ -271,6 +301,12 @@ class MockTokenService {
     _transactions.add(transaction);
 
     _notifyListeners();
+
+    // Update user profile with new token balance
+    await _authService.updateUserTokenBalance(
+      userId: userId,
+      tokenBalance: newBalance,
+    );
   }
 
   /// Check if user can deduct token (handles unlimited tier)

@@ -131,11 +131,9 @@ abstract class SubscriptionTier with _$SubscriptionTier {
           'Unlimited tokens per month',
           '10 listings per month',
           'AutoBid feature',
-          'Early access to auctions (2 hours)',
           'Featured placement',
           'Waived re-list fee',
           'Verified Pro+ badge',
-          'Streak rewards & bonuses',
         ],
       );
 

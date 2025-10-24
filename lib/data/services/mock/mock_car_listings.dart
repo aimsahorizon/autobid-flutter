@@ -62,7 +62,7 @@ class MockCarListings {
         description: 'Brand new 2024 Ford Ranger Raptor. Top of the line performance pickup. Fox Racing shocks, terrain management system, and premium B&O sound system.',
         images: [
           'assets/images/cars/2024-Ford-Ranger-Raptor/Front-3-4-angle-(driver-side).jpg',
-          'assets/images/cars/2024-Ford-Ranger-Raptor/Driver-side-full-view.jpg',
+          'assets/images/cars/2024-Ford-Ranger-Rapto r/Driver-side-full-view.jpg',
           'assets/images/cars/2024-Ford-Ranger-Raptor/Front-view.jpg',
           'assets/images/cars/2024-Ford-Ranger-Raptor/Rear-View.jpg',
         ],

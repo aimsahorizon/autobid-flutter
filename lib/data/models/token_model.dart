@@ -211,10 +211,10 @@ class TokenPurchaseTierConfig {
   static const tier99 = TokenPurchaseTierConfig(
     tier: TokenPurchaseTier.tier99,
     price: 99.0,
-    baseTokens: 50,
+    baseTokens: 5,
     bonusTokens: 0,
-    displayName: '50 Tokens',
-    description: '₱99 for 50 tokens',
+    displayName: '5 Tokens',
+    description: '₱99 for 5 tokens',
   );
 
   /// Tier 500 configuration

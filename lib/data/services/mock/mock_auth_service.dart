@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:autobid/data/models/subscription_tier.dart';
 import 'package:uuid/uuid.dart';
 import '../../models/user_model.dart';
 import 'mock_otp_service.dart';
@@ -952,6 +953,121 @@ class MockAuthService {
       kycStatus: 'none',
     );
     return guest;
+  }
+
+  // ========== SUBSCRIPTION & TOKEN BALANCE UPDATES ==========
+
+  /// Update user's subscription tier
+  /// Called by MockSubscriptionService when subscription changes
+  Future<void> updateUserSubscriptionTier({
+    required String userId,
+    required SubscriptionTierType tierType,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    final userIndex = _users.indexWhere((u) => u.id == userId);
+    if (userIndex == -1) return;
+
+    // Reset listing quota when subscription changes
+    final now = DateTime.now();
+    final resetDate = now.add(const Duration(days: 30));
+
+    final updatedUser = _users[userIndex].copyWith(
+      subscriptionTier: tierType,
+      listingsUsedThisMonth: 0, // Reset quota on subscription change
+      listingQuotaResetDate: resetDate,
+    );
+
+    _users[userIndex] = updatedUser;
+
+    // Update current user if it's the same
+    if (_currentUser?.id == userId) {
+      _currentUser = updatedUser;
+      _authStateController.add(updatedUser);
+    }
+  }
+
+  /// Update user's token balance
+  /// Called by MockTokenService when tokens are purchased or allocated
+  Future<void> updateUserTokenBalance({
+    required String userId,
+    required int tokenBalance,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+
+    final userIndex = _users.indexWhere((u) => u.id == userId);
+    if (userIndex == -1) return;
+
+    final updatedUser = _users[userIndex].copyWith(
+      tokenBalance: tokenBalance,
+      tokenBalanceLastUpdated: DateTime.now(),
+    );
+
+    _users[userIndex] = updatedUser;
+
+    // Update current user if it's the same
+    if (_currentUser?.id == userId) {
+      _currentUser = updatedUser;
+      _authStateController.add(updatedUser);
+    }
+  }
+
+  /// Increment user's listing usage
+  /// Called when a listing is successfully created
+  Future<void> incrementListingUsage({
+    required String userId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+
+    final userIndex = _users.indexWhere((u) => u.id == userId);
+    if (userIndex == -1) return;
+
+    final user = _users[userIndex];
+
+    // Check if quota needs reset (past reset date)
+    final now = DateTime.now();
+    final needsReset = user.listingQuotaResetDate == null ||
+                      now.isAfter(user.listingQuotaResetDate!);
+
+    final updatedUser = user.copyWith(
+      listingsUsedThisMonth: needsReset ? 1 : user.listingsUsedThisMonth + 1,
+      listingQuotaResetDate: needsReset
+          ? now.add(const Duration(days: 30))
+          : user.listingQuotaResetDate,
+    );
+
+    _users[userIndex] = updatedUser;
+
+    // Update current user if it's the same
+    if (_currentUser?.id == userId) {
+      _currentUser = updatedUser;
+      _authStateController.add(updatedUser);
+    }
+  }
+
+  /// Reset user's listing quota
+  /// Called when quota reset date has passed or on subscription renewal
+  Future<void> resetListingQuota({
+    required String userId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+
+    final userIndex = _users.indexWhere((u) => u.id == userId);
+    if (userIndex == -1) return;
+
+    final now = DateTime.now();
+    final updatedUser = _users[userIndex].copyWith(
+      listingsUsedThisMonth: 0,
+      listingQuotaResetDate: now.add(const Duration(days: 30)),
+    );
+
+    _users[userIndex] = updatedUser;
+
+    // Update current user if it's the same
+    if (_currentUser?.id == userId) {
+      _currentUser = updatedUser;
+      _authStateController.add(updatedUser);
+    }
   }
 
   void dispose() {

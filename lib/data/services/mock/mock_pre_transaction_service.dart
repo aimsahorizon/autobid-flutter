@@ -367,6 +367,11 @@ class MockPreTransactionService {
 
     _notifyListeners();
 
+    // Simulate buyer auto-confirmation after 5 seconds (for demo purposes)
+    if (!bothConfirmed) {
+      _simulateBuyerConfirmation(preTransactionId);
+    }
+
     return _preTransactions[preTransactionId]!;
   }
 
@@ -411,6 +416,55 @@ class MockPreTransactionService {
     _preTransactions[preTransactionId] = preTransaction.copyWith(
       sellerConfirmation: confirmation,
       sellerConfirmedAt: now,
+      status: PreTransactionStatus.pendingMutualConfirmation,
+      mutualReviewStartedAt: now,
+      messages: updatedMessages,
+    );
+
+    _notifyListeners();
+  }
+
+  /// Simulate buyer confirmation (for demo purposes)
+  Future<void> _simulateBuyerConfirmation(String preTransactionId) async {
+    await Future.delayed(const Duration(seconds: 5));
+
+    final preTransaction = _preTransactions[preTransactionId];
+    if (preTransaction == null || preTransaction.buyerConfirmation != null) {
+      return;
+    }
+
+    final confirmation = PreTransactionConfirmation(
+      id: _uuid.v4(),
+      userId: preTransaction.buyerId,
+      userName: preTransaction.buyerName,
+      vehicleIdentityConfirmed: true,
+      conditionAccuratelyRepresented: true,
+      finalBidPrice: preTransaction.finalBidAmount,
+      deliveryDate: preTransaction.sellerConfirmation?.deliveryDate,
+      deliveryLocation: preTransaction.sellerConfirmation?.deliveryLocation,
+      uploadedDocuments: [],
+      termsAgreed: true,
+      confirmedAt: DateTime.now(),
+      notes: 'Confirmed. Looking forward to receiving the vehicle.',
+    );
+
+    final now = DateTime.now();
+    final updatedMessages = [
+      ...preTransaction.messages,
+      PreTransactionMessage(
+        id: _uuid.v4(),
+        preTransactionId: preTransactionId,
+        sender: MessageSender.system,
+        senderName: 'System',
+        type: MessageType.system,
+        content: 'Both parties have confirmed! Please review and approve the combined details before admin review.',
+        timestamp: now,
+      ),
+    ];
+
+    _preTransactions[preTransactionId] = preTransaction.copyWith(
+      buyerConfirmation: confirmation,
+      buyerConfirmedAt: now,
       status: PreTransactionStatus.pendingMutualConfirmation,
       mutualReviewStartedAt: now,
       messages: updatedMessages,

@@ -237,7 +237,7 @@ class TokenWalletCard extends ConsumerWidget {
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.white,
-          foregroundColor: Colors.green[700],
+          foregroundColor: Colors.purple[700],
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -318,7 +318,7 @@ class TokenTransactionHistoryCard extends ConsumerWidget {
     TokenTransaction transaction,
   ) {
     final isCredit = transaction.amount > 0;
-    final color = isCredit ? Colors.green : Colors.red;
+    final color = isCredit ? Colors.purple : Colors.red;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),

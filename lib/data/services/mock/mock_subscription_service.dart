@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:autobid/data/models/subscription_tier.dart';
+import 'package:autobid/data/services/mock/mock_auth_service.dart';
 
 /// Mock Subscription Service - GEMINI Revenue Model
 ///
@@ -27,6 +28,9 @@ class MockSubscriptionService {
 
   // Mock delay configuration
   static const Duration _mockDelay = Duration(milliseconds: 800);
+
+  // Auth service reference to update user profile
+  final _authService = MockAuthService();
 
   /// Initialize with sample data
   void _initializeMockData() {
@@ -114,6 +118,12 @@ class MockSubscriptionService {
     _subscriptions.add(subscription);
     _notifyListeners();
 
+    // Update user profile with new subscription tier
+    await _authService.updateUserSubscriptionTier(
+      userId: userId,
+      tierType: tierType,
+    );
+
     return subscription;
   }
 
@@ -138,11 +148,19 @@ class MockSubscriptionService {
     await cancel(userId);
 
     // Create new subscription with same billing cycle
-    return await subscribe(
+    final newSubscription = await subscribe(
       userId: userId,
       tierType: newTier,
       billingCycle: current.billingCycle,
     );
+
+    // Update user profile with new subscription tier
+    await _authService.updateUserSubscriptionTier(
+      userId: userId,
+      tierType: newTier,
+    );
+
+    return newSubscription;
   }
 
   /// Downgrade subscription (effective at end of current period)
@@ -164,17 +182,31 @@ class MockSubscriptionService {
 
     // For mock: immediate downgrade (real system would wait until period end)
     await cancel(userId);
-    return await subscribe(
+    final newSubscription = await subscribe(
       userId: userId,
       tierType: newTier,
       billingCycle: current.billingCycle,
     );
+
+    // Update user profile with new subscription tier
+    await _authService.updateUserSubscriptionTier(
+      userId: userId,
+      tierType: newTier,
+    );
+
+    return newSubscription;
   }
 
   /// Cancel subscription
   Future<void> cancel(String userId) async {
     await Future.delayed(_mockDelay);
     await _cancelExistingSubscription(userId);
+
+    // Update user profile back to free tier
+    await _authService.updateUserSubscriptionTier(
+      userId: userId,
+      tierType: SubscriptionTierType.free,
+    );
   }
 
   /// Check if user can access feature based on subscription

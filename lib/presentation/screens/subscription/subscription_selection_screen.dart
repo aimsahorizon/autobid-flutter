@@ -405,7 +405,7 @@ class _SubscriptionSelectionScreenState
     // Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text('Subscribe to ${tier.displayName}?'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -427,11 +427,11 @@ class _SubscriptionSelectionScreenState
         ),
         actions: [
           TextButton(
-            onPressed: () => context.pop(false),
+            onPressed: () => Navigator.of(dialogContext).pop(false),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () => context.pop(true),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
             child: const Text('Proceed to Payment'),
           ),
         ],
@@ -439,8 +439,31 @@ class _SubscriptionSelectionScreenState
     );
 
     if (confirmed == true && mounted) {
+      // Show loading indicator
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Row(
+              children: [
+                SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+                SizedBox(width: 16),
+                Text('Processing subscription...'),
+              ],
+            ),
+            duration: Duration(seconds: 30),
+          ),
+        );
+      }
+
       try {
-        // Call subscription action
+        // Call subscription action using widget's ref (not dialog's context)
         final subscription =
             await ref.read(subscriptionActionsProvider.notifier).subscribe(
                   userId: userId,
@@ -449,12 +472,21 @@ class _SubscriptionSelectionScreenState
                 );
 
         if (mounted) {
+          // Clear loading snackbar
+          ScaffoldMessenger.of(context).clearSnackBars();
+
+          // Invalidate auth provider to refresh user data
+          ref.invalidate(authStateChangesProvider);
+          ref.invalidate(currentUserProvider);
+
+          // Show success message
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
                 'Successfully subscribed to ${tier.displayName}!',
               ),
               backgroundColor: Colors.purple,
+              duration: const Duration(seconds: 3),
             ),
           );
 
@@ -463,10 +495,15 @@ class _SubscriptionSelectionScreenState
         }
       } catch (e) {
         if (mounted) {
+          // Clear loading snackbar
+          ScaffoldMessenger.of(context).clearSnackBars();
+
+          // Show error message
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Failed to subscribe: $e'),
               backgroundColor: Colors.red,
+              duration: const Duration(seconds: 5),
             ),
           );
         }

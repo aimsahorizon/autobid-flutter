@@ -170,10 +170,12 @@ class SubscriptionActions extends _$SubscriptionActions {
         tierType: tierType,
       );
 
-      // Invalidate related providers
+      // Invalidate related providers to refresh all user data
       ref.invalidate(userSubscriptionProvider);
       ref.invalidate(userSubscriptionTierProvider);
       ref.invalidate(subscriptionBenefitsProvider);
+      ref.invalidate(authStateChangesProvider);
+      ref.invalidate(currentUserProvider);
 
       state = const AsyncValue.data(null);
       return subscription;
@@ -196,10 +198,12 @@ class SubscriptionActions extends _$SubscriptionActions {
         newTier: newTier,
       );
 
-      // Invalidate related providers
+      // Invalidate related providers to refresh all user data
       ref.invalidate(userSubscriptionProvider);
       ref.invalidate(userSubscriptionTierProvider);
       ref.invalidate(subscriptionBenefitsProvider);
+      ref.invalidate(authStateChangesProvider);
+      ref.invalidate(currentUserProvider);
 
       state = const AsyncValue.data(null);
       return subscription;
@@ -222,10 +226,12 @@ class SubscriptionActions extends _$SubscriptionActions {
         newTier: newTier,
       );
 
-      // Invalidate related providers
+      // Invalidate related providers to refresh all user data
       ref.invalidate(userSubscriptionProvider);
       ref.invalidate(userSubscriptionTierProvider);
       ref.invalidate(subscriptionBenefitsProvider);
+      ref.invalidate(authStateChangesProvider);
+      ref.invalidate(currentUserProvider);
 
       state = const AsyncValue.data(null);
       return subscription;
@@ -242,10 +248,12 @@ class SubscriptionActions extends _$SubscriptionActions {
       final service = ref.read(subscriptionServiceProvider);
       await service.cancel(userId);
 
-      // Invalidate related providers
+      // Invalidate related providers to refresh all user data
       ref.invalidate(userSubscriptionProvider);
       ref.invalidate(userSubscriptionTierProvider);
       ref.invalidate(subscriptionBenefitsProvider);
+      ref.invalidate(authStateChangesProvider);
+      ref.invalidate(currentUserProvider);
     });
   }
 
