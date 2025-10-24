@@ -154,7 +154,7 @@ class _BidInputWidgetState extends ConsumerState<BidInputWidget> {
             icon: const Icon(Icons.add),
             label: const Text('Buy Tokens'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
+              backgroundColor: Colors.purple,
               foregroundColor: Colors.white,
             ),
           ),

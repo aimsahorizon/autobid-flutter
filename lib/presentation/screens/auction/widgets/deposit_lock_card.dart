@@ -16,7 +16,7 @@ class DepositLockCard extends StatelessWidget {
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: Colors.orange.shade200, width: 2),
+        side: BorderSide(color: Colors.purple.shade200, width: 2),
       ),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -26,13 +26,13 @@ class DepositLockCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.orange.shade50,
+                color: Colors.purple.shade50,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.lock_outline,
                 size: 48,
-                color: Colors.orange.shade700,
+                color: Colors.purple.shade700,
               ),
             ),
             const SizedBox(height: 16),
@@ -81,7 +81,7 @@ class DepositLockCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.orange.shade400, Colors.orange.shade600],
+                  colors: [Colors.purple.shade400, Colors.purple.shade600],
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -123,7 +123,7 @@ class DepositLockCard extends StatelessWidget {
                   ),
                 ),
                 style: FilledButton.styleFrom(
-                  backgroundColor: Colors.orange,
+                  backgroundColor: Colors.purple,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

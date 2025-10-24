@@ -60,9 +60,9 @@ class TokenTopUpSheet extends ConsumerWidget {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.green[50],
+                        color: Colors.purple[50],
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.green),
+                        border: Border.all(color: Colors.purple),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -70,7 +70,7 @@ class TokenTopUpSheet extends ConsumerWidget {
                           const Icon(
                             Icons.generating_tokens_rounded,
                             size: 20,
-                            color: Colors.green,
+                            color: Colors.purple,
                           ),
                           const SizedBox(width: 8),
                           Text(
@@ -78,7 +78,7 @@ class TokenTopUpSheet extends ConsumerWidget {
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.green,
+                              color: Colors.purple,
                             ),
                           ),
                         ],
@@ -168,11 +168,11 @@ class TokenTopUpSheet extends ConsumerWidget {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
-          color: isRecommended ? Colors.green : Colors.grey[300]!,
+          color: isRecommended ? Colors.purple : Colors.grey[300]!,
           width: isRecommended ? 2 : 1,
         ),
         borderRadius: BorderRadius.circular(16),
-        color: isRecommended ? Colors.green[50] : Colors.white,
+        color: isRecommended ? Colors.purple[50] : Colors.white,
       ),
       child: Stack(
         children: [
@@ -221,7 +221,7 @@ class TokenTopUpSheet extends ConsumerWidget {
                       style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Colors.green,
+                        color: Colors.purple,
                       ),
                     ),
                   ],
@@ -240,7 +240,7 @@ class TokenTopUpSheet extends ConsumerWidget {
                   child: ElevatedButton(
                     onPressed: () => _handlePurchase(context, ref, authState, tier),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isRecommended ? Colors.green : null,
+                      backgroundColor: isRecommended ? Colors.purple : null,
                       foregroundColor: isRecommended ? Colors.white : null,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
@@ -266,7 +266,7 @@ class TokenTopUpSheet extends ConsumerWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.green,
+                  color: Colors.purple,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Text(
@@ -305,7 +305,7 @@ class TokenTopUpSheet extends ConsumerWidget {
                   setState(() => reference = ref);
                 }),
                 const SizedBox(height: 12),
-                _buildPaymentOption(context, 'paymaya', 'Maya', Icons.account_balance_wallet_outlined, Colors.green, selectedMethod, (method) async {
+                _buildPaymentOption(context, 'paymaya', 'Maya', Icons.account_balance_wallet_outlined, Colors.purple, selectedMethod, (method) async {
                   setState(() => selectedMethod = method);
                   final ref = await _showMayaPayment(context, config.price);
                   setState(() => reference = ref);
@@ -321,12 +321,12 @@ class TokenTopUpSheet extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.green.shade50,
+                      color: Colors.purple.shade50,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.check_circle, color: Colors.green),
+                        Icon(Icons.check_circle, color: Colors.purple),
                         const SizedBox(width: 8),
                         Expanded(child: Text('Ref: $reference', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold))),
                       ],
@@ -444,7 +444,7 @@ class TokenTopUpSheet extends ConsumerWidget {
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.account_balance_wallet_outlined, color: Colors.green),
+            Icon(Icons.account_balance_wallet_outlined, color: Colors.purple),
             const SizedBox(width: 12),
             const Text('Maya Payment'),
           ],
@@ -455,16 +455,16 @@ class TokenTopUpSheet extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.green.shade50,
+                color: Colors.purple.shade50,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
                 children: [
-                  Icon(Icons.qr_code_2, size: 120, color: Colors.green.shade700),
+                  Icon(Icons.qr_code_2, size: 120, color: Colors.purple.shade700),
                   const SizedBox(height: 16),
                   Text('Scan QR Code', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(height: 8),
-                  Text('Amount: ₱${amount.toStringAsFixed(2)}', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green)),
+                  Text('Amount: ₱${amount.toStringAsFixed(2)}', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.purple)),
                 ],
               ),
             ),
@@ -482,7 +482,7 @@ class TokenTopUpSheet extends ConsumerWidget {
               final ref = 'MAYA${DateTime.now().millisecondsSinceEpoch}';
               Navigator.pop(context, ref);
             },
-            style: FilledButton.styleFrom(backgroundColor: Colors.green),
+            style: FilledButton.styleFrom(backgroundColor: Colors.purple),
             child: const Text('I\'ve Paid'),
           ),
         ],
@@ -709,7 +709,7 @@ class TokenTopUpSheet extends ConsumerWidget {
                   content: Text(
                     'Successfully purchased ${TokenPurchaseTierConfig.forTier(tier).totalTokens} tokens!',
                   ),
-                  backgroundColor: Colors.green,
+                  backgroundColor: Colors.purple,
                 ),
               );
             }

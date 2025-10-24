@@ -1000,6 +1000,9 @@ class MockAuctionService implements AuctionRepository {
 
     _bids.add(newBid);
 
+    // Anti-sniping: Extend auction by 5 minutes when bid is placed
+    final extendedEndTime = auction.endTime.add(Duration(minutes: 5));
+
     // Update auction
     final auctionIndex = _auctions.indexWhere((a) => a.id == auctionId);
     _auctions[auctionIndex] = auction.copyWith(
@@ -1007,6 +1010,7 @@ class MockAuctionService implements AuctionRepository {
       totalBids: auction.totalBids + 1,
       topBidderId: userId,
       topBidderName: bidderName,
+      endTime: extendedEndTime,
       updatedAt: now,
     );
 
