@@ -165,6 +165,7 @@ class _BuyerCommentSectionState extends State<BuyerCommentSection> {
   }
 
   Widget _buildCategoryFilters(ThemeData theme) {
+    final colorScheme = theme.colorScheme;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
@@ -172,6 +173,7 @@ class _BuyerCommentSectionState extends State<BuyerCommentSection> {
           FilterChip(
             label: const Text('All'),
             selected: _filterCategory == null,
+            selectedColor: colorScheme.primary.withValues(alpha: 0.15),
             onSelected: (selected) {
               setState(() => _filterCategory = null);
             },
