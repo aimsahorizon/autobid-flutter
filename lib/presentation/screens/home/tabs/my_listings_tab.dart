@@ -16,7 +16,6 @@ import '../../../providers/auth_provider.dart';
 import '../../../providers/subscription_provider.dart';
 import '../../../widgets/car_card.dart';
 import '../../../widgets/auction_card.dart';
-import 'my_listings_tab_kyc_modal.dart';
 
 class MyListingsTab extends ConsumerStatefulWidget {
   final bool isGridView;
@@ -201,11 +200,9 @@ class _MyListingsTabState extends ConsumerState<MyListingsTab>
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         onTap: () {
-          // RA 8792 Compliance: KYC verification required before pre-transaction access
-          _showKycModalAndNavigate(
-            auctionId: preTransaction.auctionId,
-            carTitle: preTransaction.carTitle,
-            winningBid: preTransaction.finalBidAmount,
+          // Navigate directly to pre-transaction screen
+          context.push(
+            '/preTransaction/${preTransaction.auctionId}?carTitle=${Uri.encodeComponent(preTransaction.carTitle)}&winningBid=${preTransaction.finalBidAmount}&isSeller=true',
           );
         },
         child: Padding(
@@ -1498,28 +1495,6 @@ class _MyListingsTabState extends ConsumerState<MyListingsTab>
         );
   }
 
-  // RA 8792 Compliance: KYC verification before pre-transaction access
-  Future<void> _showKycModalAndNavigate({
-    required String auctionId,
-    required String carTitle,
-    required double winningBid,
-  }) async {
-    // Show KYC modal
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => KycVerificationModal(
-        isSeller: true,
-        onSuccess: () {
-          // Navigate to pre-transaction after KYC success
-          context.push(
-            '/preTransaction/$auctionId?carTitle=${Uri.encodeComponent(carTitle)}&winningBid=$winningBid&isSeller=true',
-          );
-        },
-      ),
-    );
-  }
-
   // REVISED Revenue Model: Quota usage display
   Widget _buildQuotaDisplay(dynamic user) {
     // Gracefully handle missing config getter
@@ -1589,7 +1564,7 @@ class _MyListingsTabState extends ConsumerState<MyListingsTab>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Listing Quota',
+                  'Listing Balance',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
