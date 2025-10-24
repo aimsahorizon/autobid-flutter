@@ -395,19 +395,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Theme toggle button
-                Align(
-                  alignment: Alignment.topRight,
-                  child: IconButton(
-                    onPressed: () {
-                      ref.read(appThemeModeProvider.notifier).toggleTheme();
-                    },
-                    icon: Icon(
-                      isDark ? Icons.light_mode : Icons.dark_mode,
-                      color: ColorConstants.primaryGreen,
-                    ),
-                    tooltip: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
-                  ),
-                ),
+                // Align(
+                //   alignment: Alignment.topRight,
+                //   child: IconButton(
+                //     onPressed: () {
+                //       ref.read(appThemeModeProvider.notifier).toggleTheme();
+                //     },
+                //     icon: Icon(
+                //       isDark ? Icons.light_mode : Icons.dark_mode,
+                //       color: ColorConstants.primaryGreen,
+                //     ),
+                //     tooltip: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+                //   ),
+                // ),
                 const SizedBox(height: 8),
                 Text(
                   'Welcome Back',
@@ -531,8 +531,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ],
                       ),
                       const SizedBox(height: 12),
-                      _buildCredentialRow('test@autobid.com', 'Test123'),
-                      const SizedBox(height: 8),
                       _buildCredentialRow('pending@autobid.com', 'Test123'),
                       const SizedBox(height: 8),
                       _buildCredentialRow('rejected@autobid.com', 'Test123'),
