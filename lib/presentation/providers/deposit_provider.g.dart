@@ -369,7 +369,7 @@ final class DepositActionsProvider
         argument: null,
         retry: null,
         name: r'depositActionsProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -382,7 +382,7 @@ final class DepositActionsProvider
   DepositActions create() => DepositActions();
 }
 
-String _$depositActionsHash() => r'21d1f8c639129f54ce868258452d4ed557f14429';
+String _$depositActionsHash() => r'f4877735092e9ebe789d0ce81517b115eb7dab5f';
 
 /// Deposit action notifier for managing deposits
 

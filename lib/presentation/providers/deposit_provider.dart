@@ -50,7 +50,7 @@ Future<Map<String, dynamic>> depositStatistics(
 }
 
 /// Deposit action notifier for managing deposits
-@riverpod
+@Riverpod(keepAlive: true)
 class DepositActions extends _$DepositActions {
   @override
   FutureOr<void> build() {}

@@ -190,7 +190,7 @@ class _CreateListingStep8ReviewState extends State<CreateListingStep8Review> wit
             const SizedBox(height: 24),
 
             Text(
-              'Step 8 of 9',
+              'Step 8 of 10',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                   ),

@@ -131,6 +131,7 @@ class ListingProvider extends ChangeNotifier {
   bool _isAuction = false;
   double? _auctionStartingPrice;
   double? _auctionReservePrice;
+  double? _auctionBidIncrement;
   int? _auctionDurationDays;
   double? _auctionBuyNowPrice;
 
@@ -253,6 +254,7 @@ class ListingProvider extends ChangeNotifier {
   bool get isAuction => _isAuction;
   double? get auctionStartingPrice => _auctionStartingPrice;
   double? get auctionReservePrice => _auctionReservePrice;
+  double? get auctionBidIncrement => _auctionBidIncrement;
   int? get auctionDurationDays => _auctionDurationDays;
   double? get auctionBuyNowPrice => _auctionBuyNowPrice;
 
@@ -805,11 +807,13 @@ class ListingProvider extends ChangeNotifier {
   void setAuctionSettings({
     required double startingPrice,
     required double reservePrice,
+    required double bidIncrement,
     required int durationDays,
     double? buyNowPrice,
   }) {
     _auctionStartingPrice = startingPrice;
     _auctionReservePrice = reservePrice;
+    _auctionBidIncrement = bidIncrement;
     _auctionDurationDays = durationDays;
     _auctionBuyNowPrice = buyNowPrice;
     notifyListeners();

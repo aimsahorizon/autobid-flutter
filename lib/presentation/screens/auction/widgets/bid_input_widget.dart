@@ -195,7 +195,7 @@ class _BidInputWidgetState extends ConsumerState<BidInputWidget> {
 
     // Check token balance (REVISED Revenue Model)
     final tokenBalanceAsync = ref.read(currentUserTokenBalanceProvider);
-    final balance = await tokenBalanceAsync.first;
+    final balance = tokenBalanceAsync.value ?? 0;
 
     if (balance < 1) {
       _showInsufficientTokensDialog(balance);
@@ -327,8 +327,4 @@ class _BidInputWidgetState extends ConsumerState<BidInputWidget> {
           (Match m) => '${m[1]},',
         );
   }
-}
-
-extension on AsyncValue<int> {
-  Future? get first => null;
 }

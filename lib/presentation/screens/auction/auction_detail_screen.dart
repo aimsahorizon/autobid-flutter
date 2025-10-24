@@ -220,33 +220,15 @@ class _AuctionDetailScreenState extends ConsumerState<AuctionDetailScreen> with 
                                         },
                                       ),
                                       const SizedBox(height: 8),
-                                      Row(
-                                        children: [
-                                          if (auction.buyNowPrice != null)
-                                            Expanded(
-                                              child: OutlinedButton.icon(
-                                                onPressed: () {
-                                                  // Buy now functionality
-                                                },
-                                                icon: Icon(Icons.shopping_cart),
-                                                label: Text('Buy Now - ₱${_formatCurrency(auction.buyNowPrice!)}'),
-                                                style: OutlinedButton.styleFrom(
-                                                  padding: EdgeInsets.symmetric(vertical: 12),
-                                                ),
-                                              ),
-                                            ),
-                                          if (auction.buyNowPrice != null) const SizedBox(width: 8),
-                                          Expanded(
-                                            child: OutlinedButton.icon(
-                                              onPressed: () => _showAutoBidDialog(context, auction, provider),
-                                              icon: Icon(Icons.auto_mode),
-                                              label: Text('Auto-Bid'),
-                                              style: OutlinedButton.styleFrom(
-                                                padding: EdgeInsets.symmetric(vertical: 12),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
+                                      // Auto-Bid button
+                                      OutlinedButton.icon(
+                                        onPressed: () => _showAutoBidDialog(context, auction, provider),
+                                        icon: Icon(Icons.auto_mode),
+                                        label: Text('Auto-Bid'),
+                                        style: OutlinedButton.styleFrom(
+                                          padding: EdgeInsets.symmetric(vertical: 12),
+                                          minimumSize: Size(double.infinity, 48),
+                                        ),
                                       ),
                                     ],
                                   );

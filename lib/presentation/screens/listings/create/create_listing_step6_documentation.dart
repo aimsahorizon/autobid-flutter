@@ -86,7 +86,7 @@ class _CreateListingStep6DocumentationState
             const SizedBox(height: 24),
 
             Text(
-              'Step 6 of 9',
+              'Step 6 of 10',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                   ),

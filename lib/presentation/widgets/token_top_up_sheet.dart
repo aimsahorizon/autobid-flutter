@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:autobid/data/models/token_model.dart';
@@ -292,17 +293,20 @@ class TokenTopUpSheet extends ConsumerWidget {
                 const SizedBox(height: 20),
                 _buildPaymentOption(context, 'gcash', 'GCash', Icons.account_balance_wallet, Colors.blue, selectedMethod, (method) async {
                   setState(() => selectedMethod = method);
-                  reference = await _showGCashPayment(context, config.price);
+                  final ref = await _showGCashPayment(context, config.price);
+                  setState(() => reference = ref);
                 }),
                 const SizedBox(height: 12),
                 _buildPaymentOption(context, 'paymaya', 'Maya', Icons.account_balance_wallet_outlined, Colors.green, selectedMethod, (method) async {
                   setState(() => selectedMethod = method);
-                  reference = await _showMayaPayment(context, config.price);
+                  final ref = await _showMayaPayment(context, config.price);
+                  setState(() => reference = ref);
                 }),
                 const SizedBox(height: 12),
                 _buildPaymentOption(context, 'card', 'Credit/Debit Card', Icons.credit_card, Colors.purple, selectedMethod, (method) async {
                   setState(() => selectedMethod = method);
-                  reference = await _showCardPayment(context, config.price);
+                  final ref = await _showCardPayment(context, config.price);
+                  setState(() => reference = ref);
                 }),
                 if (reference != null) ...[
                   const SizedBox(height: 16),
@@ -482,102 +486,178 @@ class TokenTopUpSheet extends ConsumerWidget {
     final cardController = TextEditingController();
     final expiryController = TextEditingController();
     final cvvController = TextEditingController();
+    bool isFormValid = false;
 
     return showDialog<String>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.credit_card, color: Colors.purple),
-            const SizedBox(width: 12),
-            const Text('Card Payment'),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: cardController,
-                decoration: InputDecoration(
-                  labelText: 'Card Number',
-                  hintText: '1234 5678 9012 3456',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-                keyboardType: TextInputType.number,
-                maxLength: 19,
-              ),
-              const SizedBox(height: 12),
-              Row(
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          void validateForm() {
+            final cardNumber = cardController.text.replaceAll(' ', '');
+            final expiry = expiryController.text;
+            final cvv = cvvController.text;
+
+            // Validate card number (16 digits)
+            final isCardValid = cardNumber.length == 16 && int.tryParse(cardNumber) != null;
+
+            // Validate expiry (MM/YY format and valid month)
+            final isExpiryValid = expiry.length == 5 && expiry.contains('/');
+            bool isExpiryDateValid = false;
+            if (isExpiryValid) {
+              final parts = expiry.split('/');
+              if (parts.length == 2) {
+                final month = int.tryParse(parts[0]);
+                final year = int.tryParse(parts[1]);
+                if (month != null && year != null && month >= 1 && month <= 12) {
+                  final now = DateTime.now();
+                  final expiryYear = 2000 + year;
+                  final expiryDate = DateTime(expiryYear, month);
+                  isExpiryDateValid = expiryDate.isAfter(now);
+                }
+              }
+            }
+
+            // Validate CVV (3 digits)
+            final isCvvValid = cvv.length == 3 && int.tryParse(cvv) != null;
+
+            setState(() {
+              isFormValid = isCardValid && isExpiryDateValid && isCvvValid;
+            });
+          }
+
+          return AlertDialog(
+            title: Row(
+              children: [
+                Icon(Icons.credit_card, color: Colors.purple),
+                const SizedBox(width: 12),
+                const Text('Card Payment'),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: expiryController,
-                      decoration: InputDecoration(
-                        labelText: 'Expiry',
-                        hintText: 'MM/YY',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  TextField(
+                    controller: cardController,
+                    decoration: InputDecoration(
+                      labelText: 'Card Number',
+                      hintText: '1234 5678 9012 3456',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      counterText: '',
+                    ),
+                    keyboardType: TextInputType.number,
+                    maxLength: 19,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      _CardNumberFormatter(),
+                    ],
+                    onChanged: (_) => validateForm(),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: expiryController,
+                          decoration: InputDecoration(
+                            labelText: 'Expiry',
+                            hintText: 'MM/YY',
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                            counterText: '',
+                          ),
+                          keyboardType: TextInputType.number,
+                          maxLength: 5,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            _ExpiryDateFormatter(),
+                          ],
+                          onChanged: (_) => validateForm(),
+                        ),
                       ),
-                      maxLength: 5,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextField(
+                          controller: cvvController,
+                          decoration: InputDecoration(
+                            labelText: 'CVV',
+                            hintText: '123',
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                            counterText: '',
+                          ),
+                          keyboardType: TextInputType.number,
+                          maxLength: 3,
+                          obscureText: true,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          onChanged: (_) => validateForm(),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.purple.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Amount: ', style: TextStyle(fontSize: 14)),
+                        Text('₱${amount.toStringAsFixed(2)}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.purple)),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextField(
-                      controller: cvvController,
-                      decoration: InputDecoration(
-                        labelText: 'CVV',
-                        hintText: '123',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  if (!isFormValid && (cardController.text.isNotEmpty || expiryController.text.isNotEmpty || cvvController.text.isNotEmpty)) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.red.shade200),
                       ),
-                      keyboardType: TextInputType.number,
-                      maxLength: 3,
-                      obscureText: true,
+                      child: Row(
+                        children: [
+                          Icon(Icons.error_outline, size: 16, color: Colors.red.shade700),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Please fill all fields correctly',
+                              style: TextStyle(fontSize: 12, color: Colors.red.shade900),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                  ],
                 ],
               ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.purple.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Amount: ', style: TextStyle(fontSize: 14)),
-                    Text('₱${amount.toStringAsFixed(2)}', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.purple)),
-                  ],
-                ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  cardController.dispose();
+                  expiryController.dispose();
+                  cvvController.dispose();
+                  Navigator.pop(context);
+                },
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: isFormValid ? () {
+                  final ref = 'CARD${DateTime.now().millisecondsSinceEpoch}';
+                  Navigator.pop(context, ref);
+                } : null,
+                style: FilledButton.styleFrom(backgroundColor: Colors.purple),
+                child: const Text('Pay Now'),
               ),
             ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              cardController.dispose();
-              expiryController.dispose();
-              cvvController.dispose();
-              Navigator.pop(context);
-            },
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              final ref = 'CARD${DateTime.now().millisecondsSinceEpoch}';
-              cardController.dispose();
-              expiryController.dispose();
-              cvvController.dispose();
-              Navigator.pop(context, ref);
-            },
-            style: FilledButton.styleFrom(backgroundColor: Colors.purple),
-            child: const Text('Pay Now'),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -639,6 +719,80 @@ class TokenTopUpSheet extends ConsumerWidget {
       },
       loading: () {},
       error: (_, __) {},
+    );
+  }
+}
+
+/// Custom formatter for credit card number (adds space every 4 digits)
+class _CardNumberFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final text = newValue.text;
+    if (text.isEmpty) {
+      return newValue;
+    }
+
+    // Remove all spaces
+    final digitsOnly = text.replaceAll(' ', '');
+
+    // Limit to 16 digits
+    if (digitsOnly.length > 16) {
+      return oldValue;
+    }
+
+    // Add space every 4 digits
+    final buffer = StringBuffer();
+    for (int i = 0; i < digitsOnly.length; i++) {
+      if (i > 0 && i % 4 == 0) {
+        buffer.write(' ');
+      }
+      buffer.write(digitsOnly[i]);
+    }
+
+    final formatted = buffer.toString();
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+}
+
+/// Custom formatter for expiry date (auto-formats to MM/YY)
+class _ExpiryDateFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final text = newValue.text;
+    if (text.isEmpty) {
+      return newValue;
+    }
+
+    // Remove all slashes
+    final digitsOnly = text.replaceAll('/', '');
+
+    // Limit to 4 digits (MMYY)
+    if (digitsOnly.length > 4) {
+      return oldValue;
+    }
+
+    // Auto-format to MM/YY
+    final buffer = StringBuffer();
+    for (int i = 0; i < digitsOnly.length; i++) {
+      if (i == 2) {
+        buffer.write('/');
+      }
+      buffer.write(digitsOnly[i]);
+    }
+
+    final formatted = buffer.toString();
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
     );
   }
 }

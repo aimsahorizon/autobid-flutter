@@ -81,7 +81,7 @@ with CreateListingMixin{
             const SizedBox(height: 24),
 
             Text(
-              'Step 1 of 9',
+              'Step 1 of 10',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                   ),

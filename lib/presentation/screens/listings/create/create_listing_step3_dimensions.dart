@@ -70,7 +70,7 @@ class _CreateListingStep3DimensionsState
             const SizedBox(height: 24),
 
             Text(
-              'Step 3 of 9',
+              'Step 3 of 10',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.grey[600],
                   ),

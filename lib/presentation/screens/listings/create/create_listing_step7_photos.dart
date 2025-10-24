@@ -139,7 +139,7 @@ class _CreateListingStep7PhotosState extends State<CreateListingStep7Photos>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Step 7 of 9',
+                          'Step 7 of 10',
                           style:
                               Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: isDarkMode ? Colors.grey[400] : Colors.grey[600],

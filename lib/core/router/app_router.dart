@@ -34,7 +34,8 @@ import '../../presentation/screens/listings/create/create_listing_step5_conditio
 import '../../presentation/screens/listings/create/create_listing_step6_documentation.dart';
 import '../../presentation/screens/listings/create/create_listing_step7_photos.dart';
 import '../../presentation/screens/listings/create/create_listing_step8_review.dart';
-import '../../presentation/screens/listings/create/create_listing_step9_summary.dart';
+import '../../presentation/screens/listings/create/create_listing_step9_bidding.dart';
+import '../../presentation/screens/listings/create/create_listing_step10_payment.dart';
 import '../../presentation/screens/listings/create/listing_success_screen.dart';
 import '../../presentation/screens/browse/browse_cars_screen.dart';
 import '../../presentation/screens/browse/search_screen.dart';
@@ -511,7 +512,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/listing/create/step9',
         name: 'create-listing-step9',
-        builder: (context, state) => const CreateListingStep9Summary(),
+        builder: (context, state) => const CreateListingStep9Bidding(),
+      ),
+      GoRoute(
+        path: '/listing/create/step10',
+        name: 'create-listing-step10',
+        builder: (context, state) => const CreateListingStep10Payment(),
       ),
       GoRoute(
         path: '/listing/create/success',

@@ -14,20 +14,22 @@ import '../../../widgets/save_draft_button.dart';
 import '../../../widgets/token_top_up_sheet.dart';
 import 'create_listing_step_mixin.dart';
 
-class CreateListingStep9Summary extends ConsumerStatefulWidget {
-  const CreateListingStep9Summary({super.key});
+class CreateListingStep10Payment extends ConsumerStatefulWidget {
+  const CreateListingStep10Payment({super.key});
 
   @override
-  ConsumerState<CreateListingStep9Summary> createState() =>
-      _CreateListingStep9SummaryState();
+  ConsumerState<CreateListingStep10Payment> createState() =>
+      _CreateListingStep10PaymentState();
 }
 
-class _CreateListingStep9SummaryState extends ConsumerState<CreateListingStep9Summary> with CreateListingMixin {
+class _CreateListingStep10PaymentState extends ConsumerState<CreateListingStep10Payment> with CreateListingMixin {
+  bool _isSubmitting = false;
+
   @override
   void initState() {
     super.initState();
     final provider = context.read<ListingProvider>();
-    provider.setCurrentStep(9);
+    provider.setCurrentStep(10);
   }
 
   @override
@@ -42,10 +44,10 @@ class _CreateListingStep9SummaryState extends ConsumerState<CreateListingStep9Su
           icon: const Icon(Icons.arrow_back),
           onPressed: () => handleBackWithWarning(),
         ),
-        title: const Text('Listing Summary'),
+        title: const Text('Review & Payment'),
         actions: [
           SaveDraftButton(
-            stepNumber: 9,
+            stepNumber: 10,
             validateForm: () => true,
           ),
         ],
@@ -54,13 +56,13 @@ class _CreateListingStep9SummaryState extends ConsumerState<CreateListingStep9Su
         padding: const EdgeInsets.all(16),
         children: [
           LinearProgressIndicator(
-            value: 9 / 9,
+            value: 10 / 10,
             backgroundColor: isDarkMode ? Colors.grey[700] : Colors.grey[200],
           ),
           const SizedBox(height: 24),
 
           Text(
-            'Step 9 of 9',
+            'Step 10 of 10',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                 ),
@@ -68,7 +70,7 @@ class _CreateListingStep9SummaryState extends ConsumerState<CreateListingStep9Su
           const SizedBox(height: 8),
 
           Text(
-            'Review Your Listing',
+            'Review & Submit Listing',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -76,7 +78,7 @@ class _CreateListingStep9SummaryState extends ConsumerState<CreateListingStep9Su
           const SizedBox(height: 8),
 
           Text(
-            'Please review all information before submitting',
+            'Review all information and complete payment to list your vehicle',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                 ),
@@ -339,6 +341,41 @@ class _CreateListingStep9SummaryState extends ConsumerState<CreateListingStep9Su
             ],
             onEdit: () => context.go('/listing/create/step8'),
           ),
+          const SizedBox(height: 12),
+
+          // STEP 9: BIDDING SETTINGS
+          _buildSummarySection(
+            context,
+            'Step 9: Bidding Settings',
+            Icons.gavel,
+            [
+              _buildInfoRow(
+                'Opening Price',
+                provider.auctionStartingPrice != null
+                    ? '₱${NumberFormat('#,###').format(provider.auctionStartingPrice)}'
+                    : 'N/A',
+              ),
+              _buildInfoRow(
+                'Reserve Price',
+                provider.auctionReservePrice != null
+                    ? '₱${NumberFormat('#,###').format(provider.auctionReservePrice)}'
+                    : 'N/A',
+              ),
+              _buildInfoRow(
+                'Bid Increment',
+                provider.auctionBidIncrement != null
+                    ? '₱${NumberFormat('#,###').format(provider.auctionBidIncrement)}'
+                    : 'N/A',
+              ),
+              _buildInfoRow(
+                'Auction Duration',
+                provider.auctionDurationDays != null
+                    ? '${provider.auctionDurationDays} days'
+                    : 'N/A',
+              ),
+            ],
+            onEdit: () => context.go('/listing/create/step9'),
+          ),
           const SizedBox(height: 24),
 
           // Warning/Info box
@@ -383,7 +420,7 @@ class _CreateListingStep9SummaryState extends ConsumerState<CreateListingStep9Su
             children: [
               Expanded(
                 child: OutlinedButton(
-                  onPressed: () => context.push('/listing/create/step8'),
+                  onPressed: () => context.push('/listing/create/step9'),
                   child: const Text('Back'),
                 ),
               ),

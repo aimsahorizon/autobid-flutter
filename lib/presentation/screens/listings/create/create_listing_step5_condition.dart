@@ -472,7 +472,7 @@ class _CreateListingStep5ConditionState
 
             // Step header
             Text(
-              'Step 5 of 9',
+              'Step 5 of 10',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.grey[600],
                   ),

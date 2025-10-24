@@ -120,7 +120,7 @@ class ListingSuccessScreen extends StatelessWidget {
                 text: 'View My Listings',
                 onPressed: () {
                   context.read<ListingProvider>().reset();
-                  context.go('/listing'); // Navigate to home with My Listings tab
+                  context.go('/home?tab=4&subTab=2'); // Navigate to home with My Listings tab
                 },
               ),
               const SizedBox(height: 12),

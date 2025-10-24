@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../data/services/mock/mock_review_service.dart';
 import '../../../widgets/reviews/rating_badge.dart';
 import '../../../widgets/token_wallet_card.dart';
+import '../../../widgets/subscription_card.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/theme_provider.dart';
 import '../widgets/profile_stat_item.dart';
@@ -131,9 +132,9 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
 
     // Mock user data - would come from auth provider in production
     const userName = 'John Doe';
-    const userEmail = 'john.doe@example.com';
-    const userPhone = '+1 234 567 8900';
-    const userId = 'user123';
+    const userEmail = 'demo@autobid.com';
+    const userPhone = '+639759501214';
+    const userId = 'demo123';
 
     return SingleChildScrollView(
       child: Column(
@@ -310,6 +311,9 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
 
           // Token Wallet (REVISED Revenue Model)
           const TokenWalletCard(),
+
+          // Subscription Management (REVISED Revenue Model)
+          const SubscriptionCard(),
 
           const Divider(height: 1),
 
