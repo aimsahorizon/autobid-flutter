@@ -1,23 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../data/models/auction_model.dart';
 import '../../../../data/models/bid_model.dart';
+import '../../../providers/auction_provider.dart';
 
 class CurrentBidCard extends StatelessWidget {
   final Auction auction;
   final BidStatus? userBidStatus;
   final double? userBidAmount;
+  final bool isSeller;
 
   const CurrentBidCard({
     super.key,
     required this.auction,
     this.userBidStatus,
     this.userBidAmount,
+    this.isSeller = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final reserveMet = auction.currentBid >= auction.reservePrice;
+    final auctionProvider = context.watch<AuctionProvider>();
+    final autoBidConfig = auctionProvider.getAutoBidConfig(auction.id);
 
     return Card(
       elevation: 4,
@@ -65,6 +71,52 @@ class CurrentBidCard extends StatelessWidget {
                 'Your bid: ₱${_formatCurrency(userBidAmount!)}',
                 style: theme.textTheme.bodySmall?.copyWith(
                   fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+            // Auto-bid indicator
+            if (autoBidConfig != null && autoBidConfig.isActive && !isSeller) ...[
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: theme.colorScheme.primary.withOpacity(0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.auto_mode,
+                      size: 16,
+                      color: theme.colorScheme.primary,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Auto-Bid Active',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                          Text(
+                            'Max: ₱${_formatCurrency(autoBidConfig.maxBidAmount)} • Increment: ₱${_formatCurrency(autoBidConfig.incrementAmount)}',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: theme.colorScheme.onPrimaryContainer,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

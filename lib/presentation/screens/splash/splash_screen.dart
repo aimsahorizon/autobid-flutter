@@ -1,27 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/constants/string_constants.dart';
 import '../../../core/constants/color_constants.dart';
+import '../../providers/onboarding_provider.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _navigateToLogin();
+    _initializeAndNavigate();
   }
 
-  Future<void> _navigateToLogin() async {
+  Future<void> _initializeAndNavigate() async {
+    // Load onboarding status from storage
+    final service = ref.read(onboardingServiceProvider);
+    final hasCompleted = await service.hasCompletedOnboarding();
+
+    // Update the sync provider for router
+    ref.read(onboardingCompletedProvider.notifier).state = hasCompleted;
+
     await Future.delayed(AppConstants.splashDelay);
     if (mounted) {
-      context.go(StringConstants.loginRoute);
+      // Navigation is handled by router redirect logic
+      // which checks onboarding status and auth state
+      context.go(StringConstants.onboardingRoute);
     }
   }
 

@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../../data/models/user_model.dart';
+import '../../core/utils/demo_data_helper.dart';
 
 class SignupProvider with ChangeNotifier {
   // Step 1: Account Information
@@ -356,6 +357,100 @@ class SignupProvider with ChangeNotifier {
     _isSubmitting = false;
     _errorMessage = null;
     _isEditingFromReview = false;
+    notifyListeners();
+  }
+
+  // ============================================================================
+  // DEMO MODE - Auto-fill methods for testing/demo purposes
+  // ============================================================================
+
+  /// Auto-fills Step 1: Account Information with demo data
+  void autoFillStep1() {
+    if (!DemoDataHelper.isDemoModeEnabled) return;
+
+    _email = DemoDataHelper.demoEmail;
+    _password = DemoDataHelper.demoPassword;
+    _confirmPassword = DemoDataHelper.demoPassword;
+    _phoneNumber = DemoDataHelper.demoPhoneNumber;
+    _termsAccepted = true;
+    _privacyAccepted = true;
+    notifyListeners();
+  }
+
+  /// Auto-fills Step 2: Personal Information with demo data
+  void autoFillStep2() {
+    if (!DemoDataHelper.isDemoModeEnabled) return;
+
+    _firstName = DemoDataHelper.demoFirstName;
+    _middleName = DemoDataHelper.demoMiddleName;
+    _lastName = DemoDataHelper.demoLastName;
+    _dateOfBirth = DemoDataHelper.demoDOB;
+    _gender = DemoDataHelper.demoGender;
+    notifyListeners();
+  }
+
+  /// Auto-fills Step 3: Address Information with demo data
+  void autoFillStep3() {
+    if (!DemoDataHelper.isDemoModeEnabled) return;
+
+    _region = DemoDataHelper.demoRegion;
+    _province = DemoDataHelper.demoProvince;
+    _city = DemoDataHelper.demoCity;
+    _barangay = DemoDataHelper.demoBarangay;
+    _street = DemoDataHelper.demoStreet;
+    _zipCode = DemoDataHelper.demoZipCode;
+    _nationality = DemoDataHelper.demoNationality;
+    notifyListeners();
+  }
+
+  /// Auto-fills Step 4: Primary ID with demo data and generated images
+  Future<void> autoFillStep4() async {
+    if (!DemoDataHelper.isDemoModeEnabled) return;
+
+    _primaryIdFront = await DemoDataHelper.generateNationalIdFront();
+    _primaryIdBack = await DemoDataHelper.generateNationalIdBack();
+    _nationalIdNumber = DemoDataHelper.demoNationalIdNumber;
+    notifyListeners();
+  }
+
+  /// Auto-fills Step 5: Secondary ID with demo data and generated image
+  Future<void> autoFillStep5() async {
+    if (!DemoDataHelper.isDemoModeEnabled) return;
+
+    _secondaryIdType = DemoDataHelper.demoSecondaryIdType;
+    _secondaryIdImage = await DemoDataHelper.generateSecondaryId();
+    _secondaryIdNumber = DemoDataHelper.demoSecondaryIdNumber;
+    notifyListeners();
+  }
+
+  /// Auto-fills Step 6: Selfie with demo generated image
+  Future<void> autoFillStep6() async {
+    if (!DemoDataHelper.isDemoModeEnabled) return;
+
+    _selfieImage = await DemoDataHelper.generateSelfie();
+    notifyListeners();
+  }
+
+  /// Auto-fills Step 7: Proof of Address with demo data and generated image
+  Future<void> autoFillStep7() async {
+    if (!DemoDataHelper.isDemoModeEnabled) return;
+
+    _proofOfAddressType = DemoDataHelper.demoProofOfAddressType;
+    _proofOfAddressImage = await DemoDataHelper.generateProofOfAddress();
+    notifyListeners();
+  }
+
+  /// Auto-fills all steps at once (useful for quick testing)
+  Future<void> autoFillAllSteps() async {
+    if (!DemoDataHelper.isDemoModeEnabled) return;
+
+    autoFillStep1();
+    autoFillStep2();
+    autoFillStep3();
+    await autoFillStep4();
+    await autoFillStep5();
+    await autoFillStep6();
+    await autoFillStep7();
     notifyListeners();
   }
 }

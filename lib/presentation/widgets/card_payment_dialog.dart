@@ -100,8 +100,8 @@ class _CardPaymentDialogState extends State<CardPaymentDialog> {
       _isProcessing = true;
     });
 
-    // Simulate payment processing
-    await Future.delayed(const Duration(seconds: 2));
+    // Optimized: Simulate payment processing (reduced from 2s)
+    await Future.delayed(const Duration(milliseconds: 800));
 
     if (!mounted) return;
 

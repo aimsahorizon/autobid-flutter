@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:autobid/data/models/subscription_tier.dart';
 import 'package:uuid/uuid.dart';
 import '../../models/user_model.dart';
 import 'mock_otp_service.dart';
@@ -100,47 +101,67 @@ class MockAuthService {
       // Simulate network delay
       await Future.delayed(const Duration(seconds: 1));
 
-      // Basic validation
-      if (email.isEmpty || password.isEmpty) {
-        return AuthResult(
-          success: false,
-          errorMessage: 'Email and password are required',
-        );
-      }
+      // LOGIN NEVER FAILS - Always succeed regardless of credentials
+      UserModel user;
 
       // Find user by email or phone
-      final user = _findUserByIdentifier(email);
-      if (user == null) {
-        return AuthResult(
-          success: false,
-          errorMessage: 'Invalid email or password',
+      final existingUser = _findUserByIdentifier(email);
+
+      if (existingUser != null) {
+        // Use existing demo account with their respective status
+        user = existingUser;
+
+        // Auto-unlock if account was locked (for demo purposes)
+        if (user.accountStatus == AccountStatus.locked) {
+          user = user.copyWith(
+            accountStatus: AccountStatus.pending,
+            otpFailureCount: 0,
+          );
+          final userIndex = _users.indexWhere((u) => u.id == user.id);
+          if (userIndex != -1) {
+            _users[userIndex] = user;
+          }
+        }
+      } else {
+        // Create a new demo user if not found (login never fails)
+        user = UserModel(
+          id: _uuid.v4(),
+          email: email.isEmpty ? 'demo_${_uuid.v4().substring(0, 8)}@autobid.com' : email,
+          phoneNumber: '+63917${DateTime.now().millisecondsSinceEpoch % 10000000}',
+          fullName: 'Demo User',
+          password: password,
+          accountType: 'individual',
+          createdAt: DateTime.now(),
+          verifiedBadge: true,
+          accountStatus: AccountStatus.verified,
+          kycStatus: 'approved',
         );
+        _users.add(user);
       }
 
-      // Check password
-      if (user.password != password) {
-        return AuthResult(
-          success: false,
-          errorMessage: 'Invalid email or password',
-        );
-      }
-
-      // Check if account is locked
-      final lockCheck = _checkAccountLock(user);
-      if (!lockCheck.success) {
-        return lockCheck;
-      }
-
-      // Success
+      // Success - Always login regardless of credentials
       _currentUser = user;
       _authStateController.add(user);
 
       return AuthResult(success: true, user: user);
     } catch (e) {
-      return AuthResult(
-        success: false,
-        errorMessage: 'An error occurred during sign in',
+      // Even on exception, create and login a guest user
+      final guestUser = UserModel(
+        id: _uuid.v4(),
+        email: 'guest_${DateTime.now().millisecondsSinceEpoch}@autobid.com',
+        fullName: 'Guest User',
+        accountType: 'individual',
+        createdAt: DateTime.now(),
+        verifiedBadge: true,
+        accountStatus: AccountStatus.verified,
+        kycStatus: 'approved',
       );
+
+      _users.add(guestUser);
+      _currentUser = guestUser;
+      _authStateController.add(guestUser);
+
+      return AuthResult(success: true, user: guestUser);
     }
   }
 
@@ -211,8 +232,8 @@ class MockAuthService {
 
   Future<AuthResult> signInWithGoogle() async {
     try {
-      // Simulate network delay
-      await Future.delayed(const Duration(seconds: 2));
+      // Optimized: Simulate network delay (reduced from 2s)
+      await Future.delayed(const Duration(milliseconds: 600));
 
       // Create mock Google user
       final user = UserModel(
@@ -304,7 +325,7 @@ class MockAuthService {
         );
       }
 
-      // Mock validation - in production, verify currentPassword
+      // Validate both passwords are provided
       if (currentPassword.isEmpty || newPassword.isEmpty) {
         return AuthResult(
           success: false,
@@ -312,6 +333,15 @@ class MockAuthService {
         );
       }
 
+      // Validate current password matches stored password
+      if (_currentUser!.password != currentPassword) {
+        return AuthResult(
+          success: false,
+          errorMessage: 'Current password is incorrect',
+        );
+      }
+
+      // Validate new password length
       if (newPassword.length < 6) {
         return AuthResult(
           success: false,
@@ -319,7 +349,27 @@ class MockAuthService {
         );
       }
 
-      return AuthResult(success: true, user: _currentUser);
+      // Ensure new password is different from current
+      if (currentPassword == newPassword) {
+        return AuthResult(
+          success: false,
+          errorMessage: 'New password must be different from current password',
+        );
+      }
+
+      // Update password in current user and user list
+      final updatedUser = _currentUser!.copyWith(password: newPassword);
+      _currentUser = updatedUser;
+
+      // Update in user list as well
+      final userIndex = _users.indexWhere((u) => u.id == _currentUser!.id);
+      if (userIndex != -1) {
+        _users[userIndex] = updatedUser;
+      }
+
+      _authStateController.add(updatedUser);
+
+      return AuthResult(success: true, user: updatedUser);
     } catch (e) {
       return AuthResult(
         success: false,
@@ -471,6 +521,48 @@ class MockAuthService {
       return AuthResult(
         success: false,
         errorMessage: 'An error occurred during verification',
+      );
+    }
+  }
+
+  /// Request OTP for security changes (email/phone change)
+  /// Does NOT validate if identifier exists in system
+  /// Used for verifying new emails/phones during security settings changes
+  Future<AuthResult> requestSecurityOtp(String identifier) async {
+    try {
+      await Future.delayed(const Duration(milliseconds: 800));
+
+      // Validate identifier format only
+      if (identifier.isEmpty) {
+        return AuthResult(
+          success: false,
+          errorMessage: 'Email or phone number is required',
+        );
+      }
+
+      // Send OTP directly without user validation
+      final otpResult = await _otpService.sendOtp(
+        identifier: identifier,
+        purpose: OtpPurpose.emailVerification, // Generic purpose
+      );
+
+      if (!otpResult.success) {
+        return AuthResult(
+          success: false,
+          errorMessage: otpResult.errorMessage ?? 'Failed to send OTP',
+        );
+      }
+
+      return AuthResult(
+        success: true,
+        message: 'OTP sent successfully',
+        otpSent: true,
+        debugOtp: otpResult.otp, // For testing
+      );
+    } catch (e) {
+      return AuthResult(
+        success: false,
+        errorMessage: 'An error occurred while sending OTP',
       );
     }
   }
@@ -861,6 +953,121 @@ class MockAuthService {
       kycStatus: 'none',
     );
     return guest;
+  }
+
+  // ========== SUBSCRIPTION & TOKEN BALANCE UPDATES ==========
+
+  /// Update user's subscription tier
+  /// Called by MockSubscriptionService when subscription changes
+  Future<void> updateUserSubscriptionTier({
+    required String userId,
+    required SubscriptionTierType tierType,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    final userIndex = _users.indexWhere((u) => u.id == userId);
+    if (userIndex == -1) return;
+
+    // Reset listing quota when subscription changes
+    final now = DateTime.now();
+    final resetDate = now.add(const Duration(days: 30));
+
+    final updatedUser = _users[userIndex].copyWith(
+      subscriptionTier: tierType,
+      listingsUsedThisMonth: 0, // Reset quota on subscription change
+      listingQuotaResetDate: resetDate,
+    );
+
+    _users[userIndex] = updatedUser;
+
+    // Update current user if it's the same
+    if (_currentUser?.id == userId) {
+      _currentUser = updatedUser;
+      _authStateController.add(updatedUser);
+    }
+  }
+
+  /// Update user's token balance
+  /// Called by MockTokenService when tokens are purchased or allocated
+  Future<void> updateUserTokenBalance({
+    required String userId,
+    required int tokenBalance,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+
+    final userIndex = _users.indexWhere((u) => u.id == userId);
+    if (userIndex == -1) return;
+
+    final updatedUser = _users[userIndex].copyWith(
+      tokenBalance: tokenBalance,
+      tokenBalanceLastUpdated: DateTime.now(),
+    );
+
+    _users[userIndex] = updatedUser;
+
+    // Update current user if it's the same
+    if (_currentUser?.id == userId) {
+      _currentUser = updatedUser;
+      _authStateController.add(updatedUser);
+    }
+  }
+
+  /// Increment user's listing usage
+  /// Called when a listing is successfully created
+  Future<void> incrementListingUsage({
+    required String userId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+
+    final userIndex = _users.indexWhere((u) => u.id == userId);
+    if (userIndex == -1) return;
+
+    final user = _users[userIndex];
+
+    // Check if quota needs reset (past reset date)
+    final now = DateTime.now();
+    final needsReset = user.listingQuotaResetDate == null ||
+                      now.isAfter(user.listingQuotaResetDate!);
+
+    final updatedUser = user.copyWith(
+      listingsUsedThisMonth: needsReset ? 1 : user.listingsUsedThisMonth + 1,
+      listingQuotaResetDate: needsReset
+          ? now.add(const Duration(days: 30))
+          : user.listingQuotaResetDate,
+    );
+
+    _users[userIndex] = updatedUser;
+
+    // Update current user if it's the same
+    if (_currentUser?.id == userId) {
+      _currentUser = updatedUser;
+      _authStateController.add(updatedUser);
+    }
+  }
+
+  /// Reset user's listing quota
+  /// Called when quota reset date has passed or on subscription renewal
+  Future<void> resetListingQuota({
+    required String userId,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 200));
+
+    final userIndex = _users.indexWhere((u) => u.id == userId);
+    if (userIndex == -1) return;
+
+    final now = DateTime.now();
+    final updatedUser = _users[userIndex].copyWith(
+      listingsUsedThisMonth: 0,
+      listingQuotaResetDate: now.add(const Duration(days: 30)),
+    );
+
+    _users[userIndex] = updatedUser;
+
+    // Update current user if it's the same
+    if (_currentUser?.id == userId) {
+      _currentUser = updatedUser;
+      _authStateController.add(updatedUser);
+    }
   }
 
   void dispose() {

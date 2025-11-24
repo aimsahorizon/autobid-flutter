@@ -43,6 +43,7 @@ class _CreateListingStep2DetailsState extends State<CreateListingStep2Details> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ListingProvider>();
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -55,14 +56,14 @@ class _CreateListingStep2DetailsState extends State<CreateListingStep2Details> {
           children: [
             LinearProgressIndicator(
               value: 2 / 6,
-              backgroundColor: Colors.grey[200],
+              backgroundColor: isDarkMode ? Colors.grey[700] : Colors.grey[200],
             ),
             const SizedBox(height: 24),
 
             Text(
               'Step 2 of 6',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                   ),
             ),
             const SizedBox(height: 8),

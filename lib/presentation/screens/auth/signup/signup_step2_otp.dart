@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 import '../../../../core/constants/color_constants.dart';
+import '../../../../core/utils/demo_data_helper.dart';
 import '../../../providers/signup_provider.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/signup_stepper.dart';
@@ -65,6 +66,18 @@ class _SignupStep2OtpState extends State<SignupStep2Otp> with SignupStepMixin {
         timer.cancel();
       }
     });
+  }
+
+  void _autoFillDemo() {
+    final controllers =
+        _currentStep == OtpStep.email ? _emailOtpControllers : _phoneOtpControllers;
+    final otp = DemoDataHelper.demoOTP;
+
+    for (int i = 0; i < 6; i++) {
+      controllers[i].text = otp[i];
+    }
+
+    DemoDataHelper.showDemoFilledMessage(context);
   }
 
   void _handleResendOtp() {
@@ -154,7 +167,7 @@ class _SignupStep2OtpState extends State<SignupStep2Otp> with SignupStepMixin {
 
       // For demo, accept any 6-digit code
       if (phoneOtp.length == 6) {
-        handleNext('/signup/step3');
+        handleNext('/signup/step4');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -215,7 +228,18 @@ class _SignupStep2OtpState extends State<SignupStep2Otp> with SignupStepMixin {
       appBar: AppBar(
         title: const Text('Verify OTP'),
         centerTitle: true,
-        leading: buildBackButton('/signup/step1'),
+        leading: buildBackButton('/signup/step2'),
+        actions: [
+          if (DemoDataHelper.isDemoModeEnabled)
+            TextButton.icon(
+              onPressed: _autoFillDemo,
+              icon: const Icon(Icons.auto_awesome, size: 18),
+              label: const Text('Demo'),
+              style: TextButton.styleFrom(
+                foregroundColor: ColorConstants.primaryGreen,
+              ),
+            ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -223,7 +247,7 @@ class _SignupStep2OtpState extends State<SignupStep2Otp> with SignupStepMixin {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SignupStepper(currentStep: 2, totalSteps: 9),
+              const SignupStepper(currentStep: 3, totalSteps: 9),
               const SizedBox(height: 32),
               Text(
                 'Verification Codes',

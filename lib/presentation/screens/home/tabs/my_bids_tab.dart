@@ -8,6 +8,7 @@ import '../../../widgets/active_bid_card.dart';
 import '../../../providers/payment_provider.dart';
 import '../../../../data/models/transaction_model.dart';
 import '../../../../core/constants/escrow_statuses.dart';
+import 'my_listings_tab_kyc_modal.dart';
 
 class MyBidsTab extends StatefulWidget {
   final int initialSubTab;
@@ -86,6 +87,8 @@ class _ActiveTab extends StatelessWidget {
 
         return ListView.builder(
           padding: const EdgeInsets.all(16),
+          cacheExtent: 500.0, // Cache 2 screens ahead
+          addAutomaticKeepAlives: false, // Reduce memory
           itemCount: activeAuctions.length,
           itemBuilder: (context, index) {
             final auction = activeAuctions[index];
@@ -97,6 +100,7 @@ class _ActiveTab extends StatelessWidget {
             }
 
             return ActiveBidCard(
+              key: ValueKey(auction.id), // Preserve state
               auction: auction,
               userBidStatus: userBidStatus,
               userBidAmount: userBidAmount,
@@ -554,17 +558,28 @@ class _AuctionResultCard extends StatelessWidget {
   }
 
   Widget _buildActionButtons(BuildContext context, String carTitle) {
-    // No transaction - show start pre-transaction button
+    // No transaction - show start pre-transaction button with KYC check
     if (transaction == null) {
       return SizedBox(
         width: double.infinity,
         height: 50,
         child: ElevatedButton.icon(
           onPressed: () async {
-            await context.push(
-              '/preTransaction/${auction.id}?carTitle=${Uri.encodeComponent(carTitle)}&winningBid=${auction.currentBid}',
+            // Show KYC modal before pre-transaction (buyer perspective)
+            await showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => KycVerificationModal(
+                isSeller: false, // Buyer in this context
+                onSuccess: () async {
+                  // Navigate to pre-transaction after KYC success
+                  await context.push(
+                    '/preTransaction/${auction.id}?carTitle=${Uri.encodeComponent(carTitle)}&winningBid=${auction.currentBid}',
+                  );
+                  onRefresh?.call();
+                },
+              ),
             );
-            onRefresh?.call();
           },
           icon: const Icon(Icons.chat),
           label: const Text('Start Discussion', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
@@ -579,7 +594,7 @@ class _AuctionResultCard extends StatelessWidget {
       );
     }
 
-    // Payment pending - show continue pre-transaction + view auction
+    // Payment pending - show continue pre-transaction + view auction with KYC check
     if (transaction!.escrowStatus == EscrowStatus.pending) {
       return SizedBox(
         height: 50,
@@ -589,10 +604,21 @@ class _AuctionResultCard extends StatelessWidget {
               flex: 2,
               child: ElevatedButton.icon(
                 onPressed: () async {
-                  await context.push(
-                    '/preTransaction/${auction.id}?carTitle=${Uri.encodeComponent(carTitle)}&winningBid=${auction.currentBid}',
+                  // Show KYC modal before continuing pre-transaction (buyer perspective)
+                  await showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => KycVerificationModal(
+                      isSeller: false, // Buyer in this context
+                      onSuccess: () async {
+                        // Navigate to pre-transaction after KYC success
+                        await context.push(
+                          '/preTransaction/${auction.id}?carTitle=${Uri.encodeComponent(carTitle)}&winningBid=${auction.currentBid}',
+                        );
+                        onRefresh?.call();
+                      },
+                    ),
                   );
-                  onRefresh?.call();
                 },
                 icon: const Icon(Icons.chat, size: 18),
                 label: const Text('Continue', style: TextStyle(fontSize: 15)),

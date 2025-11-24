@@ -1,5 +1,8 @@
+import 'package:flutter/src/widgets/basic.dart';
+import 'package:flutter/src/widgets/framework.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'kyc_model.dart';
+import 'subscription_tier.dart';
 
 part 'user_model.freezed.dart';
 part 'user_model.g.dart';
@@ -126,6 +129,21 @@ abstract class UserModel with _$UserModel {
     @Default(AccountStatus.guest) AccountStatus accountStatus,
     @Default(0) int otpFailureCount,
     DateTime? lastOtpAttempt,
+    // REVISED Revenue Model - Subscription
+    @Default(SubscriptionTierType.free) SubscriptionTierType subscriptionTier,
+    @Default(SubscriptionStatus.active) SubscriptionStatus subscriptionStatus,
+    UserSubscription? currentSubscription,
+    // REVISED Revenue Model - Bidding Deposit
+    @Default(false) bool biddingDepositPaid,
+    String? currentDepositId,
+    // REVISED Revenue Model - Token System
+    @Default(0) int tokenBalance,
+    DateTime? tokenBalanceLastUpdated,
+    // REVISED Revenue Model - Listing Quota (Rolling 30-day)
+    @Default(0) int listingsUsedThisMonth,
+    DateTime? listingQuotaResetDate,
+    // REVISED Revenue Model - AutoBid Feature
+    @Default(false) bool autoBidEnabled,
   }) = _UserModel;
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>

@@ -1,9 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import '../../providers/auth_provider.dart';
+import 'edit_profile_sections/basic_info_section.dart';
+import 'edit_profile_sections/personal_info_section.dart';
+import 'edit_profile_sections/address_section.dart';
+import 'edit_profile_sections/kyc_info_section.dart';
+import 'edit_profile_sections/account_settings_section.dart';
+import 'edit_profile_sections/privacy_section.dart';
+import 'edit_profile_sections/reputation_section.dart';
+import 'edit_profile_sections/danger_zone_section.dart';
 
+/// Comprehensive Edit Profile Screen with tabbed sections
+///
+/// Sections:
+/// 1. Basic Account Info
+/// 2. Personal Information
+/// 3. Address Information
+/// 4. KYC Information (view-only)
+/// 5. Account Settings
+/// 6. Privacy & Data Management
+/// 7. Reputation & System Info
+/// 8. Danger Zone
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -11,241 +28,64 @@ class EditProfileScreen extends ConsumerStatefulWidget {
   ConsumerState<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
-class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _fullNameController = TextEditingController();
-  final _phoneController = TextEditingController();
-  DateTime? _selectedDate;
-  String? _selectedGender;
-
-  final List<String> _genderOptions = ['Male', 'Female', 'Other', 'Prefer not to say'];
+class _EditProfileScreenState extends ConsumerState<EditProfileScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
-  }
-
-  void _loadUserData() {
-    final user = ref.read(currentUserProvider);
-    if (user != null) {
-      _fullNameController.text = user.fullName;
-      _phoneController.text = user.phoneNumber ?? '';
-      _selectedDate = user.dateOfBirth;
-      _selectedGender = user.gender;
-    }
+    _tabController = TabController(length: 8, vsync: this);
   }
 
   @override
   void dispose() {
-    _fullNameController.dispose();
-    _phoneController.dispose();
+    _tabController.dispose();
     super.dispose();
-  }
-
-  Future<void> _selectDate() async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate ?? DateTime.now().subtract(const Duration(days: 6570)), // 18 years ago
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-      helpText: 'Select Date of Birth',
-    );
-
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-      });
-    }
-  }
-
-  Future<void> _saveProfile() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-
-    final updateAction = ref.read(updateProfileActionProvider.notifier);
-
-    await updateAction.updateProfile(
-      fullName: _fullNameController.text.trim(),
-      phoneNumber: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
-      dateOfBirth: _selectedDate,
-      gender: _selectedGender,
-    );
-
-    if (!mounted) return;
-
-    final state = ref.read(updateProfileActionProvider);
-
-    state.when(
-      data: (_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profile updated successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        context.pop();
-      },
-      loading: () {},
-      error: (error, _) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(error.toString()),
-            backgroundColor: Colors.red,
-          ),
-        );
-      },
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final updateState = ref.watch(updateProfileActionProvider);
-    final isLoading = updateState.isLoading;
+    final user = ref.watch(currentUserProvider);
+
+    if (user == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Edit Profile')),
+        body: const Center(child: Text('Please log in to edit your profile')),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Profile'),
-        actions: [
-          TextButton(
-            onPressed: isLoading ? null : _saveProfile,
-            child: isLoading
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Text('Save'),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: TabBar(
+            controller: _tabController,
+            isScrollable: true,
+            tabAlignment: TabAlignment.center,
+            tabs: const [
+              Tab(icon: Icon(Icons.account_circle, size: 20), text: 'Basic'),
+              // Tab(icon: Icon(Icons.person, size: 20), text: 'Personal'),
+              Tab(icon: Icon(Icons.home, size: 20), text: 'Address'),
+              // Tab(icon: Icon(Icons.privacy_tip, size: 20), text: 'Privacy'),
+              Tab(icon: Icon(Icons.warning, size: 20), text: 'Danger'),
+            ],
           ),
-        ],
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            // Full Name
-            TextFormField(
-              controller: _fullNameController,
-              decoration: const InputDecoration(
-                labelText: 'Full Name',
-                hintText: 'Enter your full name',
-                prefixIcon: Icon(Icons.person),
-                border: OutlineInputBorder(),
-              ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Full name is required';
-                }
-                if (value.trim().length < 2) {
-                  return 'Name must be at least 2 characters';
-                }
-                return null;
-              },
-              enabled: !isLoading,
-            ),
-            const SizedBox(height: 16),
-
-            // Phone Number
-            TextFormField(
-              controller: _phoneController,
-              decoration: const InputDecoration(
-                labelText: 'Phone Number',
-                hintText: '+63 XXX XXX XXXX',
-                prefixIcon: Icon(Icons.phone),
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.phone,
-              validator: (value) {
-                if (value != null && value.trim().isNotEmpty) {
-                  final phoneRegex = RegExp(r'^\+?[1-9]\d{1,14}$');
-                  final cleanPhone = value.replaceAll(RegExp(r'[\s-]'), '');
-                  if (!phoneRegex.hasMatch(cleanPhone)) {
-                    return 'Invalid phone number format';
-                  }
-                }
-                return null;
-              },
-              enabled: !isLoading,
-            ),
-            const SizedBox(height: 16),
-
-            // Date of Birth
-            InkWell(
-              onTap: isLoading ? null : _selectDate,
-              child: InputDecorator(
-                decoration: const InputDecoration(
-                  labelText: 'Date of Birth',
-                  prefixIcon: Icon(Icons.cake),
-                  border: OutlineInputBorder(),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      _selectedDate != null
-                          ? DateFormat('MMMM dd, yyyy').format(_selectedDate!)
-                          : 'Select date',
-                      style: TextStyle(
-                        color: _selectedDate != null ? null : Colors.grey,
-                      ),
-                    ),
-                    const Icon(Icons.calendar_today, size: 20),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Gender
-            DropdownButtonFormField<String>(
-              value: _selectedGender,
-              decoration: const InputDecoration(
-                labelText: 'Gender',
-                prefixIcon: Icon(Icons.wc),
-                border: OutlineInputBorder(),
-              ),
-              items: _genderOptions.map((gender) {
-                return DropdownMenuItem(
-                  value: gender,
-                  child: Text(gender),
-                );
-              }).toList(),
-              onChanged: isLoading
-                  ? null
-                  : (value) {
-                      setState(() {
-                        _selectedGender = value;
-                      });
-                    },
-              hint: const Text('Select gender'),
-            ),
-            const SizedBox(height: 24),
-
-            // Save Button (mobile-friendly)
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: isLoading ? null : _saveProfile,
-                icon: isLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Icon(Icons.save),
-                label: Text(isLoading ? 'Saving...' : 'Save Changes'),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-              ),
-            ),
-          ],
         ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          BasicInfoSection(user: user),
+          // PersonalInfoSection(user: user),
+          AddressSection(user: user),
+          // KycInfoSection(user: user),
+          AccountSettingsSection(user: user),
+          // PrivacySection(user: user),
+          // ReputationSection(user: user),
+          DangerZoneSection(user: user),
+        ],
       ),
     );
   }

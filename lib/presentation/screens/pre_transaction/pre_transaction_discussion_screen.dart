@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert'; // For JSON encoding and Agreement Hash generation
+import 'package:crypto/crypto.dart'; // For SHA-256 hashing
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -10,9 +12,8 @@ import '../../../data/models/pre_transaction_message_model.dart';
 import '../../../data/models/pre_transaction_confirmation_model.dart';
 import '../../../core/constants/color_constants.dart';
 import '../../widgets/pre_transaction_progress_tracker.dart';
-import 'embedded_buyer_form.dart';
-import 'embedded_seller_form.dart';
-import 'combined_review_screen.dart';
+import '../../widgets/ph_address_picker.dart';
+
 
 class PreTransactionDiscussionScreen extends StatefulWidget {
   final String auctionId;
@@ -36,22 +37,20 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
     with SingleTickerProviderStateMixin {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
-  final _deliveryLocationController = TextEditingController();
-  final _notesController = TextEditingController();
+
+  // Common form controllers
+  final _buyerNotesController = TextEditingController();
+  final _sellerNotesController = TextEditingController();
+  final _handoverLocationController = TextEditingController();
+  final _deliveryDelayClauseController = TextEditingController();
+  final _otherConditionsController = TextEditingController();
+  final _otherPaymentMethodController = TextEditingController();
 
   bool _isInitialized = false;
-  bool _vehicleDetailsConfirmed = false;
-  DateTime? _selectedDeliveryDate;
-  bool _termsAgreed = false;
-  final List<String> _uploadedDocuments = [];
 
   // Tab controller for 4 tabs: Chat, Form, Other Party Form, Progress
   late TabController _tabController;
   int _currentTabIndex = 0;
-
-  // Form state keys for buyer/seller forms
-  final GlobalKey<EmbeddedBuyerFormState> _buyerFormKey = GlobalKey<EmbeddedBuyerFormState>();
-  final GlobalKey<EmbeddedSellerFormState> _sellerFormKey = GlobalKey<EmbeddedSellerFormState>();
   DateTime? _lastAutoSave;
 
   // Editing state
@@ -61,6 +60,71 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
   int _editRequestCount = 0;
   bool _hasConfirmedOtherParty = false;
   bool _otherPartyConfirmedMe = false;
+
+  // RA 8792 Legal acknowledgment tracking
+  bool _legalAcknowledgmentBuyer = false;
+  bool _legalAcknowledgmentSeller = false;
+
+  // Data Privacy Acknowledgment (RA 10173)
+  bool _dataPrivacyConsentBuyer = false;
+  bool _dataPrivacyConsentSeller = false;
+
+  // === BUYER FORM FIELDS ===
+  // Inspection Agreement
+  String? _buyerInspectionChoice; // 'inspection_before_payment', 'waives_inspection', 'specify'
+  final _buyerInspectionSpecifyController = TextEditingController();
+
+  // Handover Location (5-field address)
+  String? _buyerHandoverRegion;
+  String? _buyerHandoverProvince;
+  String? _buyerHandoverCity;
+  String? _buyerHandoverBarangay;
+  String? _buyerHandoverLandmark;
+
+  // Target Delivery Date
+  DateTime? _buyerTargetDeliveryDate;
+
+  // Payment Window Commitment
+  String? _buyerPaymentWindow; // '24h', '48h', '72h'
+
+  // Conditions Before Payment
+  bool _buyerConditionInspectionCompleted = false;
+  bool _buyerConditionOwnershipVerified = false;
+  bool _buyerConditionDeedReceived = false;
+  String? _buyerOtherConditions;
+
+  // Buyer form submission timestamp
+  DateTime? _buyerSubmittedAt;
+
+  // === SELLER FORM FIELDS ===
+  // Inspection Agreement Response
+  String? _sellerInspectionResponse; // 'will_allow', 'sold_as_is', 'specify'
+  final _sellerInspectionSpecifyController = TextEditingController();
+
+  // Handover Location Confirmation (5-field address)
+  String? _sellerHandoverRegion;
+  String? _sellerHandoverProvince;
+  String? _sellerHandoverCity;
+  String? _sellerHandoverBarangay;
+  String? _sellerHandoverLandmark;
+
+  // Delivery Date Commitment
+  DateTime? _sellerDeliveryDate;
+
+  // Delivery Delay Clause
+  String? _sellerDeliveryDelayClause;
+
+  // Payment Methodology
+  String? _sellerPaymentMethod; // 'bank_transfer', 'gcash', 'cash', 'paymaya', 'others'
+  String? _sellerOtherPaymentMethod;
+
+  // Seller form submission timestamp
+  DateTime? _sellerSubmittedAt;
+
+  // === AGREEMENT GENERATION ===
+  String? _agreementHash;
+  DateTime? _agreementGeneratedAt;
+  Map<String, dynamic>? _combinedAgreementData;
 
   // Mock update timer for other party form
   Timer? _mockUpdateTimer;
@@ -213,8 +277,12 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
     _tabController.dispose();
     _messageController.dispose();
     _scrollController.dispose();
-    _deliveryLocationController.dispose();
-    _notesController.dispose();
+    _buyerNotesController.dispose();
+    _sellerNotesController.dispose();
+    _handoverLocationController.dispose();
+    _deliveryDelayClauseController.dispose();
+    _otherConditionsController.dispose();
+    _otherPaymentMethodController.dispose();
     super.dispose();
   }
 
@@ -340,42 +408,872 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
   }
 
   Widget _buildFormTab(PreTransaction preTransaction) {
-    final confirmation = widget.isSeller
-        ? preTransaction.sellerConfirmation
-        : preTransaction.buyerConfirmation;
-
-    // Show embedded form with submit button (with initial data if editing)
-    Map<String, dynamic>? initialData;
-    if (_isEditingForm && confirmation != null) {
-      initialData = _getFormDataFromConfirmation(confirmation);
-    }
+    // Check if form is already submitted
+    final isSubmitted = widget.isSeller ? _sellerSubmittedAt != null : _buyerSubmittedAt != null;
 
     return Column(
       children: [
         _buildFormHeader(preTransaction),
         Expanded(
-          child: widget.isSeller
-              ? EmbeddedSellerForm(
-                  key: _sellerFormKey,
-                  finalBidAmount: widget.winningBid,
-                  onFormChanged: _onFormChanged,
-                  initialData: initialData,
-                  isReadOnly: _isFormDeactivated,
-                )
-              : EmbeddedBuyerForm(
-                  key: _buyerFormKey,
-                  finalBidAmount: widget.winningBid,
-                  onFormChanged: _onFormChanged,
-                  initialData: initialData,
-                  isReadOnly: _isFormDeactivated,
-                ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // === COMMON SECTION (Both Buyer and Seller) ===
+                _buildTransactionDetailsSection(preTransaction),
+                const SizedBox(height: 16),
+                _buildLegalBannerSection(),
+                const SizedBox(height: 16),
+                _buildDataPrivacySection(),
+                const SizedBox(height: 24),
+
+                // === CONDITIONAL FORM (Buyer or Seller) ===
+                if (widget.isSeller)
+                  _buildSellerFormFields()
+                else
+                  _buildBuyerFormFields(),
+
+                const SizedBox(height: 24),
+
+                // === SUBMISSION TIMESTAMP (if already submitted) ===
+                if (isSubmitted)
+                  _buildSubmissionConfirmation(),
+
+                const SizedBox(height: 24),
+
+                // === DATA PRIVACY ACT SECTION (at bottom of form) ===
+                _buildDataPrivacySection(),
+
+                const SizedBox(height: 16),
+
+                // === RA 8792 LEGAL ACKNOWLEDGMENT SECTION (at bottom of form) ===
+                _buildLegalAcknowledgmentSection(preTransaction),
+              ],
+            ),
+          ),
         ),
         _buildFormSubmitButton(preTransaction),
       ],
     );
   }
 
+  // =============================================================================
+  // COMMON SECTIONS (Visible to both Buyer and Seller)
+  // =============================================================================
+
+  Widget _buildTransactionDetailsSection(PreTransaction preTransaction) {
+    // TODO: Replace mock data with actual vehicle details from preTransaction
+    final vehicleMake = 'Toyota'; // Mock - replace with preTransaction.vehicleMake
+    final vehicleModel = 'Vios'; // Mock - replace with preTransaction.vehicleModel
+    final vehicleYear = '2020'; // Mock - replace with preTransaction.vehicleYear
+    final vinPlate = 'ABC1234'; // Mock - replace with preTransaction.vinOrPlate
+    final transactionId = preTransaction.id;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.description, color: ColorConstants.primaryGreen, size: 20),
+                const SizedBox(width: 8),
+                const Text(
+                  'Transaction Details',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _buildReadOnlyField('Vehicle Make', vehicleMake),
+            _buildReadOnlyField('Vehicle Model', vehicleModel),
+            _buildReadOnlyField('Vehicle Year', vehicleYear),
+            _buildReadOnlyField('VIN / License Plate', vinPlate),
+            _buildReadOnlyField('Final Bid Amount', '₱${NumberFormat('#,##0.00').format(widget.winningBid)}'),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.tag, size: 16, color: Colors.grey[700]),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Transaction ID: $transactionId',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontFamily: 'monospace',
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLegalBannerSection() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: ColorConstants.info.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: ColorConstants.info.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.gavel, color: ColorConstants.info, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Legal Framework',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'This transaction is governed by the Electronic Commerce Act of 2000 (RA 8792). All digital records, signatures, and agreements executed through this platform are legally binding and admissible as evidence.',
+                  style: TextStyle(fontSize: 11, color: Colors.grey[700]),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDataPrivacySection() {
+    final isConsented = widget.isSeller ? _dataPrivacyConsentSeller : _dataPrivacyConsentBuyer;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.orange.withOpacity(0.05),
+        border: Border(
+          top: BorderSide(color: Colors.grey[300]!),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.privacy_tip, color: Colors.orange[700], size: 20),
+              const SizedBox(width: 8),
+              const Text(
+                'Data Privacy Act Notice (RA 10173)',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          CheckboxListTile(
+            value: isConsented,
+            onChanged: _isFormDeactivated ? null : (value) {
+              setState(() {
+                if (widget.isSeller) {
+                  _dataPrivacyConsentSeller = value ?? false;
+                } else {
+                  _dataPrivacyConsentBuyer = value ?? false;
+                }
+              });
+            },
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            dense: true,
+            title: const Text(
+              'I consent to the collection and processing of my personal data in accordance with the Data Privacy Act of 2012 (RA 10173) and applicable electronic transaction laws.',
+              style: TextStyle(fontSize: 13),
+            ),
+          ),
+          if (!isConsented)
+            Padding(
+              padding: const EdgeInsets.only(top: 8, left: 40),
+              child: Text(
+                'You must consent to data privacy terms before submitting',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.orange[700],
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // =============================================================================
+  // BUYER FORM FIELDS
+  // =============================================================================
+
+  Widget _buildBuyerFormFields() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Buyer Agreement Form',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+
+        // 1. Inspection Agreement
+        _buildSectionTitle('1. Inspection Agreement'),
+        _buildRadioGroup(
+          value: _buyerInspectionChoice,
+          options: [
+            {'value': 'inspection_before_payment', 'label': 'Inspection required before payment'},
+            {'value': 'waives_inspection', 'label': 'Waives inspection (buy as-is)'},
+            {'value': 'specify', 'label': 'Specify custom arrangement'},
+          ],
+          onChanged: (value) {
+            setState(() {
+              _buyerInspectionChoice = value;
+            });
+          },
+        ),
+        if (_buyerInspectionChoice == 'specify') ...[
+          const SizedBox(height: 8),
+          TextField(
+            controller: _buyerInspectionSpecifyController,
+            enabled: !_isFormDeactivated,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Specify inspection arrangement',
+              hintText: 'Describe your inspection arrangement',
+            ),
+            maxLength: 200,
+            maxLines: 2,
+          ),
+        ],
+        const SizedBox(height: 16),
+
+        // 2. Agreed Handover Location
+        _buildSectionTitle('2. Agreed Handover Location'),
+        PhilippineAddressPicker(
+          initialRegion: _buyerHandoverRegion,
+          initialProvince: _buyerHandoverProvince,
+          initialCity: _buyerHandoverCity,
+          initialBarangay: _buyerHandoverBarangay,
+          initialLandmark: _buyerHandoverLandmark,
+          enabled: !_isFormDeactivated,
+          onAddressChanged: (address) {
+            setState(() {
+              _buyerHandoverRegion = address['region'];
+              _buyerHandoverProvince = address['province'];
+              _buyerHandoverCity = address['city'];
+              _buyerHandoverBarangay = address['barangay'];
+              _buyerHandoverLandmark = address['landmark'];
+            });
+          },
+        ),
+        const SizedBox(height: 16),
+
+        // 3. Target Delivery Date
+        _buildSectionTitle('3. Target Delivery Date'),
+        OutlinedButton.icon(
+          onPressed: _isFormDeactivated ? null : () async {
+            final date = await showDatePicker(
+              context: context,
+              initialDate: DateTime.now().add(const Duration(days: 7)),
+              firstDate: DateTime.now(),
+              lastDate: DateTime.now().add(const Duration(days: 90)),
+            );
+            if (date != null) {
+              setState(() {
+                _buyerTargetDeliveryDate = date;
+              });
+            }
+          },
+          icon: const Icon(Icons.calendar_today),
+          label: Text(
+            _buyerTargetDeliveryDate == null
+                ? 'Select delivery date'
+                : DateFormat('MMM dd, yyyy').format(_buyerTargetDeliveryDate!),
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // 4. Payment Window Commitment
+        _buildSectionTitle('4. Payment Window Commitment'),
+        DropdownButtonFormField<String>(
+          value: _buyerPaymentWindow,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: 'Select payment window',
+            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          ),
+          items: [
+            {'value': '24h', 'label': 'Within 24 hours after signing'},
+            {'value': '48h', 'label': 'Within 48 hours after signing'},
+            {'value': '72h', 'label': 'Within 72 hours after signing'},
+          ].map((item) {
+            return DropdownMenuItem(value: item['value'], child: Text(item['label']!));
+          }).toList(),
+          onChanged: _isFormDeactivated ? null : (value) {
+            setState(() {
+              _buyerPaymentWindow = value;
+            });
+          },
+        ),
+        const SizedBox(height: 16),
+
+        // 5. Conditions Before Payment
+        _buildSectionTitle('5. Conditions Before Payment'),
+        CheckboxListTile(
+          value: _buyerConditionInspectionCompleted,
+          onChanged: _isFormDeactivated ? null : (value) {
+            setState(() {
+              _buyerConditionInspectionCompleted = value ?? false;
+            });
+          },
+          title: const Text('Inspection completed', style: TextStyle(fontSize: 13)),
+          contentPadding: EdgeInsets.zero,
+          controlAffinity: ListTileControlAffinity.leading,
+          dense: true,
+        ),
+        CheckboxListTile(
+          value: _buyerConditionOwnershipVerified,
+          onChanged: _isFormDeactivated ? null : (value) {
+            setState(() {
+              _buyerConditionOwnershipVerified = value ?? false;
+            });
+          },
+          title: const Text('Ownership documents verified', style: TextStyle(fontSize: 13)),
+          contentPadding: EdgeInsets.zero,
+          controlAffinity: ListTileControlAffinity.leading,
+          dense: true,
+        ),
+        CheckboxListTile(
+          value: _buyerConditionDeedReceived,
+          onChanged: _isFormDeactivated ? null : (value) {
+            setState(() {
+              _buyerConditionDeedReceived = value ?? false;
+            });
+          },
+          title: const Text('Deed of Sale draft received', style: TextStyle(fontSize: 13)),
+          contentPadding: EdgeInsets.zero,
+          controlAffinity: ListTileControlAffinity.leading,
+          dense: true,
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _otherConditionsController,
+          enabled: !_isFormDeactivated,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Other conditions (optional)',
+            hintText: 'Specify any additional conditions',
+          ),
+          maxLength: 200,
+          maxLines: 2,
+        ),
+        const SizedBox(height: 16),
+
+        // 6. Payment Methodology Confirmation (Read-only, set by seller)
+        _buildSectionTitle('6. Payment Methodology (Seller Preference)'),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.grey[300]!),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.payment, color: Colors.grey[700], size: 20),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  _sellerPaymentMethod != null
+                      ? _getPaymentMethodLabel(_sellerPaymentMethod!)
+                      : 'Waiting for seller to specify payment method',
+                  style: const TextStyle(fontSize: 14),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // 7. Optional Buyer Notes
+        _buildSectionTitle('7. Additional Notes (Optional)'),
+        TextField(
+          controller: _buyerNotesController,
+          enabled: !_isFormDeactivated,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: 'Any additional notes or concerns',
+          ),
+          maxLength: 200,
+          maxLines: 3,
+        ),
+      ],
+    );
+  }
+
+  // =============================================================================
+  // SELLER FORM FIELDS
+  // =============================================================================
+
+  Widget _buildSellerFormFields() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Seller Agreement Form',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+
+        // 1. Inspection Agreement Response
+        _buildSectionTitle('1. Inspection Agreement Response'),
+        _buildRadioGroup(
+          value: _sellerInspectionResponse,
+          options: [
+            {'value': 'will_allow', 'label': 'Will allow inspection before payment'},
+            {'value': 'sold_as_is', 'label': 'Sold as-is, no inspection allowed'},
+            {'value': 'specify', 'label': 'Specify custom arrangement'},
+          ],
+          onChanged: (value) {
+            setState(() {
+              _sellerInspectionResponse = value;
+            });
+          },
+        ),
+        if (_sellerInspectionResponse == 'specify') ...[
+          const SizedBox(height: 8),
+          TextField(
+            controller: _sellerInspectionSpecifyController,
+            enabled: !_isFormDeactivated,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Specify inspection arrangement',
+              hintText: 'Describe your inspection arrangement',
+            ),
+            maxLength: 200,
+            maxLines: 2,
+          ),
+        ],
+        const SizedBox(height: 16),
+
+        // 2. Handover Location Confirmation
+        _buildSectionTitle('2. Handover Location Confirmation'),
+        PhilippineAddressPicker(
+          initialRegion: _sellerHandoverRegion,
+          initialProvince: _sellerHandoverProvince,
+          initialCity: _sellerHandoverCity,
+          initialBarangay: _sellerHandoverBarangay,
+          initialLandmark: _sellerHandoverLandmark,
+          enabled: !_isFormDeactivated,
+          onAddressChanged: (address) {
+            setState(() {
+              _sellerHandoverRegion = address['region'];
+              _sellerHandoverProvince = address['province'];
+              _sellerHandoverCity = address['city'];
+              _sellerHandoverBarangay = address['barangay'];
+              _sellerHandoverLandmark = address['landmark'];
+            });
+          },
+        ),
+        if (false) ...[
+          const SizedBox(height: 8),
+          TextField(
+            controller: _handoverLocationController,
+            enabled: !_isFormDeactivated,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Specify location',
+              hintText: 'Enter specific handover location',
+            ),
+            maxLength: 100,
+          ),
+        ],
+        const SizedBox(height: 16),
+
+        // 3. Delivery Date Commitment
+        _buildSectionTitle('3. Delivery Date Commitment'),
+        OutlinedButton.icon(
+          onPressed: _isFormDeactivated ? null : () async {
+            final date = await showDatePicker(
+              context: context,
+              initialDate: _buyerTargetDeliveryDate ?? DateTime.now().add(const Duration(days: 7)),
+              firstDate: DateTime.now(),
+              lastDate: DateTime.now().add(const Duration(days: 90)),
+            );
+            if (date != null) {
+              setState(() {
+                _sellerDeliveryDate = date;
+              });
+            }
+          },
+          icon: const Icon(Icons.calendar_today),
+          label: Text(
+            _sellerDeliveryDate == null
+                ? (_buyerTargetDeliveryDate != null
+                    ? 'Buyer requested: ${DateFormat('MMM dd, yyyy').format(_buyerTargetDeliveryDate!)}'
+                    : 'Select delivery date')
+                : DateFormat('MMM dd, yyyy').format(_sellerDeliveryDate!),
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // 4. Delivery Delay Clause
+        _buildSectionTitle('4. Delivery Delay Clause (Optional)'),
+        TextField(
+          controller: _deliveryDelayClauseController,
+          enabled: !_isFormDeactivated,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: 'e.g., "Any delay beyond 3 days to be discussed mutually"',
+          ),
+          maxLength: 200,
+          maxLines: 2,
+        ),
+        const SizedBox(height: 16),
+
+        // 5. Payment Methodology
+        _buildSectionTitle('5. Payment Methodology'),
+        DropdownButtonFormField<String>(
+          value: _sellerPaymentMethod,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: 'Select preferred payment method',
+            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          ),
+          items: [
+            {'value': 'bank_transfer', 'label': 'Bank Transfer'},
+            {'value': 'gcash', 'label': 'GCash'},
+            {'value': 'cash', 'label': 'Cash on Handover'},
+            {'value': 'paymaya', 'label': 'PayMaya'},
+            {'value': 'others', 'label': 'Others (specify)'},
+          ].map((item) {
+            return DropdownMenuItem(value: item['value'], child: Text(item['label']!));
+          }).toList(),
+          onChanged: _isFormDeactivated ? null : (value) {
+            setState(() {
+              _sellerPaymentMethod = value;
+            });
+          },
+        ),
+        if (_sellerPaymentMethod == 'others') ...[
+          const SizedBox(height: 8),
+          TextField(
+            controller: _otherPaymentMethodController,
+            enabled: !_isFormDeactivated,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Specify payment method',
+              hintText: 'Enter payment method details',
+            ),
+            maxLength: 100,
+          ),
+        ],
+        const SizedBox(height: 16),
+
+        // 6. Additional Seller Notes
+        _buildSectionTitle('6. Additional Notes (Optional)'),
+        TextField(
+          controller: _sellerNotesController,
+          enabled: !_isFormDeactivated,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: 'Any additional notes or terms',
+          ),
+          maxLength: 200,
+          maxLines: 3,
+        ),
+      ],
+    );
+  }
+
+  // =============================================================================
+  // HELPER WIDGETS
+  // =============================================================================
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF4CAF50),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReadOnlyField(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 140,
+            child: Text(
+              '$label:',
+              style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRadioGroup({
+    required String? value,
+    required List<Map<String, String>> options,
+    required Function(String?) onChanged,
+  }) {
+    return Column(
+      children: options.map((option) {
+        return RadioListTile<String>(
+          value: option['value']!,
+          groupValue: value,
+          onChanged: _isFormDeactivated ? null : onChanged,
+          title: Text(option['label']!, style: const TextStyle(fontSize: 13)),
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildSubmissionConfirmation() {
+    final submittedAt = widget.isSeller ? _sellerSubmittedAt : _buyerSubmittedAt;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.green.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.green),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.check_circle, color: Colors.green, size: 24),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Form Submitted',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.green),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Submitted: ${DateFormat('MMM dd, yyyy • hh:mm a').format(submittedAt!)}',
+                  style: const TextStyle(fontSize: 12, color: Colors.black87),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getPaymentMethodLabel(String method) {
+    switch (method) {
+      case 'bank_transfer':
+        return 'Bank Transfer';
+      case 'gcash':
+        return 'GCash';
+      case 'cash':
+        return 'Cash on Handover';
+      case 'paymaya':
+        return 'PayMaya';
+      case 'others':
+        return _sellerOtherPaymentMethod ?? 'Other';
+      default:
+        return method;
+    }
+  }
+
+  // =============================================================================
+  // FORM VALIDATION AND SUBMISSION
+  // =============================================================================
+
+  String _getBuyerFullAddress() {
+    final parts = <String>[];
+    if (_buyerHandoverLandmark != null && _buyerHandoverLandmark!.isNotEmpty) parts.add(_buyerHandoverLandmark!);
+    if (_buyerHandoverBarangay != null && _buyerHandoverBarangay!.isNotEmpty) parts.add(_buyerHandoverBarangay!);
+    if (_buyerHandoverCity != null && _buyerHandoverCity!.isNotEmpty) parts.add(_buyerHandoverCity!);
+    if (_buyerHandoverProvince != null && _buyerHandoverProvince!.isNotEmpty) parts.add(_buyerHandoverProvince!);
+    if (_buyerHandoverRegion != null && _buyerHandoverRegion!.isNotEmpty) parts.add(_buyerHandoverRegion!);
+    return parts.join(', ');
+  }
+
+  String _getSellerFullAddress() {
+    final parts = <String>[];
+    if (_sellerHandoverLandmark != null && _sellerHandoverLandmark!.isNotEmpty) parts.add(_sellerHandoverLandmark!);
+    if (_sellerHandoverBarangay != null && _sellerHandoverBarangay!.isNotEmpty) parts.add(_sellerHandoverBarangay!);
+    if (_sellerHandoverCity != null && _sellerHandoverCity!.isNotEmpty) parts.add(_sellerHandoverCity!);
+    if (_sellerHandoverProvince != null && _sellerHandoverProvince!.isNotEmpty) parts.add(_sellerHandoverProvince!);
+    if (_sellerHandoverRegion != null && _sellerHandoverRegion!.isNotEmpty) parts.add(_sellerHandoverRegion!);
+    return parts.join(', ');
+  }
+
+  bool _isBuyerAddressFilled() {
+    return (_buyerHandoverRegion != null && _buyerHandoverRegion!.isNotEmpty) ||
+        (_buyerHandoverProvince != null && _buyerHandoverProvince!.isNotEmpty) ||
+        (_buyerHandoverCity != null && _buyerHandoverCity!.isNotEmpty) ||
+        (_buyerHandoverBarangay != null && _buyerHandoverBarangay!.isNotEmpty);
+  }
+
+  bool _isSellerAddressFilled() {
+    return (_sellerHandoverRegion != null && _sellerHandoverRegion!.isNotEmpty) ||
+        (_sellerHandoverProvince != null && _sellerHandoverProvince!.isNotEmpty) ||
+        (_sellerHandoverCity != null && _sellerHandoverCity!.isNotEmpty) ||
+        (_sellerHandoverBarangay != null && _sellerHandoverBarangay!.isNotEmpty);
+  }
+
+  bool _canSubmitBuyerForm() {
+    return _dataPrivacyConsentBuyer &&
+        _legalAcknowledgmentBuyer &&
+        _buyerInspectionChoice != null &&
+        _isBuyerAddressFilled() &&
+        _buyerTargetDeliveryDate != null &&
+        _buyerPaymentWindow != null;
+  }
+
+  bool _canSubmitSellerForm() {
+    return _dataPrivacyConsentSeller &&
+        _legalAcknowledgmentSeller &&
+        _sellerInspectionResponse != null &&
+        _isSellerAddressFilled() &&
+        _sellerDeliveryDate != null &&
+        _sellerPaymentMethod != null;
+  }
+
+  // =============================================================================
+  // AGREEMENT GENERATION (Called when both parties submit)
+  // =============================================================================
+
+  void _generateCombinedAgreement() {
+    if (_buyerSubmittedAt == null || _sellerSubmittedAt == null) {
+      return; // Both parties must submit first
+    }
+
+    // Create combined agreement data
+    _combinedAgreementData = {
+      'transactionId': widget.auctionId,
+      'vehicleTitle': widget.carTitle,
+      'finalBidAmount': widget.winningBid,
+      'buyer': {
+        'inspectionChoice': _buyerInspectionChoice,
+        'handoverLocation': _getBuyerFullAddress(),
+        'handoverRegion': _buyerHandoverRegion,
+        'handoverProvince': _buyerHandoverProvince,
+        'handoverCity': _buyerHandoverCity,
+        'handoverBarangay': _buyerHandoverBarangay,
+        'handoverLandmark': _buyerHandoverLandmark,
+        'targetDeliveryDate': _buyerTargetDeliveryDate?.toIso8601String(),
+        'paymentWindow': _buyerPaymentWindow,
+        'conditions': {
+          'inspectionCompleted': _buyerConditionInspectionCompleted,
+          'ownershipVerified': _buyerConditionOwnershipVerified,
+          'deedReceived': _buyerConditionDeedReceived,
+          'otherConditions': _otherConditionsController.text,
+        },
+        'notes': _buyerNotesController.text,
+        'submittedAt': _buyerSubmittedAt?.toIso8601String(),
+      },
+      'seller': {
+        'inspectionResponse': _sellerInspectionResponse,
+        'handoverLocation': _getSellerFullAddress(),
+        'handoverRegion': _sellerHandoverRegion,
+        'handoverProvince': _sellerHandoverProvince,
+        'handoverCity': _sellerHandoverCity,
+        'handoverBarangay': _sellerHandoverBarangay,
+        'handoverLandmark': _sellerHandoverLandmark,
+        'deliveryDate': _sellerDeliveryDate?.toIso8601String(),
+        'deliveryDelayClause': _deliveryDelayClauseController.text,
+        'paymentMethod': _sellerPaymentMethod,
+        'otherPaymentMethod': _otherPaymentMethodController.text,
+        'notes': _sellerNotesController.text,
+        'submittedAt': _sellerSubmittedAt?.toIso8601String(),
+      },
+      'legalAcknowledgments': {
+        'buyerAcknowledged': _legalAcknowledgmentBuyer,
+        'sellerAcknowledged': _legalAcknowledgmentSeller,
+      },
+      'dataPrivacyConsents': {
+        'buyerConsented': _dataPrivacyConsentBuyer,
+        'sellerConsented': _dataPrivacyConsentSeller,
+      },
+    };
+
+    // Generate agreement hash (SHA-256)
+    final agreementJson = jsonEncode(_combinedAgreementData);
+    final bytes = utf8.encode(agreementJson);
+    final hash = sha256.convert(bytes);
+    _agreementHash = hash.toString();
+    _agreementGeneratedAt = DateTime.now();
+
+    // TODO: Backend integration - Store combined agreement
+    // await BackendService.storeCombinedAgreement(_combinedAgreementData, _agreementHash);
+
+    debugPrint('✓ Combined Agreement Generated');
+    debugPrint('  Hash: $_agreementHash');
+    debugPrint('  Generated At: $_agreementGeneratedAt');
+    debugPrint('  Data: ${jsonEncode(_combinedAgreementData)}');
+
+    // Update progress tracker
+    // Move to "Agreement & Acknowledgment" -> "Completed"
+    _updateProgressTracker();
+  }
+
+  void _updateProgressTracker() {
+    // TODO: Backend integration - Update transaction status
+    // This should trigger the progress tracker to move from:
+    // "Agreement & Acknowledgment" -> "Completed"
+
+    final provider = context.read<PreTransactionProvider>();
+    // provider.updateStatus(PreTransactionStatus.agreementSigned);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Agreement complete! Both parties have signed.'),
+        backgroundColor: ColorConstants.primaryGreen,
+        duration: Duration(seconds: 3),
+      ),
+    );
+  }
+
+  // =============================================================================
+  // DEPRECATED METHODS - No longer used with new RA 8792 form
+  // =============================================================================
+
+  /*
   Map<String, dynamic> _getFormDataFromConfirmation(PreTransactionConfirmation confirmation) {
+    // DEPRECATED: This method is no longer needed - form data is now stored in state variables
     // Convert confirmation back to form data structure based on user role
     if (widget.isSeller) {
       // Seller form data mapping
@@ -434,13 +1332,13 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
       };
     }
   }
+  */
 
   Widget _buildOtherPartyFormTab(PreTransaction preTransaction) {
-    final otherPartyConfirmation = widget.isSeller
-        ? preTransaction.buyerConfirmation
-        : preTransaction.sellerConfirmation;
+    // Check if other party has submitted their form
+    final otherPartySubmitted = widget.isSeller ? _buyerSubmittedAt != null : _sellerSubmittedAt != null;
 
-    if (otherPartyConfirmation == null) {
+    if (!otherPartySubmitted) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -457,7 +1355,7 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
             ),
             const SizedBox(height: 8),
             Text(
-              'The ${widget.isSeller ? 'buyer' : 'seller'} hasn\'t submitted their confirmation yet.',
+              'The ${widget.isSeller ? 'buyer' : 'seller'} hasn\'t submitted their agreement form yet.',
               style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
@@ -509,13 +1407,10 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildComparisonCard(
-                  '$otherPartyName Confirmation',
-                  otherPartyConfirmation,
-                  icon,
-                  color,
-                ),
+                // Show other party's submitted form data
+                _buildOtherPartyFormData(otherPartyName, icon, color),
               ],
             ),
           ),
@@ -567,6 +1462,203 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
         ),
       ],
     );
+  }
+
+  Widget _buildOtherPartyFormData(String otherPartyName, IconData icon, Color color) {
+    // Display buyer or seller form data based on who the other party is
+    if (widget.isSeller) {
+      // Show buyer's form data
+      return _buildBuyerFormDataCard(icon, color);
+    } else {
+      // Show seller's form data
+      return _buildSellerFormDataCard(icon, color);
+    }
+  }
+
+  Widget _buildBuyerFormDataCard(IconData icon, Color color) {
+    final submittedAt = _buyerSubmittedAt;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: color, size: 24),
+                const SizedBox(width: 12),
+                const Text(
+                  'Buyer Agreement Form',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildFormDataRow('Inspection Agreement', _getInspectionChoiceLabel(_buyerInspectionChoice)),
+            _buildFormDataRow('Handover Location', _getBuyerFullAddress().isNotEmpty ? _getBuyerFullAddress() : 'Not specified'),
+            _buildFormDataRow('Target Delivery Date', _buyerTargetDeliveryDate != null ? DateFormat('MMM dd, yyyy').format(_buyerTargetDeliveryDate!) : 'Not specified'),
+            _buildFormDataRow('Payment Window', _getPaymentWindowLabel(_buyerPaymentWindow)),
+            const Divider(height: 24),
+            const Text('Conditions Before Payment:', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            _buildCheckboxRow('Inspection completed', _buyerConditionInspectionCompleted),
+            _buildCheckboxRow('Ownership verified', _buyerConditionOwnershipVerified),
+            _buildCheckboxRow('Deed received', _buyerConditionDeedReceived),
+            if (_otherConditionsController.text.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text('Other conditions: ${_otherConditionsController.text}', style: const TextStyle(fontSize: 12)),
+            ],
+            if (_buyerNotesController.text.isNotEmpty) ...[
+              const Divider(height: 24),
+              const Text('Notes:', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 8),
+              Text(_buyerNotesController.text, style: const TextStyle(fontSize: 12)),
+            ],
+            const Divider(height: 24),
+            Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.green, size: 16),
+                const SizedBox(width: 8),
+                Text(
+                  'Submitted: ${submittedAt != null ? DateFormat('MMM dd, yyyy • hh:mm a').format(submittedAt) : 'Unknown'}',
+                  style: const TextStyle(fontSize: 12, color: Colors.green),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSellerFormDataCard(IconData icon, Color color) {
+    final submittedAt = _sellerSubmittedAt;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: color, size: 24),
+                const SizedBox(width: 12),
+                const Text(
+                  'Seller Agreement Form',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildFormDataRow('Inspection Response', _getInspectionResponseLabel(_sellerInspectionResponse)),
+            _buildFormDataRow('Handover Location', _getSellerFullAddress().isNotEmpty ? _getSellerFullAddress() : 'Not specified'),
+            _buildFormDataRow('Delivery Date', _sellerDeliveryDate != null ? DateFormat('MMM dd, yyyy').format(_sellerDeliveryDate!) : 'Not specified'),
+            if (_deliveryDelayClauseController.text.isNotEmpty)
+              _buildFormDataRow('Delivery Delay Clause', _deliveryDelayClauseController.text),
+            _buildFormDataRow('Payment Method', _getPaymentMethodLabel(_sellerPaymentMethod ?? '')),
+            if (_sellerNotesController.text.isNotEmpty) ...[
+              const Divider(height: 24),
+              const Text('Notes:', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 8),
+              Text(_sellerNotesController.text, style: const TextStyle(fontSize: 12)),
+            ],
+            const Divider(height: 24),
+            Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.green, size: 16),
+                const SizedBox(width: 8),
+                Text(
+                  'Submitted: ${submittedAt != null ? DateFormat('MMM dd, yyyy • hh:mm a').format(submittedAt) : 'Unknown'}',
+                  style: const TextStyle(fontSize: 12, color: Colors.green),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFormDataRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 140,
+            child: Text(
+              '$label:',
+              style: TextStyle(fontSize: 13, color: Colors.grey[700], fontWeight: FontWeight.w500),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(fontSize: 13),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCheckboxRow(String label, bool checked) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          Icon(
+            checked ? Icons.check_box : Icons.check_box_outline_blank,
+            size: 18,
+            color: checked ? Colors.green : Colors.grey,
+          ),
+          const SizedBox(width: 8),
+          Text(label, style: const TextStyle(fontSize: 12)),
+        ],
+      ),
+    );
+  }
+
+  String _getInspectionChoiceLabel(String? choice) {
+    switch (choice) {
+      case 'inspected':
+        return 'Vehicle inspected and accepted';
+      case 'inspection_before_payment':
+        return 'Inspection required before payment';
+      case 'waives_inspection':
+        return 'Waives inspection (buy as-is)';
+      default:
+        return 'Not specified';
+    }
+  }
+
+  String _getInspectionResponseLabel(String? response) {
+    switch (response) {
+      case 'buyer_inspected':
+        return 'Buyer already inspected vehicle';
+      case 'will_allow':
+        return 'Will allow inspection before payment';
+      case 'sold_as_is':
+        return 'Sold as-is, no inspection allowed';
+      default:
+        return 'Not specified';
+    }
+  }
+
+  String _getPaymentWindowLabel(String? window) {
+    switch (window) {
+      case '24h':
+        return 'Within 24 hours after signing';
+      case '48h':
+        return 'Within 48 hours after signing';
+      case '72h':
+        return 'Within 72 hours after signing';
+      default:
+        return 'Not specified';
+    }
   }
 
   Future<void> _showAcceptDialog() async {
@@ -908,6 +2000,16 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
 
       // Switch to My Form tab
       _tabController.animateTo(1);
+
+      // Schedule next edit request after 5 seconds (until 3 times)
+      if (_editRequestCount < 3) {
+        _editRequestTimer?.cancel();
+        _editRequestTimer = Timer(const Duration(seconds: 5), () {
+          if (mounted) {
+            _showMockEditRequestDialog();
+          }
+        });
+      }
     }
   }
 
@@ -1106,7 +2208,79 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
     );
   }
 
+  /// RA 8792 Legal Acknowledgment Section
+  /// Both parties must independently acknowledge that agreements are legally binding
+  Widget _buildLegalAcknowledgmentSection(PreTransaction preTransaction) {
+    final isMyAcknowledgment = widget.isSeller
+        ? _legalAcknowledgmentSeller
+        : _legalAcknowledgmentBuyer;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: ColorConstants.info.withOpacity(0.05),
+        border: Border(
+          top: BorderSide(color: Colors.grey[300]!),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.gavel, color: ColorConstants.primaryGreen, size: 20),
+              const SizedBox(width: 8),
+              const Text(
+                'Legal Acknowledgment (RA 8792)',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // RA 8792 Section 8: Electronic signatures are legally binding
+          // RA 8792 Section 11: Electronic agreements are admissible as evidence
+          CheckboxListTile(
+            value: isMyAcknowledgment,
+            onChanged: _isFormDeactivated ? null : (value) {
+              setState(() {
+                if (widget.isSeller) {
+                  _legalAcknowledgmentSeller = value ?? false;
+                } else {
+                  _legalAcknowledgmentBuyer = value ?? false;
+                }
+              });
+            },
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            dense: true,
+            title: const Text(
+              'I acknowledge that this pre-transaction process and any signed agreements are legally binding and admissible under Republic Act No. 8792 (Electronic Commerce Act of 2000).',
+              style: TextStyle(fontSize: 13),
+            ),
+          ),
+          if (!isMyAcknowledgment)
+            Padding(
+              padding: const EdgeInsets.only(top: 8, left: 40),
+              child: Text(
+                'You must acknowledge the legal terms before submitting',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.orange[700],
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildFormSubmitButton(PreTransaction preTransaction) {
+    final isSubmitted = widget.isSeller ? _sellerSubmittedAt != null : _buyerSubmittedAt != null;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1125,13 +2299,17 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
           height: 52,
           child: Consumer<PreTransactionProvider>(
             builder: (context, provider, child) {
-              if (_isFormDeactivated) {
-                // Show Re-edit button when form is locked
+              if (isSubmitted) {
+                // Show Re-edit button if form is already submitted
                 return OutlinedButton.icon(
                   onPressed: () {
                     setState(() {
                       _isFormDeactivated = false;
-                      _isEditingForm = true;
+                      if (widget.isSeller) {
+                        _sellerSubmittedAt = null;
+                      } else {
+                        _buyerSubmittedAt = null;
+                      }
                     });
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -1153,13 +2331,14 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
                 );
               }
 
+              // Check if form can be submitted
               final canSubmit = widget.isSeller
-                  ? (_sellerFormKey.currentState?.canSubmit() ?? false)
-                  : (_buyerFormKey.currentState?.canSubmit() ?? false);
+                  ? _canSubmitSellerForm()
+                  : _canSubmitBuyerForm();
 
               return ElevatedButton(
                 onPressed: canSubmit && !provider.isLoading
-                    ? () => _submitConfirmation(provider)
+                    ? () => _submitAgreementForm(provider)
                     : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: ColorConstants.primaryGreen,
@@ -1176,7 +2355,7 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
                         ),
                       )
                     : const Text(
-                        'Submit Confirmation',
+                        'Submit Agreement',
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                       ),
               );
@@ -1187,7 +2366,172 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
     );
   }
 
+  // =============================================================================
+  // NEW SUBMISSION METHODS (RA 8792 Compliant)
+  // =============================================================================
+
+  Future<void> _submitAgreementForm(PreTransactionProvider provider) async {
+    // Validate data privacy consent
+    final dataPrivacyConsent = widget.isSeller ? _dataPrivacyConsentSeller : _dataPrivacyConsentBuyer;
+    if (!dataPrivacyConsent) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please accept the Data Privacy consent'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Validate legal acknowledgment
+    final legalAck = widget.isSeller ? _legalAcknowledgmentSeller : _legalAcknowledgmentBuyer;
+    if (!legalAck) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please acknowledge the legal terms (RA 8792)'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isFormDeactivated = true; // Lock the form
+    });
+
+    try {
+      if (widget.isSeller) {
+        // === SELLER SUBMISSION ===
+        await _submitSellerAgreement(provider);
+      } else {
+        // === BUYER SUBMISSION ===
+        await _submitBuyerAgreement(provider);
+      }
+
+      if (!mounted) return;
+
+      // Set submission timestamp
+      setState(() {
+        if (widget.isSeller) {
+          _sellerSubmittedAt = DateTime.now();
+        } else {
+          _buyerSubmittedAt = DateTime.now();
+        }
+      });
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            widget.isSeller
+                ? '✓ Seller agreement submitted!'
+                : '✓ Buyer agreement submitted!',
+          ),
+          backgroundColor: ColorConstants.primaryGreen,
+        ),
+      );
+
+      // Check if both parties have submitted -> Generate combined agreement
+      if (_buyerSubmittedAt != null && _sellerSubmittedAt != null) {
+        _generateCombinedAgreement();
+      }
+
+      // Mock: Trigger edit request dialog flow (3 times) after 5 seconds
+      _editRequestTimer?.cancel();
+      _editRequestTimer = Timer(const Duration(seconds: 5), () {
+        if (mounted) {
+          _showMockEditRequestDialog();
+        }
+      });
+
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isFormDeactivated = false; // Unlock on error
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error submitting form: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _submitBuyerAgreement(PreTransactionProvider provider) async {
+    // Prepare buyer form data
+    final buyerData = {
+      'inspectionChoice': _buyerInspectionChoice,
+      'handoverLocation': _getBuyerFullAddress(),
+      'handoverRegion': _buyerHandoverRegion,
+      'handoverProvince': _buyerHandoverProvince,
+      'handoverCity': _buyerHandoverCity,
+      'handoverBarangay': _buyerHandoverBarangay,
+      'handoverLandmark': _buyerHandoverLandmark,
+      'targetDeliveryDate': _buyerTargetDeliveryDate?.toIso8601String(),
+      'paymentWindow': _buyerPaymentWindow,
+      'conditionInspectionCompleted': _buyerConditionInspectionCompleted,
+      'conditionOwnershipVerified': _buyerConditionOwnershipVerified,
+      'conditionDeedReceived': _buyerConditionDeedReceived,
+      'otherConditions': _otherConditionsController.text,
+      'notes': _buyerNotesController.text,
+      'dataPrivacyConsent': _dataPrivacyConsentBuyer,
+      'legalAcknowledgment': _legalAcknowledgmentBuyer,
+      'submittedAt': DateTime.now().toIso8601String(),
+    };
+
+    // TODO: Backend integration
+    // await provider.submitBuyerAgreement(buyerData);
+    // await BackendService.storeBuyerAgreement(widget.auctionId, buyerData);
+
+    debugPrint('✓ Buyer Agreement Submitted');
+    debugPrint('  Data: ${jsonEncode(buyerData)}');
+
+    // Simulate backend delay
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
+
+  Future<void> _submitSellerAgreement(PreTransactionProvider provider) async {
+    // Prepare seller form data
+    final sellerData = {
+      'inspectionResponse': _sellerInspectionResponse,
+      'handoverLocation': _getSellerFullAddress(),
+      'handoverRegion': _sellerHandoverRegion,
+      'handoverProvince': _sellerHandoverProvince,
+      'handoverCity': _sellerHandoverCity,
+      'handoverBarangay': _sellerHandoverBarangay,
+      'handoverLandmark': _sellerHandoverLandmark,
+      'deliveryDate': _sellerDeliveryDate?.toIso8601String(),
+      'deliveryDelayClause': _deliveryDelayClauseController.text,
+      'paymentMethod': _sellerPaymentMethod,
+      'otherPaymentMethod': _sellerPaymentMethod == 'others'
+          ? _otherPaymentMethodController.text
+          : null,
+      'notes': _sellerNotesController.text,
+      'dataPrivacyConsent': _dataPrivacyConsentSeller,
+      'legalAcknowledgment': _legalAcknowledgmentSeller,
+      'submittedAt': DateTime.now().toIso8601String(),
+    };
+
+    // TODO: Backend integration
+    // await provider.submitSellerAgreement(sellerData);
+    // await BackendService.storeSellerAgreement(widget.auctionId, sellerData);
+
+    debugPrint('✓ Seller Agreement Submitted');
+    debugPrint('  Data: ${jsonEncode(sellerData)}');
+
+    // Simulate backend delay
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
+
+  // =============================================================================
+  // DEPRECATED SUBMISSION METHOD (OLD CODE - NO LONGER USED)
+  // =============================================================================
+
+  /*
   Future<void> _submitConfirmation(PreTransactionProvider provider) async {
+    // DEPRECATED: This method is no longer needed - replaced by _submitAgreementForm
     if (widget.isSeller) {
       // Handle seller confirmation
       final formData = _sellerFormKey.currentState?.getFormData();
@@ -1380,6 +2724,7 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
       );
     }
   }
+  */
 
   Widget _buildProgressTab(PreTransaction preTransaction) {
     // Check if we're in checkpoint flow (post-admin approval)
@@ -1408,9 +2753,9 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
         children: [
           // Show confirmation banner based on mutual confirmation state
           if (showConfirmationBanner)
-            _buildConfirmationBanner(preTransaction)
-          else if (preTransaction.status == PreTransactionStatus.pendingMutualConfirmation)
-            _buildCombinedReviewBanner(preTransaction),
+            _buildConfirmationBanner(preTransaction),
+          // else if (preTransaction.status == PreTransactionStatus.pendingMutualConfirmation)
+          //   _buildCombinedReviewBanner(preTransaction),
           if (showConfirmationBanner || preTransaction.status == PreTransactionStatus.pendingMutualConfirmation)
             const SizedBox(height: 16),
 
@@ -2119,83 +3464,83 @@ class _PreTransactionDiscussionScreenState extends State<PreTransactionDiscussio
     );
   }
 
-  Widget _buildCombinedReviewBanner(PreTransaction preTransaction) {
-    final hasUserApproved = widget.isSeller
-        ? preTransaction.sellerMutualReviewApproved
-        : preTransaction.buyerMutualReviewApproved;
+  // Widget _buildCombinedReviewBanner(PreTransaction preTransaction) {
+  //   final hasUserApproved = widget.isSeller
+  //       ? preTransaction.sellerMutualReviewApproved
+  //       : preTransaction.buyerMutualReviewApproved;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: hasUserApproved
-            ? Colors.orange.withOpacity(0.1)
-            : ColorConstants.primaryGreen.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: hasUserApproved
-              ? Colors.orange.withOpacity(0.3)
-              : ColorConstants.primaryGreen.withOpacity(0.3),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                hasUserApproved ? Icons.hourglass_empty : Icons.info,
-                color: hasUserApproved ? Colors.orange : ColorConstants.primaryGreen,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  hasUserApproved
-                      ? 'Waiting for ${widget.isSeller ? 'Buyer' : 'Seller'}'
-                      : 'Combined Review Required',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: hasUserApproved ? Colors.orange : ColorConstants.primaryGreen,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            hasUserApproved
-                ? 'You have approved the combined details. Waiting for the other party to review and approve.'
-                : 'Both parties have submitted their forms. Please review the combined details and approve to proceed to admin review.',
-            style: TextStyle(fontSize: 13, color: Colors.grey[700]),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                // Navigate to combined review screen
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CombinedReviewScreen(
-                      preTransactionId: preTransaction.id,
-                      isSeller: widget.isSeller,
-                    ),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.visibility),
-              label: const Text('Go to Combined Review'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: hasUserApproved ? Colors.orange : ColorConstants.primaryGreen,
-                foregroundColor: Colors.white,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  //   return Container(
+  //     padding: const EdgeInsets.all(16),
+  //     decoration: BoxDecoration(
+  //       color: hasUserApproved
+  //           ? Colors.orange.withOpacity(0.1)
+  //           : ColorConstants.primaryGreen.withOpacity(0.1),
+  //       borderRadius: BorderRadius.circular(12),
+  //       border: Border.all(
+  //         color: hasUserApproved
+  //             ? Colors.orange.withOpacity(0.3)
+  //             : ColorConstants.primaryGreen.withOpacity(0.3),
+  //       ),
+  //     ),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Row(
+  //           children: [
+  //             Icon(
+  //               hasUserApproved ? Icons.hourglass_empty : Icons.info,
+  //               color: hasUserApproved ? Colors.orange : ColorConstants.primaryGreen,
+  //             ),
+  //             const SizedBox(width: 12),
+  //             Expanded(
+  //               child: Text(
+  //                 hasUserApproved
+  //                     ? 'Waiting for ${widget.isSeller ? 'Buyer' : 'Seller'}'
+  //                     : 'Combined Review Required',
+  //                 style: TextStyle(
+  //                   fontSize: 16,
+  //                   fontWeight: FontWeight.bold,
+  //                   color: hasUserApproved ? Colors.orange : ColorConstants.primaryGreen,
+  //                 ),
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //         const SizedBox(height: 8),
+  //         Text(
+  //           hasUserApproved
+  //               ? 'You have approved the combined details. Waiting for the other party to review and approve.'
+  //               : 'Both parties have submitted their forms. Please review the combined details and approve to proceed to admin review.',
+  //           style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+  //         ),
+  //         const SizedBox(height: 12),
+  //         SizedBox(
+  //           width: double.infinity,
+  //           child: ElevatedButton.icon(
+  //             onPressed: () {
+  //               // Navigate to combined review screen
+  //               Navigator.push(
+  //                 context,
+  //                 MaterialPageRoute(
+  //                   builder: (context) => CombinedReviewScreen(
+  //                     preTransactionId: preTransaction.id,
+  //                     isSeller: widget.isSeller,
+  //                   ),
+  //                 ),
+  //               );
+  //             },
+  //             icon: const Icon(Icons.visibility),
+  //             label: const Text('Go to Combined Review'),
+  //             style: ElevatedButton.styleFrom(
+  //               backgroundColor: hasUserApproved ? Colors.orange : ColorConstants.primaryGreen,
+  //               foregroundColor: Colors.white,
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildFormHeader(PreTransaction preTransaction) {
     final isAlreadySubmitted = widget.isSeller

@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 
 class ColorConstants {
-  // Primary Colors
-  static const Color primaryGreen = Color(0xFF4CAF50);
-  static const Color primaryDark = Color(0xFF388E3C);
-  static const Color primaryLight = Color(0xFF81C784);
+  // Brand Colors
+  static const Color primary = Color(0xFF7924E7);
+  static const Color secondary = Color(0xFF190022);
+  static const Color primaryLight = Color(0xFF9D5EF0);
+  static const Color primaryDark = Color(0xFF5A1AAC);
 
-  // Neutral Colors
+  // Neutral Colors - Light Mode
   static const Color backgroundLight = Color(0xFFFAFAFA);
-  static const Color backgroundDark = Color(0xFF121212);
   static const Color surfaceLight = Colors.white;
-  static const Color surfaceDark = Color(0xFF1E1E1E);
+  static const Color surfaceVariantLight = Color(0xFFF5F5F5);
+
+  // Neutral Colors - Dark Mode
+  static const Color backgroundDark = Color(0xFF0D0015);
+  static const Color surfaceDark = Color(0xFF1A0029);
+  static const Color surfaceVariantDark = Color(0xFF2A0D3D);
 
   // Text Colors
   static const Color textPrimaryLight = Color(0xFF212121);
@@ -23,4 +28,8 @@ class ColorConstants {
   static const Color error = Color(0xFFE53935);
   static const Color warning = Color(0xFFFFA726);
   static const Color info = Color(0xFF29B6F6);
+
+  // Legacy support (deprecated, use 'primary' instead)
+  @Deprecated('Use primary instead')
+  static const Color primaryGreen = Color(0xFF7924E7);
 }

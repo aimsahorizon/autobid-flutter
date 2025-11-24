@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/constants/id_types.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/utils/demo_data_helper.dart';
 import '../../../providers/signup_provider.dart';
 import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/custom_button.dart';
@@ -35,6 +36,18 @@ class _SignupStep5SecondaryIdState extends State<SignupStep5SecondaryId> with Si
   void dispose() {
     _idNumberController.dispose();
     super.dispose();
+  }
+
+  Future<void> _autoFillDemo() async {
+    final provider = context.read<SignupProvider>();
+    await provider.autoFillStep5();
+
+    // Update controllers
+    _idNumberController.text = provider.secondaryIdNumber;
+
+    if (mounted) {
+      DemoDataHelper.showDemoFilledMessage(context);
+    }
   }
 
   Future<void> _pickImage() async {
@@ -176,6 +189,17 @@ class _SignupStep5SecondaryIdState extends State<SignupStep5SecondaryId> with Si
         title: const Text('Secondary ID'),
         centerTitle: true,
         leading: buildBackButtonWithWarning(),
+        actions: [
+          if (DemoDataHelper.isDemoModeEnabled)
+            TextButton.icon(
+              onPressed: _autoFillDemo,
+              icon: const Icon(Icons.auto_awesome, size: 18),
+              label: const Text('Demo'),
+              style: TextButton.styleFrom(
+                foregroundColor: ColorConstants.primaryGreen,
+              ),
+            ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(

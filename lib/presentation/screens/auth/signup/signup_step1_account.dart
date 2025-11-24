@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/utils/demo_data_helper.dart';
 import '../../../../data/services/local/local_storage_service.dart';
 import '../../../providers/signup_provider.dart';
 import '../../../widgets/custom_text_field.dart';
@@ -47,6 +48,19 @@ class _SignupStep1AccountState extends State<SignupStep1Account>
     _confirmPasswordController.dispose();
     _phoneController.dispose();
     super.dispose();
+  }
+
+  void _autoFillDemo() {
+    final provider = context.read<SignupProvider>();
+    provider.autoFillStep1();
+
+    // Update controllers
+    _emailController.text = provider.email;
+    _passwordController.text = provider.password;
+    _confirmPasswordController.text = provider.confirmPassword;
+    _phoneController.text = provider.phoneNumber;
+
+    DemoDataHelper.showDemoFilledMessage(context);
   }
 
   Future<void> _handleNext() async {
@@ -128,7 +142,7 @@ class _SignupStep1AccountState extends State<SignupStep1Account>
     provider.setConfirmPassword(_confirmPasswordController.text);
     provider.setPhoneNumber(_phoneController.text.trim());
 
-    handleNext('/signup/step2');
+    handleNext('/signup/step3');
   }
 
   @override
@@ -138,6 +152,17 @@ class _SignupStep1AccountState extends State<SignupStep1Account>
         title: const Text('Create Account'),
         centerTitle: true,
         leading: buildBackButton('/signup/step1'),
+        actions: [
+          if (DemoDataHelper.isDemoModeEnabled)
+            TextButton.icon(
+              onPressed: _autoFillDemo,
+              icon: const Icon(Icons.auto_awesome, size: 18),
+              label: const Text('Demo'),
+              style: TextButton.styleFrom(
+                foregroundColor: ColorConstants.primaryGreen,
+              ),
+            ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -147,7 +172,7 @@ class _SignupStep1AccountState extends State<SignupStep1Account>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SignupStepper(currentStep: 1, totalSteps: 9),
+                const SignupStepper(currentStep: 2, totalSteps: 9),
                 const SizedBox(height: 32),
                 Text(
                   'Account Information',

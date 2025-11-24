@@ -65,7 +65,6 @@ _CarModel _$CarModelFromJson(Map<String, dynamic> json) => _CarModel(
   commercialUse: json['commercialUse'] as bool? ?? false,
   smokerVehicle: json['smokerVehicle'] as bool? ?? false,
   serviceHistoryComplete: json['serviceHistoryComplete'] as bool,
-  warrantyRemaining: json['warrantyRemaining'] as bool,
   registrationExpiry: json['registrationExpiry'] == null
       ? null
       : DateTime.parse(json['registrationExpiry'] as String),
@@ -81,6 +80,7 @@ _CarModel _$CarModelFromJson(Map<String, dynamic> json) => _CarModel(
     _$RegistrationStatusEnumMap,
     json['registrationStatus'],
   ),
+  registrationStatusOther: json['registrationStatusOther'] as String?,
   emissionTestValid: json['emissionTestValid'] as bool,
   comprehensiveInsurance: json['comprehensiveInsurance'] as bool,
   acceptsTrade: json['acceptsTrade'] as bool? ?? false,
@@ -150,7 +150,6 @@ Map<String, dynamic> _$CarModelToJson(_CarModel instance) => <String, dynamic>{
   'commercialUse': instance.commercialUse,
   'smokerVehicle': instance.smokerVehicle,
   'serviceHistoryComplete': instance.serviceHistoryComplete,
-  'warrantyRemaining': instance.warrantyRemaining,
   'registrationExpiry': instance.registrationExpiry?.toIso8601String(),
   'features': instance.features,
   'location': instance.location,
@@ -160,6 +159,7 @@ Map<String, dynamic> _$CarModelToJson(_CarModel instance) => <String, dynamic>{
   'orcrNumber': instance.orcrNumber,
   'registrationStatus':
       _$RegistrationStatusEnumMap[instance.registrationStatus]!,
+  'registrationStatusOther': instance.registrationStatusOther,
   'emissionTestValid': instance.emissionTestValid,
   'comprehensiveInsurance': instance.comprehensiveInsurance,
   'acceptsTrade': instance.acceptsTrade,
@@ -256,6 +256,12 @@ const _$RegistrationStatusEnumMap = {
   RegistrationStatus.current: 'current',
   RegistrationStatus.expiringSoon: 'expiring_soon',
   RegistrationStatus.expired: 'expired',
+  RegistrationStatus.forRenewal: 'for_renewal',
+  RegistrationStatus.pendingRenewal: 'pending_renewal',
+  RegistrationStatus.delinquent: 'delinquent',
+  RegistrationStatus.underAlarm: 'under_alarm',
+  RegistrationStatus.carnapped: 'carnapped',
+  RegistrationStatus.other: 'other',
 };
 
 const _$ListingStatusEnumMap = {

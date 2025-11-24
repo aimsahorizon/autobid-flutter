@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/utils/demo_data_helper.dart';
 import '../../../providers/signup_provider.dart';
 import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/custom_button.dart';
@@ -34,6 +35,18 @@ class _SignupStep4PrimaryIdState extends State<SignupStep4PrimaryId> with Signup
   void dispose() {
     _idNumberController.dispose();
     super.dispose();
+  }
+
+  Future<void> _autoFillDemo() async {
+    final provider = context.read<SignupProvider>();
+    await provider.autoFillStep4();
+
+    // Update controllers
+    _idNumberController.text = provider.nationalIdNumber;
+
+    if (mounted) {
+      DemoDataHelper.showDemoFilledMessage(context);
+    }
   }
 
   Future<void> _pickImage(bool isFront) async {
@@ -185,6 +198,17 @@ class _SignupStep4PrimaryIdState extends State<SignupStep4PrimaryId> with Signup
         title: const Text('Primary ID'),
         centerTitle: true,
         leading: buildBackButtonWithWarning(),
+        actions: [
+          if (DemoDataHelper.isDemoModeEnabled)
+            TextButton.icon(
+              onPressed: _autoFillDemo,
+              icon: const Icon(Icons.auto_awesome, size: 18),
+              label: const Text('Demo'),
+              style: TextButton.styleFrom(
+                foregroundColor: ColorConstants.primaryGreen,
+              ),
+            ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(

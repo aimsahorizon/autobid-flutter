@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../providers/listing_provider.dart';
 import '../../../widgets/custom_button.dart';
+import 'create_listing_step_mixin.dart';
 
 class CreateListingStep5Photos extends StatefulWidget {
   const CreateListingStep5Photos({super.key});
@@ -13,7 +14,7 @@ class CreateListingStep5Photos extends StatefulWidget {
       _CreateListingStep5PhotosState();
 }
 
-class _CreateListingStep5PhotosState extends State<CreateListingStep5Photos> {
+class _CreateListingStep5PhotosState extends State<CreateListingStep5Photos> with CreateListingMixin {
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage(ImageSource source) async {
@@ -45,9 +46,14 @@ class _CreateListingStep5PhotosState extends State<CreateListingStep5Photos> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ListingProvider>();
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => handleBackWithWarning(),
+        ),
         title: const Text('Photos'),
       ),
       body: ListView(
@@ -55,14 +61,14 @@ class _CreateListingStep5PhotosState extends State<CreateListingStep5Photos> {
         children: [
           LinearProgressIndicator(
             value: 5 / 6,
-            backgroundColor: Colors.grey[200],
+            backgroundColor: isDarkMode ? Colors.grey[700] : Colors.grey[200],
           ),
           const SizedBox(height: 24),
 
           Text(
             'Step 5 of 6',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
+                  color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                 ),
           ),
           const SizedBox(height: 8),
@@ -78,7 +84,7 @@ class _CreateListingStep5PhotosState extends State<CreateListingStep5Photos> {
           Text(
             'Minimum 5 photos required',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[600],
+                  color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                 ),
           ),
           const SizedBox(height: 24),
@@ -87,22 +93,29 @@ class _CreateListingStep5PhotosState extends State<CreateListingStep5Photos> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.blue.shade50,
+              color: isDarkMode
+                  ? Colors.blue.shade900.withOpacity(0.3)
+                  : Colors.blue.shade50,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.blue.shade200),
+              border: Border.all(
+                color: isDarkMode ? Colors.blue.shade700 : Colors.blue.shade200,
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Icon(Icons.camera_alt, color: Colors.blue.shade700),
+                    Icon(
+                      Icons.camera_alt,
+                      color: isDarkMode ? Colors.blue.shade300 : Colors.blue.shade700,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       'Suggested shots:',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Colors.blue.shade900,
+                        color: isDarkMode ? Colors.blue.shade100 : Colors.blue.shade900,
                       ),
                     ),
                   ],
@@ -126,9 +139,11 @@ class _CreateListingStep5PhotosState extends State<CreateListingStep5Photos> {
                             label: Text(shot),
                             labelStyle: TextStyle(
                               fontSize: 11,
-                              color: Colors.blue.shade900,
+                              color: isDarkMode ? Colors.blue.shade100 : Colors.blue.shade900,
                             ),
-                            backgroundColor: Colors.white,
+                            backgroundColor: isDarkMode
+                                ? Colors.blue.shade800.withOpacity(0.3)
+                                : Colors.white,
                           ))
                       .toList(),
                 ),

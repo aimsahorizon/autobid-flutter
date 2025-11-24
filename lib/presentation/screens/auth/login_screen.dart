@@ -4,10 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/string_constants.dart';
 import '../../../core/constants/color_constants.dart';
+import '../../../data/models/user_model.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/theme_provider.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/custom_button.dart';
-import 'otp_verification_screen.dart';
+import 'login_dual_otp_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -84,31 +86,80 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         return;
       }
 
-      // Sign out temporarily - OTP verification required
+      // Check account status before proceeding with OTP
+      // For pending/rejected accounts, show status dialog immediately
+      if (user.accountStatus == AccountStatus.pending) {
+        _showPendingStatusDialog();
+        return;
+      }
+
+      if (user.accountStatus == AccountStatus.rejected) {
+        _showRejectedStatusDialog(user.rejectionReason);
+        return;
+      }
+
+      // Sign out temporarily - OTP verification required for verified/guest accounts
       await authService.signOut();
       if (!mounted) return;
 
-      // Step 2: Verify Email OTP
-      final emailVerified = await _verifyOtp(
-        authService: authService,
-        identifier: user.email,
-        title: 'Verify Email',
-        subtitle: 'Enter the 6-digit code sent to ${user.email}',
+      // Step 2: Request OTPs (only for verified/guest accounts)
+      final emailOtpResult = await authService.requestLoginOtp(user.email);
+      if (!emailOtpResult.success) {
+        _showError(emailOtpResult.errorMessage ?? 'Failed to send email OTP');
+        return;
+      }
+
+      String? debugPhoneOtp;
+      if (user.phoneNumber != null && user.phoneNumber!.isNotEmpty) {
+        final phoneOtpResult = await authService.requestLoginOtp(user.phoneNumber!);
+        if (!phoneOtpResult.success) {
+          _showError(phoneOtpResult.errorMessage ?? 'Failed to send phone OTP');
+          return;
+        }
+        debugPhoneOtp = phoneOtpResult.debugOtp;
+      }
+
+      if (!mounted) return;
+
+      // Step 3: Show dual OTP verification screen
+      final verified = await Navigator.of(context).push<bool>(
+        MaterialPageRoute(
+          builder: (context) => LoginDualOtpScreen(
+            email: user.email,
+            phoneNumber: user.phoneNumber,
+            debugEmailOtp: emailOtpResult.debugOtp,
+            debugPhoneOtp: debugPhoneOtp,
+            onVerifyEmail: (otp) async {
+              final result = await authService.otpService.verifyOtp(
+                identifier: user.email,
+                otp: otp,
+              );
+              if (!result.success) {
+                throw Exception(result.errorMessage ?? 'Invalid email OTP');
+              }
+            },
+            onVerifyPhone: (otp) async {
+              final result = await authService.otpService.verifyOtp(
+                identifier: user.phoneNumber!,
+                otp: otp,
+              );
+              if (!result.success) {
+                throw Exception(result.errorMessage ?? 'Invalid phone OTP');
+              }
+            },
+            onResendEmail: () async {
+              final result = await authService.requestLoginOtp(user.email);
+              return result.success;
+            },
+            onResendPhone: () async {
+              final result = await authService.requestLoginOtp(user.phoneNumber!);
+              return result.success;
+            },
+          ),
+        ),
       );
 
-      if (!emailVerified || !mounted) return;
-
-      // Step 3: Verify Phone OTP (if exists)
-      if (user.phoneNumber != null && user.phoneNumber!.isNotEmpty) {
-        final phoneVerified = await _verifyOtp(
-          authService: authService,
-          identifier: user.phoneNumber!,
-          title: 'Verify Phone',
-          subtitle: 'Enter the 6-digit code sent to ${user.phoneNumber}',
-        );
-
-        if (!phoneVerified || !mounted) return;
-      }
+      if (verified != true || !mounted) return;
 
       // Step 4: Complete login
       final loginResult = await authService.signInWithEmail(identifier, password);
@@ -120,6 +171,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         // Small delay for user to see success message
         await Future.delayed(const Duration(milliseconds: 500));
         if (mounted) {
+          // Navigate to home (account status already checked before OTP)
           context.go('/home');
         }
       } else {
@@ -134,61 +186,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         setState(() => _isLoading = false);
       }
     }
-  }
-
-  Future<bool> _verifyOtp({
-    required dynamic authService,
-    required String identifier,
-    required String title,
-    required String subtitle,
-  }) async {
-    // Request OTP
-    final otpResult = await authService.requestLoginOtp(identifier);
-
-    if (!mounted) return false;
-
-    if (!otpResult.success) {
-      _showError(otpResult.errorMessage ?? 'Failed to send OTP');
-      return false;
-    }
-
-    // Navigate to OTP verification screen
-    bool verified = false;
-
-    if (!mounted) return false;
-
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => OtpVerificationScreen(
-          identifier: identifier,
-          title: title,
-          subtitle: subtitle,
-          debugOtp: otpResult.debugOtp,
-          onVerify: (otp) async {
-            final verifyResult = await authService.otpService.verifyOtp(
-              identifier: identifier,
-              otp: otp,
-            );
-
-            if (!verifyResult.success) {
-              throw Exception(verifyResult.errorMessage ?? 'Invalid OTP');
-            }
-
-            // Mark as verified and pop
-            verified = true;
-            if (context.mounted) {
-              Navigator.of(context).pop();
-            }
-          },
-          onResend: () async {
-            final resendResult = await authService.requestLoginOtp(identifier);
-            return resendResult.success;
-          },
-        ),
-      ),
-    );
-
-    return verified;
   }
 
   void _showError(String message) {
@@ -242,78 +239,152 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  Widget _buildCredentialRow(String email, String password) {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      email,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade800,
-                      ),
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      Clipboard.setData(ClipboardData(text: email));
-                      _showSuccess('Email copied');
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: Icon(
-                        Icons.copy,
-                        size: 14,
-                        color: Colors.amber.shade700,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 2),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      password,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      Clipboard.setData(ClipboardData(text: password));
-                      _showSuccess('Password copied');
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: Icon(
-                        Icons.copy,
-                        size: 14,
-                        color: Colors.amber.shade700,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+  void _showPendingStatusDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        icon: const Icon(
+          Icons.hourglass_empty,
+          color: Colors.orange,
+          size: 48,
         ),
-      ],
+        title: const Text('Account Pending Review'),
+        content: const Text(
+          'Your account is currently under review. You have limited access until your KYC verification is approved.\n\n'
+          'You can browse listings but cannot participate in auctions or create listings yet.\n\n'
+          'Review typically takes 1-3 business days.',
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.go('/home');
+            },
+            child: const Text('Continue to Home'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showRejectedStatusDialog(String? rejectionReason) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        icon: const Icon(
+          Icons.cancel,
+          color: ColorConstants.error,
+          size: 48,
+        ),
+        title: const Text('Account Verification Rejected'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Your KYC verification has been rejected.',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 12),
+            if (rejectionReason != null && rejectionReason.isNotEmpty) ...[
+              const Text(
+                'Reason:',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                rejectionReason,
+                style: const TextStyle(color: ColorConstants.error),
+              ),
+              const SizedBox(height: 12),
+            ],
+            const Text(
+              'You can re-submit your verification documents from your profile settings.',
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.go('/home');
+            },
+            child: const Text('Continue to Home'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.go('/profile/kyc');
+            },
+            child: const Text('Re-submit KYC'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _autoFillCredentials(String email, String password) {
+    setState(() {
+      _identifierController.text = email;
+      _passwordController.text = password;
+    });
+    _showSuccess('Credentials auto-filled');
+  }
+
+  Widget _buildCredentialRow(String email, String password) {
+    return InkWell(
+      onTap: () => _autoFillCredentials(email, password),
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.amber.shade100),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    email,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey.shade800,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    password,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.login,
+              size: 16,
+              color: Colors.amber.shade700,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final themeMode = ref.watch(appThemeModeProvider);
+    final isDark = themeMode == ThemeMode.dark;
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -323,7 +394,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 40),
+                // Theme toggle button
+                // Align(
+                //   alignment: Alignment.topRight,
+                //   child: IconButton(
+                //     onPressed: () {
+                //       ref.read(appThemeModeProvider.notifier).toggleTheme();
+                //     },
+                //     icon: Icon(
+                //       isDark ? Icons.light_mode : Icons.dark_mode,
+                //       color: ColorConstants.primaryGreen,
+                //     ),
+                //     tooltip: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+                //   ),
+                // ),
+                const SizedBox(height: 8),
                 Text(
                   'Welcome Back',
                   style: Theme.of(context).textTheme.displayLarge?.copyWith(
@@ -333,7 +418,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Enter credentials and verify with OTP',
+                  'Sign in to your AutoBID account',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 24),
@@ -446,8 +531,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ],
                       ),
                       const SizedBox(height: 12),
-                      _buildCredentialRow('test@autobid.com', 'Test123'),
-                      const SizedBox(height: 8),
                       _buildCredentialRow('pending@autobid.com', 'Test123'),
                       const SizedBox(height: 8),
                       _buildCredentialRow('rejected@autobid.com', 'Test123'),

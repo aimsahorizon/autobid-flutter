@@ -8,6 +8,7 @@ import '../../../core/constants/bid_increments.dart';
 import '../../../config/app_config.dart';
 import '../../../domain/repositories/auction_repository.dart';
 import '../../../domain/services/pricing_calculator.dart';
+import 'mock_car_listings.dart';
 
 class MockAuctionService implements AuctionRepository {
   static final MockAuctionService _instance = MockAuctionService._internal();
@@ -33,7 +34,7 @@ class MockAuctionService implements AuctionRepository {
 
   @override
   void initialize() {
-    _generateMockAuctions();
+    _generateMockAuctionsSync();
     if (AppConfig.enableDemoData) {
       _generateMockUserBids();
     }
@@ -501,7 +502,6 @@ class MockAuctionService implements AuctionRepository {
         hasAccidentHistory: data['hasAccidentHistory'] as bool,
         floodDamage: data['floodDamage'] as bool,
         serviceHistoryComplete: i % 2 == 0,
-        warrantyRemaining: i % 3 == 0,
         plateNumber: 'ABC${1000 + i}',
         orcrNumber: 'ORCR${1000 + i}',
         registrationStatus: RegistrationStatus.current,
@@ -533,12 +533,12 @@ class MockAuctionService implements AuctionRepository {
     return cars;
   }
 
-  void _generateMockAuctions() {
+  void _generateMockAuctionsSync() {
     final now = DateTime.now();
     final random = Random();
 
-    // Get diverse car data - use fallback generation since MockCarService methods are private
-    _availableCars = _generateFallbackCars();
+    // Use real car listings with asset images
+    _availableCars = MockCarListings.generateListings();
 
     final durations = [
       Duration(minutes: 1),
@@ -550,9 +550,68 @@ class MockAuctionService implements AuctionRepository {
       // Duration(days: 3),
     ];
 
-    final basePrices = [150000.0, 250000.0, 350000.0, 500000.0, 750000.0, 1200000.0];
+    // Realistic Philippine car auction prices
+    // Budget: 250k-500k | Mid-range: 500k-1.2M | Premium: 1.2M-2.5M
+    final basePrices = [280000.0, 520000.0, 850000.0, 1250000.0, 1850000.0, 2500000.0];
 
-    // Create auctions for all available cars
+    // CRITICAL FIX: First, create auctions for the known active car listings from MockCarService
+    // These are the cars shown in My Listings > Active tab
+    final sellerCarIds = ['car-active-1', 'car-active-2'];
+
+    for (int i = 0; i < sellerCarIds.length; i++) {
+      final carId = sellerCarIds[i];
+      // Get the car from fallback cars that matches this ID, or use the first car as template
+      final car = _availableCars.isNotEmpty ? _availableCars[i % _availableCars.length] : null;
+      if (car == null) continue;
+
+      final endTime = now.add(durations[random.nextInt(durations.length)]);
+      final basePrice = basePrices[random.nextInt(basePrices.length)];
+      final startingPrice = basePrice * 0.7;
+      final reservePrice = basePrice * 0.9;
+      final buyNowPrice = random.nextBool() ? basePrice * 1.1 : null;
+
+      final totalBids = random.nextInt(20);
+      final currentBid = startingPrice + (totalBids * BidIncrements.minimumIncrement * (1 + random.nextInt(3)));
+
+      final auction = Auction(
+        id: 'auction_seller_$i',
+        carId: carId, // Use the actual car ID from MockCarService
+        sellerId: 'mock-user-id', // Seller is the mock user
+        startingPrice: startingPrice,
+        currentBid: currentBid,
+        reservePrice: reservePrice,
+        buyNowPrice: buyNowPrice,
+        startTime: now.subtract(Duration(hours: random.nextInt(24))),
+        endTime: endTime,
+        status: AuctionStatus.live,
+        totalBids: totalBids,
+        topBidderId: totalBids > 0 ? 'user_${random.nextInt(10)}' : null,
+        topBidderName: totalBids > 0 ? 'Bidder ${random.nextInt(100)}' : null,
+        watchers: List.generate(random.nextInt(15), (i) => 'user_$i'),
+        createdAt: now.subtract(Duration(days: random.nextInt(7))),
+        updatedAt: now,
+        car: car.copyWith(id: carId, sellerId: 'mock-user-id'), // Override ID and seller
+      );
+
+      _auctions.add(auction);
+
+      // Generate initial bids
+      for (int j = 0; j < totalBids; j++) {
+        final bidAmount = startingPrice + ((j + 1) * BidIncrements.minimumIncrement * (1 + random.nextInt(3)));
+        _bids.add(Bid(
+          id: 'bid_seller_${i}_$j',
+          auctionId: auction.id,
+          bidderId: 'user_${random.nextInt(10)}',
+          bidderName: 'Bidder ${random.nextInt(100)}',
+          amount: bidAmount,
+          isAutoBid: random.nextBool(),
+          timestamp: now.subtract(Duration(minutes: (totalBids - j) * 5)),
+          status: j == totalBids - 1 ? BidStatus.winning : BidStatus.outbid,
+        ));
+      }
+    }
+
+    // Now create auctions for the rest of the fallback cars
     for (int i = 0; i < _availableCars.length; i++) {
       final car = _availableCars[i];
       final endTime = now.add(durations[random.nextInt(durations.length)]);
@@ -566,10 +625,13 @@ class MockAuctionService implements AuctionRepository {
       final totalBids = random.nextInt(20);
       final currentBid = startingPrice + (totalBids * BidIncrements.minimumIncrement * (1 + random.nextInt(3)));
 
+      // Random sellers for other auctions
+      final sellerId = 'seller_${random.nextInt(5)}';
+
       final auction = Auction(
         id: 'auction_$i',
         carId: car.id,
-        sellerId: 'seller_${random.nextInt(5)}',
+        sellerId: sellerId,
         startingPrice: startingPrice,
         currentBid: currentBid,
         reservePrice: reservePrice,
@@ -683,9 +745,9 @@ class MockAuctionService implements AuctionRepository {
         id: 'auction_demo_won_$i',
         carId: wonCar?.id ?? 'car_demo_won_$i',
         sellerId: 'seller_demo',
-        startingPrice: 200000.0,
-        currentBid: 250000.0 + (i * 50000),
-        reservePrice: 240000.0,
+        startingPrice: 420000.0 + (i * 100000),
+        currentBid: 580000.0 + (i * 150000),
+        reservePrice: 500000.0 + (i * 120000),
         startTime: now.subtract(Duration(days: 7 + i)),
         endTime: now.subtract(Duration(days: i + 1)),
         status: AuctionStatus.sold,
@@ -722,9 +784,9 @@ class MockAuctionService implements AuctionRepository {
       id: 'auction_demo_lost',
       carId: lostCar?.id ?? 'car_demo_lost',
       sellerId: 'seller_demo',
-      startingPrice: 300000.0,
-      currentBid: 380000.0,
-      reservePrice: 350000.0,
+      startingPrice: 650000.0,
+      currentBid: 850000.0,
+      reservePrice: 750000.0,
       startTime: now.subtract(Duration(days: 5)),
       endTime: now.subtract(Duration(days: 2)),
       status: AuctionStatus.sold,
@@ -744,7 +806,7 @@ class MockAuctionService implements AuctionRepository {
       auctionId: lostAuction.id,
       bidderId: userId,
       bidderName: 'You',
-      amount: 370000.0,
+      amount: 820000.0,
       isAutoBid: false,
       timestamp: lostAuction.endTime.subtract(Duration(hours: 3)),
       status: BidStatus.lost,
@@ -771,9 +833,9 @@ class MockAuctionService implements AuctionRepository {
         id: 'auction_seller_sold_$i',
         carId: sellerCar?.id ?? 'car_seller_sold_$i',
         sellerId: userId, // Current user is the seller
-        startingPrice: 180000.0,
-        currentBid: 220000.0 + (i * 30000),
-        reservePrice: 200000.0,
+        startingPrice: 380000.0 + (i * 150000),
+        currentBid: 520000.0 + (i * 200000),
+        reservePrice: 450000.0 + (i * 170000),
         startTime: now.subtract(Duration(days: 6 + i)),
         endTime: now.subtract(Duration(hours: 12 - i * 2)),
         status: AuctionStatus.sold,
@@ -808,7 +870,9 @@ class MockAuctionService implements AuctionRepository {
   }
 
   void _startStatusUpdates() {
-    _statusUpdateTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+    // Optimized: Check every 5 seconds instead of 1 second
+    // Most auctions last hours/days, checking every second is wasteful
+    _statusUpdateTimer = Timer.periodic(Duration(seconds: 5), (timer) {
       _updateAuctionStatuses();
     });
   }
@@ -829,10 +893,15 @@ class MockAuctionService implements AuctionRepository {
     final now = DateTime.now();
     bool updated = false;
 
+    // Optimized: Only check live auctions, skip sold/ended/upcoming
     for (int i = 0; i < _auctions.length; i++) {
       final auction = _auctions[i];
 
-      if (auction.status == AuctionStatus.live && now.isAfter(auction.endTime)) {
+      // Skip if not live - no status change needed
+      if (auction.status != AuctionStatus.live) continue;
+
+      // Only process if auction has actually ended
+      if (now.isAfter(auction.endTime)) {
         final newStatus = auction.currentBid >= auction.reservePrice
             ? AuctionStatus.sold
             : AuctionStatus.ended;
@@ -842,7 +911,7 @@ class MockAuctionService implements AuctionRepository {
           updatedAt: now,
         );
 
-        // Update bid statuses
+        // Update bid statuses - only for this auction
         for (int j = 0; j < _bids.length; j++) {
           final bid = _bids[j];
           if (bid.auctionId == auction.id) {
@@ -860,6 +929,7 @@ class MockAuctionService implements AuctionRepository {
       }
     }
 
+    // Only notify if something actually changed
     if (updated) {
       _notifyListeners();
     }
@@ -881,6 +951,14 @@ class MockAuctionService implements AuctionRepository {
     }
   }
 
+  Auction? getAuctionByCarId(String carId) {
+    try {
+      return _auctions.firstWhere((a) => a.carId == carId);
+    } catch (e) {
+      return null;
+    }
+  }
+
   @override
   Future<bool> placeBid({
     required String auctionId,
@@ -890,7 +968,7 @@ class MockAuctionService implements AuctionRepository {
     return _placeBidInternal(auctionId, amount, userId);
   }
 
-  bool _placeBidInternal(String auctionId, double amount, String userId, [String? userName]) {
+  bool _placeBidInternal(String auctionId, double amount, String userId, [String? userName, bool isAutoBid = false]) {
     final auction = getAuctionById(auctionId);
     if (auction == null || auction.status != AuctionStatus.live) return false;
 
@@ -915,12 +993,15 @@ class MockAuctionService implements AuctionRepository {
       bidderId: userId,
       bidderName: bidderName,
       amount: amount,
-      isAutoBid: false,
+      isAutoBid: isAutoBid,
       timestamp: now,
       status: BidStatus.winning,
     );
 
     _bids.add(newBid);
+
+    // Anti-sniping: Extend auction by 5 minutes when bid is placed
+    final extendedEndTime = auction.endTime.add(Duration(minutes: 5));
 
     // Update auction
     final auctionIndex = _auctions.indexWhere((a) => a.id == auctionId);
@@ -929,11 +1010,102 @@ class MockAuctionService implements AuctionRepository {
       totalBids: auction.totalBids + 1,
       topBidderId: userId,
       topBidderName: bidderName,
+      endTime: extendedEndTime,
       updatedAt: now,
     );
 
     _notifyListeners();
+
+    // Trigger autobid logic after manual bid (not after autobid to prevent infinite loops)
+    if (!isAutoBid) {
+      _processAutoBids(auctionId, userId);
+    }
+
     return true;
+  }
+
+  /// Process autobids after a manual bid is placed
+  /// This implements a robust autobid system with best practices:
+  /// 1. Only process autobids for users who were outbid
+  /// 2. Respect max bid limits
+  /// 3. Use configured increment amounts
+  /// 4. Prevent infinite loops with max iterations
+  /// 5. Handle edge cases (disabled autobid, insufficient funds, etc.)
+  void _processAutoBids(String auctionId, String excludeUserId) {
+    final auction = getAuctionById(auctionId);
+    if (auction == null || auction.status != AuctionStatus.live) return;
+
+    // Prevent infinite loops - max 10 autobid iterations
+    int iterations = 0;
+    const maxIterations = 10;
+
+    while (iterations < maxIterations) {
+      iterations++;
+
+      // Find all users with active autobid configs for this auction (excluding current bidder)
+      final outbidUsers = <String, AutoBidConfig>{};
+      _autoBidConfigs.forEach((key, config) {
+        if (key.startsWith('${auctionId}_') && config.isActive) {
+          final userId = key.split('_').sublist(1).join('_');
+
+          // Skip if this is the user who just bid
+          if (userId == excludeUserId) return;
+
+          // Check if user was outbid (not currently winning)
+          final userBid = getUserBid(auctionId, userId);
+          if (userBid == null || userBid.status == BidStatus.outbid) {
+            outbidUsers[userId] = config;
+          }
+        }
+      });
+
+      // If no outbid users with autobid, we're done
+      if (outbidUsers.isEmpty) break;
+
+      // Find the user with highest max bid who can still bid
+      String? bestUserId;
+      double? bestNextBid;
+      AutoBidConfig? bestConfig;
+
+      outbidUsers.forEach((userId, config) {
+        final currentAuction = getAuctionById(auctionId);
+        if (currentAuction == null) return;
+
+        // Calculate next bid: current bid + user's increment
+        final nextBid = currentAuction.currentBid + config.incrementAmount;
+
+        // Check if user can afford this bid
+        if (nextBid <= config.maxBidAmount) {
+          // Use the highest next bid (most competitive)
+          if (bestNextBid == null || nextBid > bestNextBid!) {
+            bestNextBid = nextBid;
+            bestUserId = userId;
+            bestConfig = config;
+          }
+        }
+      });
+
+      // If no user can bid, we're done
+      if (bestUserId == null || bestNextBid == null || bestConfig == null) break;
+
+      // Place autobid for the best candidate
+      final bidPlaced = _placeBidInternal(
+        auctionId,
+        bestNextBid!,
+        bestUserId!,
+        'AutoBid User', // You can fetch real username if needed
+        true, // isAutoBid = true
+      );
+
+      // If bid failed, we're done
+      if (!bidPlaced) break;
+
+      // Update excludeUserId to the autobidder for next iteration
+      excludeUserId = bestUserId!;
+
+      // Add small delay to simulate real-time autobidding
+      // Note: In production, this would be async
+    }
   }
 
   @override

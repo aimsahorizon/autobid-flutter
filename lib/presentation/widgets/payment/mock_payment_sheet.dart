@@ -82,8 +82,8 @@ class _MockPaymentSheetContentState extends State<_MockPaymentSheetContent>
       _isProcessing = true;
     });
 
-    // Simulate payment processing
-    await Future.delayed(const Duration(seconds: 2));
+    // Optimized: Simulate payment processing (reduced from 2s)
+    await Future.delayed(const Duration(milliseconds: 800));
 
     setState(() {
       _isProcessing = false;
@@ -91,7 +91,7 @@ class _MockPaymentSheetContentState extends State<_MockPaymentSheetContent>
     });
 
     // Show success animation
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 300));
 
     if (mounted) {
       Navigator.of(context).pop(true);

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/constants/proof_of_address_types.dart';
+import '../../../../core/utils/demo_data_helper.dart';
 import '../../../../data/models/user_model.dart';
 import '../../../providers/signup_provider.dart';
 import '../../../widgets/image_upload_card.dart';
@@ -31,6 +32,20 @@ class _SignupStep7ProofAddressState extends State<SignupStep7ProofAddress> with 
     _documentImage = provider.proofOfAddressImage;
   }
 
+  Future<void> _autoFillDemo() async {
+    final provider = context.read<SignupProvider>();
+    await provider.autoFillStep7();
+
+    setState(() {
+      _selectedType = provider.proofOfAddressType;
+      _documentImage = provider.proofOfAddressImage;
+    });
+
+    if (mounted) {
+      DemoDataHelper.showDemoFilledMessage(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final signupProvider = context.watch<SignupProvider>();
@@ -42,6 +57,17 @@ class _SignupStep7ProofAddressState extends State<SignupStep7ProofAddress> with 
         title: const Text('Proof of Address'),
         centerTitle: true,
         leading: buildBackButtonWithWarning(),
+        actions: [
+          if (DemoDataHelper.isDemoModeEnabled)
+            TextButton.icon(
+              onPressed: _autoFillDemo,
+              icon: const Icon(Icons.auto_awesome, size: 18),
+              label: const Text('Demo'),
+              style: TextButton.styleFrom(
+                foregroundColor: ColorConstants.primaryGreen,
+              ),
+            ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(

@@ -34,13 +34,16 @@ import '../../presentation/screens/listings/create/create_listing_step5_conditio
 import '../../presentation/screens/listings/create/create_listing_step6_documentation.dart';
 import '../../presentation/screens/listings/create/create_listing_step7_photos.dart';
 import '../../presentation/screens/listings/create/create_listing_step8_review.dart';
-import '../../presentation/screens/listings/create/create_listing_step9_summary.dart';
+import '../../presentation/screens/listings/create/create_listing_step9_bidding.dart';
+import '../../presentation/screens/listings/create/create_listing_step10_payment.dart';
 import '../../presentation/screens/listings/create/listing_success_screen.dart';
 import '../../presentation/screens/browse/browse_cars_screen.dart';
 import '../../presentation/screens/browse/search_screen.dart';
 import '../../presentation/screens/browse/car_detail_screen.dart';
 import '../../presentation/screens/auction/auction_detail_screen.dart';
+import '../../presentation/screens/seller/seller_auction_detail_screen.dart';
 import '../../presentation/screens/payment/payment_screen.dart';
+import '../../presentation/screens/deposit/deposit_payment_screen.dart';
 import '../../presentation/screens/payment/transactions_screen.dart';
 import '../../presentation/screens/transaction/transaction_detail_screen.dart';
 import '../../presentation/screens/transaction/submit_transfer_evidence_screen.dart';
@@ -53,7 +56,13 @@ import '../../presentation/screens/admin/admin_debug_panel.dart';
 import '../../presentation/screens/pre_transaction/pre_transaction_discussion_screen.dart';
 import '../../presentation/screens/pre_transaction/pre_transaction_confirmation_form_screen.dart';
 import '../../presentation/screens/pre_transaction/pre_transaction_status_screen.dart';
+import '../../presentation/screens/onboarding/onboarding_screen.dart';
+import '../../presentation/screens/listings/my_listings/sold_listing_detail_screen.dart';
+import '../../presentation/screens/listings/my_listings/cancelled_listing_detail_screen.dart';
+import '../../presentation/screens/listings/my_listings/pending_listing_detail_screen.dart';
+import '../../presentation/screens/subscription/subscription_selection_screen.dart';
 import '../../presentation/providers/auth_provider.dart';
+import '../../presentation/providers/onboarding_provider.dart';
 import '../constants/string_constants.dart';
 
 /// Helper class to refresh GoRouter when auth state changes
@@ -83,33 +92,49 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       authService.authStateChanges,
     ),
     redirect: (context, state) {
-      // Get current auth state without watching (to avoid rebuilding router)
+      // Optimized: Cache frequently accessed values
+      final path = state.uri.path;
       final authState = ref.read(authStateChangesProvider);
       final isAuthenticated = authState.value != null;
-      final isOnSplash = state.uri.path == StringConstants.splashRoute;
-      final isOnAuth = state.uri.path == StringConstants.loginRoute ||
-          state.uri.path == StringConstants.signupRoute;
 
-      // If authenticated and on auth screens, redirect to home
-      if (isAuthenticated && (isOnAuth || isOnSplash)) {
+      // Early return: Skip redirect check for already-authenticated deep links
+      if (isAuthenticated && !path.startsWith('/auth') && !path.startsWith('/splash') && !path.startsWith('/onboarding')) {
+        return null;
+      }
+
+      // Cache route checks (avoid repeated string comparisons)
+      final isOnSplash = path == StringConstants.splashRoute;
+      final isOnOnboarding = path == StringConstants.onboardingRoute;
+      final isOnAuth = path == StringConstants.loginRoute || path == StringConstants.signupRoute;
+
+      // Check onboarding status (sync)
+      final hasCompletedOnboarding = ref.read(onboardingCompletedProvider);
+
+      // Redirect logic with early returns
+      if (!hasCompletedOnboarding && !isOnSplash && !isOnOnboarding) {
+        return StringConstants.onboardingRoute;
+      }
+
+      if (isAuthenticated && (isOnAuth || isOnSplash || isOnOnboarding)) {
         return StringConstants.homeRoute;
       }
 
-      // If not authenticated and not on auth/splash screens, redirect to login
-      if (!isAuthenticated &&
-          !isOnAuth &&
-          !isOnSplash &&
-          authState.hasValue) {
+      if (!isAuthenticated && !isOnAuth && !isOnSplash && !isOnOnboarding && authState.hasValue) {
         return StringConstants.loginRoute;
       }
 
-      return null; // No redirect
+      return null;
     },
     routes: [
       GoRoute(
         path: StringConstants.splashRoute,
         name: 'splash',
         builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: StringConstants.onboardingRoute,
+        name: 'onboarding',
+        builder: (context, state) => const OnboardingScreen(),
       ),
       GoRoute(
         path: '/entry',
@@ -134,17 +159,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/signup/step1',
         name: 'signup-step1',
-        builder: (context, state) => const SignupStep1Account(),
+        builder: (context, state) => const SignupStep2Personal(),
       ),
       GoRoute(
         path: '/signup/step2',
         name: 'signup-step2',
-        builder: (context, state) => const SignupStep2Otp(),
+        builder: (context, state) => const SignupStep1Account(),
       ),
       GoRoute(
         path: '/signup/step3',
-        name: 'signup-step3-personal',
-        builder: (context, state) => const SignupStep2Personal(),
+        name: 'signup-step3-otp',
+        builder: (context, state) => const SignupStep2Otp(),
       ),
       GoRoute(
         path: '/signup/step4',
@@ -221,6 +246,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const HelpSupportScreen(),
       ),
       GoRoute(
+        path: '/subscription',
+        name: 'subscription',
+        builder: (context, state) => const SubscriptionSelectionScreen(),
+      ),
+      GoRoute(
         path: '/kyc-intro',
         name: 'kyc-intro',
         builder: (context, state) => const KycIntroScreen(),
@@ -267,7 +297,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: 'auction',
         builder: (context, state) {
           final auctionId = state.pathParameters['id']!;
-          return AuctionDetailScreen(auctionId: auctionId);
+          final isSeller = state.uri.queryParameters['isSeller'] == 'true';
+          final isCarId = state.uri.queryParameters['isCarId'] == 'true';
+          return AuctionDetailScreen(
+            auctionId: auctionId,
+            isSeller: isSeller,
+            isCarId: isCarId,
+          );
+        },
+      ),
+      // Seller Auction Management Route
+      GoRoute(
+        path: '/seller/auction/:id',
+        name: 'seller-auction',
+        builder: (context, state) {
+          final auctionId = state.pathParameters['id']!;
+          final isCarId = state.uri.queryParameters['isCarId'] == 'true';
+          return SellerAuctionDetailScreen(
+            auctionId: auctionId,
+            isCarId: isCarId,
+          );
         },
       ),
       // Pre-Transaction Routes
@@ -337,6 +386,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             winningBid: winningBid,
           );
         },
+      ),
+      GoRoute(
+        path: '/deposit/payment',
+        name: 'deposit-payment',
+        builder: (context, state) => const DepositPaymentScreen(),
       ),
       GoRoute(
         path: '/transaction/:id',
@@ -464,12 +518,42 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/listing/create/step9',
         name: 'create-listing-step9',
-        builder: (context, state) => const CreateListingStep9Summary(),
+        builder: (context, state) => const CreateListingStep9Bidding(),
+      ),
+      GoRoute(
+        path: '/listing/create/step10',
+        name: 'create-listing-step10',
+        builder: (context, state) => const CreateListingStep10Payment(),
       ),
       GoRoute(
         path: '/listing/create/success',
         name: 'listing-success',
         builder: (context, state) => const ListingSuccessScreen(),
+      ),
+      // My Listings Detail Routes
+      GoRoute(
+        path: '/listing/pending/:id',
+        name: 'pending-listing-detail',
+        builder: (context, state) {
+          final carId = state.pathParameters['id']!;
+          return PendingListingDetailScreen(carId: carId);
+        },
+      ),
+      GoRoute(
+        path: '/listing/sold/:id',
+        name: 'sold-listing-detail',
+        builder: (context, state) {
+          final carId = state.pathParameters['id']!;
+          return SoldListingDetailScreen(carId: carId);
+        },
+      ),
+      GoRoute(
+        path: '/listing/cancelled/:id',
+        name: 'cancelled-listing-detail',
+        builder: (context, state) {
+          final carId = state.pathParameters['id']!;
+          return CancelledListingDetailScreen(carId: carId);
+        },
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

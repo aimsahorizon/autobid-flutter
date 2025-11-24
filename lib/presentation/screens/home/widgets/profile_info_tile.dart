@@ -15,6 +15,7 @@ class ProfileInfoTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -24,12 +25,14 @@ class ProfileInfoTile extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: colorScheme.primary.withValues(alpha: 0.1),
+              color: isDark
+                  ? colorScheme.onSurface.withValues(alpha: 0.08)
+                  : colorScheme.onSurface.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               icon,
-              color: colorScheme.primary,
+              color: colorScheme.onSurface.withValues(alpha: 0.6),
               size: 20,
             ),
           ),

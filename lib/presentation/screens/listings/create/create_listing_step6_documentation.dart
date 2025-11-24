@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../data/models/car_model.dart';
-import '../../../../core/constants/ph_provinces.dart';
-import '../../../../core/constants/ph_cities.dart';
+import '../../../../core/constants/ph_province_cities.dart';
 import '../../../../core/utils/enum_extensions.dart';
 import '../../../../core/utils/dev_autofill.dart';
 import '../../../../core/utils/listing_autofill_helpers.dart';
@@ -12,6 +11,7 @@ import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/date_picker_field.dart';
 import '../../../widgets/save_draft_button.dart';
+import 'create_listing_step_mixin.dart';
 
 class CreateListingStep6Documentation extends StatefulWidget {
   const CreateListingStep6Documentation({super.key});
@@ -22,10 +22,11 @@ class CreateListingStep6Documentation extends StatefulWidget {
 }
 
 class _CreateListingStep6DocumentationState
-    extends State<CreateListingStep6Documentation> {
+    extends State<CreateListingStep6Documentation> with CreateListingMixin {
   final _formKey = GlobalKey<FormState>();
   final _plateController = TextEditingController();
   final _orcrController = TextEditingController();
+  final _registrationStatusOtherController = TextEditingController();
 
   @override
   void initState() {
@@ -34,12 +35,14 @@ class _CreateListingStep6DocumentationState
     provider.setCurrentStep(6);
     _plateController.text = provider.plateNumber ?? '';
     _orcrController.text = provider.orcrNumber ?? '';
+    _registrationStatusOtherController.text = provider.registrationStatusOther ?? '';
   }
 
   @override
   void dispose() {
     _plateController.dispose();
     _orcrController.dispose();
+    _registrationStatusOtherController.dispose();
     super.dispose();
   }
 
@@ -50,12 +53,13 @@ class _CreateListingStep6DocumentationState
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ListingProvider>();
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
+          onPressed: () => handleBackWithWarning(),
         ),
         title: const Text('Documentation & Location'),
         actions: [
@@ -77,14 +81,14 @@ class _CreateListingStep6DocumentationState
           children: [
             LinearProgressIndicator(
               value: 6 / 9,
-              backgroundColor: Colors.grey[200],
+              backgroundColor: isDarkMode ? Colors.grey[700] : Colors.grey[200],
             ),
             const SizedBox(height: 24),
 
             Text(
-              'Step 6 of 9',
+              'Step 6 of 10',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                   ),
             ),
             const SizedBox(height: 8),
@@ -150,6 +154,25 @@ class _CreateListingStep6DocumentationState
             ),
             const SizedBox(height: 16),
 
+            // Show text field if "Other" is selected
+            if (provider.registrationStatus == RegistrationStatus.other) ...[
+              CustomTextField(
+                controller: _registrationStatusOtherController,
+                labelText: 'Specify Registration Status *',
+                hintText: 'Please specify the registration status',
+                onChanged: (value) => provider.setRegistrationStatusOther(value),
+                validator: (value) {
+                  if (provider.registrationStatus == RegistrationStatus.other &&
+                      (value?.isEmpty ?? true)) {
+                    return 'Please specify registration status';
+                  }
+                  return null;
+                },
+                maxLines: 2,
+              ),
+              const SizedBox(height: 16),
+            ],
+
             DatePickerField(
               labelText: 'Registration Expiry',
               selectedDate: provider.registrationExpiry,
@@ -197,14 +220,14 @@ class _CreateListingStep6DocumentationState
             const SizedBox(height: 16),
 
             DropdownButtonFormField<String>(
-              initialValue: PhilippineProvinces.provinces.contains(provider.province)
+              value: PhilippineProvinceCities.provinces.contains(provider.province)
                   ? provider.province
                   : null,
               decoration: const InputDecoration(
                 labelText: 'Province *',
                 border: OutlineInputBorder(),
               ),
-              items: PhilippineProvinces.provinces
+              items: PhilippineProvinceCities.provinces
                   .map((province) => DropdownMenuItem(
                         value: province,
                         child: Text(province),
@@ -212,7 +235,7 @@ class _CreateListingStep6DocumentationState
                   .toList(),
               onChanged: (value) {
                 provider.setProvince(value);
-                provider.setCity(null);
+                provider.setCity(null); // Reset city when province changes
               },
               validator: (value) =>
                   value == null ? 'Please select province' : null,
@@ -220,20 +243,29 @@ class _CreateListingStep6DocumentationState
             const SizedBox(height: 16),
 
             DropdownButtonFormField<String>(
-              initialValue: PhilippineCities.cities.contains(provider.city)
+              key: ValueKey(provider.province), // Reset dropdown when province changes
+              value: provider.city != null &&
+                      PhilippineProvinceCities.getCitiesForProvince(provider.province).contains(provider.city)
                   ? provider.city
                   : null,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'City/Municipality *',
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
+                hintText: provider.province == null
+                    ? 'Select province first'
+                    : 'Select city/municipality',
               ),
-              items: PhilippineCities.cities
-                  .map((city) => DropdownMenuItem(
-                        value: city,
-                        child: Text(city),
-                      ))
-                  .toList(),
-              onChanged: (value) => provider.setCity(value),
+              items: provider.province == null
+                  ? []
+                  : PhilippineProvinceCities.getCitiesForProvince(provider.province)
+                      .map((city) => DropdownMenuItem(
+                            value: city,
+                            child: Text(city),
+                          ))
+                      .toList(),
+              onChanged: provider.province == null
+                  ? null
+                  : (value) => provider.setCity(value),
               validator: (value) =>
                   value == null ? 'Please select city' : null,
             ),

@@ -11,6 +11,7 @@ import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/counter_input_field.dart';
 import '../../../widgets/save_draft_button.dart';
 import '../../../widgets/creatable_dropdown.dart';
+import 'create_listing_step_mixin.dart';
 
 class CreateListingStep4Exterior extends StatefulWidget {
   const CreateListingStep4Exterior({super.key});
@@ -21,7 +22,7 @@ class CreateListingStep4Exterior extends StatefulWidget {
 }
 
 class _CreateListingStep4ExteriorState
-    extends State<CreateListingStep4Exterior> {
+    extends State<CreateListingStep4Exterior> with CreateListingMixin {
   final _formKey = GlobalKey<FormState>();
   final _colorController = TextEditingController();
 
@@ -51,7 +52,7 @@ class _CreateListingStep4ExteriorState
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
+          onPressed: () => handleBackWithWarning(),
         ),
         title: const Text('Exterior Details'),
         actions: [
@@ -78,7 +79,7 @@ class _CreateListingStep4ExteriorState
             const SizedBox(height: 24),
 
             Text(
-              'Step 4 of 9',
+              'Step 4 of 10',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Colors.grey[600],
                   ),

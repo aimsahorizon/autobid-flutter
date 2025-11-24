@@ -1,8 +1,11 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/time_formatter.dart';
+import '../../../providers/countdown_provider.dart';
 
-class CountdownTimer extends StatefulWidget {
+/// Optimized countdown timer using global Riverpod provider
+/// Replaces individual timers with single global timer
+class CountdownTimer extends ConsumerStatefulWidget {
   final DateTime endTime;
   final TextStyle? textStyle;
 
@@ -13,51 +16,56 @@ class CountdownTimer extends StatefulWidget {
   });
 
   @override
-  State<CountdownTimer> createState() => _CountdownTimerState();
+  ConsumerState<CountdownTimer> createState() => _CountdownTimerState();
 }
 
-class _CountdownTimerState extends State<CountdownTimer> {
-  Timer? _timer;
-  Duration _remaining = Duration.zero;
+class _CountdownTimerState extends ConsumerState<CountdownTimer> {
+  late final String _id;
 
   @override
   void initState() {
     super.initState();
-    _updateRemaining();
-    _timer = Timer.periodic(Duration(seconds: 1), (_) {
-      _updateRemaining();
+    // Generate unique ID for this countdown
+    _id = '${widget.endTime.millisecondsSinceEpoch}_${identityHashCode(this)}';
+
+    // Register with global countdown provider
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(countdownProvider.notifier).register(_id, widget.endTime);
     });
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    // Unregister from global provider
+    ref.read(countdownProvider.notifier).unregister(_id);
     super.dispose();
   }
 
-  void _updateRemaining() {
-    setState(() {
-      _remaining = widget.endTime.difference(DateTime.now());
-    });
-  }
-
-  Color _getColor() {
-    if (_remaining.isNegative) return Colors.grey;
-    if (_remaining.inDays >= 1) return Colors.green;
-    if (_remaining.inHours >= 1) return Colors.orange;
+  Color _getColor(Duration remaining) {
+    if (remaining.isNegative) return Colors.grey;
+    if (remaining.inDays >= 1) return Colors.green;
+    if (remaining.inHours >= 1) return Colors.orange;
     return Colors.red;
   }
 
   @override
   Widget build(BuildContext context) {
-    final color = _getColor();
-    final text = TimeFormatter.formatCountdown(_remaining);
+    // Watch only this specific countdown
+    final remaining = ref.watch(countdownByIdProvider(_id)) ??
+                     widget.endTime.difference(DateTime.now());
+
+    final color = _getColor(remaining);
+    // OPTIMIZED: Use optimized formatter for grid/list views
+    // Shows hours OR minutes only (no seconds)
+    // Shows "< 1m" when less than 1 minute
+    // Matches 1-minute refresh interval
+    final text = TimeFormatter.formatCountdownOptimized(remaining);
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
-          _remaining.isNegative ? Icons.timer_off : Icons.timer,
+          remaining.isNegative ? Icons.timer_off : Icons.timer,
           color: color,
           size: widget.textStyle?.fontSize ?? 16,
         ),

@@ -24,6 +24,44 @@ class _ImageCarouselState extends State<ImageCarousel> {
     super.dispose();
   }
 
+  /// Build image widget based on image path type
+  Widget _buildImage(String imagePath) {
+    final isAsset = imagePath.startsWith('assets/');
+
+    if (isAsset) {
+      return Image.asset(
+        imagePath,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey[300],
+            child: const Icon(Icons.broken_image, size: 80),
+          );
+        },
+      );
+    } else {
+      return Image.network(
+        imagePath,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey[300],
+            child: const Icon(Icons.broken_image, size: 80),
+          );
+        },
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Container(
+            color: Colors.grey[200],
+            child: const Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.images.isEmpty) {
@@ -50,25 +88,7 @@ class _ImageCarouselState extends State<ImageCarousel> {
             },
             itemCount: widget.images.length,
             itemBuilder: (context, index) {
-              return Image.network(
-                widget.images[index],
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: Colors.grey[300],
-                    child: const Icon(Icons.broken_image, size: 80),
-                  );
-                },
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Container(
-                    color: Colors.grey[200],
-                    child: const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                },
-              );
+              return _buildImage(widget.images[index]);
             },
           ),
 

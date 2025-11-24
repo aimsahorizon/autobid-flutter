@@ -217,6 +217,18 @@ extension RegistrationStatusExtension on RegistrationStatus {
         return 'Expiring Soon';
       case RegistrationStatus.expired:
         return 'Expired';
+      case RegistrationStatus.forRenewal:
+        return 'For Renewal';
+      case RegistrationStatus.pendingRenewal:
+        return 'Pending Renewal';
+      case RegistrationStatus.delinquent:
+        return 'Delinquent';
+      case RegistrationStatus.underAlarm:
+        return 'Under Alarm';
+      case RegistrationStatus.carnapped:
+        return 'Carnapped/Stolen';
+      case RegistrationStatus.other:
+        return 'Other';
     }
   }
 }

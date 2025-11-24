@@ -1,9 +1,14 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../data/services/mock/mock_review_service.dart';
 import '../../../widgets/reviews/rating_badge.dart';
+import '../../../widgets/token_wallet_card.dart';
+import '../../../widgets/subscription_card.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../providers/theme_provider.dart';
 import '../widgets/profile_stat_item.dart';
 import '../widgets/profile_info_tile.dart';
 import '../widgets/profile_action_button.dart';
@@ -17,9 +22,14 @@ class ProfileTab extends ConsumerStatefulWidget {
 
 class _ProfileTabState extends ConsumerState<ProfileTab> {
   final _reviewService = MockReviewService();
+  final _imagePicker = ImagePicker();
+
   double _averageRating = 0;
   int _reviewCount = 0;
   bool _isLoadingReviews = true;
+
+  File? _coverImage;
+  File? _profileImage;
 
   @override
   void initState() {
@@ -44,70 +54,235 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
     });
   }
 
+  Future<void> _pickCoverImage() async {
+    try {
+      final XFile? pickedFile = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1920,
+        maxHeight: 1080,
+        imageQuality: 85,
+      );
+
+      if (pickedFile != null) {
+        setState(() {
+          _coverImage = File(pickedFile.path);
+        });
+
+        // TODO: Upload to backend/storage when integrated
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Cover photo updated successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to pick image: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _pickProfileImage() async {
+    try {
+      final XFile? pickedFile = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 85,
+      );
+
+      if (pickedFile != null) {
+        setState(() {
+          _profileImage = File(pickedFile.path);
+        });
+
+        // TODO: Upload to backend/storage when integrated
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Profile picture updated successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to pick image: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
     // Mock user data - would come from auth provider in production
     const userName = 'John Doe';
-    const userEmail = 'john.doe@example.com';
-    const userPhone = '+1 234 567 8900';
-    const userId = 'user123';
+    const userEmail = 'demo@autobid.com';
+    const userPhone = '+639759501214';
+    const userId = 'demo123';
 
     return SingleChildScrollView(
       child: Column(
         children: [
-          // Profile Header
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  colorScheme.primary,
-                  colorScheme.primary.withValues(alpha: 0.8),
-                ],
-              ),
-            ),
-            child: Column(
-              children: [
-                // Avatar
-                CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Colors.white,
-                  child: Text(
-                    userName[0],
-                    style: TextStyle(
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.primary,
-                    ),
+          // Profile Header with Cover Photo
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // Cover Photo
+              GestureDetector(
+                onTap: _pickCoverImage,
+                child: Container(
+                  width: double.infinity,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    gradient: _coverImage == null
+                        ? LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              colorScheme.primary,
+                              colorScheme.primary.withValues(alpha: 0.8),
+                            ],
+                          )
+                        : null,
+                    image: _coverImage != null
+                        ? DecorationImage(
+                            image: FileImage(_coverImage!),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+                  ),
+                  child: Stack(
+                    children: [
+                      // Edit Cover Photo Button
+                      Positioned(
+                        top: 16,
+                        right: 16,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.6),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: IconButton(
+                            onPressed: _pickCoverImage,
+                            icon: const Icon(Icons.camera_alt, color: Colors.white),
+                            tooltip: 'Edit Cover Photo',
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 16),
+              ),
 
-                // Name
-                Text(
-                  userName,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+              // Profile Picture
+              Positioned(
+                bottom: -50,
+                left: 24,
+                child: GestureDetector(
+                  onTap: _pickProfileImage,
+                  child: Stack(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Theme.of(context).scaffoldBackgroundColor,
+                            width: 4,
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: 50,
+                          backgroundColor: Colors.white,
+                          backgroundImage: _profileImage != null
+                              ? FileImage(_profileImage!)
+                              : null,
+                          child: _profileImage == null
+                              ? Text(
+                                  userName[0],
+                                  style: TextStyle(
+                                    fontSize: 40,
+                                    fontWeight: FontWeight.bold,
+                                    color: colorScheme.primary,
+                                  ),
+                                )
+                              : null,
+                        ),
                       ),
+                      // Camera Icon
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Theme.of(context).scaffoldBackgroundColor,
+                              width: 2,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.camera_alt,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 4),
+              ),
 
-                // Email
-                Text(
-                  userEmail,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.9),
-                      ),
+              // Name and Email
+              Positioned(
+                bottom: -50,
+                left: 144,
+                right: 24,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      userName,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      userEmail,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.grey[600],
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
+
+          // Spacer for profile picture overlap
+          const SizedBox(height: 60),
 
           // Stats Section
           Container(
@@ -133,6 +308,12 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
               ],
             ),
           ),
+
+          // Token Wallet (REVISED Revenue Model)
+          const TokenWalletCard(),
+
+          // Subscription Management (REVISED Revenue Model)
+          const SubscriptionCard(),
 
           const Divider(height: 1),
 
@@ -223,20 +404,69 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
 
                 const SizedBox(height: 24),
 
-                // Actions
+                // Appearance Section
+                // Text(
+                //   'Appearance',
+                //   style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                //         fontWeight: FontWeight.bold,
+                //       ),
+                // ),
+                // const SizedBox(height: 16),
+
+                // // Dark Mode Toggle
+                // Container(
+                //   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                //   decoration: BoxDecoration(
+                //     color: Theme.of(context).colorScheme.surface,
+                //     borderRadius: BorderRadius.circular(12),
+                //     border: Border.all(
+                //       color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                //     ),
+                //   ),
+                //   child: Row(
+                //     children: [
+                //       Icon(
+                //         ref.watch(appThemeModeProvider) == ThemeMode.dark
+                //             ? Icons.dark_mode
+                //             : Icons.light_mode,
+                //         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                //       ),
+                //       const SizedBox(width: 16),
+                //       Expanded(
+                //         child: Text(
+                //           'Dark Mode',
+                //           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                //                 fontWeight: FontWeight.w500,
+                //               ),
+                //         ),
+                //       ),
+                //       Switch(
+                //         value: ref.watch(appThemeModeProvider) == ThemeMode.dark,
+                //         onChanged: (value) {
+                //           ref.read(appThemeModeProvider.notifier).toggleTheme();
+                //         },
+                //         activeColor: Theme.of(context).colorScheme.primary,
+                //       ),
+                //     ],
+                //   ),
+                // ),
+
+                // const SizedBox(height: 24),
+
+                // Actions Section
+                Text(
+                  'Account Settings',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const SizedBox(height: 16),
+
                 ProfileActionButton(
                   icon: Icons.edit,
                   label: 'Edit Profile',
                   onTap: () {
                     context.push('/profile/edit');
-                  },
-                ),
-                const SizedBox(height: 12),
-                ProfileActionButton(
-                  icon: Icons.receipt_long,
-                  label: 'My Transactions',
-                  onTap: () {
-                    context.push('/transactions');
                   },
                 ),
                 const SizedBox(height: 12),

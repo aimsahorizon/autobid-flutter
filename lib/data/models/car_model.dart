@@ -138,6 +138,18 @@ enum RegistrationStatus {
   expiringSoon,
   @JsonValue('expired')
   expired,
+  @JsonValue('for_renewal')
+  forRenewal,
+  @JsonValue('pending_renewal')
+  pendingRenewal,
+  @JsonValue('delinquent')
+  delinquent,
+  @JsonValue('under_alarm')
+  underAlarm,
+  @JsonValue('carnapped')
+  carnapped,
+  @JsonValue('other')
+  other,
 }
 
 enum ListingStatus {
@@ -227,7 +239,6 @@ abstract class CarModel with _$CarModel {
     @Default(false) bool commercialUse,
     @Default(false) bool smokerVehicle,
     required bool serviceHistoryComplete,
-    required bool warrantyRemaining,
     DateTime? registrationExpiry,
 
     // FEATURES & TECHNOLOGY
@@ -242,6 +253,7 @@ abstract class CarModel with _$CarModel {
     required String plateNumber,
     required String orcrNumber,
     required RegistrationStatus registrationStatus,
+    String? registrationStatusOther,
     required bool emissionTestValid,
     required bool comprehensiveInsurance,
 

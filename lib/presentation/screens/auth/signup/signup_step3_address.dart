@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/constants/color_constants.dart';
 import '../../../../core/constants/ph_locations.dart';
 import '../../../../core/utils/validators.dart';
+import '../../../../core/utils/demo_data_helper.dart';
 import '../../../providers/signup_provider.dart';
 import '../../../widgets/custom_text_field.dart';
 import '../../../widgets/custom_button.dart';
@@ -21,6 +22,7 @@ class _SignupStep3AddressState extends State<SignupStep3Address> with SignupStep
   final _formKey = GlobalKey<FormState>();
   final _streetController = TextEditingController();
   final _zipCodeController = TextEditingController();
+  final _barangayController = TextEditingController();
 
   @override
   void initState() {
@@ -28,13 +30,26 @@ class _SignupStep3AddressState extends State<SignupStep3Address> with SignupStep
     final provider = context.read<SignupProvider>();
     _streetController.text = provider.street;
     _zipCodeController.text = provider.zipCode;
+    _barangayController.text = provider.barangay;
   }
 
   @override
   void dispose() {
     _streetController.dispose();
     _zipCodeController.dispose();
+    _barangayController.dispose();
     super.dispose();
+  }
+
+  void _autoFillDemo() {
+    final provider = context.read<SignupProvider>();
+    provider.autoFillStep3();
+
+    // Update controllers
+    _streetController.text = provider.street;
+    _zipCodeController.text = provider.zipCode;
+
+    DemoDataHelper.showDemoFilledMessage(context);
   }
 
   void _handleNext() {
@@ -98,6 +113,17 @@ class _SignupStep3AddressState extends State<SignupStep3Address> with SignupStep
       appBar: AppBar(
         title: const Text('Address'),
         centerTitle: true,
+        actions: [
+          if (DemoDataHelper.isDemoModeEnabled)
+            TextButton.icon(
+              onPressed: _autoFillDemo,
+              icon: const Icon(Icons.auto_awesome, size: 18),
+              label: const Text('Demo'),
+              style: TextButton.styleFrom(
+                foregroundColor: ColorConstants.primaryGreen,
+              ),
+            ),
+        ],
         leading: buildBackButtonWithWarning(),
       ),
       body: SafeArea(
@@ -292,13 +318,15 @@ class _SignupStep3AddressState extends State<SignupStep3Address> with SignupStep
                         ? <String>[]
                         : PhilippineLocations.getBarangaysForCity(provider.city);
 
+                    // Update controller when switching between modes or when provider changes
+                    if (_barangayController.text != provider.barangay) {
+                      _barangayController.text = provider.barangay;
+                    }
+
                     if (barangays.isEmpty) {
                       // No barangays available, show text field
                       return CustomTextField(
-                        controller: TextEditingController(text: provider.barangay)
-                          ..selection = TextSelection.fromPosition(
-                            TextPosition(offset: provider.barangay.length),
-                          ),
+                        controller: _barangayController,
                         label: 'Barangay',
                         hint: 'Enter barangay',
                         prefixIcon: const Icon(Icons.location_on_outlined),
@@ -310,6 +338,13 @@ class _SignupStep3AddressState extends State<SignupStep3Address> with SignupStep
                     }
 
                     // Barangays available, show dropdown
+                    // Check if current value is in the list, otherwise clear it
+                    if (provider.barangay.isNotEmpty && !barangays.contains(provider.barangay)) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        provider.setBarangay('');
+                      });
+                    }
+
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -326,7 +361,9 @@ class _SignupStep3AddressState extends State<SignupStep3Address> with SignupStep
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: DropdownButtonFormField<String>(
-                            value: provider.barangay.isEmpty ? null : provider.barangay,
+                            value: (provider.barangay.isEmpty || !barangays.contains(provider.barangay))
+                                ? null
+                                : provider.barangay,
                             decoration: const InputDecoration(
                               contentPadding: EdgeInsets.symmetric(
                                 horizontal: 16,

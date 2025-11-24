@@ -8,6 +8,7 @@ import '../../providers/browse_provider.dart';
 import '../../providers/payment_provider.dart';
 import '../../providers/notification_provider.dart';
 import '../../providers/auction_provider.dart';
+import '../../widgets/token_balance_icon.dart';
 // import '../../data/models/search_filters.dart';
 import '../browse/filter_bottom_sheet.dart';
 import 'tabs/browse_tab.dart';
@@ -35,6 +36,7 @@ class _HomeScreenState extends riverpod.ConsumerState<HomeScreen> {
   late int _subTabIndex;
   bool _isGridView = false;
   bool _isBrowseGridView = true;
+  bool _isWatchlistGridView = false;
 
   @override
   void initState() {
@@ -73,175 +75,8 @@ class _HomeScreenState extends riverpod.ConsumerState<HomeScreen> {
         actions: [
           // Browse tab actions
           if (_selectedIndex == 0) ...[
-            provider.Consumer<AuctionProvider>(
-              builder: (context, auctionProvider, child) {
-                return PopupMenuButton<SortBy>(
-                  icon: const Icon(Icons.sort),
-                  tooltip: 'Sort',
-                  onSelected: (SortBy sortBy) {
-                    final currentFilters = auctionProvider.filters;
-                    auctionProvider.applyFilters(
-                      filters: currentFilters.copyWith(sortBy: sortBy),
-                    );
-                  },
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: SortBy.priceAsc,
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.arrow_upward,
-                            size: 18,
-                            color: auctionProvider.filters.sortBy == SortBy.priceAsc
-                                ? Theme.of(context).colorScheme.primary
-                                : null,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            'Price: Low to High',
-                            style: TextStyle(
-                              fontWeight: auctionProvider.filters.sortBy == SortBy.priceAsc
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                              color: auctionProvider.filters.sortBy == SortBy.priceAsc
-                                  ? Theme.of(context).colorScheme.primary
-                                  : null,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: SortBy.priceDesc,
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.arrow_downward,
-                            size: 18,
-                            color: auctionProvider.filters.sortBy == SortBy.priceDesc
-                                ? Theme.of(context).colorScheme.primary
-                                : null,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            'Price: High to Low',
-                            style: TextStyle(
-                              fontWeight: auctionProvider.filters.sortBy == SortBy.priceDesc
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                              color: auctionProvider.filters.sortBy == SortBy.priceDesc
-                                  ? Theme.of(context).colorScheme.primary
-                                  : null,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: SortBy.endingSoon,
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.timer,
-                            size: 18,
-                            color: auctionProvider.filters.sortBy == SortBy.endingSoon
-                                ? Theme.of(context).colorScheme.primary
-                                : null,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            'Ending Soon',
-                            style: TextStyle(
-                              fontWeight: auctionProvider.filters.sortBy == SortBy.endingSoon
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                              color: auctionProvider.filters.sortBy == SortBy.endingSoon
-                                  ? Theme.of(context).colorScheme.primary
-                                  : null,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: SortBy.newest,
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.new_releases,
-                            size: 18,
-                            color: auctionProvider.filters.sortBy == SortBy.newest
-                                ? Theme.of(context).colorScheme.primary
-                                : null,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            'Newest First',
-                            style: TextStyle(
-                              fontWeight: auctionProvider.filters.sortBy == SortBy.newest
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                              color: auctionProvider.filters.sortBy == SortBy.newest
-                                  ? Theme.of(context).colorScheme.primary
-                                  : null,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-            provider.Consumer<BrowseProvider>(
-              builder: (context, browseProvider, child) {
-                return Stack(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.filter_list),
-                      onPressed: () {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          useRootNavigator: false,
-                          enableDrag: true,
-                          isDismissible: true,
-                          showDragHandle: false,
-                          useSafeArea: true,
-                          transitionAnimationController: null,
-                          builder: (context) => const FilterBottomSheet(),
-                        );
-                      },
-                    ),
-                    if (browseProvider.hasActiveFilters)
-                      Positioned(
-                        right: 8,
-                        top: 8,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 16,
-                            minHeight: 16,
-                          ),
-                          child: Text(
-                            '${browseProvider.activeFilterCount}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                  ],
-                );
-              },
-            ),
+            // Token balance (REVISED Revenue Model)
+            const TokenBalanceIcon(),
             IconButton(
               icon: Icon(_isBrowseGridView ? Icons.view_list : Icons.grid_view),
               onPressed: () {
@@ -251,6 +86,15 @@ class _HomeScreenState extends riverpod.ConsumerState<HomeScreen> {
               },
             ),
           ],
+          if (_selectedIndex == 1) // Show grid/list toggle on Watchlist tab
+            IconButton(
+              icon: Icon(_isWatchlistGridView ? Icons.view_list : Icons.grid_view),
+              onPressed: () {
+                setState(() {
+                  _isWatchlistGridView = !_isWatchlistGridView;
+                });
+              },
+            ),
           if (_selectedIndex == 3) // Show create listing button on My Listings tab
             IconButton(
               icon: const Icon(Icons.add),
@@ -399,7 +243,7 @@ class _HomeScreenState extends riverpod.ConsumerState<HomeScreen> {
       case 0:
         return BrowseTab(isGridView: _isBrowseGridView);
       case 1:
-        return const WatchlistTab();
+        return WatchlistTab(isGridView: _isWatchlistGridView);
       case 2:
         return MyBidsTab(initialSubTab: _subTabIndex);
       case 3:

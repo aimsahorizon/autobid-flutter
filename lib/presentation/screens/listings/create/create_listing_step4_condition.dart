@@ -6,6 +6,7 @@ import '../../../../core/constants/car_features.dart';
 import '../../../../core/utils/enum_extensions.dart';
 import '../../../providers/listing_provider.dart';
 import '../../../widgets/custom_button.dart';
+import 'create_listing_step_mixin.dart';
 
 class CreateListingStep4Condition extends StatefulWidget {
   const CreateListingStep4Condition({super.key});
@@ -16,7 +17,7 @@ class CreateListingStep4Condition extends StatefulWidget {
 }
 
 class _CreateListingStep4ConditionState
-    extends State<CreateListingStep4Condition> {
+    extends State<CreateListingStep4Condition> with CreateListingMixin {
   final _descriptionController = TextEditingController();
   final _issuesController = TextEditingController();
 
@@ -38,9 +39,14 @@ class _CreateListingStep4ConditionState
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ListingProvider>();
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => handleBackWithWarning(),
+        ),
         title: const Text('Condition & Features'),
       ),
       body: ListView(
@@ -48,14 +54,14 @@ class _CreateListingStep4ConditionState
         children: [
           LinearProgressIndicator(
             value: 4 / 6,
-            backgroundColor: Colors.grey[200],
+            backgroundColor: isDarkMode ? Colors.grey[700] : Colors.grey[200],
           ),
           const SizedBox(height: 24),
 
           Text(
             'Step 4 of 6',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
+                  color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                 ),
           ),
           const SizedBox(height: 8),
@@ -121,7 +127,7 @@ class _CreateListingStep4ConditionState
                                       .textTheme
                                       .bodySmall
                                       ?.copyWith(
-                                        color: Colors.grey[600],
+                                        color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                                       ),
                                 ),
                               ],
@@ -191,7 +197,7 @@ class _CreateListingStep4ConditionState
           Text(
             'Select all features your vehicle has',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
+                  color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                 ),
           ),
           const SizedBox(height: 12),

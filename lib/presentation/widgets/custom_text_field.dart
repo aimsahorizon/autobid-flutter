@@ -42,7 +42,7 @@ class CustomTextField extends StatelessWidget {
     this.inputFormatters,
     this.suffixText,
     this.textCapitalization = TextCapitalization.none,
-    this.onFieldSubmitted,
+    this.onFieldSubmitted, String? initialValue,
   });
 
   @override

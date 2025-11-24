@@ -109,7 +109,7 @@ class BidHistoryItem extends StatelessWidget {
                         child: Icon(
                           Icons.auto_mode,
                           size: 14,
-                          color: Colors.blue,
+                          color: theme.colorScheme.primary,
                         ),
                       ),
                     ],

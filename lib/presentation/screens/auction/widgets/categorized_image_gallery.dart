@@ -21,6 +21,7 @@ class _CategorizedImageGalleryState extends State<CategorizedImageGallery> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 12),
@@ -32,7 +33,11 @@ class _CategorizedImageGalleryState extends State<CategorizedImageGallery> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                const Icon(Icons.photo_library, size: 20),
+                Icon(
+                  Icons.photo_library,
+                  size: 20,
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
                 const SizedBox(width: 8),
                 Text(
                   'Car Photos',
@@ -44,7 +49,7 @@ class _CategorizedImageGalleryState extends State<CategorizedImageGallery> {
                 Text(
                   '${widget.categorizedImages.getTotalImageCount()} photos',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
               ],
@@ -71,18 +76,43 @@ class _CategorizedImageGalleryState extends State<CategorizedImageGallery> {
                   padding: const EdgeInsets.only(right: 8),
                   child: FilterChip(
                     selected: isSelected,
+                    backgroundColor: colorScheme.surface,
+                    selectedColor: colorScheme.primary.withValues(alpha: 0.15),
+                    checkmarkColor: colorScheme.primary,
+                    side: BorderSide(
+                      color: isSelected
+                          ? colorScheme.primary
+                          : colorScheme.outline.withValues(alpha: 0.2),
+                    ),
                     label: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(category.icon),
+                        Text(
+                          category.icon,
+                          style: TextStyle(
+                            color: isSelected
+                                ? colorScheme.primary
+                                : colorScheme.onSurface.withValues(alpha: 0.7),
+                          ),
+                        ),
                         const SizedBox(width: 6),
-                        Text(category.displayName),
+                        Text(
+                          category.displayName,
+                          style: TextStyle(
+                            color: isSelected
+                                ? colorScheme.primary
+                                : colorScheme.onSurface.withValues(alpha: 0.8),
+                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                          ),
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           '($imageCount)',
                           style: TextStyle(
                             fontSize: 12,
-                            color: isSelected ? null : Colors.grey[600],
+                            color: isSelected
+                                ? colorScheme.primary
+                                : colorScheme.onSurface.withValues(alpha: 0.5),
                           ),
                         ),
                       ],
@@ -152,22 +182,7 @@ class _CategorizedImageGalleryState extends State<CategorizedImageGallery> {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: CachedNetworkImage(
-                      imageUrl: images[index],
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: Colors.grey[300],
-                        child: const Center(
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: Colors.grey[300],
-                        child: Icon(Icons.broken_image, color: Colors.grey[600]),
-                      ),
-                      memCacheWidth: 560,
-                      maxWidthDiskCache: 560,
-                    ),
+                    child: _buildImage(images[index]),
                   ),
                   if (showViewAll)
                     Container(
@@ -216,5 +231,38 @@ class _CategorizedImageGalleryState extends State<CategorizedImageGallery> {
         ),
       ),
     );
+  }
+
+  Widget _buildImage(String imagePath) {
+    // Check if the image is an asset or network URL
+    final isAsset = imagePath.startsWith('assets/');
+
+    if (isAsset) {
+      return Image.asset(
+        imagePath,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Container(
+          color: Colors.grey[300],
+          child: Icon(Icons.broken_image, color: Colors.grey[600]),
+        ),
+      );
+    } else {
+      return CachedNetworkImage(
+        imageUrl: imagePath,
+        fit: BoxFit.cover,
+        placeholder: (context, url) => Container(
+          color: Colors.grey[300],
+          child: const Center(
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+        errorWidget: (context, url, error) => Container(
+          color: Colors.grey[300],
+          child: Icon(Icons.broken_image, color: Colors.grey[600]),
+        ),
+        memCacheWidth: 560,
+        maxWidthDiskCache: 560,
+      );
+    }
   }
 }

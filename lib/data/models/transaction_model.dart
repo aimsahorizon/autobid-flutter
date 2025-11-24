@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'transaction_timeline.dart';
 import 'pricing_config.dart';
+import 'subscription_tier.dart';
 
 part 'transaction_model.freezed.dart';
 part 'transaction_model.g.dart';
@@ -94,6 +95,34 @@ abstract class Transaction with _$Transaction {
     /// Amount seller receives after all fees deducted
     /// Formula: amount - listingFee - transactionFee
     @Default(0.0) double sellerPayout,
+
+    // ===== GEMINI Revenue Model: Buyer's Premium =====
+    // Buyer pays a premium on top of the winning bid
+    // Premium = 3.5% of finalBid (min ₱3,000, max ₱60,000)
+    // Rounded up to nearest ₱10
+    // Discounted by subscription tier (ProBasic: 0.5%, ProPlus: 1.0%)
+
+    /// Buyer's premium amount charged to winner
+    /// Formula: See RevenueCalculator.calculateBuyersPremium()
+    @Default(0.0) double buyersPremium,
+
+    /// Buyer's premium rate applied (after tier discount)
+    /// Base: 3.5%, ProBasic: 3.0%, ProPlus: 2.5%
+    @Default(0.035) double buyersPremiumRate,
+
+    /// Buyer's subscription tier at time of transaction
+    @Default(SubscriptionTierType.free) SubscriptionTierType buyerTier,
+
+    /// Amount of bidding deposit credited toward premium
+    /// Max ₱10,000 (standard deposit amount)
+    @Default(0.0) double depositCredited,
+
+    /// Amount of deposit refunded to buyer
+    /// If deposit > premium, excess is refunded
+    @Default(0.0) double depositRefunded,
+
+    /// Total amount buyer must pay (amount + buyersPremium - depositCredited)
+    @Default(0.0) double buyerTotalDue,
   }) = _Transaction;
 
   factory Transaction.fromJson(Map<String, dynamic> json) =>

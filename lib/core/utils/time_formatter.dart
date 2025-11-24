@@ -57,4 +57,33 @@ class TimeFormatter {
       return '${minutes}m';
     }
   }
+
+  /// OPTIMIZED formatter for grid/list views
+  /// Shows only hours OR minutes (never both) for maximum performance
+  /// Returns "< 1m" when less than 1 minute remaining
+  /// Perfect for 1-minute refresh intervals
+  static String formatCountdownOptimized(Duration duration) {
+    if (duration.isNegative) {
+      return 'Ended';
+    }
+
+    final days = duration.inDays;
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes;
+
+    if (days > 0) {
+      // Show days + hours
+      final remainingHours = hours - (days * 24);
+      return '${days}d ${remainingHours}h';
+    } else if (hours > 0) {
+      // Show hours only
+      return '${hours}h';
+    } else if (minutes > 0) {
+      // Show minutes only
+      return '${minutes}m';
+    } else {
+      // Less than 1 minute
+      return '< 1m';
+    }
+  }
 }

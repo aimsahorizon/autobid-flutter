@@ -116,6 +116,34 @@ _UserModel _$UserModelFromJson(Map<String, dynamic> json) => _UserModel(
   lastOtpAttempt: json['lastOtpAttempt'] == null
       ? null
       : DateTime.parse(json['lastOtpAttempt'] as String),
+  subscriptionTier:
+      $enumDecodeNullable(
+        _$SubscriptionTierTypeEnumMap,
+        json['subscriptionTier'],
+      ) ??
+      SubscriptionTierType.free,
+  subscriptionStatus:
+      $enumDecodeNullable(
+        _$SubscriptionStatusEnumMap,
+        json['subscriptionStatus'],
+      ) ??
+      SubscriptionStatus.active,
+  currentSubscription: json['currentSubscription'] == null
+      ? null
+      : UserSubscription.fromJson(
+          json['currentSubscription'] as Map<String, dynamic>,
+        ),
+  biddingDepositPaid: json['biddingDepositPaid'] as bool? ?? false,
+  currentDepositId: json['currentDepositId'] as String?,
+  tokenBalance: (json['tokenBalance'] as num?)?.toInt() ?? 0,
+  tokenBalanceLastUpdated: json['tokenBalanceLastUpdated'] == null
+      ? null
+      : DateTime.parse(json['tokenBalanceLastUpdated'] as String),
+  listingsUsedThisMonth: (json['listingsUsedThisMonth'] as num?)?.toInt() ?? 0,
+  listingQuotaResetDate: json['listingQuotaResetDate'] == null
+      ? null
+      : DateTime.parse(json['listingQuotaResetDate'] as String),
+  autoBidEnabled: json['autoBidEnabled'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$UserModelToJson(
@@ -155,6 +183,18 @@ Map<String, dynamic> _$UserModelToJson(
   'accountStatus': _$AccountStatusEnumMap[instance.accountStatus]!,
   'otpFailureCount': instance.otpFailureCount,
   'lastOtpAttempt': instance.lastOtpAttempt?.toIso8601String(),
+  'subscriptionTier': _$SubscriptionTierTypeEnumMap[instance.subscriptionTier]!,
+  'subscriptionStatus':
+      _$SubscriptionStatusEnumMap[instance.subscriptionStatus]!,
+  'currentSubscription': instance.currentSubscription,
+  'biddingDepositPaid': instance.biddingDepositPaid,
+  'currentDepositId': instance.currentDepositId,
+  'tokenBalance': instance.tokenBalance,
+  'tokenBalanceLastUpdated': instance.tokenBalanceLastUpdated
+      ?.toIso8601String(),
+  'listingsUsedThisMonth': instance.listingsUsedThisMonth,
+  'listingQuotaResetDate': instance.listingQuotaResetDate?.toIso8601String(),
+  'autoBidEnabled': instance.autoBidEnabled,
 };
 
 const _$VerificationLevelEnumMap = {
@@ -178,4 +218,18 @@ const _$AccountStatusEnumMap = {
   AccountStatus.rejected: 'rejected',
   AccountStatus.verified: 'verified',
   AccountStatus.locked: 'locked',
+};
+
+const _$SubscriptionTierTypeEnumMap = {
+  SubscriptionTierType.free: 'free',
+  SubscriptionTierType.proBasic: 'proBasic',
+  SubscriptionTierType.proPlus: 'proPlus',
+};
+
+const _$SubscriptionStatusEnumMap = {
+  SubscriptionStatus.active: 'active',
+  SubscriptionStatus.cancelled: 'cancelled',
+  SubscriptionStatus.expired: 'expired',
+  SubscriptionStatus.pendingPayment: 'pendingPayment',
+  SubscriptionStatus.suspended: 'suspended',
 };

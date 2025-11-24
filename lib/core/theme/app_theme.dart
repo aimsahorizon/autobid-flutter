@@ -8,26 +8,27 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.light,
       colorScheme: ColorScheme.light(
-        primary: ColorConstants.primaryGreen,
+        primary: ColorConstants.primary,
         primaryContainer: ColorConstants.primaryLight,
-        secondary: ColorConstants.primaryDark,
+        secondary: ColorConstants.secondary,
         surface: ColorConstants.surfaceLight,
+        surfaceContainerHighest: ColorConstants.surfaceVariantLight,
         error: ColorConstants.error,
       ),
       scaffoldBackgroundColor: ColorConstants.backgroundLight,
-      textTheme: GoogleFonts.poppinsTextTheme(
+      textTheme: GoogleFonts.interTextTheme(
         ThemeData.light().textTheme,
       ).copyWith(
-        displayLarge: GoogleFonts.poppins(
+        displayLarge: GoogleFonts.inter(
           fontSize: 32,
           fontWeight: FontWeight.bold,
           color: ColorConstants.textPrimaryLight,
         ),
-        bodyLarge: GoogleFonts.poppins(
+        bodyLarge: GoogleFonts.inter(
           fontSize: 16,
           color: ColorConstants.textPrimaryLight,
         ),
-        bodyMedium: GoogleFonts.poppins(
+        bodyMedium: GoogleFonts.inter(
           fontSize: 14,
           color: ColorConstants.textSecondaryLight,
         ),
@@ -38,7 +39,7 @@ class AppTheme {
         iconTheme: const IconThemeData(
           color: ColorConstants.textPrimaryLight,
         ),
-        titleTextStyle: GoogleFonts.poppins(
+        titleTextStyle: GoogleFonts.inter(
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: ColorConstants.textPrimaryLight,
@@ -46,13 +47,13 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: ColorConstants.primaryGreen,
+          backgroundColor: ColorConstants.primary,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.poppins(
+          textStyle: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -62,20 +63,53 @@ class AppTheme {
         filled: true,
         fillColor: ColorConstants.surfaceLight,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: ColorConstants.primaryGreen, width: 2),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: ColorConstants.primary, width: 2),
         ),
-        labelStyle: GoogleFonts.poppins(
+        labelStyle: GoogleFonts.inter(
           color: ColorConstants.textSecondaryLight,
         ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: ColorConstants.surfaceLight,
+        indicatorColor: ColorConstants.primary.withValues(alpha: 0.15),
+        iconTheme: WidgetStateProperty.resolveWith<IconThemeData?>((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const IconThemeData(
+              color: ColorConstants.primary,
+              size: 28,
+            );
+          }
+          return IconThemeData(
+            color: ColorConstants.textSecondaryLight,
+            size: 24,
+          );
+        }),
+        labelTextStyle: WidgetStateProperty.resolveWith<TextStyle?>((states) {
+          if (states.contains(WidgetState.selected)) {
+            return GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: ColorConstants.primary,
+            );
+          }
+          return GoogleFonts.inter(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: ColorConstants.textSecondaryLight,
+          );
+        }),
+        elevation: 8,
+        height: 80,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       ),
     );
   }
@@ -85,26 +119,27 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       colorScheme: ColorScheme.dark(
-        primary: ColorConstants.primaryGreen,
+        primary: ColorConstants.primary,
         primaryContainer: ColorConstants.primaryDark,
-        secondary: ColorConstants.primaryLight,
+        secondary: ColorConstants.secondary,
         surface: ColorConstants.surfaceDark,
+        surfaceContainerHighest: ColorConstants.surfaceVariantDark,
         error: ColorConstants.error,
       ),
       scaffoldBackgroundColor: ColorConstants.backgroundDark,
-      textTheme: GoogleFonts.poppinsTextTheme(
+      textTheme: GoogleFonts.interTextTheme(
         ThemeData.dark().textTheme,
       ).copyWith(
-        displayLarge: GoogleFonts.poppins(
+        displayLarge: GoogleFonts.inter(
           fontSize: 32,
           fontWeight: FontWeight.bold,
           color: ColorConstants.textPrimaryDark,
         ),
-        bodyLarge: GoogleFonts.poppins(
+        bodyLarge: GoogleFonts.inter(
           fontSize: 16,
           color: ColorConstants.textPrimaryDark,
         ),
-        bodyMedium: GoogleFonts.poppins(
+        bodyMedium: GoogleFonts.inter(
           fontSize: 14,
           color: ColorConstants.textSecondaryDark,
         ),
@@ -115,7 +150,7 @@ class AppTheme {
         iconTheme: const IconThemeData(
           color: ColorConstants.textPrimaryDark,
         ),
-        titleTextStyle: GoogleFonts.poppins(
+        titleTextStyle: GoogleFonts.inter(
           fontSize: 20,
           fontWeight: FontWeight.w600,
           color: ColorConstants.textPrimaryDark,
@@ -123,13 +158,13 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: ColorConstants.primaryGreen,
+          backgroundColor: ColorConstants.primary,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.poppins(
+          textStyle: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -139,20 +174,53 @@ class AppTheme {
         filled: true,
         fillColor: ColorConstants.surfaceDark,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey.shade700),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey.shade700),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: ColorConstants.primaryGreen, width: 2),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: ColorConstants.primary, width: 2),
         ),
-        labelStyle: GoogleFonts.poppins(
+        labelStyle: GoogleFonts.inter(
           color: ColorConstants.textSecondaryDark,
         ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: ColorConstants.surfaceDark,
+        indicatorColor: ColorConstants.primary.withValues(alpha: 0.2),
+        iconTheme: WidgetStateProperty.resolveWith<IconThemeData?>((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const IconThemeData(
+              color: ColorConstants.primary,
+              size: 28,
+            );
+          }
+          return IconThemeData(
+            color: ColorConstants.textSecondaryDark,
+            size: 24,
+          );
+        }),
+        labelTextStyle: WidgetStateProperty.resolveWith<TextStyle?>((states) {
+          if (states.contains(WidgetState.selected)) {
+            return GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: ColorConstants.primary,
+            );
+          }
+          return GoogleFonts.inter(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: ColorConstants.textSecondaryDark,
+          );
+        }),
+        elevation: 8,
+        height: 80,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       ),
     );
   }

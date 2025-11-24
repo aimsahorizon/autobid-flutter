@@ -33,8 +33,10 @@ class _SellerReviewsScreenState extends State<SellerReviewsScreen> {
   }
 
   Future<void> _loadReviews() async {
-    setState(() => _isLoading = true);
-    _reviews = await _reviewService.getSellerReviews(widget.sellerId);
+    if (mounted) setState(() => _isLoading = true);
+    final reviews = await _reviewService.getSellerReviews(widget.sellerId);
+    if (!mounted) return;
+    _reviews = reviews;
     setState(() => _isLoading = false);
   }
 

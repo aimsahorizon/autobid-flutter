@@ -44,6 +44,7 @@ dependencies:
 
   # UI
   google_fonts: ^6.1.0
+  smooth_page_indicator: ^1.2.0
 
   # Firebase
   firebase_core: ^4.1.1
@@ -66,6 +67,7 @@ dependencies:
   freezed_annotation: ^3.0.0
   json_annotation: ^4.9.0
   shared_preferences: ^2.2.3
+  crypto: ^3.0.3  # For SHA-256 hashing in RA 8792 agreement
 
 dev_dependencies:
   flutter_test:
@@ -101,6 +103,14 @@ flutter:
   # Local bundled images used by the app (mock images under lib/public)
   assets:
     - assets/images/
+    - assets/images/cars/1993-Honda-SDX-4WD/
+    - assets/images/cars/1994-Mitsubishi-Pajero-4WD/
+    - assets/images/cars/1995-Ford-Bronco-XLT-4x4/
+    - assets/images/cars/1998-Suzuki-Jimny-4x4/
+    - assets/images/cars/2001-Toyota-Land-Cruiser/
+    - assets/images/cars/2017-Honda-Civic-Type-R/
+    - assets/images/cars/2024-Ford-Ranger-Raptor/
+    - assets/images/cars/2024-Nissan-Frontier-PRO-4X/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
