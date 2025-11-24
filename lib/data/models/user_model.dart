@@ -1,0 +1,151 @@
+import 'package:flutter/src/widgets/basic.dart';
+import 'package:flutter/src/widgets/framework.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'kyc_model.dart';
+import 'subscription_tier.dart';
+
+part 'user_model.freezed.dart';
+part 'user_model.g.dart';
+
+enum VerificationLevel {
+  @JsonValue('unverified')
+  unverified,
+  @JsonValue('level1')
+  level1,
+  @JsonValue('level2')
+  level2,
+  @JsonValue('level3')
+  level3,
+  @JsonValue('dealer')
+  dealer,
+}
+
+enum ProofOfAddressType {
+  @JsonValue('utility_bill')
+  utilityBill,
+  @JsonValue('bank_statement')
+  bankStatement,
+  @JsonValue('government_letter')
+  governmentLetter,
+  @JsonValue('rental_contract')
+  rentalContract,
+  @JsonValue('barangay_certificate')
+  barangayCertificate,
+}
+
+enum BackgroundCheckStatus {
+  @JsonValue('none')
+  none,
+  @JsonValue('pending')
+  pending,
+  @JsonValue('cleared')
+  cleared,
+  @JsonValue('rejected')
+  rejected,
+}
+
+enum AccountStatus {
+  @JsonValue('guest')
+  guest,
+  @JsonValue('pending')
+  pending,
+  @JsonValue('rejected')
+  rejected,
+  @JsonValue('verified')
+  verified,
+  @JsonValue('locked')
+  locked,
+}
+
+@freezed
+abstract class ProofOfAddress with _$ProofOfAddress {
+  const factory ProofOfAddress({
+    required ProofOfAddressType type,
+    required String imageUrl,
+    required DateTime uploadedAt,
+    @Default(false) bool verified,
+  }) = _ProofOfAddress;
+
+  factory ProofOfAddress.fromJson(Map<String, dynamic> json) =>
+      _$ProofOfAddressFromJson(json);
+}
+
+@freezed
+abstract class NbiClearance with _$NbiClearance {
+  const factory NbiClearance({
+    required String imageUrl,
+    required DateTime issueDate,
+    required DateTime expiryDate,
+  }) = _NbiClearance;
+
+  factory NbiClearance.fromJson(Map<String, dynamic> json) =>
+      _$NbiClearanceFromJson(json);
+}
+
+@freezed
+abstract class VerificationLimits with _$VerificationLimits {
+  const factory VerificationLimits({
+    required int buyLimit,
+    required int sellLimit,
+  }) = _VerificationLimits;
+
+  factory VerificationLimits.fromJson(Map<String, dynamic> json) =>
+      _$VerificationLimitsFromJson(json);
+}
+
+@freezed
+abstract class UserModel with _$UserModel {
+  const factory UserModel({
+    required String id,
+    required String email,
+    required String fullName,
+    String? firstName,
+    String? middleName,
+    String? lastName,
+    DateTime? dateOfBirth,
+    String? gender,
+    String? phoneNumber,
+    String? password,
+    String? street,
+    String? barangay,
+    String? city,
+    String? province,
+    String? zipCode,
+    String? nationality,
+    @Default(false) bool termsAccepted,
+    @Default(false) bool privacyAccepted,
+    @Default('pending') String kycStatus,
+    String? rejectionReason,
+    @Default('individual') String accountType,
+    required DateTime createdAt,
+    @Default(false) bool verifiedBadge,
+    KycModel? kycData,
+    @Default(VerificationLevel.unverified) VerificationLevel verificationLevel,
+    VerificationLimits? verificationLimits,
+    ProofOfAddress? proofOfAddress,
+    String? tin,
+    NbiClearance? nbiClearance,
+    @Default(BackgroundCheckStatus.none) BackgroundCheckStatus backgroundCheckStatus,
+    @Default(AccountStatus.guest) AccountStatus accountStatus,
+    @Default(0) int otpFailureCount,
+    DateTime? lastOtpAttempt,
+    // REVISED Revenue Model - Subscription
+    @Default(SubscriptionTierType.free) SubscriptionTierType subscriptionTier,
+    @Default(SubscriptionStatus.active) SubscriptionStatus subscriptionStatus,
+    UserSubscription? currentSubscription,
+    // REVISED Revenue Model - Bidding Deposit
+    @Default(false) bool biddingDepositPaid,
+    String? currentDepositId,
+    // REVISED Revenue Model - Token System
+    @Default(0) int tokenBalance,
+    DateTime? tokenBalanceLastUpdated,
+    // REVISED Revenue Model - Listing Quota (Rolling 30-day)
+    @Default(0) int listingsUsedThisMonth,
+    DateTime? listingQuotaResetDate,
+    // REVISED Revenue Model - AutoBid Feature
+    @Default(false) bool autoBidEnabled,
+  }) = _UserModel;
+
+  factory UserModel.fromJson(Map<String, dynamic> json) =>
+      _$UserModelFromJson(json);
+}

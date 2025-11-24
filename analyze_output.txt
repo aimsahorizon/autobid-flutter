@@ -1,0 +1,700 @@
+Analyzing autobid...                                            
+
+   info - 'ProfileScreen' is deprecated and shouldn't be used. Use ProfileTab instead. This screen will be removed in a future version - lib\core\router\app_router.dart:228:44 - deprecated_member_use_from_same_package
+   info - Dangling library doc comment - lib\core\utils\dev_autofill.dart:1:1 - dangling_library_doc_comments
+   info - Type could be non-nullable - lib\core\utils\dev_autofill.dart:171:24 - unnecessary_nullable_for_final_variable_declarations
+   info - Dangling library doc comment - lib\core\utils\listing_autofill_helpers.dart:1:1 - dangling_library_doc_comments
+   info - Missing type annotation - lib\data\models\search_filters.dart:364:7 - strict_top_level_inference
+   info - Missing type annotation - lib\data\models\search_filters.dart:366:7 - strict_top_level_inference
+   info - Missing type annotation - lib\data\models\search_filters.dart:368:7 - strict_top_level_inference
+   info - Missing type annotation - lib\data\models\search_filters.dart:370:7 - strict_top_level_inference
+   info - Missing type annotation - lib\data\models\search_filters.dart:372:7 - strict_top_level_inference
+   info - Missing type annotation - lib\data\models\search_filters.dart:374:7 - strict_top_level_inference
+   info - Missing type annotation - lib\data\models\search_filters.dart:376:7 - strict_top_level_inference
+   info - Missing type annotation - lib\data\models\search_filters.dart:378:7 - strict_top_level_inference
+   info - Missing type annotation - lib\data\models\search_filters.dart:380:7 - strict_top_level_inference
+   info - Missing type annotation - lib\data\models\search_filters.dart:382:7 - strict_top_level_inference
+   info - Missing type annotation - lib\data\models\search_filters.dart:384:7 - strict_top_level_inference
+   info - Import of a library in the 'lib/src' directory of another package - lib\data\models\user_model.dart:1:8 - implementation_imports
+warning - Unused import: 'package:flutter/src/widgets/basic.dart' - lib\data\models\user_model.dart:1:8 - unused_import
+   info - Import of a library in the 'lib/src' directory of another package - lib\data\models\user_model.dart:2:8 - implementation_imports
+   info - The import of 'package:flutter/src/widgets/framework.dart' is unnecessary because all of the used elements are also provided by the import of 'package:freezed_annotation/freezed_annotation.dart' - lib\data\models\user_model.dart:2:8 - unnecessary_import
+warning - The operand can't be 'null', so the condition is always 'true' - lib\data\services\mock\mock_car_service.dart:319:35 - unnecessary_null_comparison
+warning - The operand can't be 'null', so the condition is always 'true' - lib\data\services\mock\mock_car_service.dart:323:40 - unnecessary_null_comparison
+warning - The operand can't be 'null', so the condition is always 'true' - lib\data\services\mock\mock_car_service.dart:341:35 - unnecessary_null_comparison
+warning - The operand can't be 'null', so the condition is always 'true' - lib\data\services\mock\mock_car_service.dart:345:30 - unnecessary_null_comparison
+warning - The operand can't be 'null', so the condition is always 'true' - lib\data\services\mock\mock_car_service.dart:349:36 - unnecessary_null_comparison
+warning - The operand can't be 'null', so the condition is always 'true' - lib\data\services\mock\mock_car_service.dart:363:24 - unnecessary_null_comparison
+warning - The matched value type 'SortBy' can never be equal to this constant of type 'String' - lib\data\services\mock\mock_car_service.dart:365:14 - constant_pattern_never_matches_value_type
+warning - The matched value type 'SortBy' can never be equal to this constant of type 'String' - lib\data\services\mock\mock_car_service.dart:368:14 - constant_pattern_never_matches_value_type
+warning - The matched value type 'SortBy' can never be equal to this constant of type 'String' - lib\data\services\mock\mock_car_service.dart:371:14 - constant_pattern_never_matches_value_type
+warning - The matched value type 'SortBy' can never be equal to this constant of type 'String' - lib\data\services\mock\mock_car_service.dart:374:14 - constant_pattern_never_matches_value_type
+warning - The matched value type 'SortBy' can never be equal to this constant of type 'String' - lib\data\services\mock\mock_car_service.dart:377:14 - constant_pattern_never_matches_value_type
+warning - The matched value type 'SortBy' can never be equal to this constant of type 'String' - lib\data\services\mock\mock_car_service.dart:380:14 - constant_pattern_never_matches_value_type
+   info - Unnecessary braces in a string interpolation - lib\data\services\mock\mock_deposit_service.dart:219:47 - unnecessary_brace_in_string_interps
+   info - The local variable '_createMockTransaction' starts with an underscore - lib\data\services\mock\mock_payment_service.dart:398:17 - no_leading_underscores_for_local_identifiers
+  error - The element type 'num' can't be assigned to the map value type 'double' - lib\domain\services\revenue_calculator.dart:96:21 - map_value_type_not_assignable
+warning - The declaration '_roundUpToNearest' isn't referenced - lib\domain\services\revenue_calculator.dart:201:17 - unused_element
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:248:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:250:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:258:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:259:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:260:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:261:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:262:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:265:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:266:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:267:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:268:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:269:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:270:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:272:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:273:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:274:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:275:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:276:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:277:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:279:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:280:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:281:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:282:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:283:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:285:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:286:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:292:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:293:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:294:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:295:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:297:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:303:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:304:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:305:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\domain\services\revenue_calculator.dart:306:5 - avoid_print
+   info - 'creditDeposit' is deprecated and shouldn't be used. Use processWinnerDeposit() instead - lib\presentation\providers\deposit_provider.dart:115:37 - deprecated_member_use_from_same_package
+   info - The import of 'package:flutter_riverpod/flutter_riverpod.dart' is unnecessary because all of the used elements are also provided by the import of 'package:riverpod_annotation/riverpod_annotation.dart' - lib\presentation\providers\onboarding_provider.dart:1:8 - unnecessary_import
+warning - Unused import: 'package:autobid/presentation/providers/auth_provider.dart' - lib\presentation\providers\subscription_provider.dart:6:8 - unused_import
+  error - Undefined class 'TokenServiceRef' - lib\presentation\providers\token_provider.dart:13:31 - undefined_class
+  error - Undefined class 'UserTokenBalanceRef' - lib\presentation\providers\token_provider.dart:21:30 - undefined_class
+  error - Undefined class 'UserTokenTransactionsRef' - lib\presentation\providers\token_provider.dart:29:3 - undefined_class
+  error - Undefined class 'UserTokenPurchasesRef' - lib\presentation\providers\token_provider.dart:39:3 - undefined_class
+  error - Undefined class 'UserTokenStatisticsRef' - lib\presentation\providers\token_provider.dart:49:3 - undefined_class
+  error - Undefined class 'CanDeductTokenRef' - lib\presentation\providers\token_provider.dart:59:3 - undefined_class
+  error - Undefined class 'TokenPurchaseTiersRef' - lib\presentation\providers\token_provider.dart:72:50 - undefined_class
+  error - Undefined class 'CurrentUserTokenBalanceRef' - lib\presentation\providers\token_provider.dart:80:37 - undefined_class
+   info - Unnecessary use of multiple underscores - lib\presentation\providers\token_provider.dart:89:16 - unnecessary_underscores
+  error - Undefined class 'CurrentUserTokenTransactionsRef' - lib\presentation\providers\token_provider.dart:96:3 - undefined_class
+   info - Unnecessary use of multiple underscores - lib\presentation\providers\token_provider.dart:106:16 - unnecessary_underscores
+  error - Undefined class 'CurrentUserTokenStatisticsRef' - lib\presentation\providers\token_provider.dart:113:3 - undefined_class
+   info - Unnecessary use of multiple underscores - lib\presentation\providers\token_provider.dart:137:16 - unnecessary_underscores
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\admin\admin_debug_panel.dart:70:61 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\admin\admin_debug_panel.dart:112:36 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\admin\admin_debug_panel.dart:142:38 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\admin\admin_debug_panel.dart:223:41 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\admin\admin_debug_panel.dart:250:45 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\admin\admin_debug_panel.dart:250:58 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\admin\admin_debug_panel.dart:258:47 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\admin\admin_debug_panel.dart:291:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\admin\admin_debug_panel.dart:415:22 - deprecated_member_use
+warning - Unused import: '../../../data/models/car_model.dart' - lib\presentation\screens\auction\auction_detail_screen.dart:8:8 - unused_import
+  error - The type 'Consumer' is declared with 0 type parameters, but 1 type arguments were given - lib\presentation\screens\auction\auction_detail_screen.dart:60:13 - wrong_number_of_type_arguments
+  error - The getter 'selectedAuction' isn't defined for the type 'WidgetRef' - lib\presentation\screens\auction\auction_detail_screen.dart:62:36 - undefined_getter
+  error - The method 'isWatching' isn't defined for the type 'WidgetRef' - lib\presentation\screens\auction\auction_detail_screen.dart:83:34 - undefined_method
+  error - The method 'isWatching' isn't defined for the type 'WidgetRef' - lib\presentation\screens\auction\auction_detail_screen.dart:84:41 - undefined_method
+  error - The method 'isWatching' isn't defined for the type 'WidgetRef' - lib\presentation\screens\auction\auction_detail_screen.dart:87:38 - undefined_method
+  error - The method 'unwatchAuction' isn't defined for the type 'WidgetRef' - lib\presentation\screens\auction\auction_detail_screen.dart:88:36 - undefined_method
+  error - The method 'watchAuction' isn't defined for the type 'WidgetRef' - lib\presentation\screens\auction\auction_detail_screen.dart:90:36 - undefined_method
+  error - The method 'getUserBidStatus' isn't defined for the type 'WidgetRef' - lib\presentation\screens\auction\auction_detail_screen.dart:143:51 - undefined_method
+  error - The method 'getUserBidAmount' isn't defined for the type 'WidgetRef' - lib\presentation\screens\auction\auction_detail_screen.dart:144:51 - undefined_method
+  error - The method 'placeBid' isn't defined for the type 'WidgetRef' - lib\presentation\screens\auction\auction_detail_screen.dart:183:62 - undefined_method
+  error - The argument type 'WidgetRef' can't be assigned to the parameter type 'AuctionProvider'.  - lib\presentation\screens\auction\auction_detail_screen.dart:210:89 - argument_type_not_assignable
+  error - The getter 'type' isn't defined for the type 'SubscriptionTierType' - lib\presentation\screens\auction\auction_detail_screen.dart:334:47 - undefined_getter
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\auction\auction_detail_screen.dart:480:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\auction\tabs\bid_history_tab.dart:142:65 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\auction\widgets\auto_bid_dialog.dart:176:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\auction\widgets\auto_bid_dialog.dart:287:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\auction\widgets\auto_bid_dialog.dart:330:62 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\auction\widgets\auto_bid_dialog.dart:341:55 - deprecated_member_use
+warning - Unused import: '../../../providers/auth_provider.dart' - lib\presentation\screens\auction\widgets\bid_input_widget.dart:9:8 - unused_import
+  error - The getter 'first' isn't defined for the type 'AsyncValue<int>' - lib\presentation\screens\auction\widgets\bid_input_widget.dart:117:45 - undefined_getter
+warning - The value of the local variable 'tokenBalanceAsync' isn't used - lib\presentation\screens\auction\widgets\bid_input_widget.dart:137:11 - unused_local_variable
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auction\widgets\bid_input_widget.dart:158:43 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\auction\widgets\bid_input_widget.dart:158:56 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auction\widgets\bid_input_widget.dart:164:80 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auction\widgets\bid_input_widget.dart:171:49 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\auction\widgets\current_bid_card.dart:86:54 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\dual_otp_verification_screen.dart:151:47 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\dual_otp_verification_screen.dart:203:49 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\dual_otp_verification_screen.dart:300:41 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\auth\dual_otp_verification_screen.dart:300:54 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\dual_otp_verification_screen.dart:306:41 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\dual_otp_verification_screen.dart:342:42 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\auth\dual_otp_verification_screen.dart:355:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\auth\dual_otp_verification_screen.dart:422:49 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\dual_otp_verification_screen.dart:484:53 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\dual_otp_verification_screen.dart:513:56 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\dual_otp_verification_screen.dart:571:37 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\dual_otp_verification_screen.dart:601:30 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\entry_screen.dart:33:43 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\entry_screen.dart:46:41 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\auth\entry_screen.dart:46:54 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\entry_screen.dart:52:41 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\entry_screen.dart:64:45 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\entry_screen.dart:122:41 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\entry_screen.dart:127:43 - deprecated_member_use_from_same_package
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\presentation\screens\auth\forgot_password_screen.dart:79:34 - use_build_context_synchronously
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\forgot_password_screen.dart:110:49 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\forgot_password_screen.dart:162:45 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\auth\forgot_password_screen.dart:162:58 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\forgot_password_screen.dart:168:45 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\forgot_password_screen.dart:231:47 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\legal\privacy_policy_screen.dart:13:41 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\legal\privacy_policy_screen.dart:26:43 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\legal\terms_and_conditions_screen.dart:13:41 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\legal\terms_and_conditions_screen.dart:26:43 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\login_dual_otp_screen.dart:106:47 - deprecated_member_use_from_same_package
+   info - Don't use 'BuildContext's across async gaps - lib\presentation\screens\auth\login_dual_otp_screen.dart:153:32 - use_build_context_synchronously
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\login_dual_otp_screen.dart:156:47 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\login_dual_otp_screen.dart:219:56 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\login_dual_otp_screen.dart:244:30 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\login_dual_otp_screen.dart:288:44 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\login_dual_otp_screen.dart:303:45 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\auth\login_dual_otp_screen.dart:404:49 - deprecated_member_use
+   info - The import of 'package:flutter/services.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\presentation\screens\auth\login_screen.dart:2:8 - unnecessary_import
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\login_screen.dart:211:41 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\login_screen.dart:411:45 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\login_screen.dart:421:47 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\login_screen.dart:466:62 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\login_screen.dart:489:49 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\login_screen.dart:503:47 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\otp_verification_screen.dart:145:49 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\otp_verification_screen.dart:218:41 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\auth\otp_verification_screen.dart:218:54 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\otp_verification_screen.dart:224:41 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\otp_verification_screen.dart:254:45 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\auth\otp_verification_screen.dart:268:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\auth\otp_verification_screen.dart:307:49 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\otp_verification_screen.dart:367:53 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\otp_verification_screen.dart:386:43 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\otp_verification_screen.dart:422:37 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\reset_password_screen.dart:128:45 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\auth\reset_password_screen.dart:128:58 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\reset_password_screen.dart:134:45 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step1_account.dart:162:49 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step1_account.dart:181:47 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step1_account.dart:269:59 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step1_account.dart:282:65 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step1_account.dart:310:59 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step1_account.dart:323:65 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step1_account.dart:365:49 - deprecated_member_use_from_same_package
+warning - Unused import: 'package:go_router/go_router.dart' - lib\presentation\screens\auth\signup\signup_step2_otp.dart:2:8 - unused_import
+warning - The value of the field '_verifiedEmailOtp' isn't used - lib\presentation\screens\auth\signup\signup_step2_otp.dart:30:11 - unused_field
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step2_otp.dart:89:41 - deprecated_member_use_from_same_package
+   info - Don't use 'BuildContext's across async gaps - lib\presentation\screens\auth\signup\signup_step2_otp.dart:133:30 - use_build_context_synchronously
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step2_otp.dart:136:45 - deprecated_member_use_from_same_package
+   info - Don't use 'BuildContext's across async gaps - lib\presentation\screens\auth\signup\signup_step2_otp.dart:140:30 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\presentation\screens\auth\signup\signup_step2_otp.dart:172:30 - use_build_context_synchronously
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step2_otp.dart:209:64 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step2_otp.dart:239:49 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step2_otp.dart:256:45 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step2_otp.dart:278:42 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step2_otp.dart:362:30 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step2_personal.dart:77:39 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step2_personal.dart:156:49 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step2_personal.dart:175:47 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step2_personal.dart:233:55 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step2_personal.dart:258:55 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step2_personal.dart:271:55 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step2_personal.dart:284:55 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step3_address.dart:123:49 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step3_address.dart:143:47 - deprecated_member_use_from_same_package
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\auth\signup\signup_step3_address.dart:174:29 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\auth\signup\signup_step3_address.dart:227:29 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\auth\signup\signup_step3_address.dart:282:29 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\auth\signup\signup_step3_address.dart:364:29 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step4_primary_id.dart:208:49 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step4_primary_id.dart:227:47 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step4_primary_id.dart:356:34 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step5_secondary_id.dart:199:49 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step5_secondary_id.dart:218:47 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step5_secondary_id.dart:379:34 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step6_selfie.dart:165:49 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step6_selfie.dart:182:45 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step6_selfie.dart:300:34 - deprecated_member_use_from_same_package
+warning - The value of the local variable 'colorScheme' isn't used - lib\presentation\screens\auth\signup\signup_step7_proof_address.dart:52:11 - unused_local_variable
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step7_proof_address.dart:67:49 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step7_proof_address.dart:84:45 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step7_proof_address.dart:102:60 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step7_proof_address.dart:107:60 - deprecated_member_use_from_same_package
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\auth\signup\signup_step7_proof_address.dart:144:17 - deprecated_member_use
+warning - The declaration '_handleNext' isn't referenced - lib\presentation\screens\auth\signup\signup_step7_proof_address.dart:266:8 - unused_element
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step8_review.dart:120:55 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step8_review.dart:392:45 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_step8_review.dart:400:51 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_success_screen.dart:22:41 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_success_screen.dart:28:41 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_success_screen.dart:36:45 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup\signup_success_screen.dart:144:37 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup_screen.dart:210:47 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup_screen.dart:340:51 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup_screen.dart:356:55 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\auth\signup_screen.dart:417:49 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\guest\guest_view_screen.dart:30:41 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\guest\guest_view_screen.dart:45:43 - deprecated_member_use_from_same_package
+   info - Don't use 'BuildContext's across async gaps - lib\presentation\screens\guest\tabs\account_tab.dart:65:11 - use_build_context_synchronously
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\guest\tabs\account_tab.dart:190:35 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\guest\tabs\account_tab.dart:190:48 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\guest\tabs\account_tab.dart:230:43 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\guest\tabs\account_tab.dart:295:45 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\guest\tabs\account_tab.dart:309:43 - deprecated_member_use_from_same_package
+warning - Unused import: 'package:go_router/go_router.dart' - lib\presentation\screens\guest\tabs\browse_tab.dart:2:8 - unused_import
+   info - Unnecessary use of multiple underscores - lib\presentation\screens\guest\tabs\browse_tab.dart:490:57 - unnecessary_underscores
+   info - Unnecessary use of multiple underscores - lib\presentation\screens\guest\tabs\browse_tab.dart:490:61 - unnecessary_underscores
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\guest\tabs\browse_tab.dart:544:59 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\guest\widgets\account_status_card.dart:23:41 - deprecated_member_use_from_same_package
+   info - Unnecessary use of multiple underscores - lib\presentation\screens\home\home_screen.dart:331:30 - unnecessary_underscores
+warning - The declaration '_WatchingTab' isn't referenced - lib\presentation\screens\home\tabs\my_bids_tab.dart:316:7 - unused_element
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\home\tabs\my_bids_tab.dart:587:45 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\home\tabs\my_bids_tab.dart:626:51 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\home\tabs\my_bids_tab.dart:642:58 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\home\tabs\my_bids_tab.dart:749:51 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\home\tabs\my_bids_tab.dart:765:58 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\home\tabs\my_bids_tab.dart:790:50 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\home\tabs\my_bids_tab.dart:804:82 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\home\tabs\my_listings_tab.dart:258:51 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:319:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:331:56 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:610:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:617:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:675:53 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:678:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:686:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:718:59 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:740:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:743:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:760:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:858:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:916:53 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:919:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:927:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:959:59 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:1183:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:1186:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:1203:60 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\home\tabs\my_listings_tab.dart:1409:47 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:1568:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:1587:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:1609:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:1617:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:1628:45 - deprecated_member_use
+  error - Undefined name 'SubscriptionTierType' - lib\presentation\screens\home\tabs\my_listings_tab.dart:1635:63 - undefined_identifier
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab.dart:1658:37 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\home\tabs\my_listings_tab_kyc_modal.dart:105:41 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\home\tabs\my_listings_tab_kyc_modal.dart:128:65 - deprecated_member_use_from_same_package
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\home\tabs\my_listings_tab_kyc_modal.dart:170:25 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\home\tabs\my_listings_tab_kyc_modal.dart:224:76 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\home\tabs\my_listings_tab_kyc_modal.dart:226:68 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\home\tabs\my_listings_tab_kyc_modal.dart:242:80 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\home\tabs\my_listings_tab_kyc_modal.dart:244:72 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab_kyc_modal.dart:253:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\home\tabs\my_listings_tab_kyc_modal.dart:255:73 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\home\tabs\my_listings_tab_kyc_modal.dart:308:51 - deprecated_member_use_from_same_package
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre - lib\presentation\screens\home\tabs\profile_tab.dart:444:25 - deprecated_member_use
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\presentation\screens\home\tabs\profile_tab.dart:540:9 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\presentation\screens\home\tabs\profile_tab.dart:552:23 - use_build_context_synchronously
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\listings\create\create_listing_step1_basic.dart:101:15 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\listings\create\create_listing_step1_basic.dart:128:15 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\listings\create\create_listing_step1_basic.dart:161:15 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\create\create_listing_step1_basic.dart:217:44 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\create\create_listing_step4_exterior.dart:187:56 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - lib\presentation\screens\listings\create\create_listing_step4_exterior.dart:191:21 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - lib\presentation\screens\listings\create\create_listing_step4_exterior.dart:192:21 - deprecated_member_use
+   info - Unnecessary braces in a string interpolation - lib\presentation\screens\listings\create\create_listing_step5_condition.dart:305:33 - unnecessary_brace_in_string_interps
+   info - Statements in an if should be enclosed in a block - lib\presentation\screens\listings\create\create_listing_step5_condition.dart:651:56 - curly_braces_in_flow_control_structures
+   info - Unnecessary braces in a string interpolation - lib\presentation\screens\listings\create\create_listing_step5_condition.dart:669:37 - unnecessary_brace_in_string_interps
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\create\create_listing_step5_photos.dart:97:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\create\create_listing_step5_photos.dart:145:56 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\listings\create\create_listing_step6_documentation.dart:201:15 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\listings\create\create_listing_step6_documentation.dart:225:15 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\create\create_listing_step6_review.dart:256:32 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\listings\create\create_listing_step6_review.dart:286:80 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\listings\create\create_listing_step6_review.dart:299:80 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\create\create_listing_step7_photos.dart:193:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\create\create_listing_step7_photos.dart:407:50 - deprecated_member_use
+   info - Unnecessary use of 'toList' in a spread - lib\presentation\screens\listings\create\create_listing_step7_photos.dart:503:12 - unnecessary_to_list_in_spreads
+warning - Unused import: '../../../../core/utils/enum_extensions.dart' - lib\presentation\screens\listings\create\create_listing_step8_review.dart:5:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\create\create_listing_step8_review.dart:276:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\create\create_listing_step8_review.dart:406:57 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\create\create_listing_step8_review.dart:529:59 - deprecated_member_use
+   info - Unnecessary use of 'toList' in a spread - lib\presentation\screens\listings\create\create_listing_step8_review.dart:572:16 - unnecessary_to_list_in_spreads
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\create\create_listing_step8_review.dart:600:56 - deprecated_member_use
+warning - Unused import: '../../../widgets/token_top_up_sheet.dart' - lib\presentation\screens\listings\create\create_listing_step9_summary.dart:14:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\create\create_listing_step9_summary.dart:325:59 - deprecated_member_use
+   info - Unnecessary use of 'toList' in a spread - lib\presentation\screens\listings\create\create_listing_step9_summary.dart:339:20 - unnecessary_to_list_in_spreads
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\create\create_listing_step9_summary.dart:350:43 - deprecated_member_use
+  error - The getter 'type' isn't defined for the type 'SubscriptionTierType' - lib\presentation\screens\listings\create\create_listing_step9_summary.dart:428:40 - undefined_getter
+   info - Don't use 'BuildContext's across async gaps - lib\presentation\screens\listings\create\create_listing_step9_summary.dart:447:7 - use_build_context_synchronously
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\listings\create\listing_success_screen.dart:23:41 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\listings\create\listing_success_screen.dart:29:41 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\listings\create\listing_success_screen.dart:38:45 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\listings\create\listing_success_screen.dart:154:37 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\cancelled_listing_detail_screen.dart:102:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\cancelled_listing_detail_screen.dart:117:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\cancelled_listing_detail_screen.dart:119:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\cancelled_listing_detail_screen.dart:135:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\cancelled_listing_detail_screen.dart:272:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\cancelled_listing_detail_screen.dart:278:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\cancelled_listing_detail_screen.dart:290:63 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\cancelled_listing_detail_screen.dart:383:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\cancelled_listing_detail_screen.dart:386:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\cancelled_listing_detail_screen.dart:463:59 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\cancelled_listing_detail_screen.dart:548:76 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\pending_listing_detail_screen.dart:112:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\pending_listing_detail_screen.dart:114:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\pending_listing_detail_screen.dart:130:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\pending_listing_detail_screen.dart:170:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\pending_listing_detail_screen.dart:234:57 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\pending_listing_detail_screen.dart:237:59 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\pending_listing_detail_screen.dart:305:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\pending_listing_detail_screen.dart:307:69 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\pending_listing_detail_screen.dart:335:56 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\pending_listing_detail_screen.dart:418:74 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\pending_listings_screen.dart:138:62 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\pending_listings_screen.dart:141:64 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\sold_listing_detail_screen.dart:110:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\sold_listing_detail_screen.dart:112:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\sold_listing_detail_screen.dart:128:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\sold_listing_detail_screen.dart:168:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\sold_listing_detail_screen.dart:219:57 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\sold_listing_detail_screen.dart:222:59 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\sold_listing_detail_screen.dart:298:69 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\sold_listing_detail_screen.dart:372:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\sold_listing_detail_screen.dart:374:69 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\listings\my_listings\sold_listing_detail_screen.dart:401:56 - deprecated_member_use
+   info - Unnecessary use of multiple underscores - lib\presentation\screens\notifications\notifications_screen.dart:47:24 - unnecessary_underscores
+warning - The member 'state' can only be used within 'package:riverpod/src/core/provider/notifier_provider.dart' or a test - lib\presentation\screens\onboarding\onboarding_screen.dart:37:52 - invalid_use_of_visible_for_testing_member
+warning - The member 'state' can only be used within instance members of subclasses of 'AnyNotifier' - lib\presentation\screens\onboarding\onboarding_screen.dart:37:52 - invalid_use_of_protected_member
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\onboarding\onboarding_screen.dart:145:54 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\onboarding\onboarding_screen.dart:164:63 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\onboarding\onboarding_screen.dart:228:39 - deprecated_member_use_from_same_package
+warning - Unused import: '../../../data/models/transaction_model.dart' - lib\presentation\screens\payment\payment_screen.dart:7:8 - unused_import
+warning - Unused import: '../../widgets/custom_button.dart' - lib\presentation\screens\payment\payment_screen.dart:9:8 - unused_import
+warning - The declaration '_submitPayment' isn't referenced - lib\presentation\screens\payment\payment_screen.dart:72:16 - unused_element
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\payment\payment_screen.dart:197:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\payment\payment_screen.dart:199:59 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\payment\payment_screen.dart:267:43 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\payment\payment_screen.dart:275:45 - deprecated_member_use_from_same_package
+warning - The declaration '_buildPaymentMethodSection' isn't referenced - lib\presentation\screens\payment\payment_screen.dart:287:10 - unused_element
+warning - The declaration '_buildBankDetails' isn't referenced - lib\presentation\screens\payment\payment_screen.dart:311:10 - unused_element
+warning - The declaration '_buildUploadProofSection' isn't referenced - lib\presentation\screens\payment\payment_screen.dart:361:10 - unused_element
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\payment\payment_screen.dart:385:40 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\payment\payment_screen.dart:396:44 - deprecated_member_use_from_same_package
+warning - The declaration '_buildReferenceField' isn't referenced - lib\presentation\screens\payment\payment_screen.dart:409:10 - unused_element
+warning - The declaration '_buildTermsCheckbox' isn't referenced - lib\presentation\screens\payment\payment_screen.dart:421:10 - unused_element
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\payment\payment_screen.dart:442:28 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\payment\payment_screen.dart:443:28 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\payment\payment_screen.dart:443:41 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\payment\payment_screen.dart:451:35 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\payment\payment_screen.dart:451:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\payment\payment_screen.dart:470:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\payment\payment_screen.dart:496:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\payment\payment_screen.dart:505:39 - deprecated_member_use
+warning - The declaration '_buildOrDivider' isn't referenced - lib\presentation\screens\payment\payment_screen.dart:516:10 - unused_element
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\payment\widgets\escrow_status_card.dart:82:36 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\payment\widgets\escrow_status_card.dart:98:36 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\payment\widgets\payment_method_card.dart:27:34 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\payment\widgets\payment_method_card.dart:33:32 - deprecated_member_use_from_same_package
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - lib\presentation\screens\payment\widgets\payment_method_card.dart:40:15 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - lib\presentation\screens\payment\widgets\payment_method_card.dart:41:15 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\payment\widgets\payment_method_card.dart:42:43 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\payment\widgets\payment_method_card.dart:57:44 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\payment\widgets\payment_summary.dart:139:45 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\buyer_confirmation_form_screen.dart:235:43 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\buyer_confirmation_form_screen.dart:321:51 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\buyer_confirmation_form_screen.dart:342:31 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\buyer_confirmation_form_screen.dart:342:44 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\buyer_confirmation_form_screen.dart:344:50 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\buyer_confirmation_form_screen.dart:344:63 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\buyer_confirmation_form_screen.dart:351:60 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\buyer_confirmation_form_screen.dart:384:33 - deprecated_member_use_from_same_package
+   info - Unnecessary use of 'toList' in a spread - lib\presentation\screens\pre_transaction\buyer_confirmation_form_screen.dart:482:16 - unnecessary_to_list_in_spreads
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\buyer_confirmation_form_screen.dart:501:72 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\buyer_confirmation_form_screen.dart:554:43 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\buyer_confirmation_form_screen.dart:554:56 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\pre_transaction\buyer_confirmation_form_screen.dart:592:15 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\pre_transaction\buyer_confirmation_form_screen.dart:607:15 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\pre_transaction\buyer_confirmation_form_screen.dart:622:15 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\pre_transaction\buyer_confirmation_form_screen.dart:675:15 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\buyer_confirmation_form_screen.dart:836:86 - deprecated_member_use_from_same_package
+   info - Unnecessary use of 'toList' in a spread - lib\presentation\screens\pre_transaction\buyer_confirmation_form_screen.dart:845:18 - unnecessary_to_list_in_spreads
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\buyer_confirmation_form_screen.dart:914:29 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\buyer_confirmation_form_screen.dart:914:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\combined_review_screen.dart:139:22 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\combined_review_screen.dart:141:41 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\combined_review_screen.dart:424:49 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\combined_review_screen.dart:435:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\combined_review_screen.dart:437:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\combined_review_screen.dart:458:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\combined_review_screen.dart:460:54 - deprecated_member_use
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\presentation\screens\pre_transaction\combined_review_screen.dart:559:38 - use_build_context_synchronously
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\combined_review_screen.dart:619:47 - deprecated_member_use_from_same_package
+   info - Don't use 'BuildContext's across async gaps - lib\presentation\screens\pre_transaction\combined_review_screen.dart:630:24 - use_build_context_synchronously
+   info - The import of 'package:flutter/services.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:2:8 - unnecessary_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:289:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:291:47 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:316:33 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:348:109 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:382:39 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:382:52 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:384:58 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:384:71 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:395:109 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:455:43 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:455:56 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:513:15 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:532:15 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:569:15 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:598:43 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:598:56 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:658:43 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:658:56 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:690:15 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:755:43 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:755:56 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:907:29 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\embedded_buyer_form.dart:907:42 - deprecated_member_use
+   info - The import of 'package:flutter/services.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\presentation\screens\pre_transaction\embedded_seller_form.dart:2:8 - unnecessary_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\embedded_seller_form.dart:296:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\embedded_seller_form.dart:298:47 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\embedded_seller_form.dart:323:33 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\embedded_seller_form.dart:394:86 - deprecated_member_use_from_same_package
+   info - Unnecessary use of 'toList' in a spread - lib\presentation\screens\pre_transaction\embedded_seller_form.dart:406:18 - unnecessary_to_list_in_spreads
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\embedded_seller_form.dart:443:86 - deprecated_member_use_from_same_package
+   info - Unnecessary use of 'toList' in a spread - lib\presentation\screens\pre_transaction\embedded_seller_form.dart:455:18 - unnecessary_to_list_in_spreads
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\pre_transaction\embedded_seller_form.dart:496:15 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\embedded_seller_form.dart:561:86 - deprecated_member_use_from_same_package
+   info - Unnecessary use of 'toList' in a spread - lib\presentation\screens\pre_transaction\embedded_seller_form.dart:573:18 - unnecessary_to_list_in_spreads
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\pre_transaction\embedded_seller_form.dart:628:15 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\embedded_seller_form.dart:726:29 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\embedded_seller_form.dart:726:42 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_confirmation_form_screen.dart:196:31 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_confirmation_form_screen.dart:196:44 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_confirmation_form_screen.dart:198:50 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_confirmation_form_screen.dart:198:63 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - lib\presentation\screens\pre_transaction\pre_transaction_confirmation_form_screen.dart:280:13 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - lib\presentation\screens\pre_transaction\pre_transaction_confirmation_form_screen.dart:281:13 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_confirmation_form_screen.dart:360:82 - deprecated_member_use_from_same_package
+warning - Unused import: 'package:go_router/go_router.dart' - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:5:8 - unused_import
+warning - The value of the field '_isEditingForm' isn't used - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:57:8 - unused_field
+warning - The value of the field '_buyerOtherConditions' isn't used - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:94:11 - unused_field
+warning - The value of the field '_sellerDeliveryDelayClause' isn't used - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:115:11 - unused_field
+   info - Unnecessary braces in a string interpolation - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:218:45 - unnecessary_brace_in_string_interps
+warning - The declaration '_onFormChanged' isn't referenced - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:223:8 - unused_element
+   info - Unnecessary braces in a string interpolation - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:228:40 - unnecessary_brace_in_string_interps
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:481:63 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:529:36 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:531:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:564:30 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:716:11 - deprecated_member_use
+warning - Dead code - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:895:20 - dead_code
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:954:11 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:1057:11 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:1058:11 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:1073:29 - deprecated_member_use
+warning - The value of the local variable 'provider' isn't used - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:1258:11 - unused_local_variable
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:1264:41 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:1377:26 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:1379:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:1425:37 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:1454:55 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:1681:47 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:1698:43 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:1752:49 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:1861:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:1863:57 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:1949:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:1951:57 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:2034:66 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:2057:39 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:2057:52 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:2059:58 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:2059:71 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:2063:72 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:2084:47 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:2104:43 - deprecated_member_use_from_same_package
+warning - The declaration '_buildComparisonCard' isn't referenced - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:2145:10 - unused_element
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:2221:36 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:2231:55 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:2290:33 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:2344:51 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:2430:43 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:2811:64 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:2852:37 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:2862:37 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:2885:36 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:2920:54 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:2936:47 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:2955:45 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3016:36 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3018:55 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3145:35 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3145:48 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3156:49 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3186:64 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3186:77 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3204:55 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3212:51 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3348:59 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3375:33 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3375:46 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3377:52 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3377:65 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3384:69 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3392:45 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3411:51 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3425:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3427:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3554:28 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3555:30 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3555:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3559:32 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3560:34 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3560:47 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3568:71 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3606:54 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3712:36 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3812:31 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3812:44 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3819:56 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3909:38 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:3999:35 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:4198:86 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:4245:51 - deprecated_member_use_from_same_package
+warning - The declaration '_TransactionDetailsReviewScreen' isn't referenced - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:4263:7 - unused_element
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_discussion_screen.dart:4367:55 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_status_screen.dart:173:48 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_status_screen.dart:188:48 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_status_screen.dart:227:36 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_status_screen.dart:251:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\pre_transaction_status_screen.dart:253:47 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_status_screen.dart:361:51 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\pre_transaction_status_screen.dart:420:58 - deprecated_member_use_from_same_package
+   info - Parameter 'key' could be a super parameter - lib\presentation\screens\pre_transaction\ra_8792_pre_transaction_screen.dart:41:9 - use_super_parameters
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\ra_8792_pre_transaction_screen.dart:243:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\ra_8792_pre_transaction_screen.dart:245:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\ra_8792_pre_transaction_screen.dart:270:47 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\seller_confirmation_form_screen.dart:256:43 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\seller_confirmation_form_screen.dart:342:51 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\seller_confirmation_form_screen.dart:363:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\seller_confirmation_form_screen.dart:365:47 - deprecated_member_use
+   info - Unnecessary use of 'toList' in a spread - lib\presentation\screens\pre_transaction\seller_confirmation_form_screen.dart:524:16 - unnecessary_to_list_in_spreads
+   info - Unnecessary use of 'toList' in a spread - lib\presentation\screens\pre_transaction\seller_confirmation_form_screen.dart:557:18 - unnecessary_to_list_in_spreads
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\pre_transaction\seller_confirmation_form_screen.dart:572:72 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\seller_confirmation_form_screen.dart:625:40 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\pre_transaction\seller_confirmation_form_screen.dart:663:15 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\pre_transaction\seller_confirmation_form_screen.dart:678:15 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\pre_transaction\seller_confirmation_form_screen.dart:693:15 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\pre_transaction\seller_confirmation_form_screen.dart:769:15 - deprecated_member_use
+   info - Unnecessary use of 'toList' in a spread - lib\presentation\screens\pre_transaction\seller_confirmation_form_screen.dart:933:18 - unnecessary_to_list_in_spreads
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\seller_confirmation_form_screen.dart:1002:26 - deprecated_member_use
+   info - Parameter 'key' could be a super parameter - lib\presentation\screens\pre_transaction\tabs\agreement_tab.dart:13:9 - use_super_parameters
+   info - Parameter 'key' could be a super parameter - lib\presentation\screens\pre_transaction\tabs\chat_tab.dart:8:9 - use_super_parameters
+   info - Parameter 'key' could be a super parameter - lib\presentation\screens\pre_transaction\tabs\handover_tab.dart:12:9 - use_super_parameters
+   info - Parameter 'key' could be a super parameter - lib\presentation\screens\pre_transaction\tabs\payment_tab.dart:12:9 - use_super_parameters
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\pre_transaction\tabs\payment_tab.dart:297:17 - deprecated_member_use
+   info - Parameter 'key' could be a super parameter - lib\presentation\screens\pre_transaction\tabs\progress_audit_tab.dart:12:9 - use_super_parameters
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\pre_transaction\tabs\progress_audit_tab.dart:224:48 - deprecated_member_use
+   info - Parameter 'key' could be a super parameter - lib\presentation\screens\pre_transaction\tabs\verification_tab.dart:14:9 - use_super_parameters
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\pre_transaction\tabs\verification_tab.dart:226:11 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\profile\edit_profile_screen.dart:203:15 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\screens\profile\help_support_screen.dart:184:19 - deprecated_member_use
+   info - 'ProfileScreen' is deprecated and shouldn't be used. Use ProfileTab instead. This screen will be removed in a future version - lib\presentation\screens\profile\profile_screen.dart:12:41 - deprecated_member_use_from_same_package
+  error - The argument type 'String?' can't be assigned to the parameter type 'String'.  - lib\presentation\screens\profile\security_settings_screen.dart:103:62 - argument_type_not_assignable
+  error - The argument type 'String?' can't be assigned to the parameter type 'String'.  - lib\presentation\screens\profile\security_settings_screen.dart:121:23 - argument_type_not_assignable
+  error - The argument type 'String?' can't be assigned to the parameter type 'String'.  - lib\presentation\screens\profile\security_settings_screen.dart:127:27 - argument_type_not_assignable
+  error - The argument type 'String?' can't be assigned to the parameter type 'String'.  - lib\presentation\screens\profile\security_settings_screen.dart:138:62 - argument_type_not_assignable
+  error - The argument type 'String?' can't be assigned to the parameter type 'String'.  - lib\presentation\screens\profile\security_settings_screen.dart:250:62 - argument_type_not_assignable
+  error - The argument type 'String?' can't be assigned to the parameter type 'String'.  - lib\presentation\screens\profile\security_settings_screen.dart:269:23 - argument_type_not_assignable
+  error - The argument type 'String?' can't be assigned to the parameter type 'String'.  - lib\presentation\screens\profile\security_settings_screen.dart:275:27 - argument_type_not_assignable
+  error - The argument type 'String?' can't be assigned to the parameter type 'String'.  - lib\presentation\screens\profile\security_settings_screen.dart:293:62 - argument_type_not_assignable
+warning - The member 'state' can only be used within 'package:riverpod/src/core/provider/notifier_provider.dart' or a test - lib\presentation\screens\splash\splash_screen.dart:29:52 - invalid_use_of_visible_for_testing_member
+warning - The member 'state' can only be used within instance members of subclasses of 'AnyNotifier' - lib\presentation\screens\splash\splash_screen.dart:29:52 - invalid_use_of_protected_member
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\splash\splash_screen.dart:42:39 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\subscription\subscription_selection_screen.dart:127:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\screens\subscription\subscription_selection_screen.dart:176:35 - deprecated_member_use
+warning - The value of the local variable 'subscription' isn't used - lib\presentation\screens\subscription\subscription_selection_screen.dart:444:15 - unused_local_variable
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - lib\presentation\screens\transaction\request_refund_screen.dart:247:13 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - lib\presentation\screens\transaction\request_refund_screen.dart:248:13 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\transaction\submit_transfer_evidence_screen.dart:168:30 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\transaction\submit_transfer_evidence_screen.dart:253:33 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\transaction\submit_transfer_evidence_screen.dart:296:33 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\transaction\submit_transfer_evidence_screen.dart:339:33 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\transaction\submit_transfer_evidence_screen.dart:382:33 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\transaction\submit_transfer_evidence_screen.dart:431:33 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\transaction\submit_transfer_evidence_screen.dart:475:33 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\transaction\submit_transfer_evidence_screen.dart:587:33 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\transaction\submit_transfer_evidence_screen.dart:748:65 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\transaction\submit_transfer_evidence_screen.dart:780:41 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\transaction\widgets\timeline_widget.dart:56:39 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\screens\transaction\widgets\timeline_widget.dart:65:39 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\card_payment_dialog.dart:156:47 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\card_payment_dialog.dart:156:60 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\card_payment_dialog.dart:161:47 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\card_payment_dialog.dart:196:43 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\card_payment_dialog.dart:196:56 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\card_payment_dialog.dart:199:45 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\card_payment_dialog.dart:199:58 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\card_payment_dialog.dart:217:49 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\card_payment_dialog.dart:322:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\card_payment_dialog.dart:324:59 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\card_payment_dialog.dart:359:59 - deprecated_member_use_from_same_package
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre - lib\presentation\widgets\condition_toggle.dart:55:7 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\creatable_dropdown.dart:117:64 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\creatable_dropdown.dart:154:64 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\creatable_dropdown.dart:186:33 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\custom_button.dart:38:56 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\custom_button.dart:52:51 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\custom_button.dart:66:60 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\custom_button.dart:83:62 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\loading_indicator.dart:22:39 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\payment\mock_card_input.dart:147:33 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\payment\mock_card_input.dart:236:56 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\payment\mock_card_input.dart:275:56 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\payment\mock_card_input.dart:313:56 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\payment\mock_card_input.dart:346:56 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\payment\mock_payment_sheet.dart:218:28 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\payment\mock_payment_sheet.dart:219:28 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\payment\mock_payment_sheet.dart:219:41 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\payment\mock_payment_sheet.dart:296:47 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\payment\mock_payment_sheet.dart:337:40 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\payment\mock_payment_sheet.dart:344:43 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\payment\mock_payment_sheet.dart:387:43 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\payment\test_cards_info.dart:116:43 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\widgets\ph_address_picker.dart:206:13 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\presentation\widgets\ph_address_picker.dart:284:13 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\pre_transaction_progress_tracker.dart:28:33 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\pre_transaction_progress_tracker.dart:65:52 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\pre_transaction_progress_tracker.dart:69:54 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\pre_transaction_progress_tracker.dart:102:52 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\pre_transaction_progress_tracker.dart:117:46 - deprecated_member_use_from_same_package
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\pre_transaction_progress_tracker.dart:130:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\pre_transaction_progress_tracker.dart:133:42 - deprecated_member_use
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\pre_transaction_progress_tracker.dart:266:31 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\pre_transaction_progress_tracker.dart:268:31 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\signup_stepper.dart:32:46 - deprecated_member_use_from_same_package
+   info - 'primaryGreen' is deprecated and shouldn't be used. Use primary instead - lib\presentation\widgets\signup_stepper.dart:57:43 - deprecated_member_use_from_same_package
+   info - Unnecessary use of multiple underscores - lib\presentation\widgets\token_balance_icon.dart:20:18 - unnecessary_underscores
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\token_balance_icon.dart:47:58 - deprecated_member_use
+   info - Unnecessary use of multiple underscores - lib\presentation\widgets\token_top_up_sheet.dart:87:32 - unnecessary_underscores
+   info - Unnecessary use of multiple underscores - lib\presentation\widgets\token_top_up_sheet.dart:366:18 - unnecessary_underscores
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\token_wallet_card.dart:33:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\token_wallet_card.dart:53:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\token_wallet_card.dart:99:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\token_wallet_card.dart:129:49 - deprecated_member_use
+   info - Unnecessary use of multiple underscores - lib\presentation\widgets\token_wallet_card.dart:141:30 - unnecessary_underscores
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\token_wallet_card.dart:157:37 - deprecated_member_use
+   info - Unnecessary use of multiple underscores - lib\presentation\widgets\token_wallet_card.dart:191:24 - unnecessary_underscores
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\token_wallet_card.dart:205:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\token_wallet_card.dart:219:33 - deprecated_member_use
+   info - Unnecessary use of multiple underscores - lib\presentation\widgets\token_wallet_card.dart:312:18 - unnecessary_underscores
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\presentation\widgets\token_wallet_card.dart:330:28 - deprecated_member_use
+

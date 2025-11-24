@@ -1,0 +1,379 @@
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../../../../core/constants/color_constants.dart';
+import '../../../../core/utils/validators.dart';
+import '../../../../core/utils/demo_data_helper.dart';
+import '../../../../data/services/local/local_storage_service.dart';
+import '../../../providers/signup_provider.dart';
+import '../../../widgets/custom_text_field.dart';
+import '../../../widgets/custom_button.dart';
+import '../../../widgets/signup_stepper.dart';
+import 'signup_step_mixin.dart';
+import '../legal/terms_and_conditions_screen.dart';
+import '../legal/privacy_policy_screen.dart';
+
+class SignupStep1Account extends StatefulWidget {
+  const SignupStep1Account({super.key});
+
+  @override
+  State<SignupStep1Account> createState() => _SignupStep1AccountState();
+}
+
+class _SignupStep1AccountState extends State<SignupStep1Account>
+    with SignupStepMixin {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _phoneController = TextEditingController();
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    final provider = context.read<SignupProvider>();
+    _emailController.text = provider.email;
+    _passwordController.text = provider.password;
+    _confirmPasswordController.text = provider.confirmPassword;
+    _phoneController.text = provider.phoneNumber;
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
+
+  void _autoFillDemo() {
+    final provider = context.read<SignupProvider>();
+    provider.autoFillStep1();
+
+    // Update controllers
+    _emailController.text = provider.email;
+    _passwordController.text = provider.password;
+    _confirmPasswordController.text = provider.confirmPassword;
+    _phoneController.text = provider.phoneNumber;
+
+    DemoDataHelper.showDemoFilledMessage(context);
+  }
+
+  Future<void> _handleNext() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final provider = context.read<SignupProvider>();
+
+    if (!provider.termsAccepted || !provider.privacyAccepted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please accept the Terms and Privacy Policy'),
+          backgroundColor: ColorConstants.error,
+        ),
+      );
+      return;
+    }
+
+    // Check if account already exists
+    try {
+      final storage = await LocalStorageService.getInstance();
+      final email = _emailController.text.trim();
+      final phone = _phoneController.text.trim();
+
+      // Check email
+      final existingUser = storage.getUserByEmailOrPhone(email);
+      if (existingUser != null) {
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Account Exists'),
+            content: const Text(
+              'An account with this email or phone already exists. Check your status in Guest View.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  context.go('/guest?tab=1');
+                },
+                child: const Text('Go to Guest View'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+
+      // Check phone
+      final existingByPhone = storage.getUserByEmailOrPhone(phone);
+      if (existingByPhone != null) {
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Account Exists'),
+            content: const Text(
+              'An account with this email or phone already exists. Check your status in Guest View.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  context.go('/guest?tab=1');
+                },
+                child: const Text('Go to Guest View'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
+    } catch (e) {
+      // Continue if storage check fails
+    }
+
+    provider.setEmail(_emailController.text.trim());
+    provider.setPassword(_passwordController.text);
+    provider.setConfirmPassword(_confirmPasswordController.text);
+    provider.setPhoneNumber(_phoneController.text.trim());
+
+    handleNext('/signup/step3');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Create Account'),
+        centerTitle: true,
+        leading: buildBackButton('/signup/step1'),
+        actions: [
+          if (DemoDataHelper.isDemoModeEnabled)
+            TextButton.icon(
+              onPressed: _autoFillDemo,
+              icon: const Icon(Icons.auto_awesome, size: 18),
+              label: const Text('Demo'),
+              style: TextButton.styleFrom(
+                foregroundColor: ColorConstants.primaryGreen,
+              ),
+            ),
+        ],
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SignupStepper(currentStep: 2, totalSteps: 9),
+                const SizedBox(height: 32),
+                Text(
+                  'Account Information',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: ColorConstants.primaryGreen,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Create your AutoBID account',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                ),
+                const SizedBox(height: 24),
+                CustomTextField(
+                  controller: _emailController,
+                  label: 'Email Address',
+                  hint: 'Enter your email',
+                  keyboardType: TextInputType.emailAddress,
+                  prefixIcon: const Icon(Icons.email_outlined),
+                  validator: Validators.validateEmail,
+                  textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(height: 20),
+                CustomTextField(
+                  controller: _phoneController,
+                  label: 'Phone Number',
+                  hint: '+639XXXXXXXXX',
+                  keyboardType: TextInputType.phone,
+                  prefixIcon: const Icon(Icons.phone_outlined),
+                  validator: Validators.validatePhoneNumber,
+                  textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(height: 20),
+                CustomTextField(
+                  controller: _passwordController,
+                  label: 'Password',
+                  hint: 'Min 8 chars, 1 uppercase, 1 number',
+                  obscureText: _obscurePassword,
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
+                  validator: Validators.validatePassword,
+                  textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(height: 20),
+                CustomTextField(
+                  controller: _confirmPasswordController,
+                  label: 'Confirm Password',
+                  hint: 'Re-enter your password',
+                  obscureText: _obscureConfirmPassword,
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureConfirmPassword
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureConfirmPassword = !_obscureConfirmPassword;
+                      });
+                    },
+                  ),
+                  validator: (value) => Validators.validateConfirmPassword(
+                      value, _passwordController.text),
+                  textInputAction: TextInputAction.done,
+                ),
+                const SizedBox(height: 24),
+                Consumer<SignupProvider>(
+                  builder: (context, provider, child) {
+                    return Column(
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Checkbox(
+                              value: provider.termsAccepted,
+                              onChanged: (value) {
+                                provider.setTermsAccepted(value ?? false);
+                              },
+                              activeColor: ColorConstants.primaryGreen,
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 12),
+                                child: RichText(
+                                  text: TextSpan(
+                                    style: Theme.of(context).textTheme.bodyMedium,
+                                    children: [
+                                      const TextSpan(text: 'I accept the '),
+                                      TextSpan(
+                                        text: 'Terms and Conditions',
+                                        style: const TextStyle(
+                                          color: ColorConstants.primaryGreen,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const TermsAndConditionsScreen(),
+                                              ),
+                                            );
+                                          },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Checkbox(
+                              value: provider.privacyAccepted,
+                              onChanged: (value) {
+                                provider.setPrivacyAccepted(value ?? false);
+                              },
+                              activeColor: ColorConstants.primaryGreen,
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 12),
+                                child: RichText(
+                                  text: TextSpan(
+                                    style: Theme.of(context).textTheme.bodyMedium,
+                                    children: [
+                                      const TextSpan(text: 'I accept the '),
+                                      TextSpan(
+                                        text: 'Privacy Policy',
+                                        style: const TextStyle(
+                                          color: ColorConstants.primaryGreen,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const PrivacyPolicyScreen(),
+                                              ),
+                                            );
+                                          },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 32),
+                CustomButton(
+                  text: getNextButtonText(),
+                  onPressed: _handleNext,
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Already have an account? ',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    TextButton(
+                      onPressed: () => context.go('/login'),
+                      child: Text(
+                        'Login',
+                        style: TextStyle(
+                          color: ColorConstants.primaryGreen,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
